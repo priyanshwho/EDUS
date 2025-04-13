@@ -47,13 +47,12 @@ import Hero from "./components/Hero";
 import Makers from "./components/Makers";
 import Services from "./components/Services";
 
+
 const App = () => {
   return (
     <>
       <div className="pt-[4.75rem] lg:pt-[5.25rem] overflow-hidden">
         <Header />
-        
-          
             <>
               <Hero />
               <About />
@@ -62,8 +61,7 @@ const App = () => {
               <Feedback />
               <Makers />
             </>
-      
-         
+       
       </div>
       <ButtonGradient />
     </>

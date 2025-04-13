@@ -44,7 +44,7 @@ Feedback: ${feedbackData.feedback}
   };
 
   return (
-    <Section id="feedback" className="pt-[8rem] -mt-[5.25rem]" crosses>
+    <Section id="feedback" className="pt-[8rem]  -mt-[5.25rem]" crosses>
       <div className="container relative">
         <div className="flex flex-col-reverse lg:flex-row gap-12 items-center justify-between">
           {/* Form Section */}
@@ -131,7 +131,7 @@ Feedback: ${feedbackData.feedback}
           </div>
 
           {/* Content Section */}
-          <div className="w-full lg:w-[45%] order-1 lg:order-2 text-center lg:text-left">
+          <div className="w-full lg:w-[45%] order-1 -z-2 lg:order-2 text-center lg:text-left">
             <div className="relative z-1 max-w-[35rem] mx-auto lg:mx-0">
               <h1 className="h1 mb-6">
                 Your <span className="text-sky-400 inline-block relative group">

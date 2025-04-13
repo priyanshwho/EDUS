@@ -33,7 +33,7 @@ const Makers = () => {
   const [hoveredIndex, setHoveredIndex] = useState(null);
 
   return (
-    <Section id="makers" className="pt-[8rem] -mt-[5.25rem]" crosses>
+    <Section id="makers" className="pt-[8rem] -z-2 -mt-[5.25rem]" crosses>
       <div className="container relative">
         <div className="text-center mb-12">
           <h1 className="h1 mb-4">
