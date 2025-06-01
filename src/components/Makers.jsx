@@ -20,14 +20,7 @@ const Makers = () => {
       description: 'Backend Architecture & Database Design',
       gradient: 'from-[#DD734F] to-[#1A1A32]'
     },
-    {
-      name: 'Devanshu Kumar',
-      role: 'Frontend Developer',
-      github: 'https://github.com/devanshukumar',
-      linkedin: 'https://linkedin.com/in/devanshu-kumar',
-      description: 'Frontend Development & Animations',
-      gradient: 'from-[#B9AEDF] to-[#1A1A32]'
-    }
+    
   ];
 
   const [hoveredIndex, setHoveredIndex] = useState(null);
