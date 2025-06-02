@@ -59,6 +59,7 @@
 
 import Section from "./Section";
 import Heading from "./Heading";
+import { Link } from "react-router-dom";
 import { service1, service2, service3, check } from "../assets";
 import { brainwaveServices, brainwaveServicesIcons } from "../constants";
 import {
@@ -96,16 +97,26 @@ const Services = () => {
               <p className="body-2  mb-[1.5rem] text-n-3">
                 Edusphere unlocks the potential within you
               </p>
-              <ul className="body-2">
-                {brainwaveServices.map((item, index) => (
-                  <li
-                    key={index}
-                    className="flex items-start py-4 border-t border-n-6"
-                  >
-                    <img width={24} height={24} src={check} />
-                    <p className="ml-4">{item}</p>
-                  </li>
-                ))}
+             <ul className="body-2">
+  {brainwaveServices.map((item, index) => {
+    // Define route paths for each service
+    const routes = ["/pyqs", "/notes", "/lectures"];
+    return (
+      <li
+        key={index}
+        className="flex items-start py-4 border-t border-n-6"
+      >
+        <img width={24} height={24} src={check} />
+        <Link
+          to={routes[index]}
+          className="ml-4 px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+          style={{ display: "inline-block" }}
+        >
+          {item}
+        </Link>
+      </li>
+    );
+  })}
               </ul>
             </div>
 
