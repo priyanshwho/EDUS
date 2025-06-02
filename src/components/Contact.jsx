@@ -64,7 +64,7 @@ ${formData.firstName} ${formData.lastName}
       <div className="container relative">
         <div className="flex flex-col lg:flex-row gap-12 items-start justify-between">
           {/* Left Side - Image and Heading */}
-          <div className="w-full lg:w-5/12 lg:sticky lg:top-20">
+          <div className="w-full lg:w-5/12 -z-2 lg:sticky lg:top-20">
             <h1 className="h1 mb-8">
               Contact <span className="text-sky-400">Us</span>
             </h1>
@@ -173,7 +173,8 @@ ${formData.firstName} ${formData.lastName}
 
                 <Button 
                   type="submit"
-                  className="w-1/2 hover:scale-[1.02] transition-transform duration-300 
+                  className="w-full
+                   hover:scale-[1.02] transition-transform duration-300 
                     hover:shadow-[0_0_20px_rgba(0,157,255,0.4)]"
                 >
                   Proceed
