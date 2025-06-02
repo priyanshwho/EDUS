@@ -41,9 +41,10 @@
 import ButtonGradient from "./assets/svg/ButtonGradient"
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Header from "./components/Header";
-import Hero from "./components/Hero";
-import Makers from "./components/Makers";
-import Services from "./components/Services";
+import HomePage from "./components/HomePage";
+import PyqsPage from "./Pages/Pyqs_Page";
+import NotesPage from "./Pages/Notes_Page";
+import LecturesPage from "./Pages/Lectures_Page";
 
 const App = () => {
   return (
