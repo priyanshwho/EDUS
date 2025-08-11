@@ -12,8 +12,6 @@ import { SignInButton, useClerk , UserButton, useUser } from '@clerk/clerk-react
 
 
 
-
-
 const Header = () => {
     const navigate = useNavigate()
     const location = useLocation()
