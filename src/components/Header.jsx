@@ -1,4 +1,4 @@
-import { useLocation , useNavigate} from 'react-router-dom';
+import { useLocation , useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import Button from "./Button";
 import eduIcon from "../assets/eduIcon.svg"
@@ -6,16 +6,35 @@ import {navigation} from "../constants"
 import {disablePageScroll,enablePageScroll} from "scroll-lock";
 import MenuSvg from "../assets/svg/MenuSvg";
 import {HamburgerMenu} from "./design/Header";
-import { SignInButton, useClerk , UserButton,useUser} from '@clerk/clerk-react'   
+import { SignInButton, useClerk , UserButton, useUser } from '@clerk/clerk-react'
 
 
 
 
 
 const Header = () => {
-    const navigate= useNavigate()
+    const navigate = useNavigate()
+    const location = useLocation()
     const {user} =useUser()
-    const {openSignIn}=useClerk()
+    const { openSignIn } = useClerk()
+
+    // Helper: open sign-in and store intended route for redirect
+    const handleAuthRedirect = (redirectPath) => {
+        if (redirectPath) {
+            localStorage.setItem("redirectAfterLogin", redirectPath)
+        }
+        openSignIn()
+    }
+
+    // On mount, check if just logged in and redirect if needed
+    React.useEffect(() => {
+        const redirectPath = localStorage.getItem("redirectAfterLogin")
+        // Only redirect if user is authenticated and path is set
+        if (redirectPath && user) {
+            navigate(redirectPath)
+            localStorage.removeItem("redirectAfterLogin")
+        }
+    }, [user, navigate])
 
 
     const pathname= useLocation();
@@ -37,7 +56,8 @@ const Header = () => {
     const handleClick = (e, url, item) => {
         e.preventDefault();
         if (item && item.auth) {
-            openSignIn();
+            // Store intended route for redirect after login
+            handleAuthRedirect(item.to || "/pyqs")
         } else if (url) {
             const targetId = url.replace('#', '');
             const target = document.getElementById(targetId);
@@ -77,7 +97,7 @@ return (
                     {
                         user ? <UserButton/> : (
 
-                    <Button onClick={openSignIn} className="hidden lg:flex" >
+        <Button onClick={() => handleAuthRedirect("/pyqs")} className="hidden lg:flex" >
                                     Get Started
                     </Button>
                         )
