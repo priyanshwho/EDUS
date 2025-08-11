@@ -59,21 +59,16 @@ import {
     },
     {
         id: "4",
-        title: "feedback",
-        url: "#feedback",
+        title: "Edu.ai",
+        url: "#Edu.ai",
       },
     {
       id: "5",
-      title: "New account",
+      title: "Get Started",
       url: "#signup",
       onlyMobile: true,
     },
-    {
-      id: "6",
-      title: "Sign in",
-      url: "#login",
-      onlyMobile: true,
-    },
+  
   ];
   
 export const heroIcons = [
