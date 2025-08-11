@@ -46,6 +46,7 @@ import NotesPage from "./Pages/Notes_Page";
 import LecturesPage from "./Pages/Lectures_Page";
 import Homepage from "./components/Homepage";
 import { RedirectToSignIn, SignedIn, SignedOut } from "@clerk/clerk-react";
+import Pyqs_Page from "./Pages/Pyqs_Page";
 
 const App = () => {
   return (
@@ -59,7 +60,7 @@ const App = () => {
       <>
       <SignedIn>
 
-      <PyqsPage/>
+      <Pyqs_Page/>
       </SignedIn>
       <SignedOut>
         <RedirectToSignIn/>
