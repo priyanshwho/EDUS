@@ -1,4 +1,4 @@
-import { useLocation} from 'react-router-dom';
+import { useLocation , useNavigate} from 'react-router-dom';
 import { useState } from 'react';
 import Button from "./Button";
 import eduIcon from "../assets/eduIcon.svg"
@@ -6,12 +6,18 @@ import {navigation} from "../constants"
 import {disablePageScroll,enablePageScroll} from "scroll-lock";
 import MenuSvg from "../assets/svg/MenuSvg";
 import {HamburgerMenu} from "./design/Header";
+import { SignInButton, useClerk , UserButton,useUser} from '@clerk/clerk-react'   
 
 
 
 
 
 const Header = () => {
+    const navigate= useNavigate()
+    const {user} =useUser()
+    const {openSignIn}=useClerk()
+
+
     const pathname= useLocation();
     const [openNavigation, setOpenNavigation] = useState(false);
     
@@ -51,11 +57,14 @@ return (
                             </div>
                                     <HamburgerMenu/>
                     </nav>
-                    <a href="#signup" className='button hidden mr-8 text-n-1/50 transitions-colors hover:text-n-1 lg:block'>
-                    New account</a>
-                    <Button className="hidden lg:flex" href="#login">
-                                    Sign in
+                    {
+                        user ? <UserButton/> : (
+
+                    <Button onClick={openSignIn} className="hidden lg:flex" >
+                                    Get Started
                     </Button>
+                        )
+                    }
 
                                     <Button className="ml-auto lg:hidden" px="px-3" onClick={toggleNavigation}>
                                         <MenuSvg openNavigation={openNavigation}/>
