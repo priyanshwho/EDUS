@@ -44,7 +44,7 @@ import Header from "./components/Header";
 import PyqsPage from "./Pages/Pyqs_Page";
 import NotesPage from "./Pages/Notes_Page";
 import LecturesPage from "./Pages/Lectures_Page";
-import Homepage from "./components/HomePage";
+import Homepage from "./components/Homepage";
 
 const App = () => {
   return (
@@ -53,7 +53,7 @@ const App = () => {
         <Header />
          <>
     <Routes>
-    <Route path="/" element={<Homepage />} />
+    <Route path="/" element={<Homepage/> } />
     <Route path="/pyqs" element={<PyqsPage />} />
     <Route path="/notes" element={<NotesPage />} />
     <Route path="/lectures" element={<LecturesPage />} />
