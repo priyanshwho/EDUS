@@ -65,8 +65,8 @@ import {
     {
       id: "5",
       title: "Get Started",
-      url: "#signup",
       onlyMobile: true,
+      auth: true,
     },
   
   ];

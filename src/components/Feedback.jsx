@@ -144,17 +144,11 @@ Feedback: ${feedbackData.feedback}
                 Help us improve your experience by sharing your thoughts. Your feedback shapes our future updates.
               </p>
               <div className="relative w-full group">
-                <div className="absolute inset-0 rounded-full blur-[6rem] bg-sky-400/20 
-                  transition-all duration-700 group-hover:scale-110 group-hover:opacity-70" />
                 <img 
                   src={ovel}
-                  className="relative w-full max-w-[25rem] md:max-w-[30rem] h-auto aspect-square 
-                    object-contain mx-auto transition-all duration-500 ease-out transform
-                    group-hover:scale-110 group-hover:rotate-12 group-hover:brightness-125"
+                  className="w-full max-w-[25rem] md:max-w-[30rem] h-auto object-contain mx-auto transition-all duration-500 ease-out transform group-hover:scale-110 group-hover:rotate-12 group-hover:brightness-125"
                   alt="feedback illustration"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-n-8/80 to-transparent 
-                  pointer-events-none transition-opacity duration-700 group-hover:opacity-50" />
               </div>
               <BackgroundCircles />
             </div>

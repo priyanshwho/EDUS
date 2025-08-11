@@ -109,7 +109,7 @@ const Services = () => {
         <img width={24} height={24} src={check} />
         <Link
           to={routes[index]}
-          className="ml-4 px-4 pb-2 rounded bg-transparent text-white hover:bg-blue-700 transition-colors"
+          className="ml-4 px-4 pb-2 rounded bg-transparent text-white hover:bg-purple-500 transition-colors"
           style={{ display: "inline-block" }}
         >
           {item}
