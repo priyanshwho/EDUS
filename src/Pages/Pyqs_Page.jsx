@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useMemo } from "react"
+import { Rings, SideLines, BackgroundCircles } from "../components/design/Header"
 import Card from "../components/Ui_Pyqs/Card"
 import Button from "../components/Ui_Pyqs/Button"
 import Badge from "../components/Ui_Pyqs/Badge"
@@ -203,102 +204,150 @@ const Pyqs_Page = () => {
   ]
 
   return (
-    <div className="min-h-screen bg-n-1">
-      {/* Header */}
-      <div className="bg-n-1 border-b border-n-3">
-        <div className="container mx-auto px-5 py-8">
-          <div className="flex items-center gap-4 mb-6">
-            <div className="p-3 bg-gradient-to-r from-color-1 to-color-5 rounded-xl">
-              <FileTextIcon className="h-8 w-8 text-n-1" />
+    <div className="relative min-h-screen bg-gradient-to-br from-n-8 via-n-7 to-n-8 overflow-hidden">
+      {/* Enhanced Themed background */}
+      <div className="absolute inset-0 -z-10 pointer-events-none opacity-60">
+        <Rings />
+        <SideLines />
+        <BackgroundCircles />
+        {/* Additional gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-br from-sky-500/5 via-transparent to-purple-500/10" />
+      </div>
+
+      {/* Premium Header with enhanced design */}
+      <div className="relative bg-gradient-to-r from-n-8/95 via-n-7/95 to-n-8/95 backdrop-blur-xl border-b border-sky-400/20 shadow-2xl">
+        <div className="absolute inset-0 bg-gradient-to-r from-sky-400/5 via-purple-400/5 to-sky-400/5" />
+        <div className="container relative mx-auto px-5 py-16">
+          <div className="flex items-center gap-6 mb-8">
+            <div className="relative group">
+              <div className="absolute inset-0 bg-gradient-to-r from-sky-400 to-purple-500 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity" />
+              <div className="relative p-4 bg-gradient-to-r from-sky-400 to-purple-500 rounded-2xl shadow-xl">
+                <FileTextIcon className="h-10 w-10 text-white" />
+              </div>
             </div>
-             <h1 className="h1 text-n-8 text-5xl">Previous Year Questions</h1>
+            <div>
+              <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold bg-gradient-to-r from-white via-sky-200 to-purple-200 bg-clip-text text-transparent mb-2 tracking-tight">
+                Previous Year Questions
+              </h1>
+              <div className="h-1 w-32 bg-gradient-to-r from-sky-400 to-purple-500 rounded-full" />
+            </div>
           </div>
-          <p className="body-1 text-n-4 max-w-2xl">
-            Access and download previous year question papers to enhance your exam preparation with our comprehensive
-            collection
+          <p className="text-lg text-n-2 max-w-3xl leading-relaxed">
+            Access and download previous year question papers to enhance your exam preparation with our comprehensive collection.
+            <span className="block mt-2 text-sky-300 font-medium">✨ Premium academic resources at your fingertips</span>
           </p>
         </div>
       </div>
 
-      <div className="container mx-auto px-5 py-10">
-        <div className="grid lg:grid-cols-[320px_1fr] gap-10">
-          {/* Filters Sidebar */}
+      <div className="container mx-auto px-5 py-12">
+        <div className="grid lg:grid-cols-[380px_1fr] gap-12">
+          {/* Enhanced Filters Sidebar */}
           <div className="space-y-8">
-            <Card className="p-6 bg-n-1 border border-n-3 rounded-2xl">
-              <div className="flex items-center gap-3 mb-6">
-                <FilterIcon className="h-6 w-6 text-color-1" />
-                <h3 className="h6 text-n-8">Filters</h3>
-              </div>
+            <div className="relative group">
+              {/* Glowing border effect */}
+              <div className="absolute inset-0 bg-gradient-to-r from-sky-400/20 via-purple-400/20 to-sky-400/20 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <Card className="relative p-8 bg-gradient-to-br from-n-7/90 via-n-6/80 to-n-7/90 border border-sky-400/30 rounded-3xl shadow-2xl backdrop-blur-xl">
+                <div className="flex items-center gap-4 mb-8">
+                  <div className="p-2 bg-gradient-to-r from-sky-400/20 to-purple-400/20 rounded-xl">
+                    <FilterIcon className="h-6 w-6 text-sky-300" />
+                  </div>
+                  <h3 className="text-xl font-bold bg-gradient-to-r from-white to-sky-200 bg-clip-text text-transparent">Smart Filters</h3>
+                </div>
 
-              <div className="space-y-6">
-                {/* Search */}
-                <div className="space-y-3">
-                  <label className="caption font-semibold text-n-6 uppercase tracking-wider">Search</label>
-                  <div className="relative">
-                    <SearchIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-n-4" />
-                    <Input
-                      placeholder="Search by title or subject code..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-12"
+                <div className="space-y-8">
+                  {/* Enhanced Search */}
+                  <div className="space-y-4">
+                    <label className="text-sm font-bold text-sky-200 uppercase tracking-widest flex items-center gap-2">
+                      <span className="w-2 h-2 bg-sky-400 rounded-full" />
+                      Search
+                    </label>
+                    <div className="relative group">
+                      <div className="absolute inset-0 bg-gradient-to-r from-sky-400/20 to-purple-400/20 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity" />
+                      <SearchIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-sky-300 z-10" />
+                      <Input
+                        placeholder="Search by title or subject code..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="relative pl-12 bg-n-8/80 border-sky-400/30 text-white placeholder-n-4 focus:border-sky-400 focus:ring-2 focus:ring-sky-400/30 rounded-xl"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Enhanced Branch Filter */}
+                  <div className="space-y-4">
+                    <label className="text-sm font-bold text-sky-200 uppercase tracking-widest flex items-center gap-2">
+                      <span className="w-2 h-2 bg-purple-400 rounded-full" />
+                      Branch
+                    </label>
+                    <Select
+                      value={filters.branch}
+                      onChange={(value) => setFilters({ ...filters, branch: value })}
+                      options={[
+                        { value: "all", label: "All Branches" },
+                        ...branches.map((branch) => ({ value: branch, label: branch })),
+                      ]}
+                      className="bg-n-8/80 border-purple-400/30 text-white"
                     />
                   </div>
-                </div>
 
-                {/* Branch Filter */}
-                <div className="space-y-3">
-                  <label className="caption font-semibold text-n-6 uppercase tracking-wider">Branch</label>
-                  <Select
-                    value={filters.branch}
-                    onChange={(value) => setFilters({ ...filters, branch: value })}
-                    options={[
-                      { value: "all", label: "All Branches" },
-                      ...branches.map((branch) => ({ value: branch, label: branch })),
-                    ]}
-                  />
-                </div>
+                  {/* Enhanced Semester Filter */}
+                  <div className="space-y-4">
+                    <label className="text-sm font-bold text-sky-200 uppercase tracking-widest flex items-center gap-2">
+                      <span className="w-2 h-2 bg-sky-400 rounded-full" />
+                      Semester
+                    </label>
+                    <Select
+                      value={filters.semester}
+                      onChange={(value) => setFilters({ ...filters, semester: value })}
+                      options={[
+                        { value: "all", label: "All Semesters" },
+                        ...semesters.map((semester) => ({ value: semester.toString(), label: `Semester ${semester}` })),
+                      ]}
+                      className="bg-n-8/80 border-sky-400/30 text-white"
+                    />
+                  </div>
 
-                {/* Semester Filter */}
-                <div className="space-y-3">
-                  <label className="caption font-semibold text-n-6 uppercase tracking-wider">Semester</label>
-                  <Select
-                    value={filters.semester}
-                    onChange={(value) => setFilters({ ...filters, semester: value })}
-                    options={[
-                      { value: "all", label: "All Semesters" },
-                      ...semesters.map((semester) => ({ value: semester.toString(), label: `Semester ${semester}` })),
-                    ]}
-                  />
-                </div>
+                  {/* Enhanced Subject Code Filter */}
+                  <div className="space-y-4">
+                    <label className="text-sm font-bold text-sky-200 uppercase tracking-widest flex items-center gap-2">
+                      <span className="w-2 h-2 bg-purple-400 rounded-full" />
+                      Subject Code
+                    </label>
+                    <Input
+                      placeholder="e.g., CS201, EC101"
+                      value={filters.subjectCode}
+                      onChange={(e) => setFilters({ ...filters, subjectCode: e.target.value })}
+                      className="bg-n-8/80 border-purple-400/30 text-white placeholder-n-4 focus:border-purple-400 focus:ring-2 focus:ring-purple-400/30 rounded-xl"
+                    />
+                  </div>
 
-                {/* Subject Code Filter */}
-                <div className="space-y-3">
-                  <label className="caption font-semibold text-n-6 uppercase tracking-wider">Subject Code</label>
-                  <Input
-                    placeholder="e.g., CS201, EC101"
-                    value={filters.subjectCode}
-                    onChange={(e) => setFilters({ ...filters, subjectCode: e.target.value })}
-                  />
-                </div>
+                  {/* Enhanced Year Filter */}
+                  <div className="space-y-4">
+                    <label className="text-sm font-bold text-sky-200 uppercase tracking-widest flex items-center gap-2">
+                      <span className="w-2 h-2 bg-sky-400 rounded-full" />
+                      Year
+                    </label>
+                    <Select
+                      value={filters.year}
+                      onChange={(value) => setFilters({ ...filters, year: value })}
+                      options={[
+                        { value: "all", label: "All Years" },
+                        ...years.map((year) => ({ value: year.toString(), label: year.toString() })),
+                      ]}
+                      className="bg-n-8/80 border-sky-400/30 text-white"
+                    />
+                  </div>
 
-                {/* Year Filter */}
-                <div className="space-y-3">
-                  <label className="caption font-semibold text-n-6 uppercase tracking-wider">Year</label>
-                  <Select
-                    value={filters.year}
-                    onChange={(value) => setFilters({ ...filters, year: value })}
-                    options={[
-                      { value: "all", label: "All Years" },
-                      ...years.map((year) => ({ value: year.toString(), label: year.toString() })),
-                    ]}
-                  />
+                  <Button 
+                    onClick={clearFilters} 
+                    variant="outline" 
+                    className="w-full bg-gradient-to-r from-red-500/20 to-orange-500/20 border-red-400/30 text-red-200 hover:from-red-500/30 hover:to-orange-500/30 hover:border-red-400/50 transition-all duration-300 font-semibold py-3 rounded-xl"
+                  >
+                    Clear All Filters
+                  </Button>
                 </div>
-
-                <Button onClick={clearFilters} variant="outline" className="w-full">
-                  Clear All Filters
-                </Button>
-              </div>
-            </Card>
+              </Card>
+            </div>
           </div>
 
           {/* Main Content */}
@@ -306,13 +355,13 @@ const Pyqs_Page = () => {
             {/* Sort and Results Header */}
             <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
               <div>
-                <h2 className="h3 text-n-8 mb-2">{filteredAndSortedPYQs.length} Question Papers Found</h2>
-                <p className="body-2 text-n-4">Showing results based on your selected filters</p>
+                <h2 className="h3 text-n-1 mb-2 font-bold drop-shadow">{filteredAndSortedPYQs.length} Question Papers Found</h2>
+                <p className="body-2 text-n-3">Showing results based on your selected filters</p>
               </div>
 
               <DropdownMenu
                 trigger={
-                  <Button variant="outline" className="shrink-0">
+                  <Button variant="outline" className="hover:text-black text-yellow-50 shrink-0">
                     <ArrowUpDownIcon className="w-5 h-5 mr-2" />
                     Sort by
                   </Button>
@@ -325,13 +374,13 @@ const Pyqs_Page = () => {
 
             {/* PYQs Grid */}
             {filteredAndSortedPYQs.length === 0 ? (
-              <Card className="p-12 bg-n-1 border border-n-3 rounded-2xl">
+              <Card className="p-12 bg-n-7/80 border border-n-3/30 rounded-2xl shadow-lg backdrop-blur">
                 <div className="flex flex-col items-center justify-center text-center">
                   <div className="p-4 bg-n-2 rounded-2xl mb-6">
                     <FileTextIcon className="h-12 w-12 text-n-4" />
                   </div>
-                  <h3 className="h5 text-n-8 mb-3">No Question Papers Found</h3>
-                  <p className="body-2 text-n-4 max-w-md">
+                  <h3 className="h5 text-n-1 mb-3">No Question Papers Found</h3>
+                  <p className="body-2 text-n-3 max-w-md">
                     Try adjusting your filters or search terms to find more results.
                   </p>
                 </div>
@@ -341,17 +390,17 @@ const Pyqs_Page = () => {
                 {filteredAndSortedPYQs.map((pyq) => (
                   <Card
                     key={pyq.id}
-                    className="p-6 bg-n-1 border border-n-3 rounded-2xl hover:border-color-1 transition-all duration-300 hover:shadow-lg"
+                    className="p-6 bg-n-7/80 border border-n-3/30 rounded-2xl shadow-lg hover:border-color-1 transition-all duration-300 hover:shadow-xl backdrop-blur"
                   >
                     <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6">
                       <div className="flex-1">
                         <div className="flex items-start gap-4 mb-4">
-                          <div className="p-3 bg-gradient-to-r from-color-1 to-color-5 rounded-xl">
+                          <div className="p-3 bg-gradient-to-r from-color-1 to-color-5 rounded-xl shadow">
                             <BookOpenIcon className="h-6 w-6 text-n-1" />
                           </div>
                           <div className="flex-1">
-                            <h3 className="h6 text-n-8 mb-2">{pyq.title}</h3>
-                            <div className="flex items-center gap-3 text-sm text-n-4 mb-3">
+                            <h3 className="h6 text-n-1 mb-2 font-bold drop-shadow">{pyq.title}</h3>
+                            <div className="flex items-center gap-3 text-sm text-n-3 mb-3">
                               <div className="flex items-center gap-1">
                                 <CodeIcon className="h-4 w-4" />
                                 <span className="font-semibold">{pyq.subjectCode}</span>
@@ -373,7 +422,7 @@ const Pyqs_Page = () => {
                           <Badge variant="outline">{pyq.marks} marks</Badge>
                         </div>
 
-                        <p className="caption text-n-4">
+                        <p className="caption text-n-3">
                           Uploaded on{" "}
                           {new Date(pyq.uploadDate).toLocaleDateString("en-US", {
                             year: "numeric",
@@ -384,7 +433,7 @@ const Pyqs_Page = () => {
                       </div>
 
                       <div className="flex flex-col sm:flex-row gap-3">
-                        <Button className="flex items-center gap-2">
+                        <Button className="flex items-center gap-2 bg-gradient-to-r from-color-1 to-color-5 text-white font-semibold shadow-md hover:scale-105 transition-transform">
                           <DownloadIcon className="h-4 w-4" />
                           Download PDF
                         </Button>

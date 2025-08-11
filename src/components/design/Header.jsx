@@ -1,3 +1,4 @@
+
 import { background } from "../../assets";
 
 export const Rings = () => {

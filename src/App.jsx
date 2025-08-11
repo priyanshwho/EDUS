@@ -45,6 +45,7 @@ import PyqsPage from "./Pages/Pyqs_Page";
 import NotesPage from "./Pages/Notes_Page";
 import LecturesPage from "./Pages/Lectures_Page";
 import Homepage from "./components/Homepage";
+import { RedirectToSignIn, SignedIn, SignedOut } from "@clerk/clerk-react";
 
 const App = () => {
   return (
@@ -54,9 +55,39 @@ const App = () => {
          <>
     <Routes>
     <Route path="/" element={<Homepage/> } />
-    <Route path="/pyqs" element={<PyqsPage />} />
-    <Route path="/notes" element={<NotesPage />} />
-    <Route path="/lectures" element={<LecturesPage />} />
+    <Route path="/pyqs" element={
+      <>
+      <SignedIn>
+
+      <PyqsPage/>
+      </SignedIn>
+      <SignedOut>
+        <RedirectToSignIn/>
+      </SignedOut>
+      </>
+  } />
+    <Route path="/notes" element={
+      <>
+      <SignedIn>
+
+      <NotesPage />
+      </SignedIn>
+      <SignedOut>
+        <RedirectToSignIn/>
+      </SignedOut>
+      </>
+      
+      } />
+    <Route path="/lectures" element={
+      <>
+      <SignedIn>
+      <LecturesPage />
+
+      </SignedIn>
+      <SignedOut>
+        <RedirectToSignIn/>
+      </SignedOut>
+      </>} />
     {/* ...other routes */}
   </Routes>
 </>
