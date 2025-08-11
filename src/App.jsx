@@ -37,7 +37,6 @@
 
 // export default App
 
-
 import ButtonGradient from "./assets/svg/ButtonGradient"
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Header from "./components/Header";

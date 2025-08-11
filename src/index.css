@@ -16,10 +16,35 @@
   color-scheme: dark;
 }
 
+body{
+   margin: 0;
+  font-family: var(--font-sora);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 * {
   scroll-behavior: smooth;
   user-select: none;
 
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #cac6dd;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #ac6aff;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #9f53ff;
 }
 
 @layer base {
@@ -92,7 +117,7 @@
   @apply rotate-[-360deg];
 }
 
-html, body, #root {
+html, #root {
   margin: 0;
   padding: 0;
   height: 100%;
