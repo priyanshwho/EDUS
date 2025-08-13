@@ -62,7 +62,7 @@ const Header = () => {
             const targetId = url.replace('#', '');
             const target = document.getElementById(targetId);
             if (target) {
-                const yOffset = -60; // Adjust this value for your header height
+                const yOffset = 170; // Adjust this value for your header height
                 const y = target.getBoundingClientRect().top + window.pageYOffset + yOffset;
                 window.scrollTo({ top: y, behavior: 'smooth' });
             }
@@ -90,7 +90,7 @@ return (
                             <div className="relative z-2 flex flex-col items-center justify-center m-auto lg:flex-row">
                                     {navigation.map((item) => {
                                         // Redirect Home and About to '/'
-                                        const isHomeOrAbout = ["HOME", "ABOUT"].includes(item.title);
+                                        const isHomeOrAbout = ["HOME"].includes(item.title);
                                         return (
                                             <a
                                                 key={item.id}
