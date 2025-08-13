@@ -36,8 +36,25 @@ return (
             <p className='body-1 max-w-3xl mx-auto mb-6 text-n-2 lg:mb-8'>
             Everything you need to survive college—notes, tips, tools, and real support every day.
             </p>
-            <Button className={`text-sky-400`} href="/about" white>
-            Get Started
+            {/* <Button className={`text-sky-400`} href="#Services" white> */}
+            <Button
+              className={`text-sky-400`}
+              white
+              onClick={e => {
+                e.preventDefault();
+                const section = document.querySelector('#Services');
+                if (section) {
+                  const rect = section.getBoundingClientRect();
+                  const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                  // Scroll to section top + 80px offset
+                  window.scrollTo({
+                    top: rect.top + scrollTop + 80,
+                    behavior: 'smooth'
+                  });
+                }
+              }}
+            >
+              Get Started
             </Button>
     </div>
     <div className='relative max-w-[23rem] mx-auto md:max-w-5xl xl:mb-24'>

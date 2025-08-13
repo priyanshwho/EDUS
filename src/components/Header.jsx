@@ -119,7 +119,7 @@ return (
                     {
                         user ? <UserButton/> : (
 
-        <Button onClick={() => handleAuthRedirect("/pyqs")} className="hidden lg:flex" >
+        <Button onClick={() => handleAuthRedirect("/")} className="hidden lg:flex" >
                                     Get Started
                     </Button>
                         )

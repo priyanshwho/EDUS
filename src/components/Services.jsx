@@ -73,7 +73,7 @@ import Generating from "./Generating";
 
 const Services = () => {
   return (
-    <Section id="how-to-use" className="relative scroll-mt-28  z-10">
+    <Section id="Services" className="relative scroll-mt-28  z-10">
       <div className="container">
         <Heading
           title="Courses, We provide:"
