@@ -81,9 +81,19 @@ ${formData.firstName} ${formData.lastName}
                 src={smallSphere}
                 className={`relative w-[25rem] h-[25rem] object-contain transition-all duration-500
                   ${isImageAnimating ? 'scale-110 rotate-12' : 'scale-100 rotate-0'}
-                  group-hover:opacity-100 group-hover:shadow-[0_0_40px_rgba(0,157,255,0.3)]`}
+                  group-hover:opacity-100 group-hover:shadow-[0_0_40px_rgba(0,157,255,0.3)] animate-float`}
                 alt="sphere"
               />
+      <style>{`
+        @keyframes float {
+          0% { transform: translateY(0); }
+          50% { transform: translateY(-18px); }
+          100% { transform: translateY(0); }
+        }
+        .animate-float {
+          animation: float 3s ease-in-out infinite;
+        }
+      `}</style>
             </div>
         <BackgroundCircles />
 

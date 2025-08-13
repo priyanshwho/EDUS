@@ -146,10 +146,20 @@ Feedback: ${feedbackData.feedback}
               <div className="relative w-full group">
                 <img 
                   src={ovel}
-                  className="w-full max-w-[25rem] md:max-w-[30rem] h-auto object-contain mx-auto transition-all duration-500 ease-out transform group-hover:scale-110 group-hover:rotate-12 group-hover:brightness-125"
+                  className="w-full max-w-[25rem] md:max-w-[30rem] h-auto object-contain mx-auto transition-all duration-500 ease-out transform group-hover:scale-110 group-hover:rotate-12 group-hover:brightness-125 animate-float"
                   alt="feedback illustration"
                 />
               </div>
+              <style>{`
+                @keyframes float {
+                  0% { transform: translateY(0); }
+                  50% { transform: translateY(-18px); }
+                  100% { transform: translateY(0); }
+                }
+                .animate-float {
+                  animation: float 3s ease-in-out infinite;
+                }
+              `}</style>
               <BackgroundCircles />
             </div>
           </div>
