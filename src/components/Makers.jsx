@@ -36,7 +36,7 @@ const Makers = () => {
           </p>
         </div>
 
-        <div className="flex pl-44 md:grid-cols-3 gap-8">
+        <div className="flex pl-44 md:flex gap-8">
           {makers.map((maker, index) => (
             <div
               key={maker.name}
