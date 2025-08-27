@@ -1,21 +1,21 @@
 
 import React from 'react';
-import { useLocation , useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import Button from "./Button";
 import eduIcon from "../assets/eduIcon.svg"
-import {navigation} from "../constants"
-import {disablePageScroll,enablePageScroll} from "scroll-lock";
+import { navigation } from "../constants"
+import { disablePageScroll, enablePageScroll } from "scroll-lock";
 import MenuSvg from "../assets/svg/MenuSvg";
-import {HamburgerMenu} from "./design/Header";
-import { SignInButton, useClerk , UserButton, useUser } from '@clerk/clerk-react'
+import { HamburgerMenu } from "./design/Header";
+import { useClerk, UserButton, useUser } from '@clerk/clerk-react'
 
 
 
 const Header = () => {
     const navigate = useNavigate()
     const location = useLocation()
-    const {user} =useUser()
+    const { user } = useUser()
     const { openSignIn } = useClerk()
 
     // Helper: open sign-in and store intended route for redirect
@@ -36,8 +36,6 @@ const Header = () => {
         }
     }, [user, navigate])
 
-
-    const pathname= useLocation();
     const [openNavigation, setOpenNavigation] = useState(false);
     
     const toggleNavigation=()=>{
@@ -57,7 +55,7 @@ const Header = () => {
         e.preventDefault();
         if (item && item.auth) {
             // Store intended route for redirect after login
-            handleAuthRedirect(item.to || "/pyqs")
+            handleAuthRedirect(item.to || "/")
         } else if (url) {
             const targetId = url.replace('#', '');
             const target = document.getElementById(targetId);
@@ -88,9 +86,32 @@ return (
                     </a>
                     <nav className={` ${openNavigation ? "flex": "hidden"} fixed top-[5rem] left-0 right-0 bottom-0 bg-n-8 lg:static lg:flex lg:mx-auto lg:bg-transparent`}>
                             <div className="relative z-2 flex flex-col items-center justify-center m-auto lg:flex-row">
+                                    {/* Show Profile button at top of mobile menu when logged in */}
+                                    {user ? (
+                                        <div className="px-6 py-6 md:py-8 lg:hidden border-b border-n-6 mb-4">
+                                            <UserButton afterSignOutUrl="/" />
+                                        </div>
+                                    ) : (
+                                        /* Show Get Started button at top of mobile menu when not logged in */
+                                        <div className="px-6 py-6 md:py-8 lg:hidden border-b border-n-6 mb-4">
+                                            <Button 
+                                                onClick={() => handleAuthRedirect("/")}
+                                                className="w-full"
+                                            >
+                                                Get Started
+                                            </Button>
+                                        </div>
+                                    )}
+                                    
                                     {navigation.map((item) => {
                                         // Redirect Home and About to '/'
                                         const isHomeOrAbout = ["HOME"].includes(item.title);
+                                        
+                                        // Skip "Get Started" if user is not logged in (since it's now at the top)
+                                        if (item.auth) {
+                                            return null;
+                                        }
+                                        
                                         return (
                                             <a
                                                 key={item.id}
@@ -105,25 +126,26 @@ return (
                                                         handleClick(e, item.url, item);
                                                     }
                                                 }}
-                                                className={`block relative font-code text-2xl uppercase text-n-1 transition-colors hover:text-color-1 ${item.onlyMobile ? "lg:hidden" : ""} px-6 py-6 md:py-8 lg:mr-0.25 lg:text-xs lg:font-semibold ${item.url===pathname.hash ? 'z-2 lg:text-n-1':"lg:text-n-1/50"} lg:leading-5 lg:hover:text-n-1 xl:px-12`}
+                                                className={`block relative font-code text-2xl uppercase text-n-1 transition-colors hover:text-color-1 ${item.onlyMobile ? "lg:hidden" : ""} px-6 py-6 md:py-8 lg:mr-0.25 lg:text-xs lg:font-semibold ${item.url === location.pathname ? 'z-2 lg:text-n-1' : "lg:text-n-1/50"} lg:leading-5 lg:hover:text-n-1 xl:px-12`}
                                             >
                                                 {item.title}
                                             </a>
                                         );
                                     })}
-                                    {/* Clerk auth in hamburger menu using existing button */}
-                                    {/*  */}
                             </div>
                             <HamburgerMenu/>
                     </nav>
-                    {
-                        user ? <UserButton/> : (
-
-        <Button onClick={() => handleAuthRedirect("/")} className="hidden lg:flex" >
-                                    Get Started
-                    </Button>
-                        )
-                    }
+                    <div className="hidden lg:flex">
+                        {user ? (
+                            <UserButton />
+                        ) : (
+                            <Button 
+                                onClick={() => handleAuthRedirect("/")} 
+                            >
+                                Get Started
+                            </Button>
+                        )}
+                    </div>
 
                                     <Button className="ml-auto lg:hidden" px="px-3" onClick={toggleNavigation}>
                                         <MenuSvg openNavigation={openNavigation}/>

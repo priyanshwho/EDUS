@@ -106,10 +106,10 @@ const Services = () => {
         key={index}
         className="flex items-start py-4 border-t border-n-6"
       >
-        <img width={24} height={24} src={check} />
+        <img width={24} height={24} src={check} className="py-2" />
         <Link
           to={routes[index]}
-          className="ml-4 bg-black/40 backdrop-blur px-4 pb-2 rounded text-white hover:bg-purple-500 transition-colors"
+          className="ml-4 bg-black/40 backdrop-blur px-4 py-2 rounded text-white hover:bg-purple-500 transition-colors"
           style={{ display: "inline-block" }}
         >
           {item}
