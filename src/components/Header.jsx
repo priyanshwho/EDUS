@@ -104,8 +104,10 @@ return (
                                     )}
                                     
                                     {navigation.map((item) => {
-                                        // Redirect Home and About to '/'
-                                        const isHomeOrAbout = ["HOME"].includes(item.title);
+                                        // Redirect Home to '/'
+                                        const isHome = item.title === "HOME";
+                                        const isAbout = item.title === "ABOUT";
+                                        const isServices = item.title === "Services";
                                         
                                         // Skip "Get Started" if user is not logged in (since it's now at the top)
                                         if (item.auth) {
@@ -115,11 +117,21 @@ return (
                                         return (
                                             <a
                                                 key={item.id}
-                                                href={isHomeOrAbout ? "/" : item.url || "#"}
+                                                href={isHome ? "/" : isAbout ? "/about" : isServices ? "/services" : item.url || "#"}
                                                 onClick={(e) => {
-                                                    if (isHomeOrAbout) {
+                                                    if (isHome) {
                                                         e.preventDefault();
                                                         navigate("/");
+                                                        enablePageScroll();
+                                                        setOpenNavigation(false);
+                                                    } else if (isAbout) {
+                                                        e.preventDefault();
+                                                        navigate("/about");
+                                                        enablePageScroll();
+                                                        setOpenNavigation(false);
+                                                    } else if (isServices) {
+                                                        e.preventDefault();
+                                                        navigate("/services");
                                                         enablePageScroll();
                                                         setOpenNavigation(false);
                                                     } else {

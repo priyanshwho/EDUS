@@ -45,12 +45,12 @@ import {
     {
       id: "1",
       title: "ABOUT",
-      url: "#features",
+      url: "/about",
     },
     {
       id: "2",
       title: "Services",
-      url: "#how-to-use",
+      url: "/services",
     },
     {
       id: "3",
