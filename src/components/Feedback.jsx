@@ -86,7 +86,7 @@ Feedback: ${feedbackData.feedback}
 
                 <div>
                   <label className="block text-n-1/50 mb-2 font-medium">Rating</label>
-                  <div className="flex gap-2 bg-n-7 p-3 rounded-xl border border-n-1/10">
+                  <div className="flex justify-center gap-2 bg-n-7 p-3 rounded-xl border border-n-1/10">
                     {[1, 2, 3, 4, 5].map((star) => (
                       <button
                         key={star}
