@@ -19,113 +19,24 @@ import {
   CodeIcon,
 } from "../components/Ui_Pyqs/Icons"
 
-// Sample PYQs data structure
-const pyqsData = [
-  {
-    id: 1,
-    title: "Data Structures and Algorithms",
-    subjectCode: "CS201",
-    branch: "CSE",
-    semester: 3,
-    year: 2023,
-    examType: "End Semester",
-    duration: "3 hours",
-    marks: 50,
-    downloadUrl: "/pyqs/cs201-2023.pdf",
-    uploadDate: "2023-12-15",
-  },
-  {
-    id: 2,
-    title: "Digital Electronics",
-    subjectCode: "EC101",
-    branch: "ECE",
-    semester: 2,
-    year: 2023,
-    examType: "Mid Semester",
-    duration: "2 hours",
-    marks: 50,
-    downloadUrl: "/pyqs/ec101-2023.pdf",
-    uploadDate: "2023-11-20",
-  },
-  {
-    id: 3,
-    title: "Engineering Mathematics III",
-    subjectCode: "MA301",
-    branch: "CSE",
-    semester: 5,
-    year: 2022,
-    examType: "End Semester",
-    duration: "3 hours",
-    marks: 50,
-    downloadUrl: "/pyqs/ma301-2022.pdf",
-    uploadDate: "2023-01-10",
-  },
-  {
-    id: 4,
-    title: "Computer Networks",
-    subjectCode: "CS401",
-    branch: "CSE",
-    semester: 7,
-    year: 2023,
-    examType: "End Semester",
-    duration: "3 hours",
-    marks: 50,
-    downloadUrl: "/pyqs/cs401-2023.pdf",
-    uploadDate: "2023-12-20",
-  },
-  {
-    id: 5,
-    title: "Microprocessors",
-    subjectCode: "EC201",
-    branch: "ECE",
-    semester: 4,
-    year: 2022,
-    examType: "End Semester",
-    duration: "3 hours",
-    marks: 50,
-    downloadUrl: "/pyqs/ec201-2022.pdf",
-    uploadDate: "2023-02-15",
-  },
-  {
-    id: 6,
-    title: "Database Management Systems",
-    subjectCode: "CS301",
-    branch: "CSE",
-    semester: 5,
-    year: 2023,
-    examType: "End Semester",
-    duration: "3 hours",
-    marks: 50,
-    downloadUrl: "/pyqs/cs301-2023.pdf",
-    uploadDate: "2023-12-18",
-  },
-  {
-    id: 7,
-    title: "Signal Processing",
-    subjectCode: "EC301",
-    branch: "ECE",
-    semester: 6,
-    year: 2022,
-    examType: "End Semester",
-    duration: "3 hours",
-    marks: 50,
-    downloadUrl: "/pyqs/ec301-2022.pdf",
-    uploadDate: "2023-03-10",
-  },
-  {
-    id: 8,
-    title: "Operating Systems",
-    subjectCode: "CS202",
-    branch: "CSE",
-    semester: 4,
-    year: 2023,
-    examType: "End Semester",
-    duration: "3 hours",
-    marks: 50,
-    downloadUrl: "/pyqs/cs202-2023.pdf",
-    uploadDate: "2023-12-22",
-  },
-]
+// Import data from Gemini.json
+import geminiData from "../constants/Gemini.json"
+
+// Filter only PYQs type resources
+const pyqsData = geminiData.filter(item => item.type === "pyqs").map(item => ({
+  id: item.id,
+  title: item.title,
+  subjectCode: item.subjectCode || "N/A",
+  branch: item.branch,
+  semester: item.semester,
+  year: item.year === "N/A" ? "N/A" : item.year,
+  subject: item.subject,
+  examType: "End Semester",
+  duration: "3 hours",
+  marks: 50,
+  downloadUrl: item.url,
+  uploadDate: "2023-12-15",
+}))
 
 const Pyqs_Page = () => {
   const [filters, setFilters] = useState({
@@ -153,6 +64,7 @@ const Pyqs_Page = () => {
       const matchesSearch =
         !searchTerm ||
         pyq.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        pyq.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
         pyq.subjectCode.toLowerCase().includes(searchTerm.toLowerCase())
 
       return matchesBranch && matchesSemester && matchesSubjectCode && matchesYear && matchesSearch
@@ -174,7 +86,7 @@ const Pyqs_Page = () => {
         case "semester-desc":
           return b.semester - a.semester
         case "subject":
-          return a.subjectCode.localeCompare(b.subjectCode)
+          return a.subject.localeCompare(b.subject)
         default:
           return 0
       }
@@ -407,6 +319,11 @@ const Pyqs_Page = () => {
                               </div>
                               <span className="w-1 h-1 bg-n-4 rounded-full"></span>
                               <div className="flex items-center gap-1">
+                                <BookOpenIcon className="h-4 w-4" />
+                                <span>{pyq.subject}</span>
+                              </div>
+                              <span className="w-1 h-1 bg-n-4 rounded-full"></span>
+                              <div className="flex items-center gap-1">
                                 <CalendarIcon className="h-4 w-4" />
                                 <span>{pyq.year}</span>
                               </div>
@@ -433,7 +350,10 @@ const Pyqs_Page = () => {
                       </div>
 
                       <div className="flex flex-col sm:flex-row gap-3">
-                        <Button className="flex items-center gap-2 bg-gradient-to-r from-color-1 to-color-5 text-white font-semibold shadow-md hover:scale-105 transition-transform">
+                        <Button 
+                          onClick={() => window.open(pyq.downloadUrl, '_blank')}
+                          className="flex items-center gap-2 bg-gradient-to-r from-color-1 to-color-5 text-white font-semibold shadow-md hover:scale-105 transition-transform"
+                        >
                           <DownloadIcon className="h-4 w-4" />
                           Download PDF
                         </Button>
