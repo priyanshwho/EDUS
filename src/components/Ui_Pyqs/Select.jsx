@@ -1,15 +1,27 @@
 "use client"
 
-import { useState } from "react"
+import React, { useState } from "react"
 
-const Select = ({ value, onChange, options, placeholder = "Select option", className = "" }) => {
+const Select = ({ value, onChange, onValueChange, options = null, placeholder = "Select option", className = "", children }) => {
   const [isOpen, setIsOpen] = useState(false)
-  
-  
-  const selectedOption = options.find((option) => option.value === value)
+
+  // Build a stable options list from either the options prop or child <option> elements
+  const optionsList = Array.isArray(options)
+    ? options
+    : React.Children.toArray(children).map((child) => {
+        const props = (child && child.props) || {}
+        return { value: props.value, label: props.children }
+      })
+
+  // Safe lookup
+  const selectedOption = optionsList.find((option) => option && option.value === value)
+
+  const handleSelect = (val) => {
+    if (typeof onValueChange === "function") onValueChange(val)
+    else if (typeof onChange === "function") onChange(val)
+  }
 
   return (
-    
     <div className={`relative ${className}`}>
       <button
         type="button"
@@ -31,12 +43,12 @@ const Select = ({ value, onChange, options, placeholder = "Select option", class
 
       {isOpen && (
         <div className="absolute z-10 w-full mt-2 bg-n-1 border border-n-3 rounded-xl shadow-lg max-h-60 overflow-auto">
-          {options.map((option) => (
+          {optionsList.map((option) => (
             <button
-              key={option.value}
+              key={String(option.value)}
               type="button"
               onClick={() => {
-                onChange(option.value)
+                handleSelect(option.value)
                 setIsOpen(false)
               }}
               className={`w-full px-4 py-3 text-left hover:bg-n-2 transition-colors duration-200 first:rounded-t-xl last:rounded-b-xl ${
