@@ -41,14 +41,13 @@
 import ButtonGradient from "./assets/svg/ButtonGradient"
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Header from "./components/Header";
-import PyqsPage from "./Pages/Pyqs_Page";
-import NotesPage from "./Pages/Notes_Page";
 import LecturesPage from "./Pages/Lectures_Page";
 import AboutPage from "./Pages/About_Page";
 import ServicesPage from "./Pages/Services_Page";
 import Homepage from "./components/Homepage";
 import { RedirectToSignIn, SignedIn, SignedOut } from "@clerk/clerk-react";
 import Pyqs_Page from "./Pages/Pyqs_Page";
+import Notes_Page from "./Pages/Notes_Page";
 
 const App = () => {
   return (
@@ -75,7 +74,7 @@ const App = () => {
       <>
       <SignedIn>
 
-      <NotesPage />
+      <Notes_Page />
       </SignedIn>
       <SignedOut>
         <RedirectToSignIn/>
