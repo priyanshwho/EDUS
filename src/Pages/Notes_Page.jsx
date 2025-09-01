@@ -251,36 +251,31 @@ const Notes_Page = () => {
                     </div>
                   </Card>
                 ) : (
-                  <div className="space-y-6">
+                  <div className="space-y-4">
                     {filteredAndSortedNotes.map((note) => (
-                      <Card key={note.id} className="p-6 bg-n-7/80 border border-n-3/30 rounded-2xl shadow-lg hover:border-color-1 transition-all duration-300 hover:shadow-xl backdrop-blur">
-                        <div className="flex flex-col justify-between min-h-[180px] gap-4">
-                          <div>
+                      <Card key={note.id} className="p-3 bg-n-7/80 border border-n-3/30 rounded-2xl shadow-lg hover:border-color-1 transition-all duration-300 hover:shadow-xl backdrop-blur">
+                        <div className="flex flex-col justify-between max-h-[150px] gap-3">
+                          <div className="relative">
                             <h3 className="h6 text-n-1 mb-2 font-bold break-words">{note.title}</h3>
 
-                            <div className="flex items-center gap-4 text-sm text-n-3 mb-3">
+                            <div className="flex items-start gap-4 text-sm text-n-3 mb-2">
                               <div className="flex items-center gap-1">
                                 <CodeIcon className="h-4 w-4" />
                                 <span className="font-semibold">{note.subjectCode}</span>
                               </div>
+
                               <div className="flex items-center gap-1">
                                 <BookOpenIcon className="h-4 w-4" />
                                 <span>{note.subject}</span>
                               </div>
-                              <div className="flex items-center gap-1 ml-auto">
+
+                              <div className="flex items-center gap-1 ml-4 text-n-3">
                                 <CalendarIcon className="h-4 w-4" />
                                 <span>{note.year}</span>
                               </div>
-                            </div>
 
-                            {/* Semester/Branch row with Open Notes button aligned to the right */}
-                            <div className="flex items-center justify-between mb-4">
-                              <div className="flex items-center gap-2">
-                                <Badge variant="secondary">Semester {note.semester}</Badge>
-                                <Badge variant="outline">{note.branch}</Badge>
-                              </div>
-
-                              <div className="shrink-0">
+                              {/* Top-right button */}
+                              <div className="ml-auto self-start">
                                 <Button onClick={() => window.open(note.downloadUrl, "_blank")} className="flex items-center gap-2 bg-gradient-to-r from-color-1 to-color-5 text-white font-semibold shadow-md hover:scale-105 transition-transform">
                                   <DownloadIcon className="h-4 w-4" />
                                   Open Notes
@@ -288,7 +283,13 @@ const Notes_Page = () => {
                               </div>
                             </div>
 
-                            <p className="caption text-n-3 mb-4 line-clamp-4">{note.description || ""}</p>
+                            {/* Semester/Branch row (no button) */}
+                            <div className="flex items-center gap-2 mb-2">
+                              <Badge variant="secondary">Semester {note.semester}</Badge>
+                              <Badge variant="outline">{note.branch}</Badge>
+                            </div>
+
+                            <p className="caption text-n-3 mb-2 line-clamp-4">{note.description || ""}</p>
                           </div>
                         </div>
                       </Card>
