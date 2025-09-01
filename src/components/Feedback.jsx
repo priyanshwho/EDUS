@@ -86,7 +86,7 @@ Feedback: ${feedbackData.feedback}
 
                 <div>
                   <label className="block text-n-1/50 mb-2 font-medium">Rating</label>
-                  <div className="flex gap-2 bg-n-7 p-3 rounded-xl border border-n-1/10">
+                  <div className="flex justify-center gap-2 bg-n-7 p-3 rounded-xl border border-n-1/10">
                     {[1, 2, 3, 4, 5].map((star) => (
                       <button
                         key={star}
@@ -144,18 +144,22 @@ Feedback: ${feedbackData.feedback}
                 Help us improve your experience by sharing your thoughts. Your feedback shapes our future updates.
               </p>
               <div className="relative w-full group">
-                <div className="absolute inset-0 rounded-full blur-[6rem] bg-sky-400/20 
-                  transition-all duration-700 group-hover:scale-110 group-hover:opacity-70" />
                 <img 
                   src={ovel}
-                  className="relative w-full max-w-[25rem] md:max-w-[30rem] h-auto aspect-square 
-                    object-contain mx-auto transition-all duration-500 ease-out transform
-                    group-hover:scale-110 group-hover:rotate-12 group-hover:brightness-125"
+                  className="w-full max-w-[25rem] md:max-w-[30rem] h-auto object-contain mx-auto transition-all duration-500 ease-out transform group-hover:scale-110 group-hover:rotate-12 group-hover:brightness-125 animate-float"
                   alt="feedback illustration"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-n-8/80 to-transparent 
-                  pointer-events-none transition-opacity duration-700 group-hover:opacity-50" />
               </div>
+              <style>{`
+                @keyframes float {
+                  0% { transform: translateY(0); }
+                  50% { transform: translateY(-18px); }
+                  100% { transform: translateY(0); }
+                }
+                .animate-float {
+                  animation: float 3s ease-in-out infinite;
+                }
+              `}</style>
               <BackgroundCircles />
             </div>
           </div>

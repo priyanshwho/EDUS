@@ -45,12 +45,12 @@ import {
     {
       id: "1",
       title: "ABOUT",
-      url: "#features",
+      url: "/about",
     },
     {
       id: "2",
       title: "Services",
-      url: "#how-to-use",
+      url: "/services",
     },
     {
       id: "3",
@@ -65,8 +65,8 @@ import {
     {
       id: "5",
       title: "Get Started",
-      url: "#signup",
       onlyMobile: true,
+      auth: true,
     },
   
   ];
