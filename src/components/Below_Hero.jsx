@@ -1,5 +1,3 @@
-
-
 const Below_Hero = ({className}) => {
   return (
     <div className={className}>
