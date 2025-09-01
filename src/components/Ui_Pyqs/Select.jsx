@@ -4,7 +4,8 @@ import { useState } from "react"
 
 const Select = ({ value, onChange, options, placeholder = "Select option", className = "" }) => {
   const [isOpen, setIsOpen] = useState(false)
-
+  
+  
   const selectedOption = options.find((option) => option.value === value)
 
   return (

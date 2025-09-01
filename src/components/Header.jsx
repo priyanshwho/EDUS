@@ -9,15 +9,10 @@ import {HamburgerMenu} from "./design/Header";
 import { SignInButton, useClerk , UserButton,useUser} from '@clerk/clerk-react'   
 
 
-
-
-
 const Header = () => {
     const navigate= useNavigate()
     const {user} =useUser()
     const {openSignIn}=useClerk()
-
-
     const pathname= useLocation();
     const [openNavigation, setOpenNavigation] = useState(false);
     
