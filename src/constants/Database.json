@@ -1,0 +1,834 @@
+{
+  "website_name": "IT CONTENT HUB",
+  "logo": "images/file1.png",
+  "semesters": [
+    {
+      "semester_name": "SEMESTER 1",
+      "subjects": [
+        {
+          "subject_name": "APPLIED PHYSICS",
+          "resources": {
+            "lectures": [
+              {
+                "type": "iframe",
+                "title": "Applied Physics Video Lectures",
+                "url": "https://www.youtube.com/embed/I1TBV421ar4?list=PLSWDszNFa1Q3aQmaSthNcX-mMgjjKIxOZ",
+                "thumbnail": null
+              },
+              {
+                "type": "playlist",
+                "title": "Click1",
+                "url": "https://youtube.com/playlist?list=PL5zwY2E7i60UOvHJEOpJEw-lR2Zdmg2Ik&si=yOzUWUGaHEc8Nscl",
+                "thumbnail": null
+              },
+              {
+                "type": "playlist",
+                "title": "Click2",
+                "url": "https://youtube.com/playlist?list=PLSWDszNFa1Q3aQmaSthNcX-mMgjjKIxOZ&si=3XZO_5Nu7lYa4fSQ",
+                "thumbnail": null
+              },
+              {
+                "type": "playlist",
+                "title": "Click3",
+                "url": "https://youtube.com/playlist?list=PLAPKGqvQGg6rKWLDXQ3i3O0P5DVA5uxs8&si=gCOZyOFB9ZXAZHQc",
+                "thumbnail": null
+              }
+            ],
+            "enotes": [
+              {
+                "type": "drive_folder",
+                "title": "Applied Physics E-Notes",
+                "url": "https://drive.google.com/drive/folders/1o730uMAlr_6TJV8UPpTgH-gky9oddhBs?usp=drive_link",
+                "thumbnail": "images/quant.  photo notes.jpeg.jpg"
+              }
+            ],
+            "pyqs": [
+              {
+                "type": "drive_folder",
+                "title": "Applied Physics PYQs",
+                "url": "https://drive.google.com/drive/folders/1PvrRqkNbNsCu9r7B_STBEPQ2ZCue-xgk?usp=drive_link",
+                "thumbnail": "images/p,photo pyq.jpeg.jpg"
+              }
+            ]
+          }
+        },
+        {
+          "subject_name": "CALCULUS",
+          "resources": {
+            "lectures": [
+              {
+                "type": "iframe",
+                "title": "Calculus Video Lectures",
+                "url": "https://www.youtube.com/embed/lxksRct1QOY?list=PLVCBPCYGv7bC1JwOGH-X0FS-jTI4WRbI1",
+                "thumbnail": null
+              },
+              {
+                "type": "playlist",
+                "title": "C1",
+                "url": "https://youtube.com/playlist?list=PLVCBPCYGv7bC1JwOGH-X0FS-jTI4WRbI1&si=-BDZOkBJUjMixpBF",
+                "thumbnail": null
+              },
+              {
+                "type": "playlist",
+                "title": "C2",
+                "url": "https://youtube.com/playlist?list=PLVCBPCYGv7bDiiZ5fP856_EGNyf34avaH&si=m0fMGVKyBWDx9RpV",
+                "thumbnail": null
+              },
+              {
+                "type": "playlist",
+                "title": "C3",
+                "url": "https://youtube.com/playlist?list=PLVCBPCYGv7bDWb3v_WfVgRKsBe5NVHVJY&si=4edNSVyvVDC3hViM",
+                "thumbnail": null
+              },
+              {
+                "type": "playlist",
+                "title": "C4",
+                "url": "https://youtube.com/playlist?list=PLhSp9OSVmeyI3uivqqHzrlomwD6gZx2-R&si=GPBFQXhA4cMz4a-W",
+                "thumbnail": null
+              },
+              {
+                "type": "playlist",
+                "title": "C5",
+                "url": "https://youtube.com/playlist?list=PLT3bOBUU3L9hsRRQi1X_4kn6Lw6K_-9cq&si=ZZxR3hU1UWBPEXaz",
+                "thumbnail": null
+              }
+            ],
+            "enotes": [
+              {
+                "type": "drive_file",
+                "title": "Calculus E-Notes",
+                "url": "https://drive.google.com/open?id=1NkaTBM-OQoZrEdMDAQXWMipoGPZLKk4V&usp=drive_copy",
+                "thumbnail": "images/calculus,photo,notes.jpeg.jpg"
+              }
+            ],
+            "pyqs": [
+              {
+                "type": "drive_file",
+                "title": "Calculus PYQs",
+                "url": "https://drive.google.com/open?id=1DZmP6XxH6kf7QI_6XKtLxCFDBm0bFkYU&usp=drive_copy",
+                "thumbnail": "images/calculus,photo,pyq.jpeg.jpg"
+              }
+            ]
+          }
+        },
+        {
+          "subject_name": "PROFESSIONAL COMMUNICATION",
+          "resources": {
+            "lectures": [
+              {
+                "type": "iframe",
+                "title": "Professional Communication Video Lectures",
+                "url": "https://www.youtube.com/embed/UudSwjqFdNM?list=PL9RcWoqXmzaKWxaNoDhW4O1kA0hK9AYys",
+                "thumbnail": null
+              },
+              {
+                "type": "playlist",
+                "title": "Click here",
+                "url": "https://youtube.com/playlist?list=PL9RcWoqXmzaKWxaNoDhW4O1kA0hK9AYys&si=UYkrPV7FiuVt5HWz",
+                "thumbnail": null
+              }
+            ],
+            "enotes": [
+              {
+                "type": "drive_file",
+                "title": "Professional Communication E-Notes",
+                "url": "https://drive.google.com/open?id=1YQ2p7Zf5wR-osyNbyQvBxm7CTOHLFee-&usp=drive_copy",
+                "thumbnail": "images/pc.photo,notes.jpeg.jpg"
+              }
+            ],
+            "pyqs": [
+              {
+                "type": "drive_file",
+                "title": "Professional Communication PYQs",
+                "url": "https://drive.google.com/open?id=1EAstkD36g_k-6ds6E_uqZnTlmQU6kX5t&usp=drive_copy",
+                "thumbnail": "images/pc,photo,pyq.jpeg.jpg"
+              }
+            ]
+          }
+        },
+        {
+          "subject_name": "FUNDAMENTAL PROGRAMMING",
+          "resources": {
+            "lectures": [
+              {
+                "type": "iframe",
+                "title": "Fundamental Programming Video Lectures",
+                "url": "https://www.youtube.com/embed/rQoqCP7LX60?list=PLxgZQoSe9cg1drBnejUaDD9GEJBGQ5hMt",
+                "thumbnail": null
+              },
+              {
+                "type": "playlist",
+                "title": "Click here",
+                "url": "https://youtube.com/playlist?list=PLxgZQoSe9cg1drBnejUaDD9GEJBGQ5hMt&si=XzF0lOrfWdn4o06V",
+                "thumbnail": null
+              }
+            ],
+            "enotes": [
+              {
+                "type": "drive_file",
+                "title": "Fundamental Programming E-Notes",
+                "url": "https://drive.google.com/open?id=1THvTeoJ6OT1PrPRFBpeTqnD1xp6iD35t&usp=drive_copy",
+                "thumbnail": "images/pf,photo,notes.jpeg.jpg"
+              }
+            ],
+            "pyqs": [
+              {
+                "type": "drive_file",
+                "title": "Fundamental Programming PYQs",
+                "url": "https://drive.google.com/open?id=1p5wpghO4Q1MgX0vJ6HMEP85FZVU73-On&usp=drive_copy",
+                "thumbnail": "images/pf,photo,pyq.jpeg.jpg"
+              }
+            ]
+          }
+        },
+        {
+          "subject_name": "WORKSHOP",
+          "resources": {
+            "lectures": [
+              {
+                "type": "iframe",
+                "title": "Workshop Video Lectures",
+                "url": "https://www.youtube.com/embed/Ft7zxW6Vsls?list=PLJu6FW_RN3r69JZbDBMNtBICM8NbmtplZ",
+                "thumbnail": null
+              },
+              {
+                "type": "playlist",
+                "title": "Click here",
+                "url": "https://youtube.com/playlist?list=PLJu6FW_RN3r69JZbDBMNtBICM8NbmtplZ&si=bvBULjh6E2Pa-O3u_",
+                "thumbnail": null
+              }
+            ],
+            "enotes": [
+              {
+                "type": "drive_folder",
+                "title": "Workshop E-Notes",
+                "url": "https://drive.google.com/drive/folders/1yYH46q9KMBbzl2wkBsT1o1YNro6g8CRE",
+                "thumbnail": "images/workshop,photo,notes.jpeg.jpg"
+              }
+            ],
+            "pyqs": [
+              {
+                "type": "drive_folder",
+                "title": "Workshop PYQs",
+                "url": "https://drive.google.com/drive/folders/1yVHbTGCLeHN60N822X4CkmUrhcr3wElL",
+                "thumbnail": "images/workshop,photo,pyq.jpeg.jpg"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "semester_name": "SEMESTER 2",
+      "subjects": [
+        {
+          "subject_name": "APPLIED CHEMISTRY",
+          "resources": {
+            "lectures": [
+              {
+                "type": "iframe",
+                "title": "Applied Chemistry Video Lectures",
+                "url": "https://www.youtube.com/embed/JaLcEByeNrY?list=PLW1Y7Rfg4m8Jhs-s_VfYWgWzwTqYUvxJb",
+                "thumbnail": null
+              },
+              {
+                "type": "playlist",
+                "title": "Click here",
+                "url": "https://youtube.com/playlist?list=PLW1Y7Rfg4m8Jhs-s_VfYWgWzwTqYUvxJb&si=Av-8kQtOIU0B2pmV",
+                "thumbnail": null
+              }
+            ],
+            "enotes": [
+              {
+                "type": "drive_folder",
+                "title": "Applied Chemistry E-Notes",
+                "url": "https://drive.google.com/drive/folders/1DgwuCmIoUnvwlfdek1vOtPT90Cy2-53f?usp=drive_link",
+                "thumbnail": "images/chem.photo,notes.jpeg.jpg"
+              }
+            ],
+            "pyqs": [
+              {
+                "type": "drive_folder",
+                "title": "Applied Chemistry PYQs",
+                "url": "https://drive.google.com/drive/folders/1Ma34N569JwA9NhLIV32Z7x1JwU0mbI5d?usp=drive_link",
+                "thumbnail": "images/ca,photo,pyq.jpeg.jpg"
+              }
+            ]
+          }
+        },
+        {
+          "subject_name": "DIFF. EQ. & TRAN.",
+          "resources": {
+            "lectures": [
+              {
+                "type": "iframe",
+                "title": "Differential Equations Video Lectures",
+                "url": "https://www.youtube.com/embed/JtReno5_GkI?list=PLVCBPCYGv7bB7ZxAx2rT0Ln2G6ad4ME-1",
+                "thumbnail": null
+              },
+              {
+                "type": "playlist",
+                "title": "Click1",
+                "url": "https://youtube.com/playlist?list=PLVCBPCYGv7bB7ZxAx2rT0Ln2G6ad4ME-1&si=LDKH3TDVvBKOaRAU",
+                "thumbnail": null
+              },
+              {
+                "type": "playlist",
+                "title": "Click2",
+                "url": "https://youtube.com/playlist?list=PLVCBPCYGv7bB5mBCyEIBxFnl3OLW0Vmu1&si=ORIk_73OzgaqR649",
+                "thumbnail": null
+              },
+              {
+                "type": "playlist",
+                "title": "Click3",
+                "url": "https://youtube.com/playlist?list=PLhSp9OSVmeyJ5N-JUEZj7uS6IAT9a79nD&si=_YkD79VR5dxtuBVd",
+                "thumbnail": null
+              },
+              {
+                "type": "playlist",
+                "title": "Click4",
+                "url": "https://youtube.com/playlist?list=PLhSp9OSVmeyLke5_cby8i8ZhK8FHpw3qs&si=3oCuLlAz7trXyoRY",
+                "thumbnail": null
+              },
+              {
+                "type": "playlist",
+                "title": "Click5",
+                "url": "https://youtube.com/playlist?list=PLhSp9OSVmeyITz_e6F9YiyongjaCryasK&si=YgUFNjkTuC6aRyK2",
+                "thumbnail": null
+              },
+              {
+                "type": "playlist",
+                "title": "Click6",
+                "url": "https://youtube.com/playlist?list=PLhSp9OSVmeyIYLVvSJ8m6KvVwJs7M9QBm&si=NHnObTtJskI-S9mx",
+                "thumbnail": null
+              },
+              {
+                "type": "playlist",
+                "title": "Click7",
+                "url": "https://youtube.com/playlist?list=PLhSp9OSVmeyJoNnAqghUK-Lit3qBgfa6o&si=2W6n1epoSXgatgAi",
+                "thumbnail": null
+              },
+              {
+                "type": "playlist",
+                "title": "Click8",
+                "url": "https://youtube.com/playlist?list=PLhSp9OSVmeyJCwFXRDW8KmDlBFGRAxnAu&si=kj-xRtCvZ_gIBP6a",
+                "thumbnail": null
+              }
+            ],
+            "enotes": [
+              {
+                "type": "drive_folder",
+                "title": "Differential Equations E-Notes",
+                "url": "https://drive.google.com/drive/folders/1eVQ7C5jeRNeibFrzQrDlTQh93tm8wZzz?usp=drive_link",
+                "thumbnail": "images/de.photo,notes.jpeg.jpg"
+              }
+            ],
+            "pyqs": [
+              {
+                "type": "drive_folder",
+                "title": "Differential Equations PYQs",
+                "url": "https://drive.google.com/drive/folders/1aJdfWc-rZ3BCnJ05Y_eVrPrcDBxE4Pve?usp=drive_link",
+                "thumbnail": "images/de.photo,pyq.jpeg.jpg"
+              }
+            ]
+          }
+        },
+        {
+          "subject_name": "BEEE",
+          "resources": {
+            "lectures": [
+              {
+                "type": "iframe",
+                "title": "BEEE Video Lectures",
+                "url": "https://www.youtube.com/embed/Vd2UJiIPbag?list=PL9RcWoqXmzaLTYUdnzKhF4bYug3GjGcEc",
+                "thumbnail": null
+              },
+              {
+                "type": "playlist",
+                "title": "Click1",
+                "url": "https://youtube.com/playlist?list=PL9RcWoqXmzaLTYUdnzKhF4bYug3GjGcEc&si=3fQAlo2vkXHSx1uO",
+                "thumbnail": null
+              },
+              {
+                "type": "playlist",
+                "title": "Click2",
+                "url": "https://youtube.com/playlist?list=PL3qvHcrYGy1uF5KAGntUITTJ85Dm3Dtdy&si=YNMnved-pys1qpis",
+                "thumbnail": null
+              },
+              {
+                "type": "playlist",
+                "title": "Click3",
+                "url": "https://youtube.com/playlist?list=PL4K9r9dYCOors6MRFwoIe9_iBzSzUp2Zi&si=baJrZ4Tb1eSsXp_2",
+                "thumbnail": null
+              }
+            ],
+            "enotes": [
+              {
+                "type": "drive_folder",
+                "title": "BEEE E-Notes",
+                "url": "https://drive.google.com/drive/folders/1kBGRqQ702RPqNX1rvdy7RBFQUdjub9wo?usp=drive_link",
+                "thumbnail": "images/BEEE,photo,notes.jpeg.jpg"
+              }
+            ],
+            "pyqs": [
+              {
+                "type": "drive_folder",
+                "title": "BEEE PYQs",
+                "url": "https://drive.google.com/drive/folders/1-ZSabGh1sUhWr-2LjfhoJTMotQ3HDAeq?usp=drive_link",
+                "thumbnail": "images/BEEE,photo,pyq.jpeg.jpg"
+              }
+            ]
+          }
+        },
+        {
+          "subject_name": "ENGINEERING GRAPHICS",
+          "resources": {
+            "lectures": [
+              {
+                "type": "iframe",
+                "title": "Engineering Graphics Video Lectures",
+                "url": "https://www.youtube.com/embed/uojN7SOHPBw",
+                "thumbnail": null
+              },
+              {
+                "type": "playlist",
+                "title": "Click1",
+                "url": "https://youtube.com/playlist?list=PLDN15nk5uLiBDV2tAMDlR1snIX8WdTVYR&si=_4WxEqr340Crh4Wa",
+                "thumbnail": null
+              },
+              {
+                "type": "playlist",
+                "title": "Click2",
+                "url": "https://youtube.com/playlist?list=PLDN15nk5uLiC9wFOTiDp8ekWAf40BwSct&si=2mKZ3pbVNbgxe8vr",
+                "thumbnail": null
+              },
+              {
+                "type": "playlist",
+                "title": "Click3",
+                "url": "https://youtube.com/playlist?list=PLDN15nk5uLiBVR22X01vcnvVCuQIklXGx&si=rPxysTMd9Pjafizj",
+                "thumbnail": null
+              }
+            ],
+            "enotes": [
+              {
+                "type": "drive_folder",
+                "title": "Engineering Graphics E-Notes",
+                "url": "https://drive.google.com/drive/folders/1STp39Fo5KFy1Qq_ilk5NQ_cnXN9C5hyQ?usp=drive_link",
+                "thumbnail": "images/EG,photo,notes.jpeg.jpg"
+              }
+            ],
+            "pyqs": [
+              {
+                "type": "drive_folder",
+                "title": "Engineering Graphics PYQs",
+                "url": "https://drive.google.com/drive/folders/1SQr81pr595az8aDmfnekGQeXz1CV8azx?usp=drive_link",
+                "thumbnail": "images/EG,photo,pyq.jpeg.jpg"
+              }
+            ]
+          }
+        },
+        {
+          "subject_name": "OOPS WITH C++",
+          "resources": {
+            "lectures": [
+              {
+                "type": "iframe",
+                "title": "OOPS with C++ Video Lectures",
+                "url": "https://www.youtube.com/embed/j8nAHeVKL08?list=PLu0W_9lII9agpFUAlPFe_VNSlXW5uE0YL",
+                "thumbnail": null
+              },
+              {
+                "type": "playlist",
+                "title": "Click here",
+                "url": "https://youtube.com/playlist?list=PLu0W_9lII9agpFUAlPFe_VNSlXW5uE0YL&si=PpK9abA_iIM7jjvJ",
+                "thumbnail": null
+              }
+            ],
+            "enotes": [
+              {
+                "type": "drive_folder",
+                "title": "OOPS with C++ E-Notes",
+                "url": "https://drive.google.com/drive/folders/1uJOZbETcRQ5RYZZjhChVzomjIrUR6SNk?usp=drive_link",
+                "thumbnail": "images/CPP,photo,notes.jpeg.jpg"
+              }
+            ],
+            "pyqs": [
+              {
+                "type": "drive_folder",
+                "title": "OOPS with C++ PYQs",
+                "url": "https://drive.google.com/drive/folders/15WPZFY-G2nOVIhcBxRfUhkuwMqUqS-sx?usp=drive_link",
+                "thumbnail": "images/CPP,photo,pyq.jpeg.jpg"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "semester_name": "SEMESTER 3",
+      "subjects": [
+        {
+          "subject_name": "LINEAR ALGEBRA & PROB. THEORY",
+          "resources": {
+            "lectures": [
+              {
+                "type": "iframe",
+                "title": "Linear Algebra Video Lectures",
+                "url": "https://www.youtube.com/embed/pfN1_rrEEuw?list=PLhSp9OSVmeyIVQpCt2kwsC1dNVl1GwlVn",
+                "thumbnail": null
+              },
+              {
+                "type": "playlist",
+                "title": "Click here",
+                "url": "https://youtube.com/playlist?list=PLhSp9OSVmeyIVQpCt2kwsC1dNVl1GwlVn&si=7ijUZr42fwildIPL",
+                "thumbnail": null
+              }
+            ],
+            "enotes": [
+              {
+                "type": "drive_file",
+                "title": "Linear Algebra E-Notes",
+                "url": "https://drive.google.com/open?id=1qjjYv_gC13tSwVZspjdqHCev63mijsm_&usp=drive_copy",
+                "thumbnail": "images/math3,photo,notes.jpeg.jpg"
+              }
+            ],
+            "pyqs": [
+              {
+                "type": "drive_file",
+                "title": "Linear Algebra PYQs",
+                "url": "https://drive.google.com/open?id=1tTn8SkM5PowjF8m4wLKdNYcT4WVjFL32&usp=drive_copy",
+                "thumbnail": "images/math3,photo,pyq.jpeg.jpg"
+              }
+            ]
+          }
+        },
+        {
+          "subject_name": "DIGITAL ELECTRONICS",
+          "resources": {
+            "lectures": [
+              {
+                "type": "iframe",
+                "title": "Digital Electronics Video Lectures",
+                "url": "https://www.youtube.com/embed/M0mx8S05v60?list=PLBlnK6fEyqRjMH3mWf6kwqiTbT798eAOm",
+                "thumbnail": null
+              },
+              {
+                "type": "playlist",
+                "title": "Click here",
+                "url": "https://youtube.com/playlist?list=PLBlnK6fEyqRjMH3mWf6kwqiTbT798eAOm&si=xWrO9b_iXwoVqRR2",
+                "thumbnail": null
+              }
+            ],
+            "enotes": [
+              {
+                "type": "drive_folder",
+                "title": "Digital Electronics E-Notes",
+                "url": "https://drive.google.com/drive/folders/1Pqg0GiayYdcDm1a_ELDeWIPqxIBetfu6",
+                "thumbnail": "images/DE,photo,notes.jpeg.jpg"
+              }
+            ],
+            "pyqs": [
+              {
+                "type": "drive_folder",
+                "title": "Digital Electronics PYQs",
+                "url": "https://drive.google.com/drive/folders/16YVq0K3Jq38adF4dNECRfP1olI69L2fM",
+                "thumbnail": "images/DE,photo,pyq.jpeg.jpg"
+              }
+            ]
+          }
+        },
+        {
+          "subject_name": "COMPUTER ARCH. & ORG.",
+          "resources": {
+            "lectures": [
+              {
+                "type": "iframe",
+                "title": "Computer Architecture Video Lectures",
+                "url": "https://www.youtube.com/embed/L9X7XXfHYdU?list=PLxCzCOWd7aiHMonh3G6QNKq53C6oNXGrX",
+                "thumbnail": null
+              },
+              {
+                "type": "playlist",
+                "title": "Click here",
+                "url": "https://youtube.com/playlist?list=PLxCzCOWd7aiHMonh3G6QNKq53C6oNXGrX&si=5Ix5SzACJiP_xcCz",
+                "thumbnail": null
+              }
+            ],
+            "enotes": [
+              {
+                "type": "drive_file",
+                "title": "Computer Architecture E-Notes",
+                "url": "https://drive.google.com/open?id=1CrUi5N912bL4iaJsYAbuoqeOsuD0ZqvN&usp=drive_copy",
+                "thumbnail": "images/CA,photo,notes.jpeg.jpg"
+              }
+            ],
+            "pyqs": [
+              {
+                "type": "drive_file",
+                "title": "Computer Architecture PYQs",
+                "url": "https://drive.google.com/open?id=18rbgTQb95AvkmoS3wLLpHLekIhzBEfzy&usp=drive_copy",
+                "thumbnail": "images/ca,photo,pyq.jpeg.jpg"
+              }
+            ]
+          }
+        },
+        {
+          "subject_name": "DATA STRUCTURE",
+          "resources": {
+            "lectures": [
+              {
+                "type": "iframe",
+                "title": "Data Structure Video Lectures",
+                "url": "https://www.youtube.com/embed/WQoB2z67hvY",
+                "thumbnail": null
+              },
+              {
+                "type": "playlist",
+                "title": "Click here",
+                "url": "https://youtube.com/playlist?list=PLDzeHZWIZsTryvtXdMr6rPh4IDexB5NIA&si=iKN3JCtRznNS8_jf",
+                "thumbnail": null
+              }
+            ],
+            "enotes": [
+              {
+                "type": "drive_file",
+                "title": "Data Structure E-Notes",
+                "url": "https://drive.google.com/open?id=1T8vVtzAfS1sAR8apUOhq5gypdFgAkWEl&usp=drive_copy",
+                "thumbnail": "images/DS,photo,notes.jpeg.jpg"
+              }
+            ],
+            "pyqs": [
+              {
+                "type": "drive_file",
+                "title": "Data Structure PYQs",
+                "url": "https://drive.google.com/open?id=1VdVi5h3L9lSVLyuBIQ989sEw08kBXlUG&usp=drive_copy",
+                "thumbnail": "images/DS,photo,pyq.jpeg.jpg"
+              }
+            ]
+          }
+        },
+        {
+          "subject_name": "DBMS",
+          "resources": {
+            "lectures": [
+              {
+                "type": "iframe",
+                "title": "DBMS Video Lectures",
+                "url": "https://www.youtube.com/embed/kBdlM6hNDAE",
+                "thumbnail": null
+              },
+              {
+                "type": "playlist",
+                "title": "Click here",
+                "url": "https://youtube.com/playlist?list=PLxCzCOWd7aiFAN6I8CuViBuCdJgiOkT2Y&si=9_vsHSOjDyWAXbNH",
+                "thumbnail": null
+              }
+            ],
+            "enotes": [
+              {
+                "type": "drive_file",
+                "title": "DBMS E-Notes",
+                "url": "https://drive.google.com/open?id=1zJ4Mdiv-e9fd7KvtFJ7oJYCsPUTjL4nb&usp=drive_copy",
+                "thumbnail": "images/DBMS,photo,notes.jpeg.jpg"
+              }
+            ],
+            "pyqs": [
+              {
+                "type": "drive_file",
+                "title": "DBMS PYQs",
+                "url": "https://drive.google.com/open?id=1qUemg23d56FZrrk3SdTEIN-nE8IMl1OR&usp=drive_copy",
+                "thumbnail": "images/DBMS,photo,pyq.jpeg.jpg"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "semester_name": "SEMESTER 4",
+      "subjects": [
+        {
+          "subject_name": "ECONOMICS",
+          "resources": {
+            "lectures": [
+              {
+                "type": "iframe",
+                "title": "Economics Video Lectures",
+                "url": "https://www.youtube.com/embed/qsMRwgDsig8?list=PLuoheP7tfLlPm14pOfmklxtl2ax5jBkCX",
+                "thumbnail": null
+              },
+              {
+                "type": "playlist",
+                "title": "Click here",
+                "url": "https://youtube.com/playlist?list=PLaAhQ2ofZZRC1OFxHoa8qGyFHDgk7PyUN&si=YPLWHY4KruRMduCo",
+                "thumbnail": null
+              }
+            ],
+            "enotes": [
+              {
+                "type": "drive_file",
+                "title": "Economics E-Notes",
+                "url": "https://drive.google.com/open?id=1jMjhmP5ypVA8wTYey9P_Sk15XMr5-GAb&usp=drive_copy",
+                "thumbnail": "images/eco.photo,notes.jpg"
+              }
+            ],
+            "pyqs": [
+              {
+                "type": "drive_file",
+                "title": "Economics PYQs",
+                "url": "https://drive.google.com/open?id=1KU-Nh8capOAKzeGKgo076jVLPpJfXx3w&usp=drive_copy",
+                "thumbnail": "images/eco.photo.pyq.jpeg.jpg"
+              }
+            ]
+          }
+        },
+        {
+          "subject_name": "DISCRETE STRUCTURE",
+          "resources": {
+            "lectures": [
+              {
+                "type": "iframe",
+                "title": "Discrete Structure Video Lectures",
+                "url": "https://www.youtube.com/embed/iZ3g7JdSjbw?list=PLT3bOBUU3L9j_VG5CICyWK_a4M0-nwwxy",
+                "thumbnail": null
+              },
+              {
+                "type": "playlist",
+                "title": "Click here",
+                "url": "https://youtu.be/iZ3g7JdSjbw?si=_PsAJVlSJOmU8TNf",
+                "thumbnail": null
+              }
+            ],
+            "enotes": [
+              {
+                "type": "drive_file",
+                "title": "Discrete Structure E-Notes",
+                "url": "https://drive.google.com/open?id=1VfOSuX2hffjkgS6fuxXGmjGx6wjoKyWG&usp=drive_copy",
+                "thumbnail": "images/ds(math),photo,notes.jpg"
+              }
+            ],
+            "pyqs": [
+              {
+                "type": "drive_file",
+                "title": "Discrete Structure PYQs",
+                "url": "https://drive.google.com/open?id=1FX7eX6LeisFTP1bf8pIby3cztv6MWT0x&usp=drive_copy",
+                "thumbnail": "images/ds(math),photo,pyq.jpg"
+              }
+            ]
+          }
+        },
+        {
+          "subject_name": "COMPUTER NETWORK",
+          "resources": {
+            "lectures": [
+              {
+                "type": "iframe",
+                "title": "Computer Network Video Lectures",
+                "url": "https://www.youtube.com/embed/VwN91x5i25g?list=PLBlnK6fEyqRgMCUAG0XRw78UA8qnv6jEx",
+                "thumbnail": null
+              },
+              {
+                "type": "playlist",
+                "title": "Click here1",
+                "url": "https://youtube.com/playlist?list=PLxCzCOWd7aiGFBD2-2joCpWOLUrDLvVV_&si=bRgpY5VVYO2JAc3W",
+                "thumbnail": null
+              },
+              {
+                "type": "playlist",
+                "title": "Click here2",
+                "url": "https://youtube.com/playlist?list=PLBlnK6fEyqRgMCUAG0XRw78UA8qnv6jEx&si=a0_pHz7lFJmpyrNf",
+                "thumbnail": null
+              }
+            ],
+            "enotes": [
+              {
+                "type": "drive_file",
+                "title": "Computer Network E-Notes",
+                "url": "https://drive.google.com/open?id=1-0ArKF7WFxo4AUFY8V45CEdknD5jPNA5&usp=drive_copy",
+                "thumbnail": "images/CN,photo,notes.jpg"
+              }
+            ],
+            "pyqs": [
+              {
+                "type": "drive_file",
+                "title": "Computer Network PYQs",
+                "url": "https://drive.google.com/open?id=1NueXd1mkhFMq-bR7wDuQpUOQxI8iwpp2&usp=drive_copy",
+                "thumbnail": "images/CN,photo,pyq.jpg"
+              }
+            ]
+          }
+        },
+        {
+          "subject_name": "MICRO-PROCESSOR",
+          "resources": {
+            "lectures": [
+              {
+                "type": "iframe",
+                "title": "Micro-processor Video Lectures",
+                "url": "https://www.youtube.com/embed/RP2sWt_oAWo?list=PLgwJf8NK-2e5vHwmowy_kGtjq9Ih0FzwN",
+                "thumbnail": null
+              },
+              {
+                "type": "playlist",
+                "title": "Click here1",
+                "url": "https://youtube.com/playlist?list=PLgwJf8NK-2e5vHwmowy_kGtjq9Ih0FzwN&si=-NJ9Ecgk6AroX9OV",
+                "thumbnail": null
+              }
+            ],
+            "enotes": [
+              {
+                "type": "drive_file",
+                "title": "Micro-processor E-Notes",
+                "url": "https://drive.google.com/open?id=1oA2vxQp8L26U1nSztmBF0mDB8yWwv8NW&usp=drive_copy",
+                "thumbnail": "images/MP ,photo,notes.jpeg.jpg"
+              }
+            ],
+            "pyqs": [
+              {
+                "type": "drive_file",
+                "title": "Micro-processor PYQs",
+                "url": "https://drive.google.com/open?id=1BoJyWRXM7mzwivPZeXUJmwK-3pWHoVoW&usp=drive_copy",
+                "thumbnail": "images/MP,photo,pyq.jpeg.jpg"
+              }
+            ]
+          }
+        },
+        {
+          "subject_name": "OPERATING SYSTEM",
+          "resources": {
+            "lectures": [
+              {
+                "type": "iframe",
+                "title": "Operating System Video Lectures",
+                "url": "https://www.youtube.com/embed/bkSWJJZNgf8?list=PLxCzCOWd7aiGz9donHRrE9I3Mwn6XdP8p",
+                "thumbnail": null
+              },
+              {
+                "type": "playlist",
+                "title": "Click here",
+                "url": "https://youtube.com/playlist?list=PLxCzCOWd7aiGz9donHRrE9I3Mwn6XdP8p&si=q1ZhTHjikqvun0EI",
+                "thumbnail": null
+              }
+            ],
+            "enotes": [
+              {
+                "type": "drive_file",
+                "title": "Operating System E-Notes",
+                "url": "https://drive.google.com/open?id=1EX2PTqhAqSXfRyB6L01LNdFJx1Z4fQYP&usp=drive_copy",
+                "thumbnail": "images/OS,photo,notes.jpg"
+              }
+            ],
+            "pyqs": [
+              {
+                "type": "drive_file",
+                "title": "Operating System PYQs",
+                "url": "https://drive.google.com/open?id=1qzz7MndSdKftXm3y5dooFzjQ_tKHwVd5&usp=drive_copy",
+                "thumbnail": "images/OS,photo,pyq.jpg"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

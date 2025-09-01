@@ -9,18 +9,18 @@ const About = () => {
     <Section id="features" className="relative scroll-mt-28 z-10">
       <div className="container relative z-2">
       <Heading
-  className="flex justify-center md:max-w-md lg:max-w-2xl text-center mb-12"
-  title={
-    <>
-      <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#1E90FF] to-[#00BFFF] flex justify-center uppercase mb-6 font-bold tracking-wider text-xl md:text-2xl">
-        ABOUT US
-      </span>
-      <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-white to-[#CCCCCC] bg-clip-text text-transparent leading-tight">
-        What we provide?
-      </h2>
-    </>
-  }
-/>
+        className="flex justify-center md:max-w-md lg:max-w-2xl text-center mb-12"
+        title={
+          <>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#1E90FF] to-[#00BFFF] flex justify-center uppercase mb-6 font-bold tracking-wider text-xl md:text-2xl">
+              ABOUT US
+            </span>
+            <span className="block text-3xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-white to-[#CCCCCC] bg-clip-text text-transparent leading-tight">
+              What we provide?
+            </span>
+          </>
+        }
+      />
 
         <div className="flex flex-wrap gap-10 mb-10">
         {benefits.map((item) => (

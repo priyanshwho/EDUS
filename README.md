@@ -12,12 +12,12 @@ EduSphere is a modern web application designed to provide students with essentia
 
 ## 🚀 Getting Started
 
-### Prerequisites
+N/A Prerequisites
 
 - Node.js (v16.0 or later)
 - npm (v8.0 or later)
 
-### Installation
+N/A Installation
 
 1. Clone the repository:
 
@@ -121,7 +121,7 @@ EduSphere supports all modern browsers including:
 
 Here are the planned features for future development:
 
-### Backend Development
+N/A Backend Development
 
 - **Authentication System**:
 
@@ -150,7 +150,7 @@ Here are the planned features for future development:
   - Discussion forums for each subject
   - Notification system for new uploads and updates
 
-### Tech Stack for Backend
+N/A Tech Stack for Backend
 
 - Node.js with Express.js for API development
 - MongoDB for database
