@@ -23,8 +23,12 @@ import {
   Sparkles
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
+import { useUser } from "@clerk/clerk-react";
 
 const AboutPage = () => {
+  const { isSignedIn } = useUser();
+  const navigate = useNavigate();
+  
   // Map each service card to its target route
   const routeMap = [
     "/pyqs",    // PYQ Papers
@@ -34,7 +38,7 @@ const AboutPage = () => {
     "/aiml",    // AI/ML Learning
     "/dsa"      // DSA Learning
   ];
-  const navigate = useNavigate();
+  
   return (
     <div className="min-h-screen bg-n-8 relative overflow-hidden">
       {/* Enhanced Background Elements */}
@@ -253,13 +257,7 @@ const AboutPage = () => {
                       type="button"
                       onClick={() => {
                         const route = routeMap[index] || "/services";
-                        // ensure we land at top when navigating
                         navigate(route);
-                        try {
-                          window.scrollTo({ top: 0, behavior: 'auto' });
-                        } catch (e) {
-                          /* ignore in non-browser env */
-                        }
                       }}
                       className="inline-flex items-center text-[#1E90FF] text-xs font-medium group-hover:text-[#00BFFF] transition-colors duration-300 mt-auto"
                     >
@@ -296,44 +294,40 @@ const AboutPage = () => {
       </Section>
 
      
-      {/* CTA Section */}
-      <Section className="relative py-0 z-10">
-        <div className="container relative z-2">
-          <div className="text-center max-w-2xl mx-auto p-4 bg-n-7/30 border border-n-1/20 rounded-xl">
-            <h2 className="text-2xl md:text-3xl font-bold mb-3">
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-[#CCCCCC]">
-                Ready to
-              </span>
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#1E90FF] to-[#00BFFF]">
-                {" "}Excel?
-              </span>
-            </h2>
-            <p className="text-base text-n-3 mb-6">
-              Join thousands of students who are already benefiting from our comprehensive study resources
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <button onClick={() => navigate('/sign-in')} className="inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-[#1E90FF] to-[#00BFFF] text-white font-semibold rounded-lg hover:shadow-lg hover:shadow-[#1E90FF]/25 transition-all duration-300 transform hover:scale-105">
-                Get Started Today
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  navigate('/services');
-                  // small delay to allow route render, then ensure scroll to top
-                  setTimeout(() => {
-                    try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch (e) { /* ignore */ }
-                  }, 60);
-                }}
-                className="inline-flex items-center justify-center px-6 py-3 border border-n-1/20 text-n-1 font-semibold rounded-lg hover:bg-n-1/10 transition-all duration-300 backdrop-blur-sm"
-              >
-                <BookOpen className="w-4 h-4 mr-2" />
-                Explore Resources
-              </button>
-             </div>
+      {/* CTA Section - Only show when user is not signed in */}
+      {!isSignedIn && (
+        <Section className="relative py-0 z-10">
+          <div className="container relative z-2">
+            <div className="text-center max-w-2xl mx-auto p-4 bg-n-7/30 border border-n-1/20 rounded-xl">
+              <h2 className="text-2xl md:text-3xl font-bold mb-3">
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-[#CCCCCC]">
+                  Ready to
+                </span>
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#1E90FF] to-[#00BFFF]">
+                  {" "}Excel?
+                </span>
+              </h2>
+              <p className="text-base text-n-3 mb-6">
+                Join thousands of students who are already benefiting from our comprehensive study resources
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <button onClick={() => navigate('/sign-in')} className="inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-[#1E90FF] to-[#00BFFF] text-white font-semibold rounded-lg hover:shadow-lg hover:shadow-[#1E90FF]/25 transition-all duration-300 transform hover:scale-105">
+                  Get Started Today
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => navigate('/services')}
+                  className="inline-flex items-center justify-center px-6 py-3 border border-n-1/20 text-n-1 font-semibold rounded-lg hover:bg-n-1/10 transition-all duration-300 backdrop-blur-sm"
+                >
+                  <BookOpen className="w-4 h-4 mr-2" />
+                  Explore Resources
+                </button>
+               </div>
+            </div>
           </div>
-        </div>
-      </Section>
+        </Section>
+      )}
     </div>
   );
 };

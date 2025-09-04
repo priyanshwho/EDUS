@@ -278,7 +278,7 @@ const Pyqs_Page = () => {
                   trigger={
                     <Button
                       variant="outline"
-                      className="w-full lg:w-auto flex items-center justify-center px-4 py-2 bg-n-7/30 border border-sky-400/30 text-sky-200 rounded-lg hover:shadow-md transition-all duration-200"
+                      className="w-full lg:w-auto flex items-center justify-center px-4 py-2 bg-n-7/30 border border-sky-400/30 text-sky-200 rounded-lg hover:bg-n-7/30 hover:shadow-md transition-all duration-200 data-[state=open]:bg-n-8/80 data-[state=open]:text-sky-200"
                     >
                       <ArrowUpDownIcon className="w-5 h-5 mr-2 text-sky-200" />
                       {(() => {

@@ -8,6 +8,7 @@ import { useRef, useEffect } from "react"
 const DropdownMenu = ({ trigger, options, value, onChange }) => {
   const [isOpen, setIsOpen] = useState(false)
   const dropdownRef = useRef(null)
+  const triggerRef = useRef(null)
 
   useEffect(() => {
     if (!isOpen) return
@@ -23,11 +24,18 @@ const DropdownMenu = ({ trigger, options, value, onChange }) => {
   }, [isOpen])
 
   return (
-    <div className="relative" ref={dropdownRef}>
-      <div onClick={() => setIsOpen(!isOpen)}>{trigger}</div>
+    <div className="relative w-full" ref={dropdownRef}>
+      <div 
+        ref={triggerRef}
+        onClick={() => setIsOpen(!isOpen)} 
+        data-state={isOpen ? "open" : "closed"}
+        className="w-full"
+      >
+        {trigger}
+      </div>
 
       {isOpen && (
-        <div className="absolute right-0 z-10 mt-2 w-56 bg-n-1 border border-n-3 rounded-xl shadow-lg">
+        <div className="absolute left-0 right-0 z-10 mt-2 bg-n-8 border border-n-3 rounded-xl shadow-lg">
           {options.map((option) => (
             <button
               key={option.value}
@@ -36,8 +44,8 @@ const DropdownMenu = ({ trigger, options, value, onChange }) => {
                 onChange(option.value)
                 setIsOpen(false)
               }}
-              className={`w-full px-4 py-3 text-left hover:bg-n-2 transition-colors duration-200 first:rounded-t-xl last:rounded-b-xl ${
-                value === option.value ? "bg-color-1 text-n-1" : "text-n-8"
+              className={`w-full px-4 py-3 text-left hover:bg-n-7 transition-colors duration-200 first:rounded-t-xl last:rounded-b-xl ${
+                value === option.value ? "bg-color-1 text-n-1" : "text-sky-200"
               }`}
             >
               {option.label}

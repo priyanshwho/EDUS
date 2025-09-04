@@ -41,6 +41,7 @@
 import ButtonGradient from "./assets/svg/ButtonGradient"
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Header from "./components/Header";
+import ScrollToTop from "./components/ScrollToTop";
 import LecturesPage from "./Pages/Lectures_Page";
 import AboutPage from "./Pages/About_Page";
 import ServicesPage from "./Pages/Services_Page";
@@ -57,6 +58,7 @@ import Dsa_page from "./Pages/Dsa_page";
 const App = () => {
   return (
     <>
+      <ScrollToTop />
       <div className="pt-[4.75rem] lg:pt-[5.25rem] overflow-hidden">
         <Header />
          <>
