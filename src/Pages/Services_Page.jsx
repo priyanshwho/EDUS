@@ -57,6 +57,8 @@ const ServicesPage = () => {
               <span className="inline-flex items-center px-4 py-2 text-sm font-medium text-n-1 bg-n-7/30 border border-n-1/20 rounded-full backdrop-blur-sm">
                 Our Services
               </span>
+              
+
             </div>
             
             <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
@@ -127,6 +129,9 @@ const ServicesPage = () => {
               <div className="relative min-h-[39rem] border border-n-1/10 rounded-3xl overflow-hidden 
               hover:border-purple-500/30 hover:shadow-2xl hover:shadow-purple-500/10 
               transition-all duration-500 transform hover:scale-[1.02] group">
+                {/* full-card link overlay to make entire card clickable */}
+                <Link to="/techskills" aria-label="Tech Skills" className="absolute inset-0 z-10 rounded-3xl" />
+
                 <div className="absolute inset-0">
                   <img
                     src={service2}
@@ -148,55 +153,57 @@ const ServicesPage = () => {
                 <PhotoChatMessage />
               </div>
 
-              <div className="p-4 bg-n-7 rounded-3xl overflow-hidden lg:min-h-[46rem] 
+              <div className="relative p-4 bg-n-7 rounded-3xl overflow-hidden lg:min-h-[46rem] 
               hover:bg-gradient-to-br hover:from-purple-900/30 hover:to-purple-800/20 
               hover:shadow-2xl hover:shadow-purple-500/10 hover:border hover:border-purple-500/20
               transition-all duration-500 transform hover:scale-[1.02] group">
-                <div className="py-12 px-4 xl:px-8">
-                  <h4 className="h4 mb-4 group-hover:text-purple-300 transition-colors duration-300">Extra Skills</h4>
-                  <p className="body-2 mb-[2rem] text-n-3 group-hover:text-purple-200 transition-colors duration-300">
-                    Want to explore about the video editing, or something else like trading skills? We have got you covered.
-                  </p>
+                {/* overlay link for the Extra Skills card */}
+                <Link to="/extraskills" aria-label="Extra Skills" className="absolute inset-0 z-10 rounded-3xl" />
+                 <div className="py-12 px-4 xl:px-8">
+                   <h4 className="h4 mb-4 group-hover:text-purple-300 transition-colors duration-300">Extra Skills</h4>
+                   <p className="body-2 mb-[2rem] text-n-3 group-hover:text-purple-200 transition-colors duration-300">
+                     Want to explore about the video editing, or something else like trading skills? We have got you covered.
+                   </p>
 
-                  <ul className="flex items-center justify-between">
-                    {brainwaveServicesIcons.map((item, index) => (
-                      <li
-                        key={index}
-                        className={`rounded-2xl flex items-center justify-center transition-all duration-300 hover:scale-110  ${
-                          index === 2
-                            ? "w-[3rem] h-[3rem] p-0.25 bg-conic-gradient md:w-[4.5rem] md:h-[4.5rem] hover:shadow-lg hover:shadow-purple-500/30"
-                            : "flex w-10 h-10 bg-n-6 md:w-15 md:h-15 hover:bg-gradient-to-br hover:from-purple-600 hover:to-purple-400 hover:shadow-lg hover:shadow-purple-500/25"
-                        }`}
-                      >
-                        <div
-                          className={
-                            index === 2
-                              ? "flex items-center justify-center w-full h-full bg-n-7 rounded-[1rem] group-hover:bg-gradient-to-br group-hover:from-purple-800 group-hover:to-purple-600 transition-all duration-300"
-                              : ""
-                          }
-                        >
-                          <img src={item} width={24} height={24} alt={item} />
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+                   <ul className="flex items-center justify-between">
+                     {brainwaveServicesIcons.map((item, index) => (
+                       <li
+                         key={index}
+                         className={`rounded-2xl flex items-center justify-center transition-all duration-300 hover:scale-110  ${
+                           index === 2
+                             ? "w-[3rem] h-[3rem] p-0.25 bg-conic-gradient md:w-[4.5rem] md:h-[4.5rem] hover:shadow-lg hover:shadow-purple-500/30"
+                             : "flex w-10 h-10 bg-n-6 md:w-15 md:h-15 hover:bg-gradient-to-br hover:from-purple-600 hover:to-purple-400 hover:shadow-lg hover:shadow-purple-500/25"
+                         }`}
+                       >
+                         <div
+                           className={
+                             index === 2
+                               ? "flex items-center justify-center w-full h-full bg-n-7 rounded-[1rem] group-hover:bg-gradient-to-br group-hover:from-purple-800 group-hover:to-purple-600 transition-all duration-300"
+                               : ""
+                           }
+                         >
+                           <img src={item} width={24} height={24} alt={item} />
+                         </div>
+                       </li>
+                     ))}
+                   </ul>
+                 </div>
 
-                <div className="relative h-[20rem] bg-n-8 rounded-xl overflow-hidden md:h-[25rem]
-                group-hover:bg-gradient-to-br group-hover:from-purple-900/40 group-hover:to-purple-800/20 
-                transition-all duration-500 hover:shadow-inner hover:shadow-purple-500/20">
-                  <img
-                    src={service3}
-                    className="w-full h-full object-cover"
-                    width={520}
-                    height={400}
-                    alt="Scary robot"
-                  />
+                 <div className="relative h-[20rem] bg-n-8 rounded-xl overflow-hidden md:h-[25rem]
+                 group-hover:bg-gradient-to-br group-hover:from-purple-900/40 group-hover:to-purple-800/20 
+                 transition-all duration-500 hover:shadow-inner hover:shadow-purple-500/20">
+                   <img
+                     src={service3}
+                     className="w-full h-full object-cover"
+                     width={520}
+                     height={400}
+                     alt="Scary robot"
+                   />
 
-                  <VideoChatMessage />
-                  <VideoBar />
-                </div>
-              </div>
+                   <VideoChatMessage />
+                   <VideoBar />
+                 </div>
+               </div>
             </div>
 
             <Gradient />

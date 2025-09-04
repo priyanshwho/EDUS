@@ -48,6 +48,11 @@ import Homepage from "./components/Homepage";
 import { RedirectToSignIn, SignedIn, SignedOut } from "@clerk/clerk-react";
 import Pyqs_Page from "./Pages/Pyqs_Page";
 import Notes_Page from "./Pages/Notes_Page";
+import Aiml_page from "./Pages/Aiml_page";
+import TechSkill_page from "./Pages/TechSkill_page";
+import ExtraSkills_page from "./Pages/ExtraSkills_page";
+import Webdev_page from "./Pages/Webdev_page";
+import Dsa_page from "./Pages/Dsa_page";
 
 const App = () => {
   return (
@@ -59,6 +64,9 @@ const App = () => {
     <Route path="/" element={<Homepage/> } />
     <Route path="/about" element={<AboutPage />} />
     <Route path="/services" element={<ServicesPage />} />
+    <Route path="/techskills" element={<TechSkill_page />} />
+    <Route path="/extraskills" element={<ExtraSkills_page />} />
+
     <Route path="/pyqs" element={
       <>
       <SignedIn>
@@ -82,10 +90,50 @@ const App = () => {
       </>
       
       } />
-    <Route path="/lectures" element={
+
+      <Route path="/webdev" element={
       <>
       <SignedIn>
-      <LecturesPage />
+
+      <Webdev_page />
+      </SignedIn>
+      <SignedOut>
+        <RedirectToSignIn/>
+      </SignedOut>
+      </>
+      
+      } />
+
+<Route path="/notes" element={
+      <>
+      <SignedIn>
+
+      <Notes_Page />
+      </SignedIn>
+      <SignedOut>
+        <RedirectToSignIn/>
+      </SignedOut>
+      </>
+      
+      } />
+
+<Route path="/dsa" element={
+      <>
+      <SignedIn>
+
+      <Dsa_page />
+      </SignedIn>
+      <SignedOut>
+        <RedirectToSignIn/>
+      </SignedOut>
+      </>
+      
+      } />
+
+    <Route path="/aiml" element={
+      <>
+      <SignedIn>
+      <Aiml_page />
 
       </SignedIn>
       <SignedOut>
