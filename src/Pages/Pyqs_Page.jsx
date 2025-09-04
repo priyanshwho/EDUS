@@ -31,9 +31,9 @@ const pyqsData = geminiData.filter(item => item.type === "pyqs").map(item => ({
   semester: item.semester,
   year: item.year === "N/A" ? "N/A" : item.year,
   subject: item.subject,
-  examType: "End Semester",
-  duration: "3 hours",
-  marks: 50,
+  examType: "-- Semester",
+  duration: "-- hours",
+  marks: "--",
   downloadUrl: item.url,
   uploadDate: "2023-12-15",
 }))
@@ -151,10 +151,11 @@ const Pyqs_Page = () => {
         </div>
       </div>
 
-      <div className="container mx-auto px-5 py-12">
-        <div className="grid lg:grid-cols-[380px_1fr] gap-12">
+      <div className="container mx-auto px-5 py-8">
+        {/* Mobile: single column (filters on top). Desktop: 2 columns with fixed sidebar. */}
+        <div className="grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-6 lg:gap-12">
           {/* Enhanced Filters Sidebar */}
-          <div className="space-y-8">
+          <div className="space-y-8 w-full">
             <div className="relative group">
               {/* Glowing border effect */}
               <div className="absolute inset-0 bg-gradient-to-r from-sky-400/20 via-purple-400/20 to-sky-400/20 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -271,17 +272,26 @@ const Pyqs_Page = () => {
                 <p className="body-2 text-n-3">Showing results based on your selected filters</p>
               </div>
 
-              <DropdownMenu
-                trigger={
-                  <Button variant="outline" className="hover:text-black text-yellow-50 shrink-0">
-                    <ArrowUpDownIcon className="w-5 h-5 mr-2" />
-                    Sort by
-                  </Button>
-                }
-                options={sortOptions}
-                value={sortBy}
-                onChange={setSortBy}
-              />
+              {/* Responsive themed Sort dropdown - full width on mobile, compact on desktop */}
+              <div className="w-full lg:w-auto">
+                <DropdownMenu
+                  trigger={
+                    <Button
+                      variant="outline"
+                      className="w-full lg:w-auto flex items-center justify-center px-4 py-2 bg-n-7/30 border border-sky-400/30 text-sky-200 rounded-lg hover:shadow-md transition-all duration-200"
+                    >
+                      <ArrowUpDownIcon className="w-5 h-5 mr-2 text-sky-200" />
+                      {(() => {
+                        const sel = sortOptions.find((o) => o.value === sortBy)
+                        return sel ? sel.label : "Sort by"
+                      })()}
+                    </Button>
+                  }
+                  options={sortOptions}
+                  value={sortBy}
+                  onChange={setSortBy}
+                />
+              </div>
             </div>
 
             {/* PYQs Grid */}
@@ -310,22 +320,22 @@ const Pyqs_Page = () => {
                           <div className="p-3 bg-gradient-to-r from-color-1 to-color-5 rounded-xl shadow">
                             <BookOpenIcon className="h-6 w-6 text-n-1" />
                           </div>
-                          <div className="flex-1">
-                            <h3 className="h6 text-n-1 mb-2 font-bold drop-shadow">{pyq.title}</h3>
-                            <div className="flex items-center gap-3 text-sm text-n-3 mb-3">
-                              <div className="flex items-center gap-1">
-                                <CodeIcon className="h-4 w-4" />
-                                <span className="font-semibold">{pyq.subjectCode}</span>
+                          <div className="flex-1 min-w-0">
+                            <h3 className="h6 text-n-1 mb-2 font-bold drop-shadow break-words whitespace-normal">{pyq.title}</h3>
+                            <div className="flex items-center gap-3 text-sm text-n-3 mb-3 min-w-0">
+                              <div className="flex items-center gap-1 min-w-0">
+                                <CodeIcon className="h-4 w-4 flex-shrink-0" />
+                                <span className="font-semibold truncate max-w-[9rem]">{pyq.subjectCode}</span>
                               </div>
-                              <span className="w-1 h-1 bg-n-4 rounded-full"></span>
-                              <div className="flex items-center gap-1">
-                                <BookOpenIcon className="h-4 w-4" />
-                                <span>{pyq.subject}</span>
+                              <span className="w-1 h-1 bg-n-4 rounded-full flex-shrink-0" />
+                              <div className="flex items-center gap-1 min-w-0">
+                                <BookOpenIcon className="h-4 w-4 flex-shrink-0" />
+                                <span className="truncate max-w-[14rem]">{pyq.subject}</span>
                               </div>
-                              <span className="w-1 h-1 bg-n-4 rounded-full"></span>
-                              <div className="flex items-center gap-1">
-                                <CalendarIcon className="h-4 w-4" />
-                                <span>{pyq.year}</span>
+                              <span className="w-1 h-1 bg-n-4 rounded-full flex-shrink-0" />
+                              <div className="flex items-center gap-1 min-w-0">
+                                <CalendarIcon className="h-4 w-4 flex-shrink-0" />
+                                <span className="truncate max-w-[6rem]">{pyq.year}</span>
                               </div>
                             </div>
                           </div>
@@ -340,14 +350,14 @@ const Pyqs_Page = () => {
                           <Badge variant="outline">{pyq.marks} marks</Badge>
                         </div>
 
-                        <p className="caption text-n-3">
+                        {/* <p className="caption text-n-3">
                           Uploaded on{" "}
                           {new Date(pyq.uploadDate).toLocaleDateString("en-US", {
                             year: "numeric",
                             month: "long",
                             day: "numeric",
                           })}
-                        </p>
+                        </p> */}
                       </div>
 
                       <div className="flex flex-col sm:flex-row gap-3">
@@ -356,7 +366,7 @@ const Pyqs_Page = () => {
                           className="flex items-center gap-2 bg-gradient-to-r from-color-1 to-color-5 text-white font-semibold shadow-md hover:scale-105 transition-transform"
                         >
                           <DownloadIcon className="h-4 w-4" />
-                          Download PDF
+                          View PDF(s)
                         </Button>
                       </div>
                     </div>

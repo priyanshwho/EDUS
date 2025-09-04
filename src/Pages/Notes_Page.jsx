@@ -124,8 +124,8 @@ const Notes_Page = () => {
           {/* Header Section */}
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-12">
-              <div className="flex items-center justify-center gap-3 mb-4">
-                <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl">
+              <div className="flex items-center  justify-center text-center gap-0 mb-4">
+                <div className="flex text-center ml-8 items-center justify-center w-12 h-11 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl">
                   <FileTextIcon className="h-6 w-6 text-white" />
                 </div>
                 <h1 className="h2 text-n-1 font-bold">Study Notes & Materials</h1>
@@ -135,7 +135,7 @@ const Notes_Page = () => {
               </p>
             </div>
 
-            <div className="grid lg:grid-cols-[380px_1fr] gap-12">
+            <div className="grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-6 lg:gap-12">
               {/* Sidebar (same design as PYQs) */}
               <div className="space-y-8">
                 <div className="relative group">
@@ -226,17 +226,26 @@ const Notes_Page = () => {
                     <p className="body-2 text-n-3">Showing results based on your selected filters</p>
                   </div>
 
-                  <DropdownMenu
-                    trigger={
-                      <Button variant="outline" className="hover:text-black text-yellow-50 shrink-0">
-                        <ArrowUpDownIcon className="w-5 h-5 mr-2" />
-                        Sort by
-                      </Button>
-                    }
-                    options={sortOptions}
-                    value={sortBy}
-                    onChange={setSortBy}
-                  />
+                  {/* Responsive themed Sort dropdown - full width on mobile, compact on desktop */}
+                  <div className="w-full lg:w-auto mt-3 lg:mt-0">
+                    <DropdownMenu
+                      trigger={
+                        <Button
+                          variant="outline"
+                          className="w-full lg:w-auto flex items-center justify-center px-4 py-2 bg-n-7/30 border border-sky-400/30 text-sky-200 rounded-lg hover:shadow-md transition-all duration-200 data-[state=open]:bg-n-8/80 data-[state=open]:text-sky-200"
+                        >
+                          <ArrowUpDownIcon className="w-5 h-5 mr-2 text-sky-200" />
+                          {(() => {
+                            const sel = sortOptions.find((o) => o.value === sortBy)
+                            return sel ? sel.label : "Sort by"
+                          })()}
+                        </Button>
+                      }
+                      options={sortOptions}
+                      value={sortBy}
+                      onChange={setSortBy}
+                    />
+                  </div>
                 </div>
 
                 {/* Notes Grid */}
@@ -253,40 +262,47 @@ const Notes_Page = () => {
                 ) : (
                   <div className="space-y-4">
                     {filteredAndSortedNotes.map((note) => (
-                      <Card key={note.id} className="p-3 bg-n-7/80 border border-n-3/30 rounded-2xl shadow-lg hover:border-color-1 transition-all duration-300 hover:shadow-xl backdrop-blur">
-                        <div className="flex flex-col justify-between max-h-[150px] gap-3">
+                      <Card key={note.id} className="p-3 bg-n-7/80 border border-n-3/30 rounded-2xl shadow-lg hover:border-color-1 transition-all duration-300 hover:shadow-xl backdrop-blur overflow-hidden">
+                        <div className="flex flex-col justify-between gap-3 min-h-0">
                           <div className="relative">
-                            <h3 className="h6 text-n-1 mb-2 font-bold break-words">{note.title}</h3>
+                            <h3 className="h6 text-n-1 mb-2 font-bold break-words min-w-0">{note.title}</h3>
 
-                            <div className="flex items-start gap-4 text-sm text-n-3 mb-2">
-                              <div className="flex items-center gap-1">
-                                <CodeIcon className="h-4 w-4" />
-                                <span className="font-semibold">{note.subjectCode}</span>
+                            <div className="min-w-0">
+                              {/* First line: subject metadata */}
+                              <div className="flex items-center gap-3 text-sm text-n-3 mb-10 min-w-0 flex-wrap">
+                                <div className="flex items-center gap-2 min-w-0">
+                                  <CodeIcon className="h-4 w-4 flex-shrink-0" />
+                                  <span className="font-semibold truncate max-w-[8rem]">{note.subjectCode}</span>
+                                </div>
+
+                                <div className="flex items-center gap-2 min-w-0">
+                                  <BookOpenIcon className="h-4 w-4 flex-shrink-0" />
+                                  <span className="truncate max-w-[12rem]">{note.subject}</span>
+                                </div>
+
+                                <div className="flex items-center gap-2 min-w-0">
+                                  <CalendarIcon className="h-4 w-4 flex-shrink-0" />
+                                  <span className="truncate max-w-[6rem]">{note.year}</span>
+                                </div>
                               </div>
 
-                              <div className="flex items-center gap-1">
-                                <BookOpenIcon className="h-4 w-4" />
-                                <span>{note.subject}</span>
-                              </div>
+                              {/* Second line: semester/branch on left, View button on right */}
+                              <div className="flex items-center justify-between mt-2 gap-3 min-w-0">
+                                <div className="flex items-center gap-2 min-w-0">
+                                  <Badge variant="secondary">Semester {note.semester}</Badge>
+                                  <Badge variant="outline">{note.branch}</Badge>
+                                </div>
 
-                              <div className="flex items-center gap-1 ml-4 text-n-3">
-                                <CalendarIcon className="h-4 w-4" />
-                                <span>{note.year}</span>
+                                <div className="flex items-center flex-shrink-0">
+                                  <Button
+                                    onClick={() => window.open(note.downloadUrl, "_blank")}
+                                    className="inline-flex items-center gap-2 bg-gradient-to-r from-color-1 to-color-5 text-white text-sm font-semibold shadow-md hover:scale-105 transition-transform px-3 py-1.5 rounded-full h-8"
+                                  >
+                                    <DownloadIcon className="h-3 w-3" />
+                                    View
+                                  </Button>
+                                </div>
                               </div>
-
-                              {/* Top-right button */}
-                              <div className="ml-auto self-start">
-                                <Button onClick={() => window.open(note.downloadUrl, "_blank")} className="flex items-center gap-2 bg-gradient-to-r from-color-1 to-color-5 text-white font-semibold shadow-md hover:scale-105 transition-transform">
-                                  <DownloadIcon className="h-4 w-4" />
-                                  Open Notes
-                                </Button>
-                              </div>
-                            </div>
-
-                            {/* Semester/Branch row (no button) */}
-                            <div className="flex items-center gap-2 mb-2">
-                              <Badge variant="secondary">Semester {note.semester}</Badge>
-                              <Badge variant="outline">{note.branch}</Badge>
                             </div>
 
                             <p className="caption text-n-3 mb-2 line-clamp-4">{note.description || ""}</p>
