@@ -31,7 +31,7 @@ const pyqsData = geminiData.filter(item => item.type === "pyqs").map(item => ({
   semester: item.semester,
   year: item.year === "N/A" ? "N/A" : item.year,
   subject: item.subject,
-  examType: "-- Semester",
+  examType: "-- type",
   duration: "-- hours",
   marks: "--",
   downloadUrl: item.url,
@@ -126,27 +126,19 @@ const Pyqs_Page = () => {
         <div className="absolute inset-0 bg-gradient-to-br from-sky-500/5 via-transparent to-purple-500/10" />
       </div>
 
-      {/* Premium Header with enhanced design */}
-      <div className="relative bg-gradient-to-r from-n-8/95 via-n-7/95 to-n-8/95 backdrop-blur-xl border-b border-sky-400/20 shadow-2xl">
-        <div className="absolute inset-0 bg-gradient-to-r from-sky-400/5 via-purple-400/5 to-sky-400/5" />
-        <div className="container relative mx-auto px-5 py-16">
-          <div className="flex items-center gap-6 mb-8">
-            <div className="relative group">
-              <div className="absolute inset-0 bg-gradient-to-r from-sky-400 to-purple-500 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity" />
-              <div className="relative p-4 bg-gradient-to-r from-sky-400 to-purple-500 rounded-2xl shadow-xl">
-                <FileTextIcon className="h-10 w-10 text-white" />
-              </div>
+      {/* Minimal Header */}
+      <div className="relative bg-n-8/90 backdrop-blur border-b border-n-3/20">
+        <div className="container relative mx-auto px-6 py-8">
+          <div className="flex items-center gap-4 mb-4">
+            <div className="p-2 bg-gradient-to-r from-sky-400 to-purple-500 rounded-lg">
+              <FileTextIcon className="h-6 w-6 text-white " />
             </div>
-            <div>
-              <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold bg-gradient-to-r from-white via-sky-200 to-purple-200 bg-clip-text text-transparent mb-2 tracking-tight">
-                Previous Year Questions
-              </h1>
-              <div className="h-1 w-32 bg-gradient-to-r from-sky-400 to-purple-500 rounded-full" />
-            </div>
+            <h1 className="text-3xl md:text-4xl font-bold text-n-1">
+              Previous Year Questions
+            </h1>
           </div>
-          <p className="text-lg text-n-2 max-w-3xl leading-relaxed">
-            Access and download previous year question papers to enhance your exam preparation with our comprehensive collection.
-            <span className="block mt-2 text-sky-300 font-medium">✨ Premium academic resources at your fingertips</span>
+          <p className="text-n-3 max-w-2xl">
+            Access and download previous year question papers to enhance your exam preparation.
           </p>
         </div>
       </div>
