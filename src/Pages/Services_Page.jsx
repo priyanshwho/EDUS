@@ -55,13 +55,23 @@ const ServicesPage = () => {
         <div className="container">
           <div className="text-center mb-16 max-w-3xl mx-auto">
             <div className="inline-block mb-6">
-              <span className="inline-flex items-center px-4 py-2 text-sm font-medium text-n-1 bg-n-7/30 border border-n-1/20 rounded-full backdrop-blur-sm">
+              <button
+                type="button"
+                aria-label="Jump to Services"
+                onClick={() => {
+                  const el = document.getElementById("be-courses");
+                  if (!el) return;
+                  const offset = 100; // adjust this value (px) to move the final position up/down
+                  const top = window.scrollY + el.getBoundingClientRect().top - offset;
+                  window.scrollTo({ top, behavior: "smooth" });
+                }}
+                className="inline-flex items-center px-4 py-2 text-sm font-medium text-n-1 bg-n-7/30 border border-n-1/20 rounded-full backdrop-blur-sm group hover:scale-105 transition-transform duration-200 focus:outline-none focus:ring-2 focus:ring-[#1E90FF]/30 cursor-pointer"
+              >
                 Our Services
-               <ChevronRight className="w-3 h-3 transform group-hover:translate-x-1 transition-transform duration-300" />
-
-              </span>
+                <ChevronRight className="w-3 h-3 ml-2 transform group-hover:translate-x-1 transition-transform duration-300" />
+              </button>
             </div>
-            
+
             <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
               <span className="block text-n-1 mb-2">
                 Courses We
@@ -77,7 +87,7 @@ const ServicesPage = () => {
           </div>
 
           <div className="relative">
-            <div className="relative z-1 flex items-center h-[39rem] mb-5 p-8 border border-n-1/10 rounded-3xl overflow-hidden lg:p-20 xl:h-[46rem]
+            <div id="be-courses" className="relative z-1 flex items-center h-[39rem] mb-5 p-8 border border-n-1/10 rounded-3xl overflow-hidden lg:p-20 xl:h-[46rem]
             hover:border-purple-500/30 hover:shadow-2xl hover:shadow-purple-500/10 transition-all duration-500 transform hover:scale-[1.02]">
               <div className="absolute top-0 left-0 w-full h-full pointer-events-none md:w-3/5 xl:w-auto">
                 <img
@@ -104,7 +114,7 @@ const ServicesPage = () => {
                         className="flex items-start py-4 border-t border-n-6 hover:border-purple-500/30 
                         transition-all duration-300 group/item"
                       >
-                        <img width={24} height={24} src={check} className="py-2 group-hover/item:filter group-hover/item:brightness-125 group-hover/item:hue-rotate-180 transition-all duration-300" />
+                        <img width={24} height={24} src={check} className="py-2 group-hover:item:filter group-hover:item:brightness-125 group-hover:item:hue-rotate-180 transition-all duration-300" />
                         <Link
                           to={routes[index]}
                           className="ml-4 bg-black/40 backdrop-blur px-4 py-2 rounded-lg text-white 
