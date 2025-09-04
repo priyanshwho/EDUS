@@ -22,7 +22,7 @@ import {
   ChevronRight,
   Sparkles
 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const AboutPage = () => {
   // Map each service card to its target route
@@ -34,6 +34,7 @@ const AboutPage = () => {
     "/aiml",    // AI/ML Learning
     "/dsa"      // DSA Learning
   ];
+  const navigate = useNavigate();
   return (
     <div className="min-h-screen bg-n-8 relative overflow-hidden">
       {/* Enhanced Background Elements */}
@@ -90,11 +91,35 @@ const AboutPage = () => {
                 Education
               </span>
             </h1>
-            
             <p className="text-base md:text-lg text-n-3 max-w-2xl mx-auto leading-relaxed">
               We believe in democratizing education by providing high-quality resources, 
               making learning accessible to everyone, everywhere.
             </p>
+            {/* View Content button (scrolls to Services) */}
+            <div className="my-4">
+              <button
+                type="button"
+                aria-label="View content"
+                onClick={() => {
+                  const el = document.getElementById("about-services");
+                  if (!el) return;
+                  const offset = 32; // adjust px to tune final position
+                  const top = window.scrollY + el.getBoundingClientRect().top - offset;
+                  window.scrollTo({ top, behavior: "smooth" });
+                }}
+                className="inline-flex  items-center px-5 py-2 bg-gradient-to-r from-[#1E90FF] to-[#00BFFF] text-white rounded-full font-medium hover:scale-105 transition-transform duration-200"
+              >
+                View Content
+                <ChevronRight className="w-4 h-4 ml-2" />
+              </button>
+            </div>
+
+            {/* create view content button */}
+
+            {/* <p className="text-base md:text-lg text-n-3 max-w-2xl mx-auto leading-relaxed">
+              We believe in democratizing education by providing high-quality resources, 
+              making learning accessible to everyone, everywhere.
+            </p> */}
           </div>
 
           {/* Stats Section */}
@@ -124,7 +149,7 @@ const AboutPage = () => {
       </Section>
 
       {/* Mission Section */}
-      <Section className="relative pb-12 z-10">
+      <Section className="relative pb-0 z-10">
         <div className="container relative z-2">
           <div className="max-w-5xl mx-auto">
             <div className="grid lg:grid-cols-2 gap-8 items-center">
@@ -168,9 +193,9 @@ const AboutPage = () => {
       </Section>
 
       {/* Services Section */}
-      <Section className="relative pb-12 z-10">
+      <Section id="about-services" className="relative pb-12 z-10">
         <div className="container relative z-2">
-          <div className="text-center mb-10">
+          <div className="text-center mb-4">
             <h2 className="text-2xl md:text-3xl font-bold mb-3">
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-[#CCCCCC]">
                 What We
@@ -224,13 +249,23 @@ const AboutPage = () => {
                       {item.text}
                     </p>
                     
-                    <Link
-                      to={routeMap[index]}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const route = routeMap[index] || "/services";
+                        // ensure we land at top when navigating
+                        navigate(route);
+                        try {
+                          window.scrollTo({ top: 0, behavior: 'auto' });
+                        } catch (e) {
+                          /* ignore in non-browser env */
+                        }
+                      }}
                       className="inline-flex items-center text-[#1E90FF] text-xs font-medium group-hover:text-[#00BFFF] transition-colors duration-300 mt-auto"
                     >
                       <span className="mr-2">View Page</span>
                       <ChevronRight className="w-3 h-3 transform group-hover:translate-x-1 transition-transform duration-300" />
-                    </Link>
+                    </button>
                   </div>
 
                   {item.light && <GradientLight />}
@@ -277,15 +312,25 @@ const AboutPage = () => {
               Join thousands of students who are already benefiting from our comprehensive study resources
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <button className="inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-[#1E90FF] to-[#00BFFF] text-white font-semibold rounded-lg hover:shadow-lg hover:shadow-[#1E90FF]/25 transition-all duration-300 transform hover:scale-105">
+              <button onClick={() => navigate('/sign-in')} className="inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-[#1E90FF] to-[#00BFFF] text-white font-semibold rounded-lg hover:shadow-lg hover:shadow-[#1E90FF]/25 transition-all duration-300 transform hover:scale-105">
                 Get Started Today
                 <ArrowRight className="w-4 h-4 ml-2" />
               </button>
-              <button className="inline-flex items-center justify-center px-6 py-3 border border-n-1/20 text-n-1 font-semibold rounded-lg hover:bg-n-1/10 transition-all duration-300 backdrop-blur-sm">
+              <button
+                type="button"
+                onClick={() => {
+                  navigate('/services');
+                  // small delay to allow route render, then ensure scroll to top
+                  setTimeout(() => {
+                    try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch (e) { /* ignore */ }
+                  }, 60);
+                }}
+                className="inline-flex items-center justify-center px-6 py-3 border border-n-1/20 text-n-1 font-semibold rounded-lg hover:bg-n-1/10 transition-all duration-300 backdrop-blur-sm"
+              >
                 <BookOpen className="w-4 h-4 mr-2" />
                 Explore Resources
               </button>
-            </div>
+             </div>
           </div>
         </div>
       </Section>

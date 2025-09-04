@@ -90,6 +90,18 @@ const App = () => {
       </>
       
       } />
+      <Route path="/lectures" element={
+      <>
+      <SignedIn>
+
+      <LecturesPage />
+      </SignedIn>
+      <SignedOut>
+        <RedirectToSignIn/>
+      </SignedOut>
+      </>
+      
+      } />
 
       <Route path="/webdev" element={
       <>
