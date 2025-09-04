@@ -228,22 +228,26 @@ const Notes_Page = () => {
 
                   {/* Responsive themed Sort dropdown - full width on mobile, compact on desktop */}
                   <div className="w-full lg:w-auto mt-3 lg:mt-0">
+                    {/* Make trigger inline-block so dropdown can match its width; button set to full-width on small screens */}
                     <DropdownMenu
                       trigger={
-                        <Button
-                          variant="outline"
-                          className="w-full lg:w-auto flex items-center justify-center px-4 py-2 bg-n-7/30 border border-sky-400/30 text-sky-200 rounded-lg hover:shadow-md transition-all duration-200 data-[state=open]:bg-n-8/80 data-[state=open]:text-sky-200"
-                        >
-                          <ArrowUpDownIcon className="w-5 h-5 mr-2 text-sky-200" />
-                          {(() => {
-                            const sel = sortOptions.find((o) => o.value === sortBy)
-                            return sel ? sel.label : "Sort by"
-                          })()}
-                        </Button>
+                        <div className="inline-block w-full lg:w-auto">
+                          <Button
+                            variant="outline"
+                            className="w-full flex items-center justify-center px-4 py-2 bg-n-7/30 border border-sky-400/30 text-sky-200 rounded-lg hover:shadow-md transition-all duration-200 data-[state=open]:bg-n-8/80 data-[state=open]:text-sky-200"
+                          >
+                            <ArrowUpDownIcon className="w-5 h-5 mr-2 text-sky-200" />
+                            {(() => {
+                              const sel = sortOptions.find((o) => o.value === sortBy)
+                              return sel ? sel.label : "Sort by"
+                            })()}
+                          </Button>
+                        </div>
                       }
                       options={sortOptions}
                       value={sortBy}
                       onChange={setSortBy}
+                      menuClassName="w-full lg:w-auto"
                     />
                   </div>
                 </div>
