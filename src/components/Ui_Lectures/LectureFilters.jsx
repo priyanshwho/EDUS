@@ -2,25 +2,137 @@ import { useState, useEffect } from 'react';
 
 // Data structure to map branches and semesters to subjects
 const subjectMapping = {
-  CSE: {
-    '1': ['Introduction to Programming', 'Mathematics I', 'Physics'],
-    '2': ['Data Structures', 'Mathematics II', 'Electrical Engineering'],
-    '3': ['Operating Systems', 'DBMS', 'Algorithms'],
-    '4': ['Computer Networks', 'Microprocessor', 'Software Engineering'],
-    '5': ['Artificial Intelligence', 'Machine Learning', 'Web Development'],
-    '6': ['Cloud Computing', 'Cryptography', 'Network Security'],
-    '7': ['Data Science', 'Compiler Design', 'Big Data'],
-    '8': ['Cyber Forensics', 'Distributed Systems', 'Ethical Hacking'],
-  },
+   CSE: {
+    '1': [
+      'CALCULUS',
+      'PROFESSIONAL COMMUNICATION',
+      'FUNDAMENTAL PROGRAMMING',
+      'WORKSHOP'
+    ],
+    '2': [
+      'APPLIED CHEMISTRY',
+      'DIFF. EQ. & TRAN.',
+      'BEEE',
+      'ENGINEERING GRAPHICS',
+      'OOPS'
+    ],
+    '3': [
+      'DISCRETE STRUCTURE',
+      'WEB TECHNOLOGIES',
+      'DATA STRUCTURE',
+      'DATABASE SYSTEMS',
+      'SOFTWARE ENGINEERING'
+    ],
+    '4': [
+      'LINEAR ALGEBRA & PROB. THEORY',
+      'COMPUTER ARCH. & ORG.',
+      'ANALYSIS AND DESIGN OF ALGORITHMS',
+      'COMPUTER NETWORK',
+      'OPERATING SYSTEM'
+    ],
+    '5': [
+      'NATURAL LANGUAGE PROCESSING',
+      'COMPUTER GRAPHICS',
+      'ARTIFICIAL INTELLIGENCE',
+      'THEORY OF COMPUTATION',
+      'ECONOMICS'
+    ],
+    '6': [
+      'DATA MINING AND MACHINE LEARNING',
+      'NSC',
+      'DIGITAL IMAGE PROCESSING',
+      'COMPILER DESIGN',
+    ]
+},
+
   IT: {
-    '1': ['Applied Physics', 'Mathematics I', 'Physics'],
-    '3': ['DBMS', 'Data Structures', 'IT Fundamentals'],
-    '4': ['Web Technologies', 'Cyber Security', 'Networking'],
-  },
+    '1': [
+      'APPLIED PHYSICS',
+      'CALCULUS',
+      'PROFESSIONAL COMMUNICATION',
+      'FUNDAMENTAL PROGRAMMING',
+      'WORKSHOP'
+    ],
+    '2': [
+      'APPLIED CHEMISTRY',
+      'DIFF. EQ. & TRAN.',
+      'BEEE',
+      'ENGINEERING GRAPHICS',
+      'OOPS WITH C++'
+    ],
+    '3': [
+      'LINEAR ALGEBRA & PROB. THEORY',
+      'DIGITAL ELECTRONICS',
+      'COMPUTER ARCH. & ORG.',
+      'DATA STRUCTURE',
+      'DBMS'
+    ],
+    '4': [
+      'ECONOMICS',
+      'DISCRETE STRUCTURE',
+      'COMPUTER NETWORK',
+      'MICRO-PROCESSOR',
+      'OPERATING SYSTEM'
+    ],
+    '5': [
+      'NETWORK SECURITY AND CRYPTOGRAPHY',
+      'ARTIFICIAL INTELLIGENCE',
+      'CYBER LAWS & IPR',
+      'PYTHON'
+    ],
+    '6': [
+      'THEORY OF COMPUTATION',
+      'MACHINE LEARNING',
+      'DESIGN AND ANALYSIS OF ALGORITHMS',
+      'COMPUTER GRAPHICS',
+      'SOFTWARE ENGINEERING'
+    ]
+},
+
   ECE: {
-    '3': ['Digital Electronics', 'Signals and Systems'],
-    '4': ['Communication Systems', 'Microcontrollers', 'VLSI'],
-  },
+    '1': [
+      'APPLIED CHEMISTRY',
+      'CALCULUS',
+      'BASIC ELECTRICAL AND ELECTRONICS ENGINEERING',
+      'FUNDAMENTAL PROGRAMMING',
+      'ENGINEERING GRAPHICS'
+    ],
+    '2': [
+      'DIFF. EQ. & TRAN.',
+      'PROFESSIONAL COMMUNICATION',
+      'DIGITAL DESIGN',
+      'WORKSHOP'
+    ],
+    '3': [
+      'LINEAR ALGEBRA & COMPLEX ANALYSIS',
+      'SIGNALS AND SYSTEMS',
+      'MICROPROCESSOR AND MICROCONTROLLERS',
+      'ELECTRONIC DEVICES AND CIRCUITS',
+      'ELECTRONICS MEASUREMENTS & INSTRUMENTATION'
+    ],
+    '4': [
+      'COMMUNICATION ENGINEERING',
+      'ADVANCED MICROCONTROLLERS & APPLICATIONS',
+      'ANALOG ELECTRONIC CIRCUITS',
+      'PROBABILITY AND RANDOM PROCESSES',
+      'ELECTROMAGNETIC THEORY',
+      'NETWORK ANALYSIS'
+    ],
+    '5': [
+      'VLSI DESIGN',
+      'DIGITAL SIGNAL PROCESSING',
+      'ANTENNAS & WAVE PROPAGATION',
+      'COMPUTER NETWORKS',
+      'DIGITAL SYSTEM DESIGN'
+    ],
+    '6': [
+      'MICROWAVE & RADAR ENGINEERING',
+      'FIBER OPTIC COMMUNICATION SYSTEMS',
+      'DIGITAL COMMUNICATION',
+      'CONTROL SYSTEMS',
+      'POWER ELECTRONICS'
+    ]
+},
   ME: {
     '3': ['Thermodynamics', 'Fluid Mechanics'],
     '4': ['Machine Design', 'Manufacturing Technology'],
@@ -38,8 +150,6 @@ const subjectMapping = {
 export default function LectureFilters({ filters, setFilters }) {
   const [availableSubjects, setAvailableSubjects] = useState([]);
 
-  // This useEffect hook updates the available subjects
-  // whenever the selected branch or semester changes.
   useEffect(() => {
     const selectedBranch = filters.branch;
     const selectedSemester = filters.semester;
