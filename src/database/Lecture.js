@@ -379,6 +379,7 @@ export const sampleLectures = [
   },
   //SEMESTER 5
   {
+    
     id: 21,
     title: "Network Security and Cryptography ",
     subject: "Network Security and Cryptography ",
