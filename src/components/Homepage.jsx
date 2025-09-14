@@ -3,7 +3,7 @@ import About from "./About";
 import Services from "./Services";
 import Contact from "./Contact";
 import Feedback from "./Feedback";
-import Makers from "./Makers";
+// import Makers from "./Makers";
 import { DemoOne } from "./Npx/Demo";
 
 const Homepage = () => {
@@ -15,7 +15,7 @@ const Homepage = () => {
       <Contact />
       <Feedback />
       <DemoOne/>
-      <Makers />
+      {/* <Makers /> */}
     </>
   )
 }
