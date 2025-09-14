@@ -177,6 +177,19 @@ const Footer = () => {
                     {formatTime(currentTime)}
                   </span>
                 </div>
+                
+                {/* EduSphere Branding - After Local Time */}
+                <div className="mt-16 text-center">
+                  <h1 className="text-[5.5rem] sm:text-[6.5rem] md:text-[7.5rem] lg:text-[8.5rem] xl:text-[9.5rem] 2xl:text-[12rem] font-bold leading-none tracking-tight">
+                    <span className="text-n-1">Edu</span>
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-500 to-purple-600">
+                      Sphere
+                    </span>
+                    <span className="text-n-4 text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl 2xl:text-4xl align-top ml-1">
+                      ™
+                    </span>
+                  </h1>
+                </div>
               </div>
             </div>
           </div>
@@ -184,15 +197,15 @@ const Footer = () => {
           {/* Right Section - Back to Top Button */}
           <div className="flex flex-col justify-end">
             {/* Back to Top Button */}
-            <div className="flex justify-end">
+            <div className="flex justify-end pt-16">
               <button
                 onClick={scrollToTop}
-                className="group flex items-center gap-2 text-n-3 hover:text-n-1 transition-all duration-300"
+                className="group flex items-center mt-20 pt-20 gap-2 text-n-3 hover:text-n-1 transition-all duration-300"
               >
-                <span className="text-sm font-medium transform group-hover:-translate-y-1 transition-transform duration-300">
+                <span className="text-sm font-medium mt-32 pt-32 transform group-hover:-translate-y-1 transition-transform duration-300">
                   Back to top
                 </span>
-                <div className="w-8 h-8 bg-n-6 hover:bg-color-1 rounded-full flex items-center justify-center transition-all duration-300 group-hover:-translate-y-1">
+                <div className="w-8 h-8 bg-transparent mt-32 pt-32 hover:bg-color-1 rounded-full flex items-center justify-center transition-all duration-300 group-hover:-translate-y-1">
                   <ChevronUp className="w-4 h-4" />
                 </div>
               </button>
@@ -206,26 +219,7 @@ const Footer = () => {
             <p className="text-n-4 text-sm">
               © EduSphere 2025
             </p>
-            <div className="flex items-center gap-6">
-              <a href="#" className="text-n-4 hover:text-n-1 text-sm transition-colors duration-300">
-                Privacy Policy
-              </a>
-              <a href="#" className="text-n-4 hover:text-n-1 text-sm transition-colors duration-300">
-                Terms of Service
-              </a>
-              {/* EduSphere Branding - Bottom Right */}
-              <div className="text-right">
-                <h1 className="text-6xl lg:text-7xl xl:text-8xl font-bold leading-none tracking-tight">
-                  <span className="text-n-1">Edu</span>
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-500 to-purple-600">
-                    Sphere
-                  </span>
-                  <span className="text-n-4 text-2xl lg:text-3xl xl:text-4xl align-top ml-1">
-                    ™
-                  </span>
-                </h1>
-              </div>
-            </div>
+            
           </div>
         </div>
       </div>
