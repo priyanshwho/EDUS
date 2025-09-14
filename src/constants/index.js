@@ -55,12 +55,12 @@ import {
     {
       id: "3",
       title: "contact",
-      url: "#contact",
+      url: "/contact",
     },
     {
         id: "4",
         title: "Edu.ai",
-        url: "#Edu.ai",
+        url: "/ai",
       },
     {
       id: "5",

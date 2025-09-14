@@ -2,13 +2,13 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
+import { useUser, useClerk, UserButton } from "@clerk/clerk-react";
 import Button from "./Button";
 import eduIcon from "../assets/eduIcon.svg"
 import { navigation } from "../constants"
 import { disablePageScroll, enablePageScroll } from "scroll-lock";
 import MenuSvg from "../assets/svg/MenuSvg";
-import {HamburgerMenu} from "./design/Header";
-import { SignInButton, useClerk , UserButton,useUser} from '@clerk/clerk-react'   
+import {HamburgerMenu} from "./design/Header";   
 
 
 
@@ -53,6 +53,14 @@ const Header = () => {
         enablePageScroll();
         setOpenNavigation(false);
     }
+
+    const handleAuthRedirect = (redirectPath) => {
+        if (user) {
+            navigate(redirectPath);
+        } else {
+            openSignIn();
+        }
+    }
 return (
     <div  className={`fixed top-0 left-0 w-full z-50  border-b border-n-6 lg:bg-n-8/90 lg:backdrop-blur-sm ${openNavigation ? "bg-n-8" : "bg-n-8/90 backdrop-blur-sm"} `}>
             <div className="flex items-center px-5 lg:px-7.5 xl:px-10 max-lg:py-4">
@@ -89,10 +97,12 @@ return (
                                     )}
                                     
                                     {navigation.map((item) => {
-                                        // Redirect Home to '/'
+                                        // Redirect pages to their respective routes
                                         const isHome = item.title === "HOME";
                                         const isAbout = item.title === "ABOUT";
                                         const isServices = item.title === "Services";
+                                        const isContact = item.title === "contact";
+                                        const isEduAi = item.title === "Edu.ai";
                                         
                                         // Skip "Get Started" if user is not logged in (since it's now at the top)
                                         if (item.auth) {
@@ -102,7 +112,7 @@ return (
                                         return (
                                             <a
                                                 key={item.id}
-                                                href={isHome ? "/" : isAbout ? "/about" : isServices ? "/services" : item.url || "#"}
+                                                href={isHome ? "/" : isAbout ? "/about" : isServices ? "/services" : isContact ? "/contact" : isEduAi ? "/ai" : item.url || "#"}
                                                 onClick={(e) => {
                                                     if (isHome) {
                                                         e.preventDefault();
@@ -117,6 +127,16 @@ return (
                                                     } else if (isServices) {
                                                         e.preventDefault();
                                                         navigate("/services");
+                                                        enablePageScroll();
+                                                        setOpenNavigation(false);
+                                                    } else if (isContact) {
+                                                        e.preventDefault();
+                                                        navigate("/contact");
+                                                        enablePageScroll();
+                                                        setOpenNavigation(false);
+                                                    } else if (isEduAi) {
+                                                        e.preventDefault();
+                                                        navigate("/ai");
                                                         enablePageScroll();
                                                         setOpenNavigation(false);
                                                     } else {

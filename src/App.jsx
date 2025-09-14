@@ -54,6 +54,9 @@ import TechSkill_page from "./Pages/TechSkill_page";
 import ExtraSkills_page from "./Pages/ExtraSkills_page";
 import Webdev_page from "./Pages/Webdev_page";
 import Dsa_page from "./Pages/Dsa_page";
+import Contact from "./Pages/Contact";
+import Eduai from "./Pages/Eduai";
+import Footer from "./components/Footer";
 
 const App = () => {
   return (
@@ -66,6 +69,8 @@ const App = () => {
     <Route path="/" element={<Homepage/> } />
     <Route path="/about" element={<AboutPage />} />
     <Route path="/services" element={<ServicesPage />} />
+    <Route path="/contact" element={<Contact />} />
+    <Route path="/ai" element={<Eduai />} />
     <Route path="/techskills" element={<TechSkill_page />} />
     <Route path="/extraskills" element={<ExtraSkills_page />} />
 
@@ -158,6 +163,7 @@ const App = () => {
   </Routes>
 </>
    </div>
+      <Footer />
       <ButtonGradient />
     </>
   );
