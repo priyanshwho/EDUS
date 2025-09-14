@@ -436,90 +436,80 @@
     "id": 39,
     "branch": "IT",
     "semester": 5,
-    "subject": "Network Security and Cryptography",
+    "subject": "NSC",
     "year": "N/A",
     "type": "notes",
     "subjectCode": "N/A",
-    "title": "Network Security and Cryptography Notes",
-    "url": ""
+    "title": "NSC 5th Sem Notes",
+    "url": "https://drive.google.com/drive/folders/1z-i_he0v418T6xmey93W2ggzYx_fHGoH?usp=drive_link"
   },
   {
     "id": 40,
     "branch": "IT",
     "semester": 5,
-    "subject": "Network Security and Cryptography",
+    "subject": "NSC",
     "year": "N/A",
-    "type": "pyqs",
+    "type": "majors",
     "subjectCode": "N/A",
-    "title": "Network Security and Cryptography PYQs",
-    "url": ""
+    "title": "NSC PYQs",
+    "duration": 3,
+    "marks": 50,
+    "url": "https://drive.google.com/drive/folders/1IMPOln2xke7GdAjHHpUPN7VQY8mT3Sf8?usp=drive_link"
+  },
+  {
+    "id": 201,
+    "branch": "IT",
+    "semester": 5,
+    "subject": "NSC",
+    "year": "N/A",
+    "type": "minor",
+    "subjectCode": "N/A",
+    "title": "NSC PYQs",
+    "duration": 1.5,
+    "marks": 30,
+    "url": "https://drive.google.com/drive/folders/1utKdOKORR_3Bmrfe14HJ4YWzFZ7y_1NY?usp=drive_link"
   },
   {
     "id": 41,
     "branch": "IT",
     "semester": 5,
-    "subject": "Artificial Intelligence ",
+    "subject": "AI",
     "year": "N/A",
     "type": "notes",
     "subjectCode": "N/A",
-    "title": "Artificial Intelligence Notes",
-    "url": ""
+    "title": "AI 5th Sem Notes",
+    "url": "https://drive.google.com/drive/folders/1A_k5ax1_VSC7h712P-HF-9wsmlFKJQH4?usp=drive_link"
   },
   {
     "id": 42,
     "branch": "IT",
     "semester": 5,
-    "subject": "Artificial Intelligence ",
+    "subject": "AI",
     "year": "N/A",
-    "type": "pyqs",
+    "type": "majors",
     "subjectCode": "N/A",
-    "title": "Artificial Intelligence PYQs",
-    "url": ""
+    "title": "AI PYQs",
+    "duration": 3,
+    "marks": 50,
+    "url": "https://drive.google.com/drive/folders/1IShmZGXl-Cjiv5EUhaPK6NjLTpj-tn6_?usp=drive_link"
   },
   {
-    "id": 43,
+    "id": 200,
     "branch": "IT",
     "semester": 5,
-    "subject": "Cyber Laws & IPR",
+    "subject": "AI",
     "year": "N/A",
-    "type": "notes",
+    "type": "minor",
     "subjectCode": "N/A",
-    "title": "Cyber Laws & IPR Notes",
-    "url": ""
+    "title": "AI PYQs",
+    "duration": 1.5,
+    "marks": 30,
+    "url": "https://drive.google.com/drive/folders/1WeikGQyuiEq49sWTlLi7b3EeU-BBp6J7?usp=drive_link"
   },
-  {
-    "id": 44,
-    "branch": "IT",
-    "semester": 5,
-    "subject": "Cyber Laws & IPR",
-    "year": "N/A",
-    "type": "pyqs",
-    "subjectCode": "N/A",
-    "title": "Cyber Laws & IPR PYQs",
-    "url": ""
-  },
-  {
-    "id": 45,
-    "branch": "IT",
-    "semester": 5,
-    "subject": "Python",
-    "year": "N/A",
-    "type": "notes",
-    "subjectCode": "N/A",
-    "title": "Python Notes",
-    "url": ""
-  },
-  {
-    "id": 46,
-    "branch": "IT",
-    "semester": 5,
-    "subject": "Python",
-    "year": "N/A",
-    "type": "pyqs",
-    "subjectCode": "N/A",
-    "title": "Python PYQs",
-    "url": ""
-  },
+  
+  
+  
+  
     {
     "id": 47,
     "branch": "IT",
@@ -1291,5 +1281,79 @@
     "subjectCode": "N/A",
     "title": "POWER ELECTRONICS Notes",
     "url": ""
+  },
+  {
+    "id": 202,
+    "branch": "IT",
+    "semester": 5,
+    "subject": "CLI & PRI",
+    "year": "N/A",
+    "type": "notes",
+    "subjectCode": "N/A",
+    "title": "CLI & PRI 5th Sem Notes",
+    "url": "https://drive.google.com/drive/folders/1i86_MFAi6GrsF19yQPs3xF50tUxLteuy?usp=drive_link"
+  },
+  {
+    "id": 203,
+    "branch": "IT",
+    "semester": 5,
+    "subject": "CLI & PRI",
+    "year": "N/A",
+    "type": "majors",
+    "subjectCode": "N/A",
+    "title": "CLI & PRI PYQs",
+    "duration": 3,
+    "marks": 50,
+    "url": "https://drive.google.com/drive/folders/1Re_C4QjMt4TyaBqjV09V4gaOtUNnKUqg?usp=drive_link"
+  },
+  {
+    "id": 204,
+    "branch": "IT",
+    "semester": 5,
+    "subject": "CLI & PRI",
+    "year": "N/A",
+    "type": "minor",
+    "subjectCode": "N/A",
+    "title": "CLI & PRI PYQs",
+    "duration": 1.5,
+    "marks": 30,
+    "url": "https://drive.google.com/drive/folders/18Oaf7Sk0D0R93xtkDho1SJp_mBAmwKvW?usp=drive_link"
+  },
+  {
+    "id": 205,
+    "branch": "IT",
+    "semester": 5,
+    "subject": "Python",
+    "year": "N/A",
+    "type": "notes",
+    "subjectCode": "N/A",
+    "title": "Python 5th Sem Notes",
+    "url": "https://drive.google.com/drive/folders/1gpFZdGKd-HTn-G3ZRJst-VoIi_Qx02Ub?usp=drive_link"
+  },
+  {
+    "id": 206,
+    "branch": "IT",
+    "semester": 5,
+    "subject": "Python",
+    "year": "N/A",
+    "type": "majors",
+    "subjectCode": "N/A",
+    "title": "Python PYQs",
+    "duration": 3,
+    "marks": 50,
+    "url": "https://drive.google.com/drive/folders/1ayEYfOotUGQhdMupyyghMOPqJyzcafKl?usp=drive_link"
+  },
+  {
+    "id": 207,
+    "branch": "IT",
+    "semester": 5,
+    "subject": "Python",
+    "year": "N/A",
+    "type": "minor",
+    "subjectCode": "N/A",
+    "title": "Python PYQs",
+    "duration": 1.5,
+    "marks": 30,
+    "url": "https://drive.google.com/drive/folders/1rR3ZpOHIL17Xbb16qeuV51ZJqi0f3BD-?usp=drive_link"
   }
 ]
