@@ -83,7 +83,7 @@ const Contact = () => {
   const quickActions = [
     {
       label: "Send Email",
-      action: () => window.location.href = 'mailto:priyanshu82711@gmail.com',
+      action: () => window.location.href = 'mailto:eduspherepu@gmail.com',
       primary: true
     },
     {

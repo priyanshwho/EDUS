@@ -194,7 +194,6 @@ const Footer = () => {
           </h1>
         </div>
 
-        {/* Back to Top Button */}
         
         {/* Sleek Line */}
         <div className="w-full h-px bg-n-6 mb-8"></div>
@@ -204,7 +203,6 @@ const Footer = () => {
           <p className="text-n-4 text-lg">
             © EduSphere 2025
           </p>
-        
           <div className="flex justify-end mb-12">
           <button
             onClick={scrollToTop}
