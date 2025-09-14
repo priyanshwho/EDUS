@@ -8,7 +8,7 @@ const Makers = () => {
     {
       name: 'Priyanshu Anand',
       role: 'Lead Full Stack Developer',
-      description: 'Passionate about creating seamless user experiences and robust backend systems.',
+      description: 'Leading the technical vision and architecting scalable full-stack solutions with expertise in modern frameworks.',
       avatar: '/Priyanshu.jpeg',
       github: 'https://github.com/priyanshu82711',
       linkedin: 'https://linkedin.com/in/priyanshu-anand',
@@ -17,8 +17,8 @@ const Makers = () => {
     },
     {
       name: 'Neeraj Verma',
-      role: 'Backend Developer',
-      description: 'Expert in database design and server architecture for scalable applications.',
+      role: 'MERN Stack Developer',
+      description: 'Specialized in MongoDB, Express.js, React, and Node.js for building dynamic web applications.',
       avatar: '/Neeraj.jpeg',
       github: 'https://github.com/neerajverma',
       linkedin: 'https://linkedin.com/in/neeraj-verma',
@@ -27,8 +27,8 @@ const Makers = () => {
     },
     {
       name: 'Anuj Kumar',
-      role: 'Frontend Developer',
-      description: 'UI/UX enthusiast crafting beautiful and intuitive user interfaces.',
+      role: 'Web Developer',
+      description: 'Creating responsive and interactive web experiences with modern technologies and best practices.',
       avatar: '/Anuj.jpeg',
       github: 'https://github.com/anujkumar',
       linkedin: 'https://linkedin.com/in/anuj-kumar',
@@ -37,8 +37,8 @@ const Makers = () => {
     },
     {
       name: 'Prashant Singh',
-      role: 'DevOps Engineer',
-      description: 'Ensuring smooth deployments and maintaining reliable infrastructure.',
+      role: 'Cybersecurity Expert',
+      description: 'Ensuring platform security and data protection through advanced cybersecurity practices and protocols.',
       avatar: '/Prashant.jpeg',
       github: 'https://github.com/prashantsingh',
       linkedin: 'https://linkedin.com/in/prashant-singh',

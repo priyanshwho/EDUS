@@ -1355,14 +1355,14 @@ const InfiniteMenuComponent: FC<InfiniteMenuProps> = ({ items = [] }) => {
           text-center
           font-sans
           text-n-1
-          md:text-2xl text-3xl
+          md:text-2xl text-2xl
           font-bold
           left-1/2
           md:top-[8%] top-[16%]
           transform
           -translate-x-1/2
           whitespace-nowrap
-          bg-gradient-to-r from-color-1 via-color-2 to-color-5 bg-clip-text text-transparent
+          bg-gradient-to-r from-white via-sky-200 to-sky-400 bg-clip-text text-transparent
           drop-shadow-lg
           transition-all
           duration-500
@@ -1387,7 +1387,7 @@ const InfiniteMenuComponent: FC<InfiniteMenuProps> = ({ items = [] }) => {
           md:text-xl text-lg
           text-n-1
           left-1/2
-          md:bottom-[3rem] bottom-[7.5rem]
+          md:bottom-[2.5rem] bottom-[7.5rem]
           transform
           -translate-x-1/2
           text-center
