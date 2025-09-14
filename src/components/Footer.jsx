@@ -110,11 +110,11 @@ const Footer = () => {
             href="mailto:priyanshu82711@gmail.com"
             className="block group cursor-pointer"
           >
-            <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 md:gap-8 mb-6 group-hover:text-color-1 transition-colors duration-300">
-              <h2 className="text-6xl lg:text-7xl xl:text-8xl font-bold text-n-1">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 sm:gap-8 mb-6 group-hover:text-color-1 transition-colors duration-300">
+              <h2 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-normal text-n-1">
                 Let's Connect
               </h2>
-              <span className="text-4xl lg:text-5xl xl:text-6xl font-normal text-n-1">
+              <span className="text-xl sm:text-2xl lg:text-2xl xl:text-3xl font-light text-n-1">
                 priyanshu82711@gmail.com
               </span>
             </div>
@@ -217,12 +217,7 @@ const Footer = () => {
           <p className="text-n-4 text-lg">
             © EduSphere 2025
           </p>
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-gradient-to-r from-blue-400 via-purple-500 to-purple-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">E</span>
-            </div>
-            <span className="text-n-3 text-lg font-medium">EduSphere</span>
-          </div>
+        
         </div>
       </div>
     </footer>
