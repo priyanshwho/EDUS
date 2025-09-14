@@ -102,124 +102,126 @@ const Footer = () => {
       {/* Background gradient */}
       <div className="absolute inset-0 bg-gradient-to-t from-n-8 via-n-8/98 to-n-8/95" />
       
-      <div className="relative container mx-auto px-5 lg:px-7.5 xl:px-10 py-16">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
-          
-          {/* Left Section - Let's Connect */}
-          <div className="space-y-12">
-            <div>
-              <a 
-                href="mailto:priyanshu82711@gmail.com"
-                className="block group cursor-pointer"
-              >
-                <h2 className="text-5xl lg:text-6xl font-bold text-n-1 mb-4 group-hover:text-color-1 transition-colors duration-300">
-                  Let's Connect
-                </h2>
-                <div className="w-full h-px bg-n-6 mb-4"></div>
-                <p className="text-n-3 text-xl group-hover:text-n-1 transition-colors duration-300">
-                  priyanshu82711@gmail.com
-                </p>
-              </a>
+      <div className="relative container mx-auto px-5 lg:px-7.5 xl:px-10 py-20">
+        
+        {/* Top Section - Let's Connect and Email in same line */}
+        <div className="mb-20">
+          <a 
+            href="mailto:priyanshu82711@gmail.com"
+            className="block group cursor-pointer"
+          >
+            <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 md:gap-8 mb-6 group-hover:text-color-1 transition-colors duration-300">
+              <h2 className="text-6xl lg:text-7xl xl:text-8xl font-bold text-n-1">
+                Let's Connect
+              </h2>
+              <span className="text-4xl lg:text-5xl xl:text-6xl font-normal text-n-1">
+                priyanshu82711@gmail.com
+              </span>
             </div>
+          </a>
+          <div className="w-full h-px bg-n-6"></div>
+        </div>
 
-            {/* Menu, Socials, and Time - Horizontal Layout */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {/* Menu Section */}
-              <div>
-                <h3 className="text-n-4 text-sm font-semibold uppercase tracking-wider mb-6">
-                  Menu
-                </h3>
-                <div className="space-y-4">
-                  {footerNavigation.map((item) => (
-                    <button
-                      key={item.id}
-                      onClick={() => handleNavigation(item)}
-                      className="block text-n-1 text-lg hover:text-color-1 transition-all duration-300 group cursor-pointer"
-                    >
-                      <span className="inline-block transform group-hover:-translate-y-1 transition-transform duration-300">
-                        {item.title}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Socials Section */}
-              <div>
-                <h3 className="text-n-4 text-sm font-semibold uppercase tracking-wider mb-6">
-                  Socials
-                </h3>
-                <div className="space-y-4">
-                  {socialLinks.map((social) => (
-                    <a
-                      key={social.id}
-                      href={social.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={`flex items-center text-n-1 text-lg transition-all duration-300 group cursor-pointer ${social.color}`}
-                    >
-                      <span className="inline-block transform group-hover:-translate-y-1 transition-transform duration-300">
-                        {social.title}
-                      </span>
-                    </a>
-                  ))}
-                </div>
-              </div>
-
-              {/* Local Time */}
-              <div>
-                <h3 className="text-n-4 text-sm font-semibold uppercase tracking-wider mb-4">
-                  Local Time
-                </h3>
-                <div className="flex items-center gap-3">
-                  <Clock className="w-5 h-5 text-color-1" />
-                  <span className="text-n-1 text-lg font-mono">
-                    {formatTime(currentTime)}
+        {/* Middle Section - Menu, Socials, and Time in columns */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 lg:gap-16 mb-24">
+          
+          {/* Menu Section */}
+          <div>
+            <h3 className="text-n-4 text-lg font-semibold uppercase tracking-wider mb-8">
+              Menu
+            </h3>
+            <div className="space-y-5">
+              {footerNavigation.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => handleNavigation(item)}
+                  className="block text-n-1 text-xl lg:text-2xl hover:text-color-1 transition-all duration-300 group cursor-pointer"
+                >
+                  <span className="inline-block transform group-hover:-translate-y-1 transition-transform duration-300">
+                    {item.title}
                   </span>
-                </div>
-                
-                {/* EduSphere Branding - After Local Time */}
-                <div className="mt-16 text-center">
-                  <h1 className="text-[5.5rem] sm:text-[6.5rem] md:text-[7.5rem] lg:text-[8.5rem] xl:text-[9.5rem] 2xl:text-[12rem] font-bold leading-none tracking-tight">
-                    <span className="text-n-1">Edu</span>
-                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-500 to-purple-600">
-                      Sphere
-                    </span>
-                    <span className="text-n-4 text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl 2xl:text-4xl align-top ml-1">
-                      ™
-                    </span>
-                  </h1>
-                </div>
-              </div>
+                </button>
+              ))}
             </div>
           </div>
 
-          {/* Right Section - Back to Top Button */}
-          <div className="flex flex-col justify-end">
-            {/* Back to Top Button */}
-            <div className="flex justify-end pt-16">
-              <button
-                onClick={scrollToTop}
-                className="group flex items-center mt-20 pt-20 gap-2 text-n-3 hover:text-n-1 transition-all duration-300"
-              >
-                <span className="text-sm font-medium mt-32 pt-32 transform group-hover:-translate-y-1 transition-transform duration-300">
-                  Back to top
-                </span>
-                <div className="w-8 h-8 bg-transparent mt-32 pt-32  rounded-full flex items-center justify-center transition-all duration-300 group-hover:-translate-y-1">
-                  <ChevronUp className="w-4 h-4" />
-                </div>
-              </button>
+          {/* Socials Section */}
+          <div>
+            <h3 className="text-n-4 text-lg font-semibold uppercase tracking-wider mb-8">
+              Socials
+            </h3>
+            <div className="space-y-5">
+              {socialLinks.map((social) => (
+                <a
+                  key={social.id}
+                  href={social.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`block text-n-1 text-xl lg:text-2xl transition-all duration-300 group cursor-pointer ${social.color}`}
+                >
+                  <span className="inline-block transform group-hover:-translate-y-1 transition-transform duration-300">
+                    {social.title}
+                  </span>
+                </a>
+              ))}
+            </div>
+          </div>
+
+          {/* Local Time */}
+          <div>
+            <h3 className="text-n-4 text-lg font-semibold uppercase tracking-wider mb-8">
+              Local Time
+            </h3>
+            <div className="flex items-center gap-4">
+              <Clock className="w-6 h-6 text-color-1" />
+              <span className="text-n-1 text-xl lg:text-2xl font-mono">
+                {formatTime(currentTime)}
+              </span>
             </div>
           </div>
         </div>
 
-        {/* Bottom Copyright */}
-        <div className="mt-16 pt-8 border-t border-n-6">
-          <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-            <p className="text-n-4 text-sm">
-              © EduSphere 2025
-            </p>
-            
+        {/* Giant EduSphere Branding */}
+        <div className="text-center mb-24">
+          <h1 className="text-[7rem] sm:text-[8rem] md:text-[10rem] lg:text-[12rem] xl:text-[14rem] 2xl:text-[16rem] font-bold leading-none tracking-tight">
+            <span className="text-n-1">Edu</span>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-500 to-purple-600">
+              Sphere
+            </span>
+            <span className="text-n-4 text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl align-top ml-2">
+              ™
+            </span>
+          </h1>
+        </div>
+
+        {/* Back to Top Button */}
+        <div className="flex justify-end mb-12">
+          <button
+            onClick={scrollToTop}
+            className="group flex items-center gap-3 text-n-3 hover:text-n-1 transition-all duration-300"
+          >
+            <span className="text-lg font-medium transform group-hover:-translate-y-1 transition-transform duration-300">
+              Back to top
+            </span>
+            <div className="w-10 h-10 bg-transparent rounded-full flex items-center justify-center transition-all duration-300 group-hover:-translate-y-1">
+              <ChevronUp className="w-5 h-5" />
+            </div>
+          </button>
+        </div>
+
+        {/* Sleek Line */}
+        <div className="w-full h-px bg-n-6 mb-8"></div>
+
+        {/* Bottom Copyright with EduSphere branding */}
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-6">
+          <p className="text-n-4 text-lg">
+            © EduSphere 2025
+          </p>
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-gradient-to-r from-blue-400 via-purple-500 to-purple-600 rounded-lg flex items-center justify-center">
+              <span className="text-white font-bold text-sm">E</span>
+            </div>
+            <span className="text-n-3 text-lg font-medium">EduSphere</span>
           </div>
         </div>
       </div>
