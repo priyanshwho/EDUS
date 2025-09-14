@@ -23,7 +23,7 @@ Feedback: ${feedbackData.feedback}
     `.trim();
 
     const encodedBody = encodeURIComponent(emailBody);
-    const mailtoLink = `mailto:priyanshu82711@gmail.com?subject=Website Feedback&body=${encodedBody}`;
+    const mailtoLink = `mailto:eduspherepu@gmail.com?subject=Website Feedback&body=${encodedBody}`;
     window.location.href = mailtoLink;
     
     setFeedbackData({

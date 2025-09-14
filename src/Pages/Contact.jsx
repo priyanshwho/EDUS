@@ -54,10 +54,10 @@ const Contact = () => {
       title: "Official Email",
       content: (
         <a
-          href="mailto:priyanshu82711@gmail.com"
+          href="mailto:eduspherepu@gmail.com"
           className="text-purple-300 hover:text-purple-200 transition-colors duration-300 hover:underline break-all"
         >
-          priyanshu82711@gmail.com
+          eduspherepu@gmail.com
         </a>
       ),
       color: "from-orange-400 to-red-400"

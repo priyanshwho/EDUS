@@ -38,7 +38,7 @@ ${formData.firstName} ${formData.lastName}
     `.trim();
 
     const encodedBody = encodeURIComponent(emailBody);
-    const mailtoLink = `mailto:priyanshu82711@gmail.com?subject=New Contact Form Submission&body=${encodedBody}`;
+    const mailtoLink = `mailto:eduspherepu@gmail.com?subject=New Contact Form Submission&body=${encodedBody}`;
     window.location.href = mailtoLink;
     
     // Reset form after submission
