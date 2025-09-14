@@ -6,25 +6,25 @@ const DemoOne = () => {
   const items = [
     {
       image: "/Priyanshu.jpeg",
-      link: "#",
+      link: "/creators",
       title: "Priyanshu Anand",
       description: "Team Lead"
     },
     {
       image: "/Neeraj.jpeg",
-      link: "#",
+      link: "/creators",
       title: "Neeraj Verma", 
-      description: "Team lead"
+      description: "Team Lead"
     },
     {
       image: "/Anuj.jpeg",
-      link: "#",
+      link: "/creators",
       title: "Anuj Kumar",
       description: "Team Member"
     },
     {
       image: "/Prashant.jpeg",
-      link: "#",
+      link: "/creators",
       title: "Prashant Singh",
       description: "Team Member"
     },

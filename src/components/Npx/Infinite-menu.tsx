@@ -1332,8 +1332,8 @@ const InfiniteMenuComponent: FC<InfiniteMenuProps> = ({ items = [] }) => {
     if (activeItem.link.startsWith("http")) {
       window.open(activeItem.link, "_blank");
     } else {
-      // internal route logic here
-      console.log("Internal route:", activeItem.link);
+      // internal route logic here - navigate to the route
+      window.location.href = activeItem.link;
     }
   };
 
@@ -1358,7 +1358,7 @@ const InfiniteMenuComponent: FC<InfiniteMenuProps> = ({ items = [] }) => {
           md:text-2xl text-2xl
           font-bold
           left-1/2
-          md:top-[8%] top-[16%]
+          md:top-[8%] top-[20%]
           transform
           -translate-x-1/2
           whitespace-nowrap
