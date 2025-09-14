@@ -22,8 +22,8 @@ import {
 // Import data from Gemini.json
 import geminiData from "../constants/Gemini.json"
 
-// Filter only PYQs type resources
-const pyqsData = geminiData.filter(item => item.type === "pyqs").map(item => ({
+// Filter only PYQs type resources (including majors, minor, and pyqs)
+const pyqsData = geminiData.filter(item => ["pyqs", "majors", "minor"].includes(item.type)).map(item => ({
   id: item.id,
   title: item.title,
   subjectCode: item.subjectCode || "N/A",
@@ -31,11 +31,11 @@ const pyqsData = geminiData.filter(item => item.type === "pyqs").map(item => ({
   semester: item.semester,
   year: item.year === "N/A" ? "N/A" : item.year,
   subject: item.subject,
-  examType: "-- type",
-  duration: "-- hours",
-  marks: "--",
+  examType: item.type === "majors" ? "Major Exam" : item.type === "minor" ? "Minor Exam" : "PYQ",
+  duration: item.duration ? `${item.duration} hrs` : "-- hours",
+  marks: item.marks ? `${item.marks} marks` : "-- marks",
   downloadUrl: item.url,
-  uploadDate: "2023-12-15",
+  uploadDate: item.uploadDate || "2023-12-15",
 }))
 
 
@@ -340,7 +340,7 @@ const Pyqs_Page = () => {
                           <Badge variant="secondary">Semester {pyq.semester}</Badge>
                           <Badge variant="outline">{pyq.examType}</Badge>
                           <Badge variant="outline">{pyq.duration}</Badge>
-                          <Badge variant="outline">{pyq.marks} marks</Badge>
+                          <Badge variant="outline">{pyq.marks}</Badge>
                         </div>
 
                         {/* <p className="caption text-n-3">
