@@ -109,7 +109,7 @@ const Footer = () => {
           <div className="space-y-12">
             <div>
               <a 
-                href="mailto:hello@edusphere.design"
+                href="mailto:priyanshu82711@gmail.com"
                 className="block group cursor-pointer"
               >
                 <h2 className="text-5xl lg:text-6xl font-bold text-n-1 mb-4 group-hover:text-color-1 transition-colors duration-300">
@@ -117,7 +117,7 @@ const Footer = () => {
                 </h2>
                 <div className="w-full h-px bg-n-6 mb-4"></div>
                 <p className="text-n-3 text-xl group-hover:text-n-1 transition-colors duration-300">
-                  hello@edusphere.design
+                  priyanshu82711@gmail.com
                 </p>
               </a>
             </div>
@@ -205,7 +205,7 @@ const Footer = () => {
                 <span className="text-sm font-medium mt-32 pt-32 transform group-hover:-translate-y-1 transition-transform duration-300">
                   Back to top
                 </span>
-                <div className="w-8 h-8 bg-transparent mt-32 pt-32 hover:bg-color-1 rounded-full flex items-center justify-center transition-all duration-300 group-hover:-translate-y-1">
+                <div className="w-8 h-8 bg-transparent mt-32 pt-32  rounded-full flex items-center justify-center transition-all duration-300 group-hover:-translate-y-1">
                   <ChevronUp className="w-4 h-4" />
                 </div>
               </button>
