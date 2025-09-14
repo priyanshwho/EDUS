@@ -4,6 +4,7 @@ import Services from "./Services";
 import Contact from "./Contact";
 import Feedback from "./Feedback";
 import Makers from "./Makers";
+import { DemoOne } from "./Npx/Demo";
 
 const Homepage = () => {
   return (
@@ -13,6 +14,7 @@ const Homepage = () => {
       <Services />
       <Contact />
       <Feedback />
+      <DemoOne/>
       <Makers />
     </>
   )
