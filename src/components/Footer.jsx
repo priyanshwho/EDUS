@@ -182,13 +182,13 @@ const Footer = () => {
         </div>
 
         {/* Giant EduSphere Branding */}
-        <div className="text-center mb-24">
-          <h1 className="text-[7rem] sm:text-[8rem] md:text-[10rem] lg:text-[12rem] xl:text-[14rem] 2xl:text-[16rem] font-bold leading-none tracking-tight">
+        <div className="text-center mb-24 px-4">
+          <h1 className="text-[3rem] xs:text-[4rem] sm:text-[6rem] md:text-[8rem] lg:text-[10rem] xl:text-[12rem] 2xl:text-[14rem] font-bold leading-none tracking-tight">
             <span className="text-n-1">Edu</span>
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-500 to-purple-600">
               Sphere
             </span>
-            <span className="text-n-4 text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl align-top ml-2">
+            <span className="text-n-4 text-sm xs:text-base sm:text-xl md:text-2xl lg:text-4xl xl:text-5xl 2xl:text-6xl align-top ml-1 sm:ml-2">
               ™
             </span>
           </h1>
