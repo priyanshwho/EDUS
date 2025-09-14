@@ -57,6 +57,7 @@ import Dsa_page from "./Pages/Dsa_page";
 import Contact from "./Pages/Contact";
 import Eduai from "./Pages/Eduai";
 import Footer from "./components/Footer";
+import { DemoOne } from "./components/Npx/Demo";
 
 const App = () => {
   return (
@@ -70,6 +71,7 @@ const App = () => {
     <Route path="/about" element={<AboutPage />} />
     <Route path="/services" element={<ServicesPage />} />
     <Route path="/contact" element={<Contact />} />
+    <Route path="/demo" element={<DemoOne />} />
     <Route path="/ai" element={<Eduai />} />
     <Route path="/techskills" element={<TechSkill_page />} />
     <Route path="/extraskills" element={<ExtraSkills_page />} />
