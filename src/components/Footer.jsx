@@ -107,7 +107,7 @@ const Footer = () => {
         {/* Top Section - Let's Connect and Email in same line */}
         <div className="mb-20">
           <a 
-            href="mailto:priyanshu82711@gmail.com"
+            href="mailto:eduspherepu@gmail.com"
             className="block group cursor-pointer"
           >
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 sm:gap-8 mb-6 group-hover:text-color-1 transition-colors duration-300">
@@ -115,7 +115,7 @@ const Footer = () => {
                 Let's Connect
               </h2>
               <span className="text-xl sm:text-2xl lg:text-2xl xl:text-3xl font-light text-n-1">
-                priyanshu82711@gmail.com
+                eduspherepu@gmail.com
               </span>
             </div>
           </a>
@@ -195,7 +195,17 @@ const Footer = () => {
         </div>
 
         {/* Back to Top Button */}
-        <div className="flex justify-end mb-12">
+        
+        {/* Sleek Line */}
+        <div className="w-full h-px bg-n-6 mb-8"></div>
+
+        {/* Bottom Copyright with EduSphere branding */}
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-6">
+          <p className="text-n-4 text-lg">
+            © EduSphere 2025
+          </p>
+        
+          <div className="flex justify-end mb-12">
           <button
             onClick={scrollToTop}
             className="group flex items-center gap-3 text-n-3 hover:text-n-1 transition-all duration-300"
@@ -208,16 +218,6 @@ const Footer = () => {
             </div>
           </button>
         </div>
-
-        {/* Sleek Line */}
-        <div className="w-full h-px bg-n-6 mb-8"></div>
-
-        {/* Bottom Copyright with EduSphere branding */}
-        <div className="flex flex-col sm:flex-row justify-between items-center gap-6">
-          <p className="text-n-4 text-lg">
-            © EduSphere 2025
-          </p>
-        
         </div>
       </div>
     </footer>
