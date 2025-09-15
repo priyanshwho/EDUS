@@ -46,7 +46,7 @@ import LecturesPage from "./Pages/Lectures_Page";
 import AboutPage from "./Pages/About_Page";
 import ServicesPage from "./Pages/Services_Page";
 import Homepage from "./components/Homepage";
-import { RedirectToSignIn, SignedIn, SignedOut } from "@clerk/clerk-react";
+// import { RedirectToSignIn, SignedIn, SignedOut } from "@clerk/clerk-react";
 import Pyqs_Page from "./Pages/Pyqs_Page";
 import Notes_Page from "./Pages/Notes_Page";
 import Aiml_page from "./Pages/Aiml_page";
@@ -77,91 +77,71 @@ const App = () => {
     <Route path="/techskills" element={<TechSkill_page />} />
     <Route path="/extraskills" element={<ExtraSkills_page />} />
 
-    <Route path="/pyqs" element={
+    <Route path="/pyqs" element={<Pyqs_Page/>} />
+    {/* <Route path="/pyqs" element={
       <>
       <SignedIn>
-
       <Pyqs_Page/>
       </SignedIn>
       <SignedOut>
         <RedirectToSignIn/>
       </SignedOut>
       </>
-  } />
-    <Route path="/notes" element={
+  } /> */}
+    <Route path="/notes" element={<Notes_Page />} />
+    {/* <Route path="/notes" element={
       <>
       <SignedIn>
-
       <Notes_Page />
       </SignedIn>
       <SignedOut>
         <RedirectToSignIn/>
       </SignedOut>
       </>
-      
-      } />
-      <Route path="/lectures" element={
+      } /> */}
+      <Route path="/lectures" element={<LecturesPage />} />
+      {/* <Route path="/lectures" element={
       <>
       <SignedIn>
-
       <LecturesPage />
       </SignedIn>
       <SignedOut>
         <RedirectToSignIn/>
       </SignedOut>
       </>
-      
-      } />
-
-      <Route path="/webdev" element={
+      } /> */}
+      <Route path="/webdev" element={<Webdev_page />} />
+      {/* <Route path="/webdev" element={
       <>
       <SignedIn>
-
       <Webdev_page />
       </SignedIn>
       <SignedOut>
         <RedirectToSignIn/>
       </SignedOut>
       </>
-      
-      } />
-
-<Route path="/notes" element={
+      } /> */}
+      <Route path="/dsa" element={<Dsa_page />} />
+      {/* <Route path="/dsa" element={
       <>
       <SignedIn>
-
-      <Notes_Page />
-      </SignedIn>
-      <SignedOut>
-        <RedirectToSignIn/>
-      </SignedOut>
-      </>
-      
-      } />
-
-<Route path="/dsa" element={
-      <>
-      <SignedIn>
-
       <Dsa_page />
       </SignedIn>
       <SignedOut>
         <RedirectToSignIn/>
       </SignedOut>
       </>
-      
-      } />
-
-    <Route path="/aiml" element={
+      } /> */}
+    <Route path="/aiml" element={<Aiml_page />} />
+    {/* <Route path="/aiml" element={
       <>
       <SignedIn>
       <Aiml_page />
-
       </SignedIn>
       <SignedOut>
         <RedirectToSignIn/>
       </SignedOut>
-      </>} />
+      </>} /> */}
     {/* ...other routes */}
   </Routes>
 </>
