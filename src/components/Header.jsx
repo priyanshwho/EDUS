@@ -2,7 +2,7 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
-import { useUser, useClerk, UserButton } from "@clerk/clerk-react";
+// import { useUser, useClerk, UserButton } from "@clerk/clerk-react";
 import Button from "./Button";
 import eduIcon from "../assets/eduIcon.svg"
 import { navigation } from "../constants"
@@ -16,8 +16,8 @@ import {HamburgerMenu} from "./design/Header";
 
 const Header = () => {
     const navigate= useNavigate()
-    const {user} =useUser()
-    const {openSignIn}=useClerk()
+    // const {user} =useUser()
+    // const {openSignIn}=useClerk()
 
 
     const pathname= useLocation();
@@ -35,13 +35,13 @@ const Header = () => {
     };
 
     // Custom scroll handler for navbar links with offset
-    // Custom scroll handler for navbar links with offset and Clerk auth
     const handleClick = (e, url, item) => {
         e.preventDefault();
-        if (item && item.auth) {
-            // Store intended route for redirect after login
-            handleAuthRedirect(item.to || "/")
-        } else if (url) {
+        // if (item && item.auth) {
+        //     // Store intended route for redirect after login
+        //     handleAuthRedirect(item.to || "/")
+        // } else 
+        if (url) {
             const targetId = url.replace('#', '');
             const target = document.getElementById(targetId);
             if (target) {
@@ -54,13 +54,13 @@ const Header = () => {
         setOpenNavigation(false);
     }
 
-    const handleAuthRedirect = (redirectPath) => {
-        if (user) {
-            navigate(redirectPath);
-        } else {
-            openSignIn();
-        }
-    }
+    // const handleAuthRedirect = (redirectPath) => {
+    //     if (user) {
+    //         navigate(redirectPath);
+    //     } else {
+    //         openSignIn();
+    //     }
+    // }
 return (
     <div  className={`fixed top-0 left-0 w-full z-50  border-b border-n-6 lg:bg-n-8/90 lg:backdrop-blur-sm ${openNavigation ? "bg-n-8" : "bg-n-8/90 backdrop-blur-sm"} `}>
             <div className="flex items-center px-5 lg:px-7.5 xl:px-10 max-lg:py-4">
@@ -79,13 +79,12 @@ return (
                     </a>
                     <nav className={` ${openNavigation ? "flex": "hidden"} fixed top-[5rem] left-0 right-0 bottom-0 bg-n-8 lg:static lg:flex lg:mx-auto lg:bg-transparent`}>
                             <div className="relative z-2 flex flex-col items-center justify-center m-auto lg:flex-row">
-                                    {/* Show Profile button at top of mobile menu when logged in */}
-                                    {user ? (
+                                    {/* Show menu items without authentication */}
+                                    {/* {user ? (
                                         <div className="px-6 py-6 md:py-8 lg:hidden border-b border-n-6 mb-4">
                                             <UserButton afterSignOutUrl="/" />
                                         </div>
                                     ) : (
-                                        /* Show Get Started button at top of mobile menu when not logged in */
                                         <div className="px-6 py-6 md:py-8 lg:hidden border-b border-n-6 mb-4">
                                             <Button 
                                                 onClick={() => handleAuthRedirect("/")}
@@ -94,7 +93,7 @@ return (
                                                 Get Started
                                             </Button>
                                         </div>
-                                    )}
+                                    )} */}
                                     
                                     {navigation.map((item) => {
                                         // Redirect pages to their respective routes
@@ -104,10 +103,14 @@ return (
                                         const isContact = item.title === "contact";
                                         const isEduAi = item.title === "Edu.ai";
                                         
-                                        // Skip "Get Started" if user is not logged in (since it's now at the top)
+                                        // Skip auth items since we're not using authentication now
                                         if (item.auth) {
                                             return null;
                                         }
+                                        // Skip "Get Started" if user is not logged in (since it's now at the top)
+                                        // if (item.auth) {
+                                        //     return null;
+                                        // }
                                         
                                         return (
                                             <a
@@ -153,7 +156,13 @@ return (
                             <HamburgerMenu/>
                     </nav>
                     <div className="hidden lg:flex">
-                        {user ? (
+                        {/* Simple navigation button without authentication */}
+                        <Button 
+                            onClick={() => navigate("/creators")} 
+                        >
+                            Creators
+                        </Button>
+                        {/* {user ? (
                             <UserButton />
                         ) : (
                             <Button 
@@ -161,7 +170,7 @@ return (
                             >
                                 Get Started
                             </Button>
-                        )}
+                        )} */}
                     </div>
 
                                     <Button className="ml-auto lg:hidden" px="px-3" onClick={toggleNavigation}>
