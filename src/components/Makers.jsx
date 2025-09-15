@@ -10,19 +10,19 @@ const Makers = () => {
       role: 'Lead Full Stack Developer',
       description: 'Leading the technical vision and architecting scalable full-stack solutions with expertise in modern frameworks.',
       avatar: '/Priyanshu.jpeg',
-      github: 'https://github.com/priyanshu82711',
-      linkedin: 'https://linkedin.com/in/priyanshu-anand',
-      email: 'priyanshu@edusphere.com',
+      github: 'https://github.com/priyans11',
+      linkedin: 'https://linkedin.com/in/priyans11',
+      email: 'priyanshu82711@gmail.com',
       gradient: 'from-purple-500 to-blue-500'
     },
     {
-      name: 'Neeraj Verma',
+      name: 'Neeraj Kumar Verma',
       role: 'MERN Stack Developer',
       description: 'Specialized in MongoDB, Express.js, React, and Node.js for building dynamic web applications.',
       avatar: '/Neeraj.jpeg',
-      github: 'https://github.com/neerajverma',
-      linkedin: 'https://linkedin.com/in/neeraj-verma',
-      email: 'neeraj@edusphere.com',
+      github: 'https://github.com/coder174-ops',
+      linkedin: 'https://www.linkedin.com/in/neeraj-kumar-verma-9813b6261',
+      email: 'neerajjnv2015@gmail.com',
       gradient: 'from-blue-500 to-cyan-500'
     },
     {
@@ -30,19 +30,19 @@ const Makers = () => {
       role: 'Web Developer',
       description: 'Creating responsive and interactive web experiences with modern technologies and best practices.',
       avatar: '/Anuj.jpeg',
-      github: 'https://github.com/anujkumar',
-      linkedin: 'https://linkedin.com/in/anuj-kumar',
-      email: 'anuj@edusphere.com',
+      github: 'https://github.com/anujarya1435',
+      linkedin: 'https://www.linkedin.com/in/nitesh-kumar-1b9b0a362',
+      email: 'nraj21284@gmail.com',
       gradient: 'from-cyan-500 to-green-500'
     },
     {
-      name: 'Prashant Singh',
+      name: 'Prashant Kumar Singh',
       role: 'Cybersecurity Expert',
       description: 'Ensuring platform security and data protection through advanced cybersecurity practices and protocols.',
       avatar: '/Prashant.jpeg',
-      github: 'https://github.com/prashantsingh',
-      linkedin: 'https://linkedin.com/in/prashant-singh',
-      email: 'prashant@edusphere.com',
+      github: 'https://github.com/lifeaboutsily',
+      linkedin: 'https://www.linkedin.com/in/prashant-kumar-singh-b612442b5',
+      email: 'curiousprashantks@gmail.com',
       gradient: 'from-green-500 to-purple-500'
     }
   ]
@@ -80,11 +80,11 @@ const Makers = () => {
           {teamMembers.map((member, index) => (
             <div
               key={member.name}
-              className="group relative bg-n-7/20 backdrop-blur-xl border border-n-1/10 rounded-2xl p-6 hover:bg-n-7/30 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/10"
+              className="group relative z-20 bg-n-7/20 backdrop-blur-xl border border-n-1/10 rounded-2xl p-6 hover:bg-n-7/30 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-purple-500/5"
             >
               {/* Avatar */}
               <div className="relative mb-6">
-                <div className={`w-24 h-24 mx-auto rounded-full bg-gradient-to-br ${member.gradient} p-1 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                <div className={`w-24 h-24 mx-auto rounded-full bg-gradient-to-br ${member.gradient} p-1 shadow-lg group-hover:scale-105 transition-transform duration-300`}>
                   <div className="w-full h-full rounded-full overflow-hidden bg-n-8">
                     <img 
                       src={member.avatar} 
@@ -121,7 +121,11 @@ const Makers = () => {
                     href={member.github}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-8 h-8 bg-n-6/50 border border-n-1/10 rounded-lg flex items-center justify-center hover:bg-purple-500/20 hover:border-purple-500/50 transition-all duration-300 group/icon"
+                    className="w-8 h-8 bg-n-6/50 border border-n-1/10 rounded-lg flex items-center justify-center hover:bg-purple-500/20 hover:border-purple-500/50 transition-all duration-300 group/icon cursor-pointer"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      window.open(member.github, '_blank');
+                    }}
                   >
                     <Github className="w-4 h-4 text-n-2 group-hover/icon:text-purple-300" />
                   </a>
@@ -129,13 +133,21 @@ const Makers = () => {
                     href={member.linkedin}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-8 h-8 bg-n-6/50 border border-n-1/10 rounded-lg flex items-center justify-center hover:bg-blue-500/20 hover:border-blue-500/50 transition-all duration-300 group/icon"
+                    className="w-8 h-8 bg-n-6/50 border border-n-1/10 rounded-lg flex items-center justify-center hover:bg-blue-500/20 hover:border-blue-500/50 transition-all duration-300 group/icon cursor-pointer"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      window.open(member.linkedin, '_blank');
+                    }}
                   >
                     <Linkedin className="w-4 h-4 text-n-2 group-hover/icon:text-blue-300" />
                   </a>
                   <a
                     href={`mailto:${member.email}`}
-                    className="w-8 h-8 bg-n-6/50 border border-n-1/10 rounded-lg flex items-center justify-center hover:bg-green-500/20 hover:border-green-500/50 transition-all duration-300 group/icon"
+                    className="w-8 h-8 bg-n-6/50 border border-n-1/10 rounded-lg flex items-center justify-center hover:bg-green-500/20 hover:border-green-500/50 transition-all duration-300 group/icon cursor-pointer"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      window.open(`mailto:${member.email}`, '_self');
+                    }}
                   >
                     <Mail className="w-4 h-4 text-n-2 group-hover/icon:text-green-300" />
                   </a>
