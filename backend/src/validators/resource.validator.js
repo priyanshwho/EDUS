@@ -1,7 +1,7 @@
 const { body, param, query } = require('express-validator');
 
-const RESOURCE_TYPES = ['notes', 'pyq', 'lecture', 'assignment', 'lab'];
-const PYQ_TYPES = ['major', 'minor', 'sessional', 'practical'];
+const RESOURCE_TYPES = ['notes', 'assignment', 'pyq', 'lecture'];
+const PYQ_TYPES = ['minor1', 'minor2', 'major'];
 const CURRENT_YEAR = new Date().getFullYear();
 
 const createResourceValidator = [

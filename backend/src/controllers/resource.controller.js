@@ -14,7 +14,7 @@ async function list(req, res, next) {
       .from('resources')
       .select(`
         id, title, description, resource_type, year, pyq_type,
-        external_link, aws_s3_key, slug, created_at, uploaded_by,
+        external_link, aws_s3_key, youtube_url, slug, created_at, uploaded_by,
         subjects ( id, name_full, acronym, branch, semester )
       `)
       .order('created_at', { ascending: false });
@@ -72,14 +72,16 @@ async function getBySlug(req, res, next) {
 async function create(req, res, next) {
   try {
     if (checkValidation(req, res)) return;
-    const { subject_id, resource_type, title, description, year, pyq_type, external_link, aws_s3_key } = req.body;
+    const { subject_id, resource_type, title, description, year, pyq_type, external_link, aws_s3_key, youtube_url } = req.body;
 
     if (!subject_id || !resource_type || !title)
       return res.status(400).json({ error: 'subject_id, resource_type and title are required' });
-    if (!external_link && !aws_s3_key)
-      return res.status(400).json({ error: 'Either external_link or aws_s3_key must be provided' });
-    if (external_link && aws_s3_key)
-      return res.status(400).json({ error: 'Only one of external_link or aws_s3_key can be set' });
+
+    const sourceCount = [external_link, aws_s3_key, youtube_url].filter(Boolean).length;
+    if (sourceCount === 0)
+      return res.status(400).json({ error: 'One of external_link, aws_s3_key, or youtube_url must be provided' });
+    if (sourceCount > 1)
+      return res.status(400).json({ error: 'Only one of external_link, aws_s3_key, or youtube_url can be set' });
 
     // Legacy Drive links — only admin
     if (external_link && req.user.role === 'professor')
@@ -105,7 +107,7 @@ async function create(req, res, next) {
       .from('resources')
       .insert({
         subject_id, resource_type, title, description,
-        year, pyq_type, external_link, aws_s3_key,
+        year, pyq_type, external_link, aws_s3_key, youtube_url,
         uploaded_by: req.user.id,
         slug,
       })
@@ -138,7 +140,7 @@ async function update(req, res, next) {
       if (req.user.role === 'professor' && existing.uploaded_by !== req.user.id)
         return res.status(403).json({ error: 'You can only edit your own resources' });
 
-      const allowedFields = ['title', 'description', 'year', 'pyq_type', 'aws_s3_key'];
+      const allowedFields = ['title', 'description', 'year', 'pyq_type', 'aws_s3_key', 'youtube_url'];
       const updates = {};
       for (const field of allowedFields) {
         if (req.body[field] !== undefined) updates[field] = req.body[field];
