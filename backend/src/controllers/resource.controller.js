@@ -8,7 +8,7 @@ const { blockProfessorOnLegacy } = require('../middleware/legacy.middleware');
 async function list(req, res, next) {
   try {
     if (checkValidation(req, res)) return;
-    const { branch, semester, subject_id, resource_type, pyq_type, year, uploaded_by, q } = req.query;
+    const { branch, semester, subject_id, resource_type, pyq_type, year, uploaded_by, uploaded_by_name, q } = req.query;
 
     let query = supabase
       .from('resources')
@@ -22,8 +22,21 @@ async function list(req, res, next) {
     if (resource_type) query = query.eq('resource_type', resource_type);
     if (pyq_type)      query = query.eq('pyq_type', pyq_type);
     if (year)          query = query.eq('year', year);
-    if (uploaded_by)   query = query.eq('uploaded_by', uploaded_by);
     if (subject_id)    query = query.eq('subject_id', subject_id);
+
+    // Filter by exact uploader UUID
+    if (uploaded_by) query = query.eq('uploaded_by', uploaded_by);
+
+    // Filter by uploader name — resolve matching user IDs first
+    if (uploaded_by_name) {
+      const { data: matchedUsers } = await supabase
+        .from('users')
+        .select('id')
+        .ilike('username', `%${uploaded_by_name}%`);
+      const ids = (matchedUsers || []).map(u => u.id);
+      if (ids.length === 0) return res.json({ resources: [] });
+      query = query.in('uploaded_by', ids);
+    }
 
     if (branch || semester) {
       // Filter via subjects join
@@ -140,7 +153,10 @@ async function update(req, res, next) {
       if (req.user.role === 'professor' && existing.uploaded_by !== req.user.id)
         return res.status(403).json({ error: 'You can only edit your own resources' });
 
-      const allowedFields = ['title', 'description', 'year', 'pyq_type', 'aws_s3_key', 'youtube_url'];
+      // Admins can also update external_link (Drive links); professors cannot
+      const allowedFields = req.user.role === 'admin'
+        ? ['title', 'description', 'year', 'pyq_type', 'aws_s3_key', 'youtube_url', 'external_link']
+        : ['title', 'description', 'year', 'pyq_type', 'aws_s3_key', 'youtube_url'];
       const updates = {};
       for (const field of allowedFields) {
         if (req.body[field] !== undefined) updates[field] = req.body[field];
