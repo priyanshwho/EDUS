@@ -20,7 +20,7 @@ export default function ProfessorDashboard() {
     subjectService.list().then(({ subjects }) => setSubjects(subjects || []));
   }, []);
 
-  const tabs = ['overview', 'upload', 'announcements', 'resources'];
+  const tabs = ['overview', 'upload', 'subjects', 'announcements', 'resources'];
 
   return (
     <section className="min-h-screen bg-n-8 text-n-1 p-6">
@@ -45,6 +45,7 @@ export default function ProfessorDashboard() {
 
       {activeTab === 'overview'       && <AnalyticsOverview analytics={analytics} />}
       {activeTab === 'upload'         && <UploadForm subjects={subjects} />}
+      {activeTab === 'subjects'       && <SubjectsPanel subjects={subjects} setSubjects={setSubjects} userId={user?.id} />}
       {activeTab === 'announcements'  && <AnnouncementsPanel subjects={subjects} />}
       {activeTab === 'resources'      && <MyResources userId={user?.id} />}
     </section>
@@ -63,7 +64,6 @@ function AnalyticsOverview({ analytics }) {
     { label: 'PYQs (Minor 1)',   value: analytics.byType?.['pyq:minor1'] || 0 },
     { label: 'PYQs (Minor 2)',   value: analytics.byType?.['pyq:minor2'] || 0 },
     { label: 'Lectures',         value: analytics.byType?.lecture || 0 },
-    { label: 'YouTube',          value: analytics.byType?.youtube || 0 },
   ];
 
   return (
@@ -108,8 +108,13 @@ function UploadForm({ subjects }) {
     e.preventDefault();
     setSuccess(false);
     try {
-      if (form.resource_type === 'youtube') {
-        await resourceService.create({ ...form, external_link: form.youtube_url });
+      if (form.resource_type === 'lecture' && form.youtube_url) {
+        // YouTube lecture — no file upload needed
+        await resourceService.create({
+          ...form,
+          year: Number(form.year) || undefined,
+          youtube_url: form.youtube_url,
+        });
       } else if (file) {
         await upload(file, { ...form, year: Number(form.year) || undefined });
       }
@@ -118,6 +123,9 @@ function UploadForm({ subjects }) {
       setFile(null);
     } catch {}
   };
+
+  const isLecture = form.resource_type === 'lecture';
+  const isPyq     = form.resource_type === 'pyq';
 
   return (
     <form onSubmit={handleSubmit} className="max-w-xl space-y-4">
@@ -131,15 +139,16 @@ function UploadForm({ subjects }) {
 
       <select name="resource_type" value={form.resource_type} onChange={onChange}
         className="w-full rounded-lg border border-n-6 bg-n-7 px-4 py-2 text-sm">
-        {['notes','assignment','pyq','lecture','youtube'].map(t =>
-          <option key={t} value={t}>{t.toUpperCase()}</option>)}
+        {['notes','assignment','pyq','lecture'].map(t =>
+          <option key={t} value={t}>{t.charAt(0).toUpperCase() + t.slice(1)}</option>)}
       </select>
 
-      {form.resource_type === 'pyq' && (
+      {isPyq && (
         <select name="pyq_type" value={form.pyq_type} onChange={onChange}
           className="w-full rounded-lg border border-n-6 bg-n-7 px-4 py-2 text-sm">
           <option value="">Select PYQ Type</option>
-          {['minor1','minor2','major'].map(t => <option key={t} value={t}>{t}</option>)}
+          {[['minor1','Minor 1 (30 marks)'],['minor2','Minor 2 (30 marks)'],['major','Major (50 marks)']].map(([v,l]) =>
+            <option key={v} value={v}>{l}</option>)}
         </select>
       )}
 
@@ -150,10 +159,15 @@ function UploadForm({ subjects }) {
       <input name="year" value={form.year} onChange={onChange} placeholder="Year (e.g. 2024)" type="number"
         className="w-full rounded-lg border border-n-6 bg-n-7 px-4 py-2 text-sm" />
 
-      {form.resource_type === 'youtube'
-        ? <input name="youtube_url" value={form.youtube_url} onChange={onChange} placeholder="YouTube URL" required
-            className="w-full rounded-lg border border-n-6 bg-n-7 px-4 py-2 text-sm" />
-        : <input type="file" accept=".pdf,video/*" onChange={e => setFile(e.target.files[0])} required
+      {isLecture
+        ? <>
+            <input name="youtube_url" value={form.youtube_url} onChange={onChange} placeholder="YouTube URL (required for lectures)" required
+              className="w-full rounded-lg border border-n-6 bg-n-7 px-4 py-2 text-sm" />
+            <p className="text-xs text-n-5">Or upload a PDF instead:</p>
+            <input type="file" accept=".pdf" onChange={e => setFile(e.target.files[0])}
+              className="text-sm text-n-4" />
+          </>
+        : <input type="file" accept=".pdf" onChange={e => setFile(e.target.files[0])} required
             className="text-sm text-n-4" />
       }
 
@@ -254,3 +268,94 @@ function MyResources({ userId }) {
     </div>
   );
 }
+
+// ── Subjects Panel ─────────────────────────────────────────────────────────
+const BRANCHES = ['CSE', 'IT', 'ECE', 'EEE', 'ME', 'CE', 'AI/ML', 'DS'];
+
+function SubjectsPanel({ subjects, setSubjects, userId }) {
+  const [form, setForm] = useState({ name_full: '', acronym: '', branch: '', semester: '' });
+  const [creating, setCreating] = useState(false);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(false);
+
+  const onChange = (e) => setForm(p => ({ ...p, [e.target.name]: e.target.value }));
+
+  const handleCreate = async (e) => {
+    e.preventDefault();
+    setCreating(true);
+    setError(null);
+    setSuccess(false);
+    try {
+      const { subject } = await subjectService.create({
+        ...form,
+        semester: Number(form.semester),
+      });
+      setSubjects(prev => [subject, ...prev]);
+      setForm({ name_full: '', acronym: '', branch: '', semester: '' });
+      setSuccess(true);
+    } catch (err) {
+      setError('Failed to create subject. Check all fields.');
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  const mySubjects = subjects.filter(s => s.added_by === userId);
+
+  const inputCls = 'w-full rounded-lg border border-n-6 bg-n-7 px-4 py-2 text-sm focus:outline-none focus:border-color-1';
+
+  return (
+    <div className="max-w-xl">
+      <h2 className="h5 mb-4">Manage Subjects</h2>
+
+      {/* Create form */}
+      <form onSubmit={handleCreate} className="space-y-3 mb-8 p-5 bg-n-7 rounded-2xl border border-n-6">
+        <h3 className="font-semibold text-sm text-n-2 mb-1">Add New Subject</h3>
+
+        <input name="name_full" value={form.name_full} onChange={onChange} placeholder="Full Name (e.g. Design & Analysis of Algorithms)" required
+          className={inputCls} />
+        <div className="flex gap-3">
+          <input name="acronym" value={form.acronym} onChange={onChange} placeholder="Acronym (e.g. DAA)" required
+            className={inputCls + ' uppercase'} maxLength={10} />
+          <select name="semester" value={form.semester} onChange={onChange} required className={inputCls}>
+            <option value="">Semester</option>
+            {Array.from({ length: 8 }, (_, i) => (
+              <option key={i + 1} value={i + 1}>Sem {i + 1}</option>
+            ))}
+          </select>
+        </div>
+        <select name="branch" value={form.branch} onChange={onChange} required className={inputCls}>
+          <option value="">Select Branch</option>
+          {BRANCHES.map(b => <option key={b} value={b}>{b}</option>)}
+        </select>
+
+        {error   && <p className="text-red-400 text-sm">{error}</p>}
+        {success && <p className="text-green-400 text-sm">✅ Subject created!</p>}
+
+        <button type="submit" disabled={creating}
+          className="w-full py-2.5 rounded-xl bg-color-1 text-n-8 font-semibold text-sm hover:opacity-90 disabled:opacity-50 transition">
+          {creating ? 'Creating…' : 'Create Subject'}
+        </button>
+      </form>
+
+      {/* My subjects */}
+      <h3 className="font-semibold text-sm mb-3 text-n-2">
+        My Subjects ({mySubjects.length})
+      </h3>
+      {mySubjects.length === 0 && (
+        <p className="text-sm text-n-5">You haven't added any subjects yet.</p>
+      )}
+      <ul className="space-y-2">
+        {mySubjects.map(s => (
+          <li key={s.id} className="flex items-center justify-between rounded-xl border border-n-6 bg-n-7 px-4 py-3">
+            <div>
+              <p className="text-sm font-medium">{s.name_full}</p>
+              <p className="text-xs text-n-5 font-mono">{s.acronym} · {s.branch} · Sem {s.semester}</p>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+

@@ -7,15 +7,17 @@ const RESOURCE_TYPES = [
   { value: 'pyq', label: 'PYQ' },
   { value: 'lecture', label: 'Lecture' },
   { value: 'assignment', label: 'Assignment' },
-  { value: 'lab', label: 'Lab Manual' },
 ];
 
 const PYQ_TYPES = [
   { value: '', label: 'All' },
+  { value: 'minor1', label: 'Minor 1' },
+  { value: 'minor2', label: 'Minor 2' },
   { value: 'major', label: 'Major' },
-  { value: 'minor', label: 'Minor' },
-  { value: 'sessional', label: 'Sessional' },
-  { value: 'practical', label: 'Practical' },
+];
+
+const BRANCHES = [
+  'CSE', 'IT', 'ECE', 'EEE', 'ME', 'CE', 'AI/ML', 'DS',
 ];
 
 const SEMESTERS = [
@@ -82,6 +84,11 @@ export default function ResourceFilterPanel({ filters = {}, onChange, onClear, c
         <SearchBox value={searchInput} onChange={setSearchInput} />
         <Select value={filters.resource_type || ''} onChange={(v) => update('resource_type', v)} options={RESOURCE_TYPES} />
         <Select value={filters.semester || ''} onChange={(v) => update('semester', v)} options={SEMESTERS} />
+        <Select
+          value={filters.branch || ''}
+          onChange={(v) => update('branch', v)}
+          options={[{ value: '', label: 'All Branches' }, ...BRANCHES.map(b => ({ value: b, label: b }))]}
+        />
         {filters.resource_type === 'pyq' && (
           <Select value={filters.pyq_type || ''} onChange={(v) => update('pyq_type', v)} options={PYQ_TYPES} />
         )}
@@ -184,6 +191,27 @@ export default function ResourceFilterPanel({ filters = {}, onChange, onClear, c
           </FilterSection>
         </>
       )}
+
+      {/* Branch */}
+      <FilterSection label="Branch">
+        <Select
+          value={filters.branch || ''}
+          onChange={(v) => update('branch', v)}
+          options={[{ value: '', label: 'All Branches' }, ...BRANCHES.map(b => ({ value: b, label: b }))]}
+          fullWidth
+        />
+      </FilterSection>
+
+      {/* Uploaded By */}
+      <FilterSection label="Uploaded By">
+        <input
+          type="text"
+          value={filters.uploaded_by_name || ''}
+          onChange={(e) => update('uploaded_by_name', e.target.value || undefined)}
+          placeholder="Professor name…"
+          className="w-full bg-n-6 text-n-1 text-sm rounded-lg px-3 py-2 border border-n-5 focus:outline-none focus:border-color-1 transition"
+        />
+      </FilterSection>
     </aside>
   );
 }

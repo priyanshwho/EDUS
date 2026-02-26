@@ -160,6 +160,18 @@ function ResourceCard({ resource: r, onPreview }) {
             Preview
           </button>
         )}
+        {(r.signedUrl || r.external_link) && (
+          <a
+            href={r.signedUrl || r.external_link}
+            download={!!r.signedUrl}
+            target={r.signedUrl ? '_self' : '_blank'}
+            rel="noopener noreferrer"
+            className="px-3 py-1.5 rounded-lg border border-n-6 text-sm text-n-3 hover:border-color-1 hover:text-n-1 transition"
+            title="Download"
+          >
+            ↓
+          </a>
+        )}
         <button
           onClick={handleCopy}
           className="px-3 py-1.5 rounded-lg border border-n-6 text-sm text-n-3 hover:border-color-1 transition"
