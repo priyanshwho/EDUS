@@ -1,7 +1,12 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useResources } from '../hooks/useResources';
-import { userService } from '../services/index';
+import { resourceService } from '../services/resource.service';
+import ResourceFilterPanel from '../components/ResourceFilterPanel';
+import PreviewModal from '../components/previews/PreviewModal';
+import { resourceTypeLabel, formatDate, resourceShareUrl } from '../utils/format';
+import { isPreviewable } from '../utils/preview';
 
 /**
  * StudentDashboard

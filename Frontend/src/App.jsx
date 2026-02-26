@@ -69,6 +69,7 @@ import AuthCallbackPage from "./Pages/AuthCallback";
 import StudentDashboard from "./dashboard/StudentDashboard";
 import ProfessorDashboard from "./dashboard/ProfessorDashboard";
 import AdminDashboard from "./dashboard/AdminDashboard";
+import ResourcePage from "./Pages/ResourcePage";
 // ───────────────────────────────────────────────────────────────────
 
 const App = () => {
@@ -111,6 +112,9 @@ const App = () => {
         <AdminDashboard />
       </ProtectedRoute>
     } />
+
+    {/* ── Public resource detail (shareable) ── */}
+    <Route path="/resource/:slug" element={<ResourcePage />} />
 
     <Route path="/pyqs" element={<Pyqs_Page/>} />
     {/* <Route path="/pyqs" element={
