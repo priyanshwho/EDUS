@@ -46,7 +46,6 @@ import LecturesPage from "./Pages/Lectures_Page";
 import AboutPage from "./Pages/About_Page";
 import ServicesPage from "./Pages/Services_Page";
 import Homepage from "./components/Homepage";
-// import { RedirectToSignIn, SignedIn, SignedOut } from "@clerk/clerk-react";
 import Pyqs_Page from "./Pages/Pyqs_Page";
 import Notes_Page from "./Pages/Notes_Page";
 import Aiml_page from "./Pages/Aiml_page";
@@ -59,9 +58,22 @@ import Eduai from "./Pages/Eduai";
 import Footer from "./components/Footer";
 import { DemoOne } from "./components/Npx/Demo";
 import Makers from "./components/Makers";
+
+// ── Auth & Dashboard ────────────────────────────────────────────────
+import { AuthProvider } from "./context/AuthContext";
+import { ProtectedRoute } from "./components/ProtectedRoute";
+import LoginPage from "./Pages/Login";
+import SignupPage from "./Pages/Signup";
+import ProfessorPinPage from "./Pages/ProfessorPin";
+import AuthCallbackPage from "./Pages/AuthCallback";
+import StudentDashboard from "./dashboard/StudentDashboard";
+import ProfessorDashboard from "./dashboard/ProfessorDashboard";
+import AdminDashboard from "./dashboard/AdminDashboard";
+// ───────────────────────────────────────────────────────────────────
+
 const App = () => {
   return (
-    <>
+    <AuthProvider>
       <ScrollToTop />
       <div className="pt-[4.75rem] lg:pt-[5.25rem] overflow-hidden">
         <Header />
@@ -76,6 +88,29 @@ const App = () => {
     <Route path="/ai" element={<Eduai />} />
     <Route path="/techskills" element={<TechSkill_page />} />
     <Route path="/extraskills" element={<ExtraSkills_page />} />
+
+    {/* ── Auth routes ── */}
+    <Route path="/login"          element={<LoginPage />} />
+    <Route path="/signup"         element={<SignupPage />} />
+    <Route path="/auth/pin"       element={<ProfessorPinPage />} />
+    <Route path="/auth/callback"  element={<AuthCallbackPage />} />
+
+    {/* ── Protected dashboards ── */}
+    <Route path="/dashboard/student" element={
+      <ProtectedRoute roles={['student','professor','admin']}>
+        <StudentDashboard />
+      </ProtectedRoute>
+    } />
+    <Route path="/dashboard/professor" element={
+      <ProtectedRoute roles={['professor','admin']}>
+        <ProfessorDashboard />
+      </ProtectedRoute>
+    } />
+    <Route path="/dashboard/admin" element={
+      <ProtectedRoute roles={['admin']}>
+        <AdminDashboard />
+      </ProtectedRoute>
+    } />
 
     <Route path="/pyqs" element={<Pyqs_Page/>} />
     {/* <Route path="/pyqs" element={
@@ -148,7 +183,7 @@ const App = () => {
    </div>
       <Footer />
       <ButtonGradient />
-    </>
+    </AuthProvider>
   );
 };
 

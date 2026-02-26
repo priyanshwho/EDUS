@@ -10,8 +10,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@clerk/clerk-react": "^5.44.0",
-    "@clerk/nextjs": "^6.29.0",
     "gl-matrix": "^3.4.4",
     "lucide-react": "^0.542.0",
     "react": "^19.0.0",
