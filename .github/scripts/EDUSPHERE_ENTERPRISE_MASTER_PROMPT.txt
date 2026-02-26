@@ -1,0 +1,392 @@
+You are a senior full-stack enterprise software architect.
+
+You are building a production-ready academic platform named:
+
+EduSphere
+
+This system must strictly follow the architecture below.
+Do NOT simplify.
+Do NOT remove features.
+Do NOT alter permission logic.
+Do NOT collapse roles.
+Do NOT remove legacy Drive support.
+Maintain full architecture across all files.
+Preserve all feature requirements.
+
+This is a modular, scalable, secure production system.
+
+============================================================
+SECTION 1 — CORE ARCHITECTURE OVERVIEW
+============================================================
+
+EduSphere supports:
+
+- Legacy Google Drive resources
+- Direct professor uploads (Tigris S3-compatible storage)
+- Supabase PostgreSQL database
+- Username + Email + Password authentication
+- Google OAuth
+- GitHub OAuth
+- JWT-based authentication
+- Professor PIN validation
+- Admin auto-detection via whitelisted email
+- Role-based dashboards (student | professor | admin)
+- SEO-friendly shareable slugs
+- Advanced filtering & search
+- Professor analytics dashboard
+- Inline PDF preview
+- Embedded YouTube preview
+- Share button for every resource
+- Strict role-based edit isolation
+- Signed S3 URLs
+- Script-based validation system
+- GitHub workflow-ready structure
+
+============================================================
+SECTION 2 — AUTHENTICATION SYSTEM
+============================================================
+
+The system must support BOTH:
+
+1) Traditional Signup/Login
+2) Social OAuth Login
+
+----------------------------------------
+A) Traditional Signup
+----------------------------------------
+
+Signup form fields:
+- username (required, unique)
+- email (required, unique)
+- password (hashed)
+- role selection (default: student)
+
+Passwords:
+- Must be hashed using bcrypt
+- Minimum 8 characters
+- Must validate strength
+
+Login:
+- Email + Password
+- Validate hash
+- Issue JWT
+- Store role inside JWT
+
+----------------------------------------
+B) OAuth Login
+----------------------------------------
+
+Supported Providers:
+- Google
+- GitHub
+
+OAuth users:
+- If new user → auto-create account
+- If email matches existing → link account
+
+----------------------------------------
+C) Professor Login Additional Layer
+----------------------------------------
+
+If user.role == professor:
+- After login → prompt for PIN
+- Validate PIN against secure env variable
+- Only then issue final JWT access token
+
+----------------------------------------
+D) Admin Auto-Detection
+----------------------------------------
+
+If OAuth or email login matches:
+
+ADMIN_EMAIL=priyanshu82711@gmail.com
+
+Then:
+- Override role to admin
+- Redirect to admin dashboard
+- No PIN required
+
+============================================================
+SECTION 3 — ROLE PERMISSIONS
+============================================================
+
+STUDENT:
+- View resources
+- Preview
+- Download
+- Share
+- Save
+- Filter
+- Cannot upload/edit/delete
+
+PROFESSOR:
+- Add subjects
+- Upload Notes
+- Upload Assignments
+- Upload PYQs
+- Upload YouTube links
+- Edit/delete only own uploads
+- View others’ uploads (read-only)
+- Cannot edit legacy Drive links
+- Post announcements
+- Access analytics dashboard
+
+ADMIN:
+- Full system access
+- Upload Drive links
+- Upload PDFs
+- Upload YouTube links
+- Edit/delete any resource
+- Manage users
+- Override permissions
+- View full analytics
+
+============================================================
+SECTION 4 — CONTENT STRUCTURE
+============================================================
+
+Two parallel systems:
+
+1) Legacy Google Drive (external_link)
+2) S3 Upload (aws_s3_key)
+
+Rules:
+- Only one populated
+- Professors cannot modify legacy content
+- Admin can modify everything
+
+============================================================
+SECTION 5 — SLUG SYSTEM
+============================================================
+
+Slug format:
+
+<acronym>-<resource-type>-sem<semester>-<pyq-type>-<year>
+
+Example:
+daa-pyq-sem3-major-2023
+
+Slug must:
+- Lowercase
+- Hyphen separated
+- Unique
+- Indexed
+- Immutable after creation
+
+============================================================
+SECTION 6 — TIGRIS S3 CONFIGURATION
+============================================================
+
+Use AWS SDK v3 with custom endpoint.
+
+Environment Variables Required:
+
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
+AWS_REGION=auto
+AWS_ENDPOINT_URL_S3=
+AWS_ENDPOINT_URL_IAM=
+AWS_BUCKET_NAME=
+
+Configuration rules:
+- forcePathStyle: true
+- Pre-signed PUT for upload
+- Signed GET for download
+- Credentials never exposed
+- Use .env
+- .env in .gitignore
+
+============================================================
+SECTION 7 — DATABASE SCHEMA
+============================================================
+
+users
+- id
+- username
+- name
+- email
+- password_hash
+- role
+- created_at
+
+subjects
+- id
+- branch
+- semester
+- name_full
+- acronym
+- added_by
+- added_date
+
+resources
+- id
+- subject_id
+- resource_type
+- title
+- description
+- year
+- pyq_type
+- external_link
+- aws_s3_key
+- uploaded_by
+- created_at
+- slug
+
+announcements
+- id
+- subject_id
+- title
+- content
+- posted_by
+- created_at
+
+saved_resources
+- id
+- user_id
+- resource_id
+- created_at
+
+============================================================
+SECTION 8 — SEARCH & FILTER
+============================================================
+
+Filters:
+- Branch
+- Semester
+- Subject
+- Resource Type
+- PYQ Type
+- Year
+- Uploaded By
+
+Search:
+- Slug search
+- Acronym search
+- Subject name search
+
+============================================================
+SECTION 9 — PROFESSOR ANALYTICS
+============================================================
+
+Dashboard must show:
+
+- Total uploads
+- Upload breakdown by:
+  - Notes
+  - Assignments
+  - minor1
+  - minor2
+  - major
+  - lectures
+- Subject contribution
+- Upload timeline
+- Future-ready view metrics
+
+============================================================
+SECTION 10 — PROJECT STRUCTURE
+============================================================
+
+Root:
+- client/
+- server/
+- shared/
+- .github/
+    - scripts/
+- prompt.txt
+- README.md
+- .env.example
+
+CLIENT:
+src/
+  components/
+  pages/
+  dashboard/
+  context/
+  hooks/
+  services/
+  utils/
+
+SERVER:
+src/
+  controllers/
+  routes/
+  middleware/
+  services/
+  config/
+  validators/
+  analytics/
+  auth/
+
+============================================================
+SECTION 11 — SCRIPT SYSTEM (.github/scripts)
+============================================================
+
+Create:
+
+.github/
+  scripts/
+    validate-env.js
+    check-roles.js
+    check-slug-format.js
+    verify-permissions.js
+    verify-s3-config.js
+    setup-check.js
+
+Scripts must:
+
+- Validate required env variables
+- Validate role middleware enforcement
+- Validate slug format consistency
+- Validate S3 configuration
+- Ensure no AWS credentials are exposed
+- Ensure .env not committed
+- Ensure legacy content protection rules exist
+
+These scripts must be executable via:
+
+npm run validate
+npm run check:roles
+npm run check:slug
+npm run check:s3
+
+============================================================
+SECTION 12 — AI INTERACTION RULE
+============================================================
+
+If required credentials or configuration values are missing,
+pause and ask developer for:
+
+- Supabase credentials
+- OAuth client IDs
+- Tigris keys
+- JWT secret
+- Professor PIN
+
+Do NOT assume values.
+
+============================================================
+SECTION 13 — IMPLEMENTATION ORDER
+============================================================
+
+Generate in strict order:
+
+1) Backend folder structure
+2) Supabase SQL schema
+3) Auth system (email + OAuth)
+4) PIN logic
+5) Admin detection
+6) Role middleware
+7) S3 service
+8) Upload routes
+9) Slug utility
+10) Resource routes
+11) Analytics logic
+12) Frontend structure
+13) Dashboard skeletons
+14) Script system
+15) Final integration summary
+
+Do not skip steps.
+Do not merge modules.
+Maintain modular architecture.
+Maintain strict security boundaries.
