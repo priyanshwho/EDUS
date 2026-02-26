@@ -160,6 +160,16 @@ export default function ResourcePage() {
             </a>
           )}
 
+          {resource.signedUrl && (
+            <a
+              href={resource.signedUrl}
+              download
+              className="px-5 py-2.5 bg-n-6 text-n-1 rounded-xl font-medium hover:bg-n-5 transition"
+            >
+              Download ↓
+            </a>
+          )}
+
           <button
             onClick={handleCopyLink}
             className="px-5 py-2.5 bg-n-6 text-n-1 rounded-xl font-medium hover:bg-n-5 transition"
