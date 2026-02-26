@@ -23,10 +23,10 @@ import {
   Sparkles
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import { useUser } from "@clerk/clerk-react";
+import { useAuth } from "../context/AuthContext";
 
 const AboutPage = () => {
-  const { isSignedIn } = useUser();
+  const { isAuthenticated: isSignedIn } = useAuth();
   const navigate = useNavigate();
   
   // Map each service card to its target route

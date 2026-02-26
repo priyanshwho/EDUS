@@ -2,13 +2,14 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
-// import { useUser, useClerk, UserButton } from "@clerk/clerk-react";
+// import { useUser, useClerk } from "@clerk/clerk-react";
 import Button from "./Button";
 import eduIcon from "../assets/eduIcon.svg"
 import { navigation } from "../constants"
 import { disablePageScroll, enablePageScroll } from "scroll-lock";
 import MenuSvg from "../assets/svg/MenuSvg";
-import {HamburgerMenu} from "./design/Header";   
+import {HamburgerMenu} from "./design/Header";
+import { useAuth } from "../context/AuthContext";
 
 
 
@@ -16,6 +17,7 @@ import {HamburgerMenu} from "./design/Header";
 
 const Header = () => {
     const navigate= useNavigate()
+    const { isAuthenticated, user, logout } = useAuth();
     // const {user} =useUser()
     // const {openSignIn}=useClerk()
 
@@ -155,22 +157,34 @@ return (
                             </div>
                             <HamburgerMenu/>
                     </nav>
-                    <div className="hidden lg:flex">
-                        {/* Simple navigation button without authentication */}
+                    <div className="hidden lg:flex items-center gap-3">
                         <Button 
                             onClick={() => navigate("/creators")} 
                         >
                             Creators
                         </Button>
-                        {/* {user ? (
-                            <UserButton />
+                        {isAuthenticated ? (
+                            <>
+                                <Button onClick={() => {
+                                    const role = user?.role;
+                                    if (role === 'admin')     navigate('/dashboard/admin');
+                                    else if (role === 'professor') navigate('/dashboard/professor');
+                                    else navigate('/dashboard/student');
+                                }}>
+                                    Dashboard
+                                </Button>
+                                <button
+                                    onClick={logout}
+                                    className="text-sm text-n-3 hover:text-n-1 transition px-3"
+                                >
+                                    Sign Out
+                                </button>
+                            </>
                         ) : (
-                            <Button 
-                                onClick={() => handleAuthRedirect("/")} 
-                            >
-                                Get Started
+                            <Button onClick={() => navigate('/login')}>
+                                Sign In
                             </Button>
-                        )} */}
+                        )}
                     </div>
 
                                     <Button className="ml-auto lg:hidden" px="px-3" onClick={toggleNavigation}>
