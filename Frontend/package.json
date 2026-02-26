@@ -12,6 +12,7 @@
   "dependencies": {
     "gl-matrix": "^3.4.4",
     "lucide-react": "^0.542.0",
+    "pdfjs-dist": "^5.4.624",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-just-parallax": "^3.1.16",
