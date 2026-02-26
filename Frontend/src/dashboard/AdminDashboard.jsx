@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { analyticsService, userService, subjectService } from '../services/index';
+import { analyticsService, userService, subjectService, resourceService } from '../services/index';
 
 /**
  * AdminDashboard
@@ -33,8 +33,309 @@ export default function AdminDashboard() {
       {activeTab === 'analytics' && <PlatformAnalytics />}
       {activeTab === 'users'     && <UserManagement />}
       {activeTab === 'subjects'  && <SubjectManagement />}
-      {activeTab === 'resources' && <p className="text-n-4">Resource management — uses the same resource list with admin delete/edit access.</p>}
+      {activeTab === 'resources' && <ResourceManagement />}
     </section>
+  );
+}
+
+// ── Resource Management (Admin) ────────────────────────────────────────────
+const RESOURCE_TYPES = ['notes', 'assignment', 'pyq', 'lecture'];
+const PYQ_TYPES      = ['minor1', 'minor2', 'major'];
+
+function ResourceManagement() {
+  const [resources,    setResources]    = useState([]);
+  const [subjects,     setSubjects]     = useState([]);
+  const [loading,      setLoading]      = useState(true);
+  const [filters,      setFilters]      = useState({ q: '', resource_type: '' });
+  const [editId,       setEditId]       = useState(null);
+  const [editForm,     setEditForm]     = useState({});
+  const [saving,       setSaving]       = useState(false);
+  const [driveForm,    setDriveForm]    = useState({
+    subject_id: '', resource_type: 'notes', title: '', description: '',
+    year: '', pyq_type: '', external_link: '',
+  });
+  const [driveLoading, setDriveLoading] = useState(false);
+  const [driveOpen,    setDriveOpen]    = useState(false);
+
+  useEffect(() => {
+    Promise.all([resourceService.list({}), subjectService.list()])
+      .then(([rRes, sRes]) => {
+        setResources(rRes.resources || []);
+        setSubjects(sRes.subjects || []);
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
+  /* ── delete ── */
+  const handleDelete = async (id) => {
+    if (!confirm('Permanently delete this resource?')) return;
+    await resourceService.remove(id);
+    setResources(prev => prev.filter(r => r.id !== id));
+  };
+
+  /* ── edit ── */
+  const startEdit = (r) => {
+    setEditId(r.id);
+    setEditForm({
+      title:        r.title,
+      description:  r.description  || '',
+      year:         r.year         || '',
+      pyq_type:     r.pyq_type     || '',
+      youtube_url:  r.youtube_url  || '',
+      aws_s3_key:   r.aws_s3_key   || '',
+      external_link: r.external_link || '',
+    });
+  };
+
+  const saveEdit = async () => {
+    setSaving(true);
+    try {
+      const { resource } = await resourceService.update(editId, editForm);
+      setResources(prev => prev.map(r => r.id === editId ? { ...r, ...resource } : r));
+      setEditId(null);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  /* ── add Drive link ── */
+  const addDriveLink = async (e) => {
+    e.preventDefault();
+    setDriveLoading(true);
+    try {
+      const payload = {
+        ...driveForm,
+        year: driveForm.year ? Number(driveForm.year) : undefined,
+      };
+      if (!payload.pyq_type)     delete payload.pyq_type;
+      if (!payload.year)         delete payload.year;
+      if (!payload.description)  delete payload.description;
+      const { resource } = await resourceService.create(payload);
+      setResources(prev => [resource, ...prev]);
+      setDriveForm({ subject_id: '', resource_type: 'notes', title: '', description: '', year: '', pyq_type: '', external_link: '' });
+      setDriveOpen(false);
+    } finally {
+      setDriveLoading(false);
+    }
+  };
+
+  /* ── client-side filter ── */
+  const filtered = resources.filter(r => {
+    if (filters.resource_type && r.resource_type !== filters.resource_type) return false;
+    if (filters.q) {
+      const q = filters.q.toLowerCase();
+      if (!r.title?.toLowerCase().includes(q) && !r.slug?.toLowerCase().includes(q)) return false;
+    }
+    return true;
+  });
+
+  if (loading) return <p className="text-n-4">Loading resources…</p>;
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-5">
+        <h2 className="h5">Resource Management ({resources.length})</h2>
+        <button
+          onClick={() => setDriveOpen(o => !o)}
+          className="px-4 py-1.5 text-xs rounded-lg bg-color-1 text-n-8 font-semibold hover:bg-color-1/90 transition"
+        >
+          {driveOpen ? 'Close' : '+ Add Drive Link'}
+        </button>
+      </div>
+
+      {/* ── Add Drive Link Form ── */}
+      {driveOpen && (
+        <form onSubmit={addDriveLink} className="mb-8 rounded-xl border border-n-6 bg-n-7 p-5">
+          <h3 className="font-semibold mb-4 text-sm">New Drive-Link Resource (Admin Only)</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <select
+              required value={driveForm.subject_id}
+              onChange={e => setDriveForm(p => ({ ...p, subject_id: e.target.value }))}
+              className="rounded-lg border border-n-6 bg-n-6 px-3 py-2 text-sm"
+            >
+              <option value="">Select Subject…</option>
+              {subjects.map(s => (
+                <option key={s.id} value={s.id}>{s.name_full} ({s.branch} S{s.semester})</option>
+              ))}
+            </select>
+
+            <select
+              required value={driveForm.resource_type}
+              onChange={e => setDriveForm(p => ({ ...p, resource_type: e.target.value, pyq_type: '' }))}
+              className="rounded-lg border border-n-6 bg-n-6 px-3 py-2 text-sm"
+            >
+              {RESOURCE_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+            </select>
+
+            <input required placeholder="Title" value={driveForm.title}
+              onChange={e => setDriveForm(p => ({ ...p, title: e.target.value }))}
+              className="rounded-lg border border-n-6 bg-n-6 px-3 py-2 text-sm sm:col-span-2"
+            />
+
+            <input placeholder="Description (optional)" value={driveForm.description}
+              onChange={e => setDriveForm(p => ({ ...p, description: e.target.value }))}
+              className="rounded-lg border border-n-6 bg-n-6 px-3 py-2 text-sm sm:col-span-2"
+            />
+
+            <input required placeholder="Google Drive / external URL" value={driveForm.external_link}
+              onChange={e => setDriveForm(p => ({ ...p, external_link: e.target.value }))}
+              className="rounded-lg border border-n-6 bg-n-6 px-3 py-2 text-sm sm:col-span-2"
+            />
+
+            <input placeholder="Year (e.g. 2024)" type="number" value={driveForm.year}
+              onChange={e => setDriveForm(p => ({ ...p, year: e.target.value }))}
+              className="rounded-lg border border-n-6 bg-n-6 px-3 py-2 text-sm"
+            />
+
+            {driveForm.resource_type === 'pyq' && (
+              <select value={driveForm.pyq_type}
+                onChange={e => setDriveForm(p => ({ ...p, pyq_type: e.target.value }))}
+                className="rounded-lg border border-n-6 bg-n-6 px-3 py-2 text-sm"
+              >
+                <option value="">PYQ Type…</option>
+                {PYQ_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+              </select>
+            )}
+          </div>
+          <button
+            type="submit" disabled={driveLoading}
+            className="mt-4 w-full py-2 rounded-xl bg-color-1 text-n-8 font-semibold text-sm hover:bg-color-1/90 transition disabled:opacity-50"
+          >
+            {driveLoading ? 'Adding…' : 'Add Resource'}
+          </button>
+        </form>
+      )}
+
+      {/* ── Filters ── */}
+      <div className="flex gap-3 mb-5 flex-wrap">
+        <input
+          placeholder="Search title / slug…"
+          value={filters.q}
+          onChange={e => setFilters(p => ({ ...p, q: e.target.value }))}
+          className="flex-1 min-w-[180px] rounded-lg border border-n-6 bg-n-7 px-3 py-2 text-sm"
+        />
+        <select
+          value={filters.resource_type}
+          onChange={e => setFilters(p => ({ ...p, resource_type: e.target.value }))}
+          className="rounded-lg border border-n-6 bg-n-7 px-3 py-2 text-sm"
+        >
+          <option value="">All types</option>
+          {RESOURCE_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+        </select>
+        <span className="text-xs text-n-4 self-center">{filtered.length} results</span>
+      </div>
+
+      {/* ── Resource Table ── */}
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-n-6 text-n-4">
+              <th className="text-left pb-3 pr-3">Title</th>
+              <th className="text-left pb-3 pr-3">Type</th>
+              <th className="text-left pb-3 pr-3">Subject</th>
+              <th className="text-left pb-3 pr-3">Year</th>
+              <th className="text-left pb-3 pr-3">Source</th>
+              <th className="text-left pb-3">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.map(r => (
+              editId === r.id ? (
+                /* ── Inline edit row ── */
+                <tr key={r.id} className="border-b border-color-1/30 bg-n-7">
+                  <td className="py-2 pr-3" colSpan={3}>
+                    <div className="flex flex-col gap-1.5">
+                      <input value={editForm.title}
+                        onChange={e => setEditForm(p => ({ ...p, title: e.target.value }))}
+                        placeholder="Title"
+                        className="rounded border border-n-5 bg-n-6 px-2 py-1 text-xs w-full"
+                      />
+                      <input value={editForm.description}
+                        onChange={e => setEditForm(p => ({ ...p, description: e.target.value }))}
+                        placeholder="Description"
+                        className="rounded border border-n-5 bg-n-6 px-2 py-1 text-xs w-full"
+                      />
+                      {editForm.youtube_url !== undefined && (
+                        <input value={editForm.youtube_url}
+                          onChange={e => setEditForm(p => ({ ...p, youtube_url: e.target.value }))}
+                          placeholder="YouTube URL"
+                          className="rounded border border-n-5 bg-n-6 px-2 py-1 text-xs w-full"
+                        />
+                      )}
+                      {editForm.external_link !== undefined && (
+                        <input value={editForm.external_link}
+                          onChange={e => setEditForm(p => ({ ...p, external_link: e.target.value }))}
+                          placeholder="Drive / external URL"
+                          className="rounded border border-n-5 bg-n-6 px-2 py-1 text-xs w-full"
+                        />
+                      )}
+                    </div>
+                  </td>
+                  <td className="py-2 pr-3">
+                    <input type="number" value={editForm.year}
+                      onChange={e => setEditForm(p => ({ ...p, year: e.target.value }))}
+                      placeholder="Year"
+                      className="rounded border border-n-5 bg-n-6 px-2 py-1 text-xs w-20"
+                    />
+                  </td>
+                  <td className="py-2 pr-3">
+                    {r.resource_type === 'pyq' ? (
+                      <select value={editForm.pyq_type}
+                        onChange={e => setEditForm(p => ({ ...p, pyq_type: e.target.value }))}
+                        className="rounded border border-n-5 bg-n-6 px-1 py-1 text-xs"
+                      >
+                        <option value="">—</option>
+                        {PYQ_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+                      </select>
+                    ) : <span className="text-n-5 text-xs">—</span>}
+                  </td>
+                  <td className="py-2">
+                    <div className="flex gap-2">
+                      <button onClick={saveEdit} disabled={saving}
+                        className="text-xs text-green-400 hover:text-green-300 disabled:opacity-50">Save</button>
+                      <button onClick={() => setEditId(null)}
+                        className="text-xs text-n-4 hover:text-n-1">Cancel</button>
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                /* ── Normal row ── */
+                <tr key={r.id} className="border-b border-n-6 hover:bg-n-7 transition">
+                  <td className="py-2.5 pr-3">
+                    <span className="font-medium text-n-1">{r.title}</span>
+                    {r.pyq_type && <span className="ml-1.5 text-[10px] font-mono text-color-2 uppercase">{r.pyq_type}</span>}
+                    <br />
+                    <span className="text-[10px] text-n-5 font-mono">{r.slug}</span>
+                  </td>
+                  <td className="py-2.5 pr-3">
+                    <span className="capitalize text-xs px-1.5 py-0.5 rounded bg-n-6 text-n-3">{r.resource_type}</span>
+                  </td>
+                  <td className="py-2.5 pr-3 text-n-4 text-xs">
+                    {r.subjects?.acronym}
+                    {r.subjects?.semester && <span className="text-n-5"> S{r.subjects.semester}</span>}
+                  </td>
+                  <td className="py-2.5 pr-3 text-n-4 text-xs">{r.year || '—'}</td>
+                  <td className="py-2.5 pr-3 text-xs">
+                    {r.aws_s3_key   && <span className="text-blue-400">S3</span>}
+                    {r.youtube_url  && <span className="text-red-400">YT</span>}
+                    {r.external_link && <span className="text-green-400">Drive</span>}
+                  </td>
+                  <td className="py-2.5">
+                    <div className="flex gap-3">
+                      <button onClick={() => startEdit(r)}
+                        className="text-xs text-color-1 hover:text-color-1/80 transition">Edit</button>
+                      <button onClick={() => handleDelete(r.id)}
+                        className="text-xs text-red-400 hover:text-red-300 transition">Delete</button>
+                    </div>
+                  </td>
+                </tr>
+              )
+            ))}
+          </tbody>
+        </table>
+        {filtered.length === 0 && <p className="text-center text-n-4 py-8 text-sm">No resources found.</p>}
+      </div>
+    </div>
   );
 }
 
