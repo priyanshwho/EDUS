@@ -5,11 +5,12 @@ const { requireProfessor, requireAdmin } = require('../middleware/role.middlewar
 const {
   list, getBySlug, create, update, remove, saveResource, unsaveResource,
 } = require('../controllers/resource.controller');
+const { createResourceValidator, updateResourceValidator, listResourcesValidator } = require('../validators/resource.validator');
 
-router.get('/',          optionalAuth,  list);
+router.get('/',          optionalAuth,  listResourcesValidator, list);
 router.get('/:slug',     optionalAuth,  getBySlug);
-router.post('/',         authenticate, requireProfessor, create);
-router.put('/:id',       authenticate, requireProfessor, update);
+router.post('/',         authenticate, requireProfessor, createResourceValidator, create);
+router.put('/:id',       authenticate, requireProfessor, updateResourceValidator, update);
 router.delete('/:id',    authenticate, requireProfessor, remove);
 router.post('/:id/save',    authenticate, saveResource);
 router.delete('/:id/save',  authenticate, unsaveResource);
