@@ -1,4 +1,5 @@
 const supabase = require('../config/supabase.config');
+const { checkValidation } = require('../utils/response');
 const { getPresignedDownloadUrl, deleteObject } = require('../services/s3.service');
 const { generateUniqueSlug } = require('../services/slug.service');
 const { blockProfessorOnLegacy } = require('../middleware/legacy.middleware');
@@ -6,6 +7,7 @@ const { blockProfessorOnLegacy } = require('../middleware/legacy.middleware');
 // ── GET /api/resources — list with filters ─────────────────────────────────
 async function list(req, res, next) {
   try {
+    if (checkValidation(req, res)) return;
     const { branch, semester, subject_id, resource_type, pyq_type, year, uploaded_by, q } = req.query;
 
     let query = supabase
@@ -69,6 +71,7 @@ async function getBySlug(req, res, next) {
 // ── POST /api/resources — create ───────────────────────────────────────────
 async function create(req, res, next) {
   try {
+    if (checkValidation(req, res)) return;
     const { subject_id, resource_type, title, description, year, pyq_type, external_link, aws_s3_key } = req.body;
 
     if (!subject_id || !resource_type || !title)

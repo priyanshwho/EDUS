@@ -5,12 +5,13 @@ const { authenticate } = require('../middleware/authenticate');
 const {
   signup, login, verifyPin, refresh, logout, me,
 } = require('../controllers/auth.controller');
+const { signupValidator, loginValidator, pinValidator } = require('../validators/auth.validator');
 const { signAccessToken, signRefreshToken, buildPayload } = require('../auth/jwt.utils');
 
 // ── Traditional auth ───────────────────────────────────────────────────────
-router.post('/signup',     signup);
-router.post('/login',      login);
-router.post('/verify-pin', verifyPin);
+router.post('/signup',     signupValidator, signup);
+router.post('/login',      loginValidator,  login);
+router.post('/verify-pin', pinValidator,    verifyPin);
 router.post('/refresh',    refresh);
 router.post('/logout',     logout);
 router.get('/me',          authenticate, me);
