@@ -1,5 +1,8 @@
 import { api } from './api';
 
+export { authService } from './auth.service';
+export { resourceService } from './resource.service';
+
 export const subjectService = {
   list:   (filters = {}) => api.get('/subjects', { params: filters }),
   create: (data)         => api.post('/subjects', data),

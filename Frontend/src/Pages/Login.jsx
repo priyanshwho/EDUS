@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { authService } from '../services/auth.service';
-import { ButtonGradient } from '../assets/svg/ButtonGradient';
+import ButtonGradient from '../assets/svg/ButtonGradient';
 
 export default function LoginPage() {
   const { login, pinPending } = useAuth();
