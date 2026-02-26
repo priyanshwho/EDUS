@@ -1,0 +1,57 @@
+const express = require('express');
+const router  = express.Router();
+const passport = require('passport');
+const { authenticate } = require('../middleware/authenticate');
+const {
+  signup, login, verifyPin, refresh, logout, me,
+} = require('../controllers/auth.controller');
+const { signAccessToken, signRefreshToken, buildPayload } = require('../auth/jwt.utils');
+
+// ── Traditional auth ───────────────────────────────────────────────────────
+router.post('/signup',     signup);
+router.post('/login',      login);
+router.post('/verify-pin', verifyPin);
+router.post('/refresh',    refresh);
+router.post('/logout',     logout);
+router.get('/me',          authenticate, me);
+
+// ── Google OAuth ───────────────────────────────────────────────────────────
+router.get('/google',
+  passport.authenticate('google', { scope: ['profile', 'email'], session: false })
+);
+
+router.get('/google/callback',
+  passport.authenticate('google', { session: false, failureRedirect: '/login' }),
+  oauthCallback
+);
+
+// ── GitHub OAuth ───────────────────────────────────────────────────────────
+router.get('/github',
+  passport.authenticate('github', { scope: ['user:email'], session: false })
+);
+
+router.get('/github/callback',
+  passport.authenticate('github', { session: false, failureRedirect: '/login' }),
+  oauthCallback
+);
+
+// ── Shared OAuth success handler ───────────────────────────────────────────
+function oauthCallback(req, res) {
+  const user         = req.user;
+  const payload      = buildPayload(user);
+  const accessToken  = signAccessToken(payload);
+  const refreshToken = signRefreshToken(payload);
+
+  res.cookie('refreshToken', refreshToken, {
+    httpOnly: true,
+    secure:   process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    maxAge:   7 * 24 * 60 * 60 * 1000,
+  });
+
+  // Redirect back to client with access token in query (client stores in memory)
+  const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
+  res.redirect(`${clientUrl}/auth/callback?token=${accessToken}&role=${user.role}`);
+}
+
+module.exports = router;
