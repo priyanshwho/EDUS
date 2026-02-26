@@ -14,102 +14,167 @@ import { isPreviewable } from '../utils/preview';
  */
 export default function StudentDashboard() {
   const { user } = useAuth();
-  const { resources, loading, error, fetch, updateFilters, filters } = useResources();
+  const { resources, loading, error, fetch, updateFilters, clearFilters, filters } = useResources();
+  const [previewResource, setPreviewResource] = useState(null);
 
   useEffect(() => { fetch(); }, []);
 
+  function handleFilterChange(newFilters) {
+    updateFilters(newFilters);
+    fetch(newFilters);
+  }
+
+  function handleClear() {
+    clearFilters();
+    fetch({});
+  }
+
   return (
-    <section className="min-h-screen bg-n-8 text-n-1 p-6">
-      <header className="mb-8">
-        <h1 className="h3">Welcome, {user?.username} 👋</h1>
-        <p className="body-2 text-n-4">Browse and access academic resources</p>
-      </header>
+    <section className="min-h-screen bg-n-8 text-n-1">
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        <header className="mb-8">
+          <h1 className="h3">Welcome back, {user?.username} 👋</h1>
+          <p className="body-2 text-n-4 mt-1">Browse and access academic resources</p>
+        </header>
 
-      {/* ── Filters ── */}
-      <div className="flex flex-wrap gap-3 mb-6">
-        {['notes', 'assignment', 'pyq', 'lecture', 'youtube'].map(type => (
-          <button
-            key={type}
-            onClick={() => { updateFilters({ resource_type: type }); fetch({ ...filters, resource_type: type }); }}
-            className={`px-4 py-1.5 rounded-full text-sm border transition
-              ${filters.resource_type === type
-                ? 'bg-color-1 border-color-1 text-n-8'
-                : 'border-n-6 text-n-3 hover:border-color-1'}`}
-          >
-            {type.toUpperCase()}
-          </button>
-        ))}
-        <button
-          onClick={() => fetch({})}
-          className="px-4 py-1.5 rounded-full text-sm border border-n-6 text-n-4 hover:border-n-3"
-        >
-          Clear
-        </button>
+        <div className="flex gap-6">
+          {/* Sidebar filter */}
+          <div className="hidden lg:block w-64 flex-shrink-0">
+            <ResourceFilterPanel
+              filters={filters}
+              onChange={handleFilterChange}
+              onClear={handleClear}
+            />
+          </div>
+
+          {/* Main content */}
+          <div className="flex-1 min-w-0">
+            {/* Mobile compact filter */}
+            <div className="lg:hidden mb-4">
+              <ResourceFilterPanel
+                filters={filters}
+                onChange={handleFilterChange}
+                onClear={handleClear}
+                compact
+              />
+            </div>
+
+            {loading && (
+              <div className="flex items-center justify-center h-48">
+                <div className="w-8 h-8 border-2 border-color-1 border-t-transparent rounded-full animate-spin" />
+              </div>
+            )}
+            {error && <p className="text-red-400 mb-4">Error: {error}</p>}
+
+            {!loading && resources.length === 0 && (
+              <div className="flex flex-col items-center justify-center h-48 text-n-4 gap-2">
+                <p className="text-4xl">📭</p>
+                <p>No resources match your filters.</p>
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+              {resources.map((r) => (
+                <ResourceCard
+                  key={r.id}
+                  resource={r}
+                  onPreview={() => setPreviewResource(r)}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* ── Resource Grid ── */}
-      {loading && <p className="text-n-4">Loading resources…</p>}
-      {error   && <p className="text-red-400">Error: {error}</p>}
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-        {resources.map(r => (
-          <ResourceCard key={r.id} resource={r} />
-        ))}
-      </div>
-
-      {!loading && resources.length === 0 && (
-        <p className="text-center text-n-4 mt-16">No resources found.</p>
+      {/* Preview modal */}
+      {previewResource && (
+        <PreviewModal resource={previewResource} onClose={() => setPreviewResource(null)} />
       )}
     </section>
   );
 }
 
-function ResourceCard({ resource: r }) {
-  const { user } = useAuth();
+function ResourceCard({ resource: r, onPreview }) {
+  const [saved, setSaved] = useState(false);
+  const [copied, setCopied] = useState(false);
 
-  const handleSave = async () => {
+  async function handleSave() {
     try {
-      await userService.savedList(); // placeholder — wires up to saveResource
+      if (saved) { await resourceService.unsave(r.id); setSaved(false); }
+      else        { await resourceService.save(r.id);   setSaved(true);  }
     } catch {}
+  }
+
+  function handleCopy() {
+    navigator.clipboard.writeText(resourceShareUrl(r.slug)).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }
+
+  const typeColors = {
+    notes: 'bg-blue-500/20 text-blue-300',
+    pyq: 'bg-purple-500/20 text-purple-300',
+    lecture: 'bg-green-500/20 text-green-300',
+    assignment: 'bg-yellow-500/20 text-yellow-300',
+    lab: 'bg-orange-500/20 text-orange-300',
   };
+  const colorClass = typeColors[r.resource_type] || 'bg-n-6 text-n-3';
 
   return (
-    <div className="rounded-2xl border border-n-6 bg-n-7 p-5 flex flex-col gap-3 hover:border-color-1 transition">
-      <div className="flex items-center justify-between">
-        <span className="text-xs font-mono text-color-2 uppercase">{r.resource_type}</span>
-        {r.pyq_type && (
-          <span className="text-xs px-2 py-0.5 bg-color-1/20 text-color-1 rounded-full">{r.pyq_type}</span>
-        )}
+    <div className="rounded-2xl border border-n-6 bg-n-7 p-5 flex flex-col gap-3 hover:border-color-1 transition group">
+      <div className="flex items-center justify-between gap-2">
+        <span className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium ${colorClass}`}>
+          {resourceTypeLabel(r.resource_type)}
+        </span>
+        <div className="flex items-center gap-1 text-xs text-n-5">
+          {r.pyq_type && <span className="px-1.5 py-0.5 bg-n-6 rounded">{r.pyq_type}</span>}
+          {r.year     && <span className="px-1.5 py-0.5 bg-n-6 rounded">{r.year}</span>}
+        </div>
       </div>
-      <h3 className="font-semibold text-n-1 leading-snug">{r.title}</h3>
-      {r.description && <p className="text-sm text-n-4 line-clamp-2">{r.description}</p>}
 
-      {/* Subject info */}
+      <Link to={`/resource/${r.slug}`} className="group/title">
+        <h3 className="font-semibold text-n-1 leading-snug group-hover/title:text-color-1 transition line-clamp-2">
+          {r.title}
+        </h3>
+      </Link>
+
+      {r.description && (
+        <p className="text-sm text-n-4 line-clamp-2">{r.description}</p>
+      )}
+
       {r.subjects && (
         <p className="text-xs text-n-5">
-          {r.subjects.name_full} · Sem {r.subjects.semester} · {r.subjects.branch}
+          {r.subjects.name_full || r.subjects.acronym} · Sem {r.subjects.semester} · {r.subjects.branch}
         </p>
       )}
 
-      <div className="flex items-center gap-2 mt-auto pt-2 border-t border-n-6">
-        {(r.external_link || r.signedUrl) && (
-          <a
-            href={r.external_link || r.signedUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex-1 text-center py-1.5 rounded-lg bg-color-1 text-n-8 text-sm font-medium hover:bg-color-1/90 transition"
+      <p className="text-xs text-n-6">{formatDate(r.created_at)}</p>
+
+      <div className="flex items-center gap-2 mt-auto pt-3 border-t border-n-6">
+        {isPreviewable(r) && (
+          <button
+            onClick={onPreview}
+            className="flex-1 py-1.5 rounded-lg bg-color-1 text-n-8 text-sm font-medium hover:opacity-80 transition"
           >
-            Open
-          </a>
+            Preview
+          </button>
         )}
         <button
-          onClick={() => navigator.clipboard.writeText(
-            `${window.location.origin}/resource/${r.slug}`
-          )}
+          onClick={handleCopy}
           className="px-3 py-1.5 rounded-lg border border-n-6 text-sm text-n-3 hover:border-color-1 transition"
-          title="Copy share link"
+          title="Copy link"
         >
-          Share
+          {copied ? '✓' : '⎘'}
+        </button>
+        <button
+          onClick={handleSave}
+          className={`px-3 py-1.5 rounded-lg border text-sm transition ${
+            saved ? 'border-color-1 text-color-1' : 'border-n-6 text-n-3 hover:border-color-1'
+          }`}
+          title={saved ? 'Unsave' : 'Save'}
+        >
+          {saved ? '★' : '☆'}
         </button>
       </div>
     </div>
