@@ -1,5 +1,6 @@
 const bcrypt = require('bcryptjs');
 const supabase = require('../config/supabase.config');
+const { checkValidation, success, error: sendError, unauthorized } = require('../utils/response');
 const {
   signAccessToken,
   signRefreshToken,
@@ -23,6 +24,7 @@ function setRefreshCookie(res, token) {
 // ── POST /api/auth/signup ──────────────────────────────────────────────────
 async function signup(req, res, next) {
   try {
+    if (checkValidation(req, res)) return;
     const { username, email, password, role = 'student' } = req.body;
 
     // Validate
@@ -65,6 +67,7 @@ async function signup(req, res, next) {
 // ── POST /api/auth/login ───────────────────────────────────────────────────
 async function login(req, res, next) {
   try {
+    if (checkValidation(req, res)) return;
     const { email, password } = req.body;
     if (!email || !password)
       return res.status(400).json({ error: 'email and password are required' });
@@ -107,6 +110,7 @@ async function login(req, res, next) {
 // ── POST /api/auth/verify-pin ──────────────────────────────────────────────
 async function verifyPin(req, res, next) {
   try {
+    if (checkValidation(req, res)) return;
     const { pin_token, pin } = req.body;
     if (!pin_token || !pin)
       return res.status(400).json({ error: 'pin_token and pin are required' });
