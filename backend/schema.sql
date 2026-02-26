@@ -41,20 +41,23 @@ create table if not exists resources (
   id            uuid primary key default gen_random_uuid(),
   subject_id    uuid not null references subjects(id) on delete cascade,
   resource_type text not null
-                  check (resource_type in ('notes','assignment','pyq','lecture','youtube')),
+                  check (resource_type in ('notes','assignment','pyq','lecture')),
   title         text not null,
   description   text,
   year          int,
-  pyq_type      text check (pyq_type in ('minor1','minor2','major', null)),
+  pyq_type      text check (pyq_type in ('minor1','minor2','major')),
   external_link text,                              -- legacy Google Drive URL
   aws_s3_key    text,                              -- Tigris S3 object key
+  youtube_url   text,                              -- YouTube lecture URL
   uploaded_by   uuid references users(id) on delete set null,
   created_at    timestamptz not null default now(),
   slug          text unique not null,
 
-  -- Enforce exactly one source
+  -- Enforce exactly one source (Drive link, S3 key, or YouTube URL)
   constraint chk_one_source check (
-    (external_link is null) != (aws_s3_key is null)
+    (external_link is not null)::int +
+    (aws_s3_key    is not null)::int +
+    (youtube_url   is not null)::int = 1
   )
 );
 
