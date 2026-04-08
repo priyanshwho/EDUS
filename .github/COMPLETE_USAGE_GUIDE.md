@@ -20,7 +20,7 @@ This guide explains **how to use every tool**, instruction, agent, and script cr
 │   ├── page-builder.md            ← Full pages
 │   ├── backend-api.md             ← Express endpoints
 │   ├── styling-specialist.md      ← Tailwind CSS
-│   ├── database-schema.md         ← PostgreSQL/Supabase
+│   ├── database-schema.md         ← PostgreSQL/Neon+Drizzle
 │   ├── testing-patterns.md        ← Jest/Vitest/Supertest
 │   └── cicd-setup.md              ← GitHub Actions
 ├── hooks/                         ← Git hooks
@@ -70,7 +70,7 @@ cp .env.example .env.local   # If available
 # Backend
 cd ../backend
 cp .env.example .env
-# Add: SUPABASE_URL, AWS credentials, OAuth secrets, etc.
+# Add: DATABASE_URL, AWS credentials, OAuth secrets, etc.
 ```
 
 ### Step 5: Start Development Servers

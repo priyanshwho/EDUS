@@ -269,7 +269,7 @@ jobs:
       
       - name: Validate environment setup
         run: cd backend && npm run validate
-        # This checks if SUPABASE_URL, AWS credentials, etc. are in .env
+        # This checks if DATABASE_URL, AWS credentials, etc. are in .env
         
       - name: Check database schema
         run: cd backend && npm run check:schema || true
@@ -626,8 +626,7 @@ RENDER_SERVICE_ID     # Render service ID
 RENDER_API_KEY        # Render API key
 
 # Database & Services
-SUPABASE_URL          # Supabase project URL
-SUPABASE_KEY          # Supabase API key
+DATABASE_URL          # Neon PostgreSQL connection string
 
 # AWS/S3 Credentials
 AWS_ACCESS_KEY_ID     # AWS access key

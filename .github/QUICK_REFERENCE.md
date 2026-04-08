@@ -328,7 +328,8 @@ npm run check:s3    # S3 credentials valid
 - **Vite Docs**: https://vitejs.dev
 - **Tailwind CSS**: https://tailwindcss.com
 - **Express.js**: https://expressjs.com
-- **Supabase**: https://supabase.com/docs
+- **Neon**: https://neon.tech/docs
+- **Drizzle ORM**: https://orm.drizzle.team/docs/overview
 
 ---
 
