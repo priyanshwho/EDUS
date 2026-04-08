@@ -11,20 +11,46 @@ const path = require('path');
 
 const ROUTES_DIR = path.join(__dirname, '../../backend/src/routes');
 
-// Routes that MUST use authenticate + a role guard for mutations
-const MUTATION_PATTERNS = [/(router\.(post|put|patch|delete))/g];
 const AUTH_GUARD        = /authenticate/;
 const ROLE_GUARD        = /requireAdmin|requireProfessor|requireRole|requireOwnerOrAdmin/;
+
+// Public mutation routes are intentional and should not require authenticate middleware.
+const PUBLIC_MUTATIONS = {
+  'auth.routes.js': new Set([
+    'post:/signup',
+    'post:/login',
+    'post:/verify-pin',
+    'post:/refresh',
+    'post:/logout',
+  ]),
+};
+
+// Authenticated routes that intentionally do not require a role middleware.
+const AUTH_ONLY_MUTATIONS = {
+  'resource.routes.js': new Set([
+    'post:/:id/save',
+    'delete:/:id/save',
+  ]),
+};
 
 let hasError = false;
 
 function checkFile(filePath) {
   const src   = fs.readFileSync(filePath, 'utf8');
   const lines = src.split('\n');
+  const fileName = path.basename(filePath);
 
   lines.forEach((line, idx) => {
-    const isMutation = /(router\.(post|put|patch|delete))\(/.test(line);
-    if (!isMutation) return;
+    const mutationMatch = line.match(/router\.(post|put|patch|delete)\(\s*['"`]([^'"`]+)['"`]/i);
+    if (!mutationMatch) return;
+
+    const method = mutationMatch[1].toLowerCase();
+    const routePath = mutationMatch[2];
+    const routeKey = `${method}:${routePath}`;
+
+    if (PUBLIC_MUTATIONS[fileName] && PUBLIC_MUTATIONS[fileName].has(routeKey)) {
+      return;
+    }
 
     const hasAuth = AUTH_GUARD.test(line);
     const hasRole = ROLE_GUARD.test(line);
@@ -32,6 +58,8 @@ function checkFile(filePath) {
     if (!hasAuth) {
       console.error(`❌  [${path.basename(filePath)}:${idx + 1}] Mutation route missing authenticate: ${line.trim()}`);
       hasError = true;
+    } else if (AUTH_ONLY_MUTATIONS[fileName] && AUTH_ONLY_MUTATIONS[fileName].has(routeKey)) {
+      return;
     } else if (!hasRole) {
       // Warn — some routes (e.g. logout, refresh) may not need a role guard
       console.warn(`⚠️   [${path.basename(filePath)}:${idx + 1}] No role guard on mutation: ${line.trim()}`);

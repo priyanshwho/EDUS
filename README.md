@@ -1,6 +1,6 @@
 # EduSphere — Academic Resource Platform
 
-A production-ready, modular academic platform with role-based access control, Google Drive legacy support, Tigris S3 uploads, Supabase PostgreSQL, and OAuth.
+A production-ready, modular academic platform with role-based access control, Google Drive legacy support, Tigris S3 uploads, Neon PostgreSQL + Drizzle, and OAuth.
 
 ---
 
@@ -12,12 +12,14 @@ Edusphere/
 │   ├── src/
 │   │   ├── analytics/        # Professor & platform analytics
 │   │   ├── auth/             # JWT utilities
-│   │   ├── config/           # Supabase, S3, Passport config
+│   │   ├── config/           # S3, Passport config
+│   │   ├── db/               # Neon + Drizzle client/schema
 │   │   ├── controllers/      # Route handlers
 │   │   ├── middleware/       # Auth, role, legacy protection
 │   │   ├── routes/           # Express routers
 │   │   └── services/         # S3 service, slug service
-│   ├── schema.sql            # Supabase PostgreSQL schema
+│   ├── schema.sql            # PostgreSQL schema (Neon compatible)
+│   ├── drizzle.config.js     # Drizzle Kit configuration
 │   ├── .env.example
 │   └── package.json
 │
@@ -64,7 +66,7 @@ cp .env.example backend/.env
 ```
 
 Required values:
-- **Supabase** — URL + service role key
+- **Neon PostgreSQL** — `DATABASE_URL`
 - **JWT secrets** — two different 32+ char random strings
 - **Google OAuth** — client ID + secret from [console.cloud.google.com](https://console.cloud.google.com)
 - **GitHub OAuth** — client ID + secret from [github.com/settings/developers](https://github.com/settings/developers)
@@ -74,7 +76,7 @@ Required values:
 
 ### 3. Apply the database schema
 
-Open your [Supabase project's SQL Editor](https://app.supabase.com) and run:
+Open your Neon SQL editor (or any PostgreSQL client connected to your Neon database) and run:
 
 ```sql
 -- Paste the contents of backend/schema.sql

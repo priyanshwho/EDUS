@@ -14,6 +14,7 @@ const ROOT        = path.join(__dirname, '../..');
 
 const checks = [
   { name: 'Environment Variables', script: 'validate-env.js' },
+  { name: 'Architecture Consistency', script: 'check-architecture-consistency.js' },
   { name: 'S3 Configuration',      script: 'verify-s3-config.js' },
   { name: 'Role Enforcement',      script: 'check-roles.js' },
   { name: 'Slug Format',           script: 'check-slug-format.js' },

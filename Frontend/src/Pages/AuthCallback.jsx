@@ -21,13 +21,13 @@ export default function AuthCallbackPage() {
       return;
     }
 
-    handleOAuthCallback(token, role);
+    handleOAuthCallback(token);
 
     // Redirect to appropriate dashboard
     if (role === 'admin')     navigate('/dashboard/admin',     { replace: true });
     else if (role === 'professor') navigate('/auth/pin',       { replace: true });
     else                           navigate('/dashboard/student', { replace: true });
-  }, []);
+  }, [handleOAuthCallback, navigate, params]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-n-8">

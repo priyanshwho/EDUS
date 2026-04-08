@@ -36,7 +36,7 @@ export function AuthProvider({ children }) {
   }, []);
 
   // ── OAuth callback handler ───────────────────────────────────────────────
-  const handleOAuthCallback = useCallback((token, role) => {
+  const handleOAuthCallback = useCallback((token) => {
     setAccessToken(token);
     // Decode minimal payload from token
     try {
@@ -105,6 +105,7 @@ export function AuthProvider({ children }) {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth() {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error('useAuth must be used inside <AuthProvider>');

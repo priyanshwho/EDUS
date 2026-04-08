@@ -1,8 +1,28 @@
-const supabase = require('../config/supabase.config');
+const { sql } = require('../db/client');
 const { checkValidation } = require('../utils/response');
 const { getPresignedDownloadUrl, deleteObject } = require('../services/s3.service');
 const { generateUniqueSlug } = require('../services/slug.service');
 const { blockProfessorOnLegacy } = require('../middleware/legacy.middleware');
+
+function buildResourceFilters(query) {
+  const clauses = [];
+  const params = [];
+
+  const push = (sqlFrag, value) => {
+    params.push(value);
+    clauses.push(sqlFrag.replace('?', `$${params.length}`));
+  };
+
+  if (query.resource_type) push('r.resource_type = ?', query.resource_type);
+  if (query.pyq_type) push('r.pyq_type = ?', query.pyq_type);
+  if (query.year) push('r.year = ?', Number(query.year));
+  if (query.subject_id) push('r.subject_id = ?', query.subject_id);
+  if (query.uploaded_by) push('r.uploaded_by = ?', query.uploaded_by);
+  if (query.branch) push('s.branch = ?', query.branch);
+  if (query.semester) push('s.semester = ?', Number(query.semester));
+
+  return { clauses, params };
+}
 
 // ── GET /api/resources — list with filters ─────────────────────────────────
 async function list(req, res, next) {
@@ -10,48 +30,56 @@ async function list(req, res, next) {
     if (checkValidation(req, res)) return;
     const { branch, semester, subject_id, resource_type, pyq_type, year, uploaded_by, uploaded_by_name, q } = req.query;
 
-    let query = supabase
-      .from('resources')
-      .select(`
-        id, title, description, resource_type, year, pyq_type,
-        external_link, aws_s3_key, youtube_url, slug, created_at, uploaded_by,
-        subjects ( id, name_full, acronym, branch, semester )
-      `)
-      .order('created_at', { ascending: false });
+    const filters = buildResourceFilters({ branch, semester, subject_id, resource_type, pyq_type, year, uploaded_by });
 
-    if (resource_type) query = query.eq('resource_type', resource_type);
-    if (pyq_type)      query = query.eq('pyq_type', pyq_type);
-    if (year)          query = query.eq('year', year);
-    if (subject_id)    query = query.eq('subject_id', subject_id);
-
-    // Filter by exact uploader UUID
-    if (uploaded_by) query = query.eq('uploaded_by', uploaded_by);
-
-    // Filter by uploader name — resolve matching user IDs first
     if (uploaded_by_name) {
-      const { data: matchedUsers } = await supabase
-        .from('users')
-        .select('id')
-        .ilike('username', `%${uploaded_by_name}%`);
-      const ids = (matchedUsers || []).map(u => u.id);
-      if (ids.length === 0) return res.json({ resources: [] });
-      query = query.in('uploaded_by', ids);
-    }
-
-    if (branch || semester) {
-      // Filter via subjects join
-      if (branch)    query = query.eq('subjects.branch', branch);
-      if (semester)  query = query.eq('subjects.semester', semester);
+      filters.params.push(`%${uploaded_by_name}%`);
+      filters.clauses.push(`u.username ilike $${filters.params.length}`);
     }
 
     if (q) {
-      query = query.or(`title.ilike.%${q}%,slug.ilike.%${q}%,description.ilike.%${q}%`);
+      filters.params.push(`%${q}%`);
+      const n = filters.params.length;
+      filters.clauses.push(`(r.title ilike $${n} or r.slug ilike $${n} or coalesce(r.description, '') ilike $${n})`);
     }
 
-    const { data, error } = await query;
-    if (error) throw error;
+    const whereSql = filters.clauses.length > 0 ? `where ${filters.clauses.join(' and ')}` : '';
 
-    return res.json({ resources: data });
+    const resources = await sql.query(
+      `
+        select
+          r.id,
+          r.title,
+          r.description,
+          r.resource_type,
+          r.year,
+          r.pyq_type,
+          r.external_link,
+          r.aws_s3_key,
+          r.youtube_url,
+          r.slug,
+          r.created_at,
+          r.uploaded_by,
+          case
+            when s.id is null then null
+            else jsonb_build_object(
+              'id', s.id,
+              'name_full', s.name_full,
+              'acronym', s.acronym,
+              'branch', s.branch,
+              'semester', s.semester
+            )
+          end as subjects
+        from resources r
+        left join subjects s on s.id = r.subject_id
+        left join users u on u.id = r.uploaded_by
+        ${whereSql}
+        order by r.created_at desc
+      `,
+      filters.params
+    );
+
+    return res.json({ resources });
   } catch (err) {
     next(err);
   }
@@ -61,13 +89,29 @@ async function list(req, res, next) {
 async function getBySlug(req, res, next) {
   try {
     const { slug } = req.params;
-    const { data, error } = await supabase
-      .from('resources')
-      .select(`*, subjects ( * )`)
-      .eq('slug', slug)
-      .single();
+    const rows = await sql`
+      select
+        r.*,
+        case
+          when s.id is null then null
+          else jsonb_build_object(
+            'id', s.id,
+            'branch', s.branch,
+            'semester', s.semester,
+            'name_full', s.name_full,
+            'acronym', s.acronym,
+            'added_by', s.added_by,
+            'added_date', s.added_date
+          )
+        end as subjects
+      from resources r
+      left join subjects s on s.id = r.subject_id
+      where r.slug = ${slug}
+      limit 1
+    `;
 
-    if (error || !data) return res.status(404).json({ error: 'Resource not found' });
+    const data = rows[0] || null;
+    if (!data) return res.status(404).json({ error: 'Resource not found' });
 
     // Return signed URL if S3 resource
     let signedUrl = null;
@@ -101,12 +145,14 @@ async function create(req, res, next) {
       return res.status(403).json({ error: 'Professors cannot add legacy Drive links' });
 
     // Resolve subject metadata for slug
-    const { data: subject, error: subErr } = await supabase
-      .from('subjects')
-      .select('acronym, semester')
-      .eq('id', subject_id)
-      .single();
-    if (subErr || !subject) return res.status(400).json({ error: 'Invalid subject_id' });
+    const subjectRows = await sql`
+      select acronym, semester
+      from subjects
+      where id = ${subject_id}
+      limit 1
+    `;
+    const subject = subjectRows[0] || null;
+    if (!subject) return res.status(400).json({ error: 'Invalid subject_id' });
 
     const slug = await generateUniqueSlug({
       acronym:       subject.acronym,
@@ -116,17 +162,20 @@ async function create(req, res, next) {
       year,
     });
 
-    const { data: resource, error } = await supabase
-      .from('resources')
-      .insert({
+    const inserted = await sql`
+      insert into resources (
         subject_id, resource_type, title, description,
         year, pyq_type, external_link, aws_s3_key, youtube_url,
-        uploaded_by: req.user.id,
-        slug,
-      })
-      .select()
-      .single();
-    if (error) throw error;
+        uploaded_by, slug
+      )
+      values (
+        ${subject_id}, ${resource_type}, ${title}, ${description || null},
+        ${year ? Number(year) : null}, ${pyq_type || null}, ${external_link || null}, ${aws_s3_key || null}, ${youtube_url || null},
+        ${req.user.id}, ${slug}
+      )
+      returning *
+    `;
+    const resource = inserted[0];
 
     return res.status(201).json({ resource });
   } catch (err) {
@@ -139,12 +188,11 @@ async function update(req, res, next) {
   try {
     const { id } = req.params;
 
-    const { data: existing, error: fetchErr } = await supabase
-      .from('resources')
-      .select('*')
-      .eq('id', id)
-      .single();
-    if (fetchErr || !existing) return res.status(404).json({ error: 'Resource not found' });
+    const existingRows = await sql`
+      select * from resources where id = ${id} limit 1
+    `;
+    const existing = existingRows[0] || null;
+    if (!existing) return res.status(404).json({ error: 'Resource not found' });
 
     // Legacy protection
     const legacyCheck = blockProfessorOnLegacy(existing);
@@ -162,13 +210,27 @@ async function update(req, res, next) {
         if (req.body[field] !== undefined) updates[field] = req.body[field];
       }
 
-      const { data, error } = await supabase
-        .from('resources')
-        .update(updates)
-        .eq('id', id)
-        .select()
-        .single();
-      if (error) throw error;
+      if (Object.keys(updates).length === 0)
+        return res.status(400).json({ error: 'No valid fields to update' });
+
+      const fields = [];
+      const values = [];
+
+      Object.entries(updates).forEach(([key, value]) => {
+        fields.push(`${key} = $${values.length + 1}`);
+        if (key === 'year') values.push(value === null || value === '' ? null : Number(value));
+        else values.push(value);
+      });
+
+      values.push(id);
+
+      const rows = await sql.query(
+        `update resources set ${fields.join(', ')} where id = $${values.length} returning *`,
+        values
+      );
+      const data = rows[0] || null;
+      if (!data) return res.status(404).json({ error: 'Resource not found' });
+
       return res.json({ resource: data });
     });
   } catch (err) {
@@ -181,11 +243,10 @@ async function remove(req, res, next) {
   try {
     const { id } = req.params;
 
-    const { data: existing } = await supabase
-      .from('resources')
-      .select('*')
-      .eq('id', id)
-      .single();
+    const existingRows = await sql`
+      select * from resources where id = ${id} limit 1
+    `;
+    const existing = existingRows[0] || null;
     if (!existing) return res.status(404).json({ error: 'Resource not found' });
 
     // Legacy protection
@@ -197,7 +258,7 @@ async function remove(req, res, next) {
       // Remove S3 object if applicable
       if (existing.aws_s3_key) await deleteObject(existing.aws_s3_key);
 
-      await supabase.from('resources').delete().eq('id', id);
+      await sql`delete from resources where id = ${id}`;
       return res.json({ message: 'Resource deleted' });
     });
   } catch (err) {
@@ -209,12 +270,19 @@ async function remove(req, res, next) {
 async function saveResource(req, res, next) {
   try {
     const { id } = req.params;
-    const { error } = await supabase
-      .from('saved_resources')
-      .insert({ user_id: req.user.id, resource_id: id });
-    if (error && error.code === '23505')
-      return res.status(409).json({ error: 'Already saved' });
-    if (error) throw error;
+
+    try {
+      await sql`
+        insert into saved_resources (user_id, resource_id)
+        values (${req.user.id}, ${id})
+      `;
+    } catch (err) {
+      if (err?.code === '23505') {
+        return res.status(409).json({ error: 'Already saved' });
+      }
+      throw err;
+    }
+
     return res.status(201).json({ message: 'Resource saved' });
   } catch (err) {
     next(err);
@@ -225,11 +293,13 @@ async function saveResource(req, res, next) {
 async function unsaveResource(req, res, next) {
   try {
     const { id } = req.params;
-    await supabase
-      .from('saved_resources')
-      .delete()
-      .eq('user_id', req.user.id)
-      .eq('resource_id', id);
+
+    await sql`
+      delete from saved_resources
+      where user_id = ${req.user.id}
+      and resource_id = ${id}
+    `;
+
     return res.json({ message: 'Resource unsaved' });
   } catch (err) {
     next(err);

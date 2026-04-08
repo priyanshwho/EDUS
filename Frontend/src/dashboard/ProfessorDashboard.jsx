@@ -121,7 +121,9 @@ function UploadForm({ subjects }) {
       setSuccess(true);
       setForm({ subject_id: '', resource_type: 'notes', title: '', description: '', year: '', pyq_type: '', youtube_url: '' });
       setFile(null);
-    } catch {}
+    } catch {
+      setSuccess(false);
+    }
   };
 
   const isLecture = form.resource_type === 'lecture';
@@ -242,7 +244,7 @@ function AnnouncementsPanel({ subjects }) {
 // ── My Resources ───────────────────────────────────────────────────────────
 function MyResources({ userId }) {
   const { resources, loading, fetch } = useResources({ uploaded_by: userId });
-  useEffect(() => { if (userId) fetch(); }, [userId]);
+  useEffect(() => { if (userId) fetch(); }, [userId, fetch]);
 
   if (loading) return <p className="text-n-4">Loading…</p>;
 
@@ -293,7 +295,7 @@ function SubjectsPanel({ subjects, setSubjects, userId }) {
       setSubjects(prev => [subject, ...prev]);
       setForm({ name_full: '', acronym: '', branch: '', semester: '' });
       setSuccess(true);
-    } catch (err) {
+    } catch {
       setError('Failed to create subject. Check all fields.');
     } finally {
       setCreating(false);

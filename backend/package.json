@@ -10,16 +10,18 @@
     "validate": "node ../.github/scripts/validate-env.js",
     "check:roles": "node ../.github/scripts/check-roles.js",
     "check:slug": "node ../.github/scripts/check-slug-format.js",
-    "check:s3": "node ../.github/scripts/verify-s3-config.js"
+    "check:s3": "node ../.github/scripts/verify-s3-config.js",
+    "check:stack": "node ../.github/scripts/check-architecture-consistency.js"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.540.0",
     "@aws-sdk/s3-request-presigner": "^3.540.0",
-    "@supabase/supabase-js": "^2.43.1",
+    "@neondatabase/serverless": "^0.10.4",
     "bcryptjs": "^2.4.3",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
+    "drizzle-orm": "^0.38.2",
     "express": "^4.19.2",
     "express-validator": "^7.0.1",
     "jsonwebtoken": "^9.0.2",
@@ -31,6 +33,7 @@
     "uuid": "^9.0.1"
   },
   "devDependencies": {
+    "drizzle-kit": "^0.30.0",
     "nodemon": "^3.1.0"
   },
   "engines": {

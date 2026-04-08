@@ -3,9 +3,10 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { authService } from '../services/auth.service';
 import ButtonGradient from '../assets/svg/ButtonGradient';
+import { redirectByRole } from '../utils/redirectByRole';
 
 export default function LoginPage() {
-  const { login, pinPending } = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   const [form,     setForm]     = useState({ email: '', password: '' });
@@ -88,10 +89,4 @@ export default function LoginPage() {
       </div>
     </div>
   );
-}
-
-export function redirectByRole(role, navigate) {
-  if (role === 'admin')     return navigate('/dashboard/admin');
-  if (role === 'professor') return navigate('/dashboard/professor');
-  return navigate('/dashboard/student');
 }

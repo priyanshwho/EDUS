@@ -1,13 +1,35 @@
-const supabase = require('../config/supabase.config');
+const { sql } = require('../db/client');
 
 async function list(req, res, next) {
   try {
     const { subject_id } = req.query;
-    let query = supabase.from('announcements').select('*, subjects(name_full, acronym)').order('created_at', { ascending: false });
-    if (subject_id) query = query.eq('subject_id', subject_id);
-    const { data, error } = await query;
-    if (error) throw error;
-    return res.json({ announcements: data });
+
+    const announcements = subject_id
+      ? await sql`
+          select
+            a.*,
+            case
+              when s.id is null then null
+              else jsonb_build_object('name_full', s.name_full, 'acronym', s.acronym)
+            end as subjects
+          from announcements a
+          left join subjects s on s.id = a.subject_id
+          where a.subject_id = ${subject_id}
+          order by a.created_at desc
+        `
+      : await sql`
+          select
+            a.*,
+            case
+              when s.id is null then null
+              else jsonb_build_object('name_full', s.name_full, 'acronym', s.acronym)
+            end as subjects
+          from announcements a
+          left join subjects s on s.id = a.subject_id
+          order by a.created_at desc
+        `;
+
+    return res.json({ announcements });
   } catch (err) { next(err); }
 }
 
@@ -15,23 +37,32 @@ async function create(req, res, next) {
   try {
     const { subject_id, title, content } = req.body;
     if (!title || !content) return res.status(400).json({ error: 'title and content are required' });
-    const { data, error } = await supabase
-      .from('announcements')
-      .insert({ subject_id, title, content, posted_by: req.user.id })
-      .select().single();
-    if (error) throw error;
-    return res.status(201).json({ announcement: data });
+
+    const rows = await sql`
+      insert into announcements (subject_id, title, content, posted_by)
+      values (${subject_id || null}, ${title}, ${content}, ${req.user.id})
+      returning *
+    `;
+    return res.status(201).json({ announcement: rows[0] });
   } catch (err) { next(err); }
 }
 
 async function remove(req, res, next) {
   try {
     const { id } = req.params;
-    const { data: existing } = await supabase.from('announcements').select('posted_by').eq('id', id).single();
+    const existingRows = await sql`
+      select posted_by
+      from announcements
+      where id = ${id}
+      limit 1
+    `;
+    const existing = existingRows[0] || null;
+
     if (!existing) return res.status(404).json({ error: 'Announcement not found' });
     if (req.user.role !== 'admin' && existing.posted_by !== req.user.id)
       return res.status(403).json({ error: 'Access denied' });
-    await supabase.from('announcements').delete().eq('id', id);
+
+    await sql`delete from announcements where id = ${id}`;
     return res.json({ message: 'Announcement deleted' });
   } catch (err) { next(err); }
 }

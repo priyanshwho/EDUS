@@ -42,7 +42,7 @@ export default function PdfViewer({ url }) {
         setPdf(pdfDoc);
         setTotalPages(pdfDoc.numPages);
         setCurrentPage(1);
-      } catch (err) {
+      } catch {
         if (!cancelled) setError('Failed to load PDF. The link may have expired.');
       } finally {
         if (!cancelled) setLoading(false);

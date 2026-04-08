@@ -1,5 +1,13 @@
 const slugify = require('slugify');
-const supabase = require('../config/supabase.config');
+
+let sqlClient = null;
+
+function getSqlClient() {
+  if (!sqlClient) {
+    ({ sql: sqlClient } = require('../db/client'));
+  }
+  return sqlClient;
+}
 
 /**
  * Build a deterministic slug from resource metadata.
@@ -26,18 +34,20 @@ function buildSlug({ acronym, resource_type, semester, pyq_type, year }) {
  * Generate a unique slug, appending a numeric suffix if needed.
  */
 async function generateUniqueSlug(params) {
+  const sql = getSqlClient();
   const base = buildSlug(params);
   let candidate = base;
   let counter   = 1;
 
   for (;;) {
-    const { data } = await supabase
-      .from('resources')
-      .select('id')
-      .eq('slug', candidate)
-      .maybeSingle();
+    const rows = await sql`
+      select id
+      from resources
+      where slug = ${candidate}
+      limit 1
+    `;
 
-    if (!data) return candidate;
+    if (rows.length === 0) return candidate;
     candidate = `${base}-${counter++}`;
   }
 }

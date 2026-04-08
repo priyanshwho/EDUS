@@ -3,7 +3,7 @@ import Section from "../components/Section";
 import { GradientLight } from "../components/design/Benefits";
 import ClipPath from "../assets/svg/ClipPath";
 import { Rings, SideLines, BackgroundCircles } from "../components/design/Header";
-import { gradient, background, heroBackground, grid, lines, stars } from "../assets";
+import { gradient, grid, lines, stars } from "../assets";
 import service1 from "../assets/services/service-1.png";
 import service2 from "../assets/services/service-2.png";
 import service3 from "../assets/services/service-3.png";
