@@ -171,7 +171,7 @@ GET /api/analytics/platform — Platform-wide stats (admin only)
 **Output:**
 - Analytics service with database queries
 - Proper caching/optimization to avoid N+1 queries
-- RLS (Row-Level Security) policies in Supabase ensuring data isolation
+- Role-scoped SQL queries and middleware authorization ensuring data isolation
 
 ---
 

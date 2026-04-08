@@ -4,7 +4,7 @@ applyTo: "backend/src/**"
 
 # Backend API Developer Agent for EduSphere
 
-You specialize in designing and implementing Express.js API endpoints, integrating with Supabase, managing authentication/authorization, and deploying production-ready routes.
+You specialize in designing and implementing Express.js API endpoints, integrating with Neon PostgreSQL via Drizzle/Neon SQL client, managing authentication/authorization, and deploying production-ready routes.
 
 ## Mission
 Build secure, scalable, well-documented Express.js endpoints that handle academic resource management, authentication, file uploads, and analytics—all with proper validation, error handling, and role-based access control.
@@ -34,7 +34,8 @@ backend/src/
 ├── middleware/                 # Auth, role, validation
 ├── services/                   # Business logic
 ├── validators/                 # express-validator rules
-├── config/                     # Supabase, S3, Passport
+├── config/                     # S3, Passport
+├── db/                         # Neon SQL + Drizzle client/schema
 └── utils/
     └── response.js             # Response formatter
 ```
@@ -167,57 +168,49 @@ module.exports = router;
 ## Controller File Template
 
 ```javascript
-const supabase = require('../config/supabase.config');
+const { sql } = require('../db/client');
 
 class ExampleController {
   /**
    * Get all examples with optional filters
    */
   static async getAll(filters = {}) {
-    let query = supabase.from('examples').select('*');
+    const where = [];
+    const params = [];
 
     if (filters.subject) {
-      query = query.eq('subject', filters.subject);
-    }
-    if (filters.search) {
-      query = query.ilike('title', `%${filters.search}%`);
+      params.push(filters.subject);
+      where.push(`subject = $${params.length}`);
     }
 
-    const { data, error } = await query.order('created_at', { ascending: false });
-    if (error) throw error;
-    return data;
+    if (filters.search) {
+      params.push(`%${filters.search}%`);
+      where.push(`title ilike $${params.length}`);
+    }
+
+    const whereClause = where.length ? `where ${where.join(' and ')}` : '';
+    return sql.query(`select * from examples ${whereClause} order by created_at desc`, params);
   }
 
   /**
    * Get example by ID
    */
   static async getById(id) {
-    const { data, error } = await supabase
-      .from('examples')
-      .select('*')
-      .eq('id', id)
-      .single();
-    
-    if (error && error.code !== 'PGRST116') throw error; // PGRST116 = no rows
-    return data;
+    const rows = await sql`select * from examples where id = ${id} limit 1`;
+    return rows[0] || null;
   }
 
   /**
    * Create new example
    */
   static async create(payload, user) {
-    const { data, error } = await supabase
-      .from('examples')
-      .insert([{
-        ...payload,
-        created_by: user.id,
-        created_at: new Date().toISOString(),
-      }])
-      .select()
-      .single();
+    const rows = await sql`
+      insert into examples (title, description, subject, created_by, created_at)
+      values (${payload.title}, ${payload.description || null}, ${payload.subject || null}, ${user.id}, now())
+      returning *
+    `;
 
-    if (error) throw error;
-    return data;
+    return rows[0] || null;
   }
 
   /**
@@ -232,18 +225,16 @@ class ExampleController {
       throw { status: 403, message: 'Unauthorized to update this example' };
     }
 
-    const { data, error } = await supabase
-      .from('examples')
-      .update({
-        ...payload,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', id)
-      .select()
-      .single();
+    const rows = await sql`
+      update examples
+      set title = ${payload.title || existing.title},
+          description = ${payload.description || existing.description},
+          updated_at = now()
+      where id = ${id}
+      returning *
+    `;
 
-    if (error) throw error;
-    return data;
+    return rows[0] || null;
   }
 
   /**
@@ -258,12 +249,7 @@ class ExampleController {
       throw { status: 403, message: 'Only admins can delete examples' };
     }
 
-    const { error } = await supabase
-      .from('examples')
-      .delete()
-      .eq('id', id);
-
-    if (error) throw error;
+    await sql`delete from examples where id = ${id}`;
   }
 }
 
@@ -414,7 +400,7 @@ app.use((err, _req, res, _next) => {
     return res.status(err.status).json({ status: 'error', error: err.message });
   }
 
-  // Handle Supabase/DB errors
+  // Handle DB errors
   if (err.code === 'PGRST') {
     return res.status(400).json({ status: 'error', error: 'Database error' });
   }
@@ -457,7 +443,7 @@ res.status(400).json(error('Validation failed', 'VALIDATION_ERROR'));
 - [ ] Sensitive routes protected with `authenticate` middleware
 - [ ] Role-based access checked with `authorizeRole` middleware
 - [ ] No sensitive data logged to console in production
-- [ ] Database queries use parameterized queries (Supabase SDK handles this)
+- [ ] Database queries use parameterized queries (`sql` tagged templates or parameter arrays)
 - [ ] CORS properly configured for frontend origin only
 - [ ] JWT secret is strong and stored in .env
 - [ ] Password hashing used if storing passwords (bcryptjs)
@@ -490,25 +476,25 @@ curl "http://localhost:5000/api/resources?subject=ECE&type=lecture"
 ### Database Query Optimization
 ```javascript
 // ✅ Good: Only select needed fields
-.select('id, title, subject, created_at')
+select id, title, subject, created_at from resources;
 
 // ❌ Avoid: Select everything
-.select('*')
+select * from resources;
 ```
 
 ### Pagination
 ```javascript
 static async getAll(page = 1, limit = 20) {
   const offset = (page - 1) * limit;
-  const query = supabase
-    .from('resources')
-    .select('*', { count: 'exact' })
-    .range(offset, offset + limit - 1);
-  
-  const { data, count } = await query;
+  const data = await sql.query(
+    'select * from resources order by created_at desc limit $1 offset $2',
+    [limit, offset]
+  );
+  const countRows = await sql`select count(*)::int as total from resources`;
+
   return {
     data,
-    pagination: { page, limit, total: count }
+    pagination: { page, limit, total: countRows[0].total }
   };
 }
 ```
@@ -520,7 +506,7 @@ static async getAll(page = 1, limit = 20) {
 | "Cannot read property 'id' of undefined" | Check that req.user is populated by authenticate middleware; add middleware in correct order |
 | CORS errors | Verify CLIENT_URL in .env matches frontend origin; restart server |
 | JWT expired | Implement refresh token logic or extend JWT expiry in .env |
-| Database connection fails | Check SUPABASE_URL and SUPABASE_KEY in .env; verify network access |
+| Database connection fails | Check DATABASE_URL in .env; verify Neon project is active and network access is allowed |
 | File upload fails | Verify S3 credentials, bucket name, and AWS_REGION in .env |
 
 ---

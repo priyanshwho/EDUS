@@ -26,7 +26,7 @@ Each loads automatically based on file type you're editing:
 | `page-builder.md` | `frontend/src/Pages/**` | Full-page containers |
 | `backend-api.md` | `backend/src/**` | Express.js endpoints |
 | `styling-specialist.md` | `frontend/**/*.{jsx,css}` | Tailwind CSS & responsive design |
-| `database-schema.md` | `backend/schema.sql` | PostgreSQL/Supabase schemas |
+| `database-schema.md` | `backend/schema.sql` | PostgreSQL/Drizzle schemas |
 | `testing-patterns.md` | `**/*.test.{js,jsx}` | Jest/Vitest/Supertest tests |
 | `cicd-setup.md` | `.github/workflows/**` | GitHub Actions automation |
 
@@ -90,7 +90,7 @@ Follow the workflow in `.github/COMPLETE_USAGE_GUIDE.md` → "Task 1: Build a Ne
 │   ├── page-builder.md              # Full pages
 │   ├── backend-api.md               # Express endpoints
 │   ├── styling-specialist.md        # Tailwind CSS
-│   ├── database-schema.md           # PostgreSQL/Supabase
+│   ├── database-schema.md           # PostgreSQL/Neon+Drizzle
 │   ├── testing-patterns.md          # Jest/Vitest tests
 │   └── cicd-setup.md                # GitHub Actions
 ├── hooks/                           # 🎣 Git hooks
@@ -245,7 +245,7 @@ The `applyTo` patterns in each guide's YAML frontmatter control this.
 
 ### Pre-commit Hook Checks
 
-1. **❌ .env files** — Blocks `SUPABASE_KEY`, `AWS_SECRET_ACCESS_KEY`, etc.
+1. **❌ .env files** — Blocks `DATABASE_URL`, `AWS_SECRET_ACCESS_KEY`, etc.
 2. **❌ Hardcoded secrets** — Blocks `API_KEY="value"` patterns
 3. **❌ console.log** — Blocks debug statements
 4. **❌ debugger statements** — Blocks breakpoints left behind
@@ -371,7 +371,7 @@ git commit -m "style: fix linting issues"
 
 ### ✅ Included
 - ✓ Frontend (React 19, Vite 6, Tailwind CSS 3)
-- ✓ Backend (Express.js, Supabase, JWT+OAuth)
+- ✓ Backend (Express.js, Neon/Drizzle, JWT+OAuth)
 - ✓ Database (PostgreSQL + RLS policies)
 - ✓ Testing (Jest/Vitest/Supertest)
 - ✓ CI/CD (GitHub Actions)

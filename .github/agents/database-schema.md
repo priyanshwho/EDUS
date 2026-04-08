@@ -4,7 +4,7 @@ applyTo: "backend/schema.sql"
 
 # Database Schema Management Agent for EduSphere
 
-You specialize in designing and implementing Supabase PostgreSQL schemas, managing migrations, implementing Row-Level Security (RLS) policies, and maintaining data integrity for the EduSphere platform.
+You specialize in designing and implementing Neon PostgreSQL schemas with Drizzle migrations, implementing Row-Level Security (RLS) policies where appropriate, and maintaining data integrity for the EduSphere platform.
 
 ## Mission
 Design scalable, secure database schemas with proper relationships, constraints, and RLS policies—enabling multi-tenant features, role-based access, and efficient queries for academic resource management.
@@ -143,6 +143,7 @@ ADD CONSTRAINT valid_subject CHECK (subject IN ('ECE', 'IT', 'MECH'));
 ## Row-Level Security (RLS)
 
 RLS ensures users can only see/modify their own data or public data based on role.
+The examples below use a per-request PostgreSQL setting (`app.current_user_id`) to resolve the authenticated user inside policies.
 
 ### Enable RLS on Tables
 
@@ -169,17 +170,17 @@ CREATE POLICY "public_resources_read" ON resources
 CREATE POLICY "professors_update_own_resources" ON resources
   FOR UPDATE
   USING (
-    auth.uid() = created_by OR
-    (SELECT role FROM users WHERE id = auth.uid()) = 'admin'
+    current_setting('app.current_user_id', true)::uuid = created_by OR
+    (SELECT role FROM users WHERE id = current_setting('app.current_user_id', true)::uuid) = 'admin'
   )
-  WITH CHECK (created_by = auth.uid()); -- Don't allow changing owner
+  WITH CHECK (created_by = current_setting('app.current_user_id', true)::uuid); -- Don't allow changing owner
 
 -- Professors can delete their own resources
 CREATE POLICY "professors_delete_own_resources" ON resources
   FOR DELETE
   USING (
-    auth.uid() = created_by OR
-    (SELECT role FROM users WHERE id = auth.uid()) = 'admin'
+    current_setting('app.current_user_id', true)::uuid = created_by OR
+    (SELECT role FROM users WHERE id = current_setting('app.current_user_id', true)::uuid) = 'admin'
   );
 ```
 
@@ -188,12 +189,12 @@ CREATE POLICY "professors_delete_own_resources" ON resources
 -- Only admins can create announcements
 CREATE POLICY "admins_create_announcements" ON announcements
   FOR INSERT
-  WITH CHECK ((SELECT role FROM users WHERE id = auth.uid()) = 'admin');
+  WITH CHECK ((SELECT role FROM users WHERE id = current_setting('app.current_user_id', true)::uuid) = 'admin');
 
 -- Only admins can delete announcements
 CREATE POLICY "admins_delete_announcements" ON announcements
   FOR DELETE
-  USING ((SELECT role FROM users WHERE id = auth.uid()) = 'admin');
+  USING ((SELECT role FROM users WHERE id = current_setting('app.current_user_id', true)::uuid) = 'admin');
 
 -- Anyone can read announcements
 CREATE POLICY "public_announcements_read" ON announcements
@@ -207,17 +208,17 @@ CREATE POLICY "public_announcements_read" ON announcements
 CREATE POLICY "users_read_profiles" ON users
   FOR SELECT
   USING (
-    auth.uid() = id OR
-    (SELECT role FROM users WHERE id = auth.uid()) = 'admin'
+    current_setting('app.current_user_id', true)::uuid = id OR
+    (SELECT role FROM users WHERE id = current_setting('app.current_user_id', true)::uuid) = 'admin'
   );
 
 -- Users can only update their own profile
 CREATE POLICY "users_update_own_profile" ON users
   FOR UPDATE
-  USING (auth.uid() = id)
+  USING (current_setting('app.current_user_id', true)::uuid = id)
   WITH CHECK (
-    auth.uid() = id AND
-    role = (SELECT role FROM users WHERE id = auth.uid()) -- Can't change own role
+    current_setting('app.current_user_id', true)::uuid = id AND
+    role = (SELECT role FROM users WHERE id = current_setting('app.current_user_id', true)::uuid) -- Can't change own role
   );
 ```
 
@@ -254,11 +255,11 @@ ALTER TABLE feature_name ENABLE ROW LEVEL SECURITY;
 -- Add policies based on access rules
 CREATE POLICY "users_can_read_own" ON feature_name
   FOR SELECT
-  USING (auth.uid() = user_id);
+  USING (current_setting('app.current_user_id', true)::uuid = user_id);
 
 CREATE POLICY "users_can_create" ON feature_name
   FOR INSERT
-  WITH CHECK (auth.uid() = user_id);
+  WITH CHECK (current_setting('app.current_user_id', true)::uuid = user_id);
 ```
 
 ### Step 4: Add to Backend
@@ -335,7 +336,7 @@ CREATE TABLE audit_log (
 ALTER TABLE audit_log ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "admins_read_audit" ON audit_log
   FOR SELECT
-  USING ((SELECT role FROM users WHERE id = auth.uid()) = 'admin');
+  USING ((SELECT role FROM users WHERE id = current_setting('app.current_user_id', true)::uuid) = 'admin');
 ```
 
 ### 2. Soft Deletes (Keep Deleted Records)
@@ -423,7 +424,7 @@ JOIN users u ON r.created_by = u.id;
 
 | Issue | Solution |
 |-------|----------|
-| **RLS policies not working** | Enable RLS on table; verify auth.uid() matches logged-in user |
+| **RLS policies not working** | Enable RLS on table; verify `app.current_user_id` is set correctly for each request |
 | **Foreign key constraint errors** | Check referenced table exists and IDs match; use ON DELETE CASCADE if needed |
 | **Slow queries** | Add indexes on WHERE/JOIN columns; use EXPLAIN ANALYZE to diagnose |
 | **Duplicate records in many-to-many** | Add UNIQUE constraint: `UNIQUE(user_id, subject_id)` |
@@ -452,7 +453,7 @@ SELECT tablename, rowsecurity FROM pg_tables WHERE tablename = 'resources';
 ### Backup & Recovery
 
 ```bash
-# Backup Supabase database
+# Backup Neon/PostgreSQL database
 pg_dump postgresql://user:password@host:port/db > backup.sql
 
 # Restore from backup
@@ -483,7 +484,7 @@ INSERT INTO resources (id, title, resource_type, subject, created_by) VALUES
 ```sql
 -- Verify RLS policy: Student can only see own resources
 -- (As student user, this should return 1 row)
-SELECT COUNT(*) FROM resources WHERE created_by = auth.uid();
+SELECT COUNT(*) FROM resources WHERE created_by = current_setting('app.current_user_id', true)::uuid;
 
 -- Verify foreign key constraints work
 INSERT INTO resources (title, created_by) VALUES ('Test', 'invalid-user-id');
@@ -492,22 +493,22 @@ INSERT INTO resources (title, created_by) VALUES ('Test', 'invalid-user-id');
 
 ---
 
-## Supabase-Specific Features
+## PostgreSQL + Drizzle-Oriented Features
 
-### Real-Time Subscriptions
+### Real-Time Patterns
 ```javascript
-// Frontend can subscribe to table changes
-const subscription = supabase
-  .from('resources')
-  .on('*', (payload) => {
-    console.log('Resource changed:', payload);
-  })
-  .subscribe();
+// Use polling or websockets from your backend for near-real-time updates.
+// Example: poll resources every 30 seconds on the frontend.
+setInterval(async () => {
+  const res = await fetch('/api/resources');
+  const data = await res.json();
+  console.log('Latest resources:', data);
+}, 30000);
 ```
 
 ### Automatic Timestamps
 ```sql
--- Supabase auto-manages these:
+-- PostgreSQL defaults + triggers manage these:
 created_at timestamp DEFAULT now()
 updated_at timestamp DEFAULT now()
 
@@ -540,7 +541,8 @@ LIMIT 20;
 
 - **Main Guide**: [EduSphere Development Guide](.github/copilot-instructions.md)
 - **Backend API**: [Backend API Agent](.github/agents/backend-api.md)
-- **Supabase Docs**: https://supabase.com/docs
+- **Neon Docs**: https://neon.tech/docs
+- **Drizzle Docs**: https://orm.drizzle.team/docs/overview
 - **PostgreSQL Documentation**: https://www.postgresql.org/docs/
 
 ---

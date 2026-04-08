@@ -4,7 +4,7 @@
 
 **EduSphere** is a production-ready, full-stack academic resource platform with:
 - **Frontend**: React 19 + Vite 6 SPA with role-based dashboards
-- **Backend**: Express.js API with Supabase PostgreSQL, AWS S3 uploads, OAuth authentication
+- **Backend**: Express.js API with Neon PostgreSQL (Drizzle), AWS S3 uploads, OAuth authentication
 - **Resources**: PYQs (Previous Year Question Papers), Class Notes, Lectures, Skill Development Courses
 - **Access Model**: Public landing pages, role-based dashboards (Student/Professor/Admin), resource filtering by subject/skill
 
@@ -20,7 +20,7 @@
 | | Styling | Tailwind CSS 3.4.17 + custom CSS (index.css) |
 | **Backend** | Runtime | Node.js 18+ (CommonJS) |
 | | Framework | Express 4.19.2 |
-| | Database | Supabase PostgreSQL |
+| | Database | Neon PostgreSQL |
 | | Auth | JWT + Passport.js (Google, GitHub OAuth) |
 | | File Storage | AWS S3 (Tigris integration) |
 | **Dev Tools** | Linting | ESLint 9.21.0 (React hooks + refresh rules) |
@@ -45,7 +45,8 @@
 - **src/routes/** — Route modules: auth, resources, subjects, upload, analytics, announcements, users
 - **src/controllers/** — Request handlers for each route
 - **src/middleware/** — authenticate.js (JWT verification), role.middleware.js (role-based access), legacy.middleware.js (legacy feature deprecation)
-- **src/config/** — Supabase, S3, Passport configuration
+- **src/db/** — Neon SQL + Drizzle client and schema
+- **src/config/** — S3 and Passport configuration
 - **src/services/** — S3 service (upload/download), slug service
 - **src/validators/** — express-validator rules for input validation
 - **schema.sql** — PostgreSQL schema with tables for resources, users, announcements, etc.
@@ -122,8 +123,10 @@ backend/src/
 ├── validators/
 │   ├── auth.validator.js
 │   └── resource.validator.js
+├── db/
+│   ├── client.js                 # Neon SQL + Drizzle client
+│   └── schema.js                 # Drizzle schema definitions
 ├── config/
-│   ├── supabase.config.js
 │   ├── s3.config.js              # Tigris AWS SDK config
 │   └── passport.config.js        # OAuth strategies
 ├── utils/
@@ -197,9 +200,8 @@ PORT=5000
 NODE_ENV=development
 CLIENT_URL=http://localhost:5173
 
-# Supabase
-SUPABASE_URL=https://...supabase.co
-SUPABASE_KEY=...
+# Neon PostgreSQL
+DATABASE_URL=postgresql://user:password@ep-xxxxxx.region.aws.neon.tech/edusphere?sslmode=require
 
 # OAuth
 GOOGLE_CLIENT_ID=...
@@ -309,7 +311,7 @@ router.post('/resource', [
 - API authorization via middleware: `authenticate()` → `authorizeRole('professor')`
 
 ### 2. Resource Management
-- Resources stored in Supabase PostgreSQL
+- Resources stored in Neon PostgreSQL via Drizzle
 - Metadata: title, subject, type (lecture/note/pyq), file_url (S3), created_by (professor), created_at
 - Filtering: by subject, type, skill level; search by title/description
 - File access: Presigned URLs for S3 downloads
@@ -328,13 +330,13 @@ await upload(file, { subject: 'ECE', type: 'lecture' });
 ### 4. OAuth Integration
 - Google & GitHub sign-in via Passport.js
 - Callback routes: `/auth/google/callback`, `/auth/github/callback`
-- On first sign-in: Create user in Supabase, assign default role (student)
+- On first sign-in: Create user in Neon users table, assign default role (student)
 - JWT issued upon successful OAuth verification
 
 ### 5. Analytics
 - **Professor**: Track views/downloads of own resources
 - **Platform**: Total resources, user count, engagement metrics
-- Queries: Read-only Supabase RLS policies ensure data isolation
+- Queries: Role-scoped SQL queries and middleware authorization ensure data isolation
 
 ---
 
@@ -379,7 +381,7 @@ await upload(file, { subject: 'ECE', type: 'lecture' });
 | **CORS Error** | API blocked by frontend origin | Check `CORS_ORIGIN` in backend config matches `CLIENT_URL` |
 | **JWT Invalid** | Token missing or expired | Ensure `Authorization: Bearer <token>` header is set; refresh token if expired |
 | **S3 Upload Fails** | AWS credentials or bucket config | Run `npm run check:s3` in backend; verify bucket permissions |
-| **Supabase Connection** | Database unreachable | Check `SUPABASE_URL` and `SUPABASE_KEY` in .env; verify network/VPN |
+| **Neon Connection** | Database unreachable | Check `DATABASE_URL` in .env; verify Neon project/branch status and network access |
 | **OAuth Redirect Loop** | Callback URI mismatch | Ensure `OAUTH_REDIRECT_URI` matches registered redirect in OAuth app settings |
 
 ---
@@ -457,10 +459,10 @@ vercel deploy --prod
    - Allows independent scaling, deployment, and development cycles
    - Frontend can be CDN-hosted (Vercel); backend on separate server
 
-2. **Supabase PostgreSQL**
-   - Built-in RLS (Row-Level Security) for multi-tenancy/role-based data isolation
-   - Real-time subscriptions for live updates (future feature)
-   - Reduced DevOps overhead vs. self-managed PostgreSQL
+2. **Neon PostgreSQL + Drizzle**
+   - Serverless PostgreSQL with branch-based workflows
+   - Type-safe schema/query layer with Drizzle
+   - Reduced operational overhead with standard SQL portability
 
 3. **AWS S3/Tigris for File Storage**
    - Decouples file storage from database
@@ -485,7 +487,8 @@ vercel deploy --prod
 - [Vite Documentation](https://vitejs.dev/)
 - [React Router v7 Docs](https://reactrouter.com/)
 - [Express.js Best Practices](https://expressjs.com/en/advanced/best-practice-security.html)
-- [Supabase Auth Docs](https://supabase.com/docs/guides/auth)
+- [Neon Documentation](https://neon.tech/docs)
+- [Drizzle ORM Docs](https://orm.drizzle.team/docs/overview)
 - [AWS S3 Presigned URLs](https://docs.aws.amazon.com/AmazonS3/latest/userguide/PresignedUrlUploadObject.html)
 - [Passport.js Strategies](http://www.passportjs.org/strategies/)
 
@@ -529,4 +532,4 @@ git push origin feature/my-feature  # Push and open PR
 ---
 
 *Last Updated: April 2026*
-*Applies to: Frontend (React 19 + Vite 6) & Backend (Express.js + Supabase)*
+*Applies to: Frontend (React 19 + Vite 6) & Backend (Express.js + Neon/Drizzle)*
