@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { subjectService } from '../services';
 
 const RESOURCE_TYPES = [

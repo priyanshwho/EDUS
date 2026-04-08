@@ -37,7 +37,7 @@ const Header = () => {
     };
 
     // Custom scroll handler for navbar links with offset
-    const handleClick = (e, url, item) => {
+    const handleClick = (e, url) => {
         e.preventDefault();
         // if (item && item.auth) {
         //     // Store intended route for redirect after login
@@ -145,10 +145,10 @@ return (
                                                         enablePageScroll();
                                                         setOpenNavigation(false);
                                                     } else {
-                                                        handleClick(e, item.url, item);
+                                                        handleClick(e, item.url);
                                                     }
                                                 }}
-                                                className={`block relative font-code text-2xl uppercase text-n-1 transition-colors hover:text-color-1 ${item.onlyMobile ? "lg:hidden" : ""} px-6 py-6 md:py-8 lg:mr-0.25 lg:text-xs lg:font-semibold ${item.url === location.pathname ? 'z-2 lg:text-n-1' : "lg:text-n-1/50"} lg:leading-5 lg:hover:text-n-1 xl:px-12`}
+                                                className={`block relative font-code text-2xl uppercase text-n-1 transition-colors hover:text-color-1 ${item.onlyMobile ? "lg:hidden" : ""} px-6 py-6 md:py-8 lg:mr-0.25 lg:text-xs lg:font-semibold ${item.url === pathname.pathname ? 'z-2 lg:text-n-1' : "lg:text-n-1/50"} lg:leading-5 lg:hover:text-n-1 xl:px-12`}
                                             >
                                                 {item.title}
                                             </a>

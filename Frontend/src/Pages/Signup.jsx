@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { redirectByRole } from './Login';
+import { redirectByRole } from '../utils/redirectByRole';
 
 export default function SignupPage() {
   const { signup } = useAuth();

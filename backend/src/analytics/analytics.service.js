@@ -1,20 +1,49 @@
-const supabase = require('../config/supabase.config');
+const { sql } = require('../db/client');
 
 /**
  * Get analytics for a specific professor (or all uploads for admin).
  */
 async function getProfessorAnalytics(userId, isAdmin = false) {
-  let query = supabase
-    .from('resources')
-    .select(`
-      id, resource_type, pyq_type, created_at,
-      subjects ( id, name_full, acronym, branch, semester )
-    `);
-
-  if (!isAdmin) query = query.eq('uploaded_by', userId);
-
-  const { data: resources, error } = await query;
-  if (error) throw error;
+  const resources = isAdmin
+    ? await sql`
+        select
+          r.id,
+          r.resource_type,
+          r.pyq_type,
+          r.created_at,
+          case
+            when s.id is null then null
+            else jsonb_build_object(
+              'id', s.id,
+              'name_full', s.name_full,
+              'acronym', s.acronym,
+              'branch', s.branch,
+              'semester', s.semester
+            )
+          end as subjects
+        from resources r
+        left join subjects s on s.id = r.subject_id
+      `
+    : await sql`
+        select
+          r.id,
+          r.resource_type,
+          r.pyq_type,
+          r.created_at,
+          case
+            when s.id is null then null
+            else jsonb_build_object(
+              'id', s.id,
+              'name_full', s.name_full,
+              'acronym', s.acronym,
+              'branch', s.branch,
+              'semester', s.semester
+            )
+          end as subjects
+        from resources r
+        left join subjects s on s.id = r.subject_id
+        where r.uploaded_by = ${userId}
+      `;
 
   const total = resources.length;
 
@@ -46,15 +75,11 @@ async function getProfessorAnalytics(userId, isAdmin = false) {
  * Admin: full platform analytics summary.
  */
 async function getPlatformAnalytics() {
-  const [usersRes, resourcesRes, subjectsRes] = await Promise.all([
-    supabase.from('users').select('id, role, created_at'),
-    supabase.from('resources').select('id, resource_type, created_at'),
-    supabase.from('subjects').select('id'),
+  const [users, resources, subjects] = await Promise.all([
+    sql`select id, role, created_at from users`,
+    sql`select id, resource_type, created_at from resources`,
+    sql`select id from subjects`,
   ]);
-
-  const users     = usersRes.data     || [];
-  const resources = resourcesRes.data || [];
-  const subjects  = subjectsRes.data  || [];
 
   const usersByRole = users.reduce((acc, u) => {
     acc[u.role] = (acc[u.role] || 0) + 1;

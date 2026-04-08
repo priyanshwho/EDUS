@@ -10,7 +10,14 @@
  * Run: npm run check:s3 (from backend/)
  */
 
-require('dotenv').config({ path: require('path').join(__dirname, '../../backend/.env') });
+let dotenv;
+try {
+  dotenv = require('dotenv');
+} catch {
+  dotenv = require(require('path').join(__dirname, '../../backend/node_modules/dotenv'));
+}
+
+dotenv.config({ path: require('path').join(__dirname, '../../backend/.env') });
 
 const fs   = require('fs');
 const path = require('path');

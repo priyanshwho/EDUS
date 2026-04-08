@@ -17,7 +17,7 @@ export default function StudentDashboard() {
   const { resources, loading, error, fetch, updateFilters, clearFilters, filters } = useResources();
   const [previewResource, setPreviewResource] = useState(null);
 
-  useEffect(() => { fetch(); }, []);
+  useEffect(() => { fetch(); }, [fetch]);
 
   function handleFilterChange(newFilters) {
     updateFilters(newFilters);
@@ -102,7 +102,9 @@ function ResourceCard({ resource: r, onPreview }) {
     try {
       if (saved) { await resourceService.unsave(r.id); setSaved(false); }
       else        { await resourceService.save(r.id);   setSaved(true);  }
-    } catch {}
+    } catch {
+      setSaved((prev) => prev);
+    }
   }
 
   function handleCopy() {

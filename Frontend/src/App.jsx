@@ -74,12 +74,13 @@ import ResourcePage from "./Pages/ResourcePage";
 
 const App = () => {
   return (
-    <AuthProvider>
-      <ScrollToTop />
-      <div className="pt-[4.75rem] lg:pt-[5.25rem] overflow-hidden">
-        <Header />
-         <>
-    <Routes>
+    <Router>
+      <AuthProvider>
+        <ScrollToTop />
+        <div className="pt-[4.75rem] lg:pt-[5.25rem] overflow-hidden">
+          <Header />
+           <>
+      <Routes>
     <Route path="/" element={<Homepage/> } />
     <Route path="/about" element={<AboutPage />} />
     <Route path="/services" element={<ServicesPage />} />
@@ -182,12 +183,13 @@ const App = () => {
       </SignedOut>
       </>} /> */}
     {/* ...other routes */}
-  </Routes>
-</>
-   </div>
-      <Footer />
-      <ButtonGradient />
-    </AuthProvider>
+    </Routes>
+  </>
+     </div>
+        <Footer />
+        <ButtonGradient />
+      </AuthProvider>
+    </Router>
   );
 };
 
