@@ -5,14 +5,22 @@
  * Run: npm run validate (from backend/)
  */
 
-require('dotenv').config({ path: require('path').join(__dirname, '../../backend/.env') });
+const path = require('path');
+
+let dotenv;
+try {
+  dotenv = require('dotenv');
+} catch {
+  dotenv = require(path.join(__dirname, '../../backend/node_modules/dotenv'));
+}
+
+dotenv.config({ path: path.join(__dirname, '../../backend/.env') });
 
 const REQUIRED_VARS = [
   'PORT',
   'NODE_ENV',
   'CLIENT_URL',
-  'SUPABASE_URL',
-  'SUPABASE_SERVICE_ROLE_KEY',
+  'DATABASE_URL',
   'JWT_SECRET',
   'JWT_REFRESH_SECRET',
   'GOOGLE_CLIENT_ID',

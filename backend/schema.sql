@@ -1,6 +1,6 @@
 -- ============================================================
--- EduSphere — Supabase PostgreSQL Schema
--- Run this in the Supabase SQL Editor
+-- EduSphere — PostgreSQL Schema (NeonDB compatible)
+-- Run this in your PostgreSQL SQL editor/client
 -- ============================================================
 
 -- Enable UUID extension
@@ -91,30 +91,7 @@ create table if not exists saved_resources (
 create index if not exists idx_saved_resources_user_id on saved_resources(user_id);
 
 -- ============================================================
--- Row Level Security (RLS) — enable and set policies
+-- Authorization notes (backend-managed)
 -- ============================================================
-
-alter table users             enable row level security;
-alter table subjects          enable row level security;
-alter table resources         enable row level security;
-alter table announcements     enable row level security;
-alter table saved_resources   enable row level security;
-
--- Service role bypasses RLS (used by backend)
--- The Supabase client using SERVICE_ROLE_KEY bypasses all RLS policies.
--- These policies apply to anonymous / authenticated JWT users only.
-
--- Public read on subjects and resources
-create policy "public read subjects"
-  on subjects for select using (true);
-
-create policy "public read resources"
-  on resources for select using (true);
-
-create policy "public read announcements"
-  on announcements for select using (true);
-
--- Users can read their own saved resources
-create policy "own saved resources"
-  on saved_resources for all
-  using (auth.uid() = user_id);
+-- This schema is intended for a backend-managed authorization model
+-- (JWT + role checks in application middleware) rather than Supabase RLS.

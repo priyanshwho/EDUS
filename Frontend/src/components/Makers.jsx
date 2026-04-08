@@ -77,7 +77,7 @@ const Makers = () => {
 
         {/* Team Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
-          {teamMembers.map((member, index) => (
+          {teamMembers.map((member) => (
             <div
               key={member.name}
               className="group relative z-20 bg-n-7/20 backdrop-blur-xl border border-n-1/10 rounded-2xl p-6 hover:bg-n-7/30 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-purple-500/5"

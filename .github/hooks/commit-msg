@@ -1,0 +1,77 @@
+#!/bin/bash
+
+# Git Commit Message Hook for EduSphere
+# Enforces semantic commit message format
+#
+# Install with: cp .github/hooks/commit-msg .git/hooks/commit-msg && chmod +x .git/hooks/commit-msg
+#
+# Valid formats:
+#   feat: add new feature
+#   fix: fix a bug
+#   docs: update documentation
+#   refactor: refactor code
+#   style: adjust formatting/styling
+#   test: add or update tests
+#   chore: maintenance tasks
+#   perf: performance improvements
+#   ci: CI/CD configuration
+
+# Get the commit message
+COMMIT_MSG=$(cat "$1")
+
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# Valid commit types
+VALID_TYPES="feat|fix|docs|refactor|style|test|chore|perf|ci"
+
+# Check if commit message matches pattern: type(scope?): subject
+if ! echo "$COMMIT_MSG" | grep -qiE "^(${VALID_TYPES})(\(.+\))?:\s.+"; then
+    echo -e "\n${RED}❌ Invalid commit message format${NC}\n"
+    echo -e "${YELLOW}Your commit message:${NC}"
+    echo -e "${BLUE}$COMMIT_MSG${NC}\n"
+    echo -e "${YELLOW}Valid formats:${NC}"
+    echo "  feat: add new authentication system"
+    echo "  feat(auth): add JWT validation"
+    echo "  fix: resolve resource filtering bug"
+    echo "  docs: update README installation steps"
+    echo "  refactor: simplify API response handler"
+    echo "  style: format ResourceCard component"
+    echo "  test: add tests for S3 upload service"
+    echo "  chore: update dependencies"
+    echo "  perf: optimize database queries"
+    echo -e "\n${YELLOW}Valid types: ${BLUE}${VALID_TYPES}${NC}"
+    echo -e "${YELLOW}Scopes (optional): ${BLUE}auth, api, frontend, db, deploy, etc.${NC}\n"
+    exit 1
+fi
+
+# Check subject length (should be concise)
+SUBJECT=$(echo "$COMMIT_MSG" | head -n1 | sed -E 's/^(feat|fix|docs|refactor|style|test|chore|perf|ci)(\([^)]*\))?:\s*//')
+SUBJECT_LEN=${#SUBJECT}
+
+if [ $SUBJECT_LEN -gt 72 ]; then
+    echo -e "\n${RED}❌ Commit subject too long (${SUBJECT_LEN} > 72 chars)${NC}"
+    echo -e "${YELLOW}Please make the subject more concise${NC}\n"
+    exit 1
+fi
+
+if [ $SUBJECT_LEN -lt 3 ]; then
+    echo -e "\n${RED}❌ Commit subject too short (${SUBJECT_LEN} < 3 chars)${NC}"
+    echo -e "${YELLOW}Please provide a meaningful description${NC}\n"
+    exit 1
+fi
+
+# Check that subject starts with lowercase (after type prefix)
+if [[ $SUBJECT =~ ^[A-Z] ]]; then
+    echo -e "\n${YELLOW}⚠️  Tip: Start subject with lowercase${NC}"
+    echo "  Instead of: 'feat: Add new feature'"
+    echo "  Better: 'feat: add new feature'\n"
+fi
+
+# Success
+echo -e "${GREEN}✓ Commit message format valid${NC}"
+exit 0

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 
 function LectureCard({ lecture }) {
   const [isExpanded, setIsExpanded] = useState(false);
-  const [currentVideo, setCurrentVideo] = useState(lecture.link);
+  const currentVideo = lecture.link;
 
   return (
     <div className="border rounded-lg shadow-md p-4 bg-[#374151] text-white">

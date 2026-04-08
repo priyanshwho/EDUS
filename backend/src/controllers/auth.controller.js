@@ -1,9 +1,10 @@
 const bcrypt = require('bcryptjs');
-const supabase = require('../config/supabase.config');
-const { checkValidation, success, error: sendError, unauthorized } = require('../utils/response');
+const { sql } = require('../db/client');
+const { checkValidation } = require('../utils/response');
 const {
   signAccessToken,
   signRefreshToken,
+  verifyAccessToken,
   verifyRefreshToken,
   buildPayload,
 } = require('../auth/jwt.utils');
@@ -21,6 +22,11 @@ function setRefreshCookie(res, token) {
   });
 }
 
+async function getUserById(id) {
+  const rows = await sql`select * from users where id = ${id} limit 1`;
+  return rows[0] || null;
+}
+
 // ── POST /api/auth/signup ──────────────────────────────────────────────────
 async function signup(req, res, next) {
   try {
@@ -34,24 +40,29 @@ async function signup(req, res, next) {
       return res.status(400).json({ error: 'Password must be at least 8 characters' });
 
     // Check uniqueness
-    const { data: existing } = await supabase
-      .from('users')
-      .select('id')
-      .or(`email.eq.${email},username.eq.${username}`)
-      .maybeSingle();
-    if (existing) return res.status(409).json({ error: 'Email or username already in use' });
+    const existing = await sql`
+      select id
+      from users
+      where email = ${email} or username = ${username}
+      limit 1
+    `;
+    if (existing.length > 0) return res.status(409).json({ error: 'Email or username already in use' });
 
-    const password_hash = await bcrypt.hash(password, 12);
+    const passwordHash = await bcrypt.hash(password, 12);
+
+    const allowedRoles = ['student', 'professor', 'admin'];
+    const requestedRole = allowedRoles.includes(role) ? role : 'student';
 
     // Admin auto-detection
-    const resolvedRole = email === ADMIN_EMAIL ? 'admin' : role;
+    const resolvedRole = email === ADMIN_EMAIL ? 'admin' : requestedRole;
 
-    const { data: user, error } = await supabase
-      .from('users')
-      .insert({ username, email, password_hash, role: resolvedRole })
-      .select()
-      .single();
-    if (error) throw error;
+    const inserted = await sql`
+      insert into users (username, email, password_hash, role)
+      values (${username}, ${email}, ${passwordHash}, ${resolvedRole})
+      returning *
+    `;
+    const user = inserted[0];
+    if (!user) return res.status(500).json({ error: 'Failed to create user' });
 
     const payload      = buildPayload(user);
     const accessToken  = signAccessToken(payload);
@@ -72,12 +83,14 @@ async function login(req, res, next) {
     if (!email || !password)
       return res.status(400).json({ error: 'email and password are required' });
 
-    const { data: user, error } = await supabase
-      .from('users')
-      .select('*')
-      .eq('email', email)
-      .single();
-    if (error || !user)
+    const rows = await sql`
+      select *
+      from users
+      where email = ${email}
+      limit 1
+    `;
+    const user = rows[0];
+    if (!user)
       return res.status(401).json({ error: 'Invalid credentials' });
 
     const valid = await bcrypt.compare(password, user.password_hash || '');
@@ -85,7 +98,7 @@ async function login(req, res, next) {
 
     // Admin auto-detection
     if (email === ADMIN_EMAIL && user.role !== 'admin') {
-      await supabase.from('users').update({ role: 'admin' }).eq('id', user.id);
+      await sql`update users set role = 'admin' where id = ${user.id}`;
       user.role = 'admin';
     }
 
@@ -117,7 +130,7 @@ async function verifyPin(req, res, next) {
 
     let decoded;
     try {
-      decoded = require('../auth/jwt.utils').verifyAccessToken(pin_token);
+      decoded = verifyAccessToken(pin_token);
     } catch {
       return res.status(401).json({ error: 'Invalid or expired PIN token' });
     }
@@ -125,15 +138,14 @@ async function verifyPin(req, res, next) {
     if (!decoded.pin_pending)
       return res.status(400).json({ error: 'Token is not a PIN-pending token' });
 
+    if (!PROFESSOR_PIN)
+      return res.status(500).json({ error: 'Professor PIN is not configured' });
+
     if (pin !== PROFESSOR_PIN)
       return res.status(403).json({ error: 'Invalid PIN' });
 
-    const { data: user, error } = await supabase
-      .from('users')
-      .select('*')
-      .eq('id', decoded.id)
-      .single();
-    if (error || !user) return res.status(404).json({ error: 'User not found' });
+    const user = await getUserById(decoded.id);
+    if (!user) return res.status(404).json({ error: 'User not found' });
 
     const payload      = buildPayload(user);
     const accessToken  = signAccessToken(payload);
@@ -159,11 +171,7 @@ async function refresh(req, res, next) {
       return res.status(401).json({ error: 'Invalid refresh token' });
     }
 
-    const { data: user } = await supabase
-      .from('users')
-      .select('*')
-      .eq('id', decoded.id)
-      .single();
+    const user = await getUserById(decoded.id);
     if (!user) return res.status(401).json({ error: 'User not found' });
 
     const payload     = buildPayload(user);
@@ -183,11 +191,15 @@ function logout(_req, res) {
 // ── GET /api/auth/me ───────────────────────────────────────────────────────
 async function me(req, res, next) {
   try {
-    const { data: user } = await supabase
-      .from('users')
-      .select('id, username, name, email, role, created_at')
-      .eq('id', req.user.id)
-      .single();
+    const rows = await sql`
+      select id, username, name, email, role, created_at
+      from users
+      where id = ${req.user.id}
+      limit 1
+    `;
+    const user = rows[0] || null;
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
     return res.json({ user });
   } catch (err) {
     next(err);
