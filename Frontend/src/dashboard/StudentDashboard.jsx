@@ -5,7 +5,7 @@ import { useResources } from '../hooks/useResources';
 import { resourceService } from '../services/resource.service';
 import ResourceFilterPanel from '../components/ResourceFilterPanel';
 import PreviewModal from '../components/previews/PreviewModal';
-import { resourceTypeLabel, formatDate, resourceShareUrl } from '../utils/format';
+import { resourceTypeLabel, formatDate, resourcePath, resourceShareUrl } from '../utils/format';
 import { isPreviewable } from '../utils/preview';
 
 /**
@@ -54,6 +54,14 @@ export default function StudentDashboard() {
         <header className="mb-8">
           <h1 className="h3">Welcome back, {user?.username} 👋</h1>
           <p className="body-2 text-n-4 mt-1">Browse and access academic resources</p>
+          <div className="mt-3">
+            <Link
+              to="/professors"
+              className="inline-flex text-xs text-color-1 hover:underline"
+            >
+              Discover professor profiles →
+            </Link>
+          </div>
 
           {isStudent && (
             <div className="mt-5 rounded-2xl border border-n-6 bg-n-7 p-4 max-w-xl">
@@ -170,7 +178,7 @@ function ResourceCard({ resource: r, onPreview }) {
   }
 
   function handleCopy() {
-    navigator.clipboard.writeText(resourceShareUrl(r.slug)).then(() => {
+    navigator.clipboard.writeText(resourceShareUrl(r.slug, r)).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     });
@@ -197,7 +205,7 @@ function ResourceCard({ resource: r, onPreview }) {
         </div>
       </div>
 
-      <Link to={`/resource/${r.slug}`} className="group/title">
+      <Link to={resourcePath(r, r.slug)} className="group/title">
         <h3 className="font-semibold text-n-1 leading-snug group-hover/title:text-color-1 transition line-clamp-2">
           {r.title}
         </h3>
@@ -211,6 +219,15 @@ function ResourceCard({ resource: r, onPreview }) {
         <p className="text-xs text-n-5">
           {r.subjects.name_full || r.subjects.acronym} · Sem {r.subjects.semester} · {r.subjects.branch}
         </p>
+      )}
+
+      {r.uploader?.username && (
+        <Link
+          to={`/professors/${encodeURIComponent(r.uploader.username)}`}
+          className="text-xs text-color-2 hover:underline"
+        >
+          By {r.uploader.name || r.uploader.username}
+        </Link>
       )}
 
       <p className="text-xs text-n-6">{formatDate(r.created_at)}</p>

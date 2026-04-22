@@ -28,3 +28,8 @@ export const userService = {
   remove:     (id)         => api.delete(`/users/${id}`),
   savedList:  ()           => api.get('/users/saved'),
 };
+
+export const professorService = {
+  list: (filters = {}) => api.get('/users/public/professors', { params: filters }),
+  getByUsername: (username, filters = {}) => api.get(`/users/public/professors/${encodeURIComponent(username)}`, { params: filters }),
+};
