@@ -1,4 +1,4 @@
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 /**
@@ -11,6 +11,9 @@ import { useAuth } from '../context/AuthContext';
  */
 export function ProtectedRoute({ children, roles }) {
   const { isAuthenticated, user, loading } = useAuth();
+  const location = useLocation();
+
+  const requestedPath = `${location.pathname}${location.search}${location.hash}`;
 
   if (loading) {
     return (
@@ -20,7 +23,9 @@ export function ProtectedRoute({ children, roles }) {
     );
   }
 
-  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  if (!isAuthenticated) {
+    return <Navigate to="/login" state={{ from: requestedPath }} replace />;
+  }
 
   if (roles && !roles.includes(user?.role)) {
     // Redirect to own dashboard instead of 403

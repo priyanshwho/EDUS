@@ -1,11 +1,17 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { redirectByRole } from '../utils/redirectByRole';
+
+function isSafeInternalRoute(path) {
+  return typeof path === 'string' && path.startsWith('/') && !path.startsWith('/auth');
+}
 
 export default function SignupPage() {
   const { signup } = useAuth();
   const navigate   = useNavigate();
+  const location   = useLocation();
+  const returnTo   = location.state?.from;
 
   const [form,    setForm]    = useState({ username: '', email: '', password: '' });
   const [loading, setLoading] = useState(false);
@@ -20,6 +26,12 @@ export default function SignupPage() {
     setLoading(true);
     try {
       const res = await signup(form);
+
+      if (isSafeInternalRoute(returnTo)) {
+        navigate(returnTo, { replace: true });
+        return;
+      }
+
       redirectByRole(res.user?.role, navigate);
     } catch (err) {
       setError(err.message);
@@ -57,7 +69,13 @@ export default function SignupPage() {
 
         <p className="text-center text-n-4 text-sm mt-6">
           Already have an account?{' '}
-          <Link to="/login" className="text-color-1 hover:underline">Sign in</Link>
+          <Link
+            to="/login"
+            state={isSafeInternalRoute(returnTo) ? { from: returnTo } : undefined}
+            className="text-color-1 hover:underline"
+          >
+            Sign in
+          </Link>
         </p>
       </div>
     </div>

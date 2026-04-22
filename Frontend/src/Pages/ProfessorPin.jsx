@@ -1,6 +1,10 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+
+function isSafeInternalRoute(path) {
+  return typeof path === 'string' && path.startsWith('/') && !path.startsWith('/auth');
+}
 
 /**
  * ProfessorPinPage
@@ -9,6 +13,8 @@ import { useAuth } from '../context/AuthContext';
 export default function ProfessorPinPage() {
   const { verifyPin } = useAuth();
   const navigate      = useNavigate();
+  const location      = useLocation();
+  const returnTo      = location.state?.from;
 
   const [pin,     setPin]     = useState('');
   const [loading, setLoading] = useState(false);
@@ -20,6 +26,12 @@ export default function ProfessorPinPage() {
     setLoading(true);
     try {
       await verifyPin(pin);
+
+      if (isSafeInternalRoute(returnTo)) {
+        navigate(returnTo, { replace: true });
+        return;
+      }
+
       navigate('/dashboard/professor');
     } catch (err) {
       setError(err.message || 'Invalid PIN');
