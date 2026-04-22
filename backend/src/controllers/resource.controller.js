@@ -40,7 +40,15 @@ async function list(req, res, next) {
     if (q) {
       filters.params.push(`%${q}%`);
       const n = filters.params.length;
-      filters.clauses.push(`(r.title ilike $${n} or r.slug ilike $${n} or coalesce(r.description, '') ilike $${n})`);
+      filters.clauses.push(`(
+        r.title ilike $${n}
+        or r.slug ilike $${n}
+        or coalesce(r.description, '') ilike $${n}
+        or coalesce(s.name_full, '') ilike $${n}
+        or coalesce(s.acronym, '') ilike $${n}
+        or coalesce(u.username, '') ilike $${n}
+        or coalesce(u.name, '') ilike $${n}
+      )`);
     }
 
     const whereSql = filters.clauses.length > 0 ? `where ${filters.clauses.join(' and ')}` : '';
@@ -60,6 +68,15 @@ async function list(req, res, next) {
           r.slug,
           r.created_at,
           r.uploaded_by,
+          case
+            when u.id is null then null
+            else jsonb_build_object(
+              'id', u.id,
+              'username', u.username,
+              'name', u.name,
+              'role', u.role
+            )
+          end as uploader,
           case
             when s.id is null then null
             else jsonb_build_object(
@@ -93,6 +110,15 @@ async function getBySlug(req, res, next) {
       select
         r.*,
         case
+          when u.id is null then null
+          else jsonb_build_object(
+            'id', u.id,
+            'username', u.username,
+            'name', u.name,
+            'role', u.role
+          )
+        end as uploader,
+        case
           when s.id is null then null
           else jsonb_build_object(
             'id', s.id,
@@ -106,6 +132,7 @@ async function getBySlug(req, res, next) {
         end as subjects
       from resources r
       left join subjects s on s.id = r.subject_id
+      left join users u on u.id = r.uploaded_by
       where r.slug = ${slug}
       limit 1
     `;

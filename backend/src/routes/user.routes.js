@@ -4,6 +4,151 @@ const { authenticate } = require('../middleware/authenticate');
 const { requireAdmin } = require('../middleware/role.middleware');
 const { sql } = require('../db/client');
 
+// Public: list professors (searchable)
+router.get('/public/professors', async (req, res, next) => {
+  try {
+    const { q } = req.query;
+    const params = [];
+    const where = [`u.role = 'professor'`];
+
+    if (q) {
+      params.push(`%${q}%`);
+      const n = params.length;
+      where.push(`(u.username ilike $${n} or coalesce(u.name, '') ilike $${n})`);
+    }
+
+    const professors = await sql.query(
+      `
+        select
+          u.id,
+          u.username,
+          u.name,
+          u.created_at,
+          (
+            select count(*)::int
+            from subjects s
+            where s.added_by = u.id
+          ) as subjects_count,
+          (
+            select count(*)::int
+            from resources r
+            where r.uploaded_by = u.id
+          ) as resources_count
+        from users u
+        where ${where.join(' and ')}
+        order by resources_count desc, u.username asc
+      `,
+      params
+    );
+
+    return res.json({ professors });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// Public: professor profile + subjects + uploads
+router.get('/public/professors/:username', async (req, res, next) => {
+  try {
+    const { username } = req.params;
+    const {
+      branch,
+      semester,
+      subject_id,
+      resource_type,
+      q,
+    } = req.query;
+
+    const professorRows = await sql`
+      select id, username, name, role, created_at
+      from users
+      where username = ${username}
+      and role = 'professor'
+      limit 1
+    `;
+
+    const professor = professorRows[0] || null;
+    if (!professor) return res.status(404).json({ error: 'Professor not found' });
+
+    const subjects = await sql`
+      select id, branch, semester, name_full, acronym, added_by, added_date
+      from subjects
+      where added_by = ${professor.id}
+      order by semester asc, name_full asc
+    `;
+
+    const params = [professor.id];
+    const clauses = ['r.uploaded_by = $1'];
+
+    if (branch) {
+      params.push(branch);
+      clauses.push(`s.branch = $${params.length}`);
+    }
+    if (semester) {
+      params.push(Number(semester));
+      clauses.push(`s.semester = $${params.length}`);
+    }
+    if (subject_id) {
+      params.push(subject_id);
+      clauses.push(`r.subject_id = $${params.length}`);
+    }
+    if (resource_type) {
+      params.push(resource_type);
+      clauses.push(`r.resource_type = $${params.length}`);
+    }
+    if (q) {
+      params.push(`%${q}%`);
+      const n = params.length;
+      clauses.push(`(r.title ilike $${n} or coalesce(r.description, '') ilike $${n} or r.slug ilike $${n})`);
+    }
+
+    const resources = await sql.query(
+      `
+        select
+          r.id,
+          r.subject_id,
+          r.resource_type,
+          r.title,
+          r.description,
+          r.year,
+          r.pyq_type,
+          r.external_link,
+          r.aws_s3_key,
+          r.youtube_url,
+          r.uploaded_by,
+          r.created_at,
+          r.slug,
+          jsonb_build_object(
+            'id', u.id,
+            'username', u.username,
+            'name', u.name,
+            'role', u.role
+          ) as uploader,
+          case
+            when s.id is null then null
+            else jsonb_build_object(
+              'id', s.id,
+              'name_full', s.name_full,
+              'acronym', s.acronym,
+              'branch', s.branch,
+              'semester', s.semester
+            )
+          end as subjects
+        from resources r
+        left join subjects s on s.id = r.subject_id
+        left join users u on u.id = r.uploaded_by
+        where ${clauses.join(' and ')}
+        order by r.created_at desc
+      `,
+      params
+    );
+
+    return res.json({ professor, subjects, resources });
+  } catch (err) {
+    next(err);
+  }
+});
+
 // Admin: list all users
 router.get('/', authenticate, requireAdmin, async (_req, res, next) => {
   try {
