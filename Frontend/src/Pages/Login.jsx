@@ -1,13 +1,20 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { authService } from '../services/auth.service';
 import ButtonGradient from '../assets/svg/ButtonGradient';
 import { redirectByRole } from '../utils/redirectByRole';
 
+function isSafeInternalRoute(path) {
+  return typeof path === 'string' && path.startsWith('/') && !path.startsWith('/auth');
+}
+
 export default function LoginPage() {
   const { login } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const returnTo = location.state?.from;
 
   const [form,     setForm]     = useState({ email: '', password: '' });
   const [loading,  setLoading]  = useState(false);
@@ -22,14 +29,30 @@ export default function LoginPage() {
     try {
       const res = await login(form);
       if (res.pin_required) {
-        navigate('/auth/pin');
+        navigate('/auth/pin', {
+          state: isSafeInternalRoute(returnTo) ? { from: returnTo } : undefined,
+        });
         return;
       }
+
+      if (isSafeInternalRoute(returnTo)) {
+        navigate(returnTo, { replace: true });
+        return;
+      }
+
       redirectByRole(res.user?.role, navigate);
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const saveOAuthReturnTo = () => {
+    if (isSafeInternalRoute(returnTo)) {
+      sessionStorage.setItem('edusphere:returnTo', returnTo);
+    } else {
+      sessionStorage.removeItem('edusphere:returnTo');
     }
   };
 
@@ -70,12 +93,14 @@ export default function LoginPage() {
         <div className="flex gap-3">
           <a
             href={authService.googleOAuthUrl()}
+            onClick={saveOAuthReturnTo}
             className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border border-n-6 text-sm hover:border-color-1 transition"
           >
             Google
           </a>
           <a
             href={authService.githubOAuthUrl()}
+            onClick={saveOAuthReturnTo}
             className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border border-n-6 text-sm hover:border-color-1 transition"
           >
             GitHub
@@ -84,7 +109,13 @@ export default function LoginPage() {
 
         <p className="text-center text-n-4 text-sm mt-6">
           Don't have an account?{' '}
-          <Link to="/signup" className="text-color-1 hover:underline">Sign up</Link>
+          <Link
+            to="/signup"
+            state={isSafeInternalRoute(returnTo) ? { from: returnTo } : undefined}
+            className="text-color-1 hover:underline"
+          >
+            Sign up
+          </Link>
         </p>
       </div>
     </div>

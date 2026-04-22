@@ -75,6 +75,8 @@ import ProfessorProfilePage from "./Pages/ProfessorProfile_Page";
 // ───────────────────────────────────────────────────────────────────
 
 const App = () => {
+  const requireAuth = (element) => <ProtectedRoute>{element}</ProtectedRoute>;
+
   return (
     <Router>
       <AuthProvider>
@@ -84,14 +86,14 @@ const App = () => {
            <>
       <Routes>
     <Route path="/" element={<Homepage/> } />
-    <Route path="/about" element={<AboutPage />} />
-    <Route path="/services" element={<ServicesPage />} />
-    <Route path="/contact" element={<Contact />} />
-    <Route path="/demo" element={<DemoOne />} />
-    <Route path="/creators" element={<Makers />} />
-    <Route path="/ai" element={<Eduai />} />
-    <Route path="/techskills" element={<TechSkill_page />} />
-    <Route path="/extraskills" element={<ExtraSkills_page />} />
+    <Route path="/about" element={requireAuth(<AboutPage />)} />
+    <Route path="/services" element={requireAuth(<ServicesPage />)} />
+    <Route path="/contact" element={requireAuth(<Contact />)} />
+    <Route path="/demo" element={requireAuth(<DemoOne />)} />
+    <Route path="/creators" element={requireAuth(<Makers />)} />
+    <Route path="/ai" element={requireAuth(<Eduai />)} />
+    <Route path="/techskills" element={requireAuth(<TechSkill_page />)} />
+    <Route path="/extraskills" element={requireAuth(<ExtraSkills_page />)} />
 
     {/* ── Auth routes ── */}
     <Route path="/login"          element={<LoginPage />} />
@@ -117,15 +119,15 @@ const App = () => {
     } />
 
     {/* ── Public professor discovery routes ── */}
-    <Route path="/professors" element={<ProfessorsPage />} />
-    <Route path="/professors/:username" element={<ProfessorProfilePage />} />
-    <Route path="/professors/:username/:branch/:semester/:subject" element={<ProfessorProfilePage />} />
-    <Route path="/professors/:username/:branch/:semester/:subject/:resourceType/:slug" element={<ResourcePage />} />
+    <Route path="/professors" element={requireAuth(<ProfessorsPage />)} />
+    <Route path="/professors/:username" element={requireAuth(<ProfessorProfilePage />)} />
+    <Route path="/professors/:username/:branch/:semester/:subject" element={requireAuth(<ProfessorProfilePage />)} />
+    <Route path="/professors/:username/:branch/:semester/:subject/:resourceType/:slug" element={requireAuth(<ResourcePage />)} />
 
     {/* ── Public resource detail (shareable) ── */}
-    <Route path="/resource/:slug" element={<ResourcePage />} />
+    <Route path="/resource/:slug" element={requireAuth(<ResourcePage />)} />
 
-    <Route path="/pyqs" element={<Pyqs_Page/>} />
+    <Route path="/pyqs" element={requireAuth(<Pyqs_Page />)} />
     {/* <Route path="/pyqs" element={
       <>
       <SignedIn>
@@ -136,7 +138,7 @@ const App = () => {
       </SignedOut>
       </>
   } /> */}
-    <Route path="/notes" element={<Notes_Page />} />
+    <Route path="/notes" element={requireAuth(<Notes_Page />)} />
     {/* <Route path="/notes" element={
       <>
       <SignedIn>
@@ -147,7 +149,7 @@ const App = () => {
       </SignedOut>
       </>
       } /> */}
-      <Route path="/lectures" element={<LecturesPage />} />
+      <Route path="/lectures" element={requireAuth(<LecturesPage />)} />
       {/* <Route path="/lectures" element={
       <>
       <SignedIn>
@@ -158,7 +160,7 @@ const App = () => {
       </SignedOut>
       </>
       } /> */}
-      <Route path="/webdev" element={<Webdev_page />} />
+      <Route path="/webdev" element={requireAuth(<Webdev_page />)} />
       {/* <Route path="/webdev" element={
       <>
       <SignedIn>
@@ -169,7 +171,7 @@ const App = () => {
       </SignedOut>
       </>
       } /> */}
-      <Route path="/dsa" element={<Dsa_page />} />
+      <Route path="/dsa" element={requireAuth(<Dsa_page />)} />
       {/* <Route path="/dsa" element={
       <>
       <SignedIn>
@@ -180,7 +182,7 @@ const App = () => {
       </SignedOut>
       </>
       } /> */}
-    <Route path="/aiml" element={<Aiml_page />} />
+    <Route path="/aiml" element={requireAuth(<Aiml_page />)} />
     {/* <Route path="/aiml" element={
       <>
       <SignedIn>
