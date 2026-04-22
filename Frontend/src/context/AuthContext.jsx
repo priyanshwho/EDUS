@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { authService } from '../services/auth.service';
+import { setToken, setRefreshFailHandler } from '../services/api';
 
 const AuthContext = createContext(null);
 
@@ -19,6 +20,23 @@ export function AuthProvider({ children }) {
   const [loading,     setLoading]     = useState(true);
   const [pinPending,  setPinPending]  = useState(false);
   const [pinToken,    setPinToken]    = useState(null);
+
+  // Keep API client token in sync with auth state.
+  useEffect(() => {
+    setToken(accessToken);
+  }, [accessToken]);
+
+  // If refresh fails globally, reset to logged-out state.
+  useEffect(() => {
+    setRefreshFailHandler(() => {
+      setUser(null);
+      setAccessToken(null);
+      setPinPending(false);
+      setPinToken(null);
+    });
+
+    return () => setRefreshFailHandler(null);
+  }, []);
 
   // ── Silent refresh on mount ──────────────────────────────────────────────
   useEffect(() => {
@@ -78,6 +96,14 @@ export function AuthProvider({ children }) {
     return res;
   }, [pinToken]);
 
+  // ── Student -> Professor upgrade ────────────────────────────────────────
+  const upgradeToProfessor = useCallback(async (pin) => {
+    const res = await authService.upgradeProfessor({ pin });
+    setAccessToken(res.accessToken);
+    setUser(res.user);
+    return res;
+  }, []);
+
   // ── Logout ───────────────────────────────────────────────────────────────
   const logout = useCallback(async () => {
     await authService.logout();
@@ -97,6 +123,7 @@ export function AuthProvider({ children }) {
     signup,
     login,
     verifyPin,
+    upgradeToProfessor,
     logout,
     handleOAuthCallback,
     setAccessToken,

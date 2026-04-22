@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useResources } from '../hooks/useResources';
 import { resourceService } from '../services/resource.service';
@@ -13,9 +13,14 @@ import { isPreviewable } from '../utils/preview';
  * Read-only view: browse resources, preview, download, share, save.
  */
 export default function StudentDashboard() {
-  const { user } = useAuth();
+  const { user, isStudent, upgradeToProfessor } = useAuth();
+  const navigate = useNavigate();
   const { resources, loading, error, fetch, updateFilters, clearFilters, filters } = useResources();
   const [previewResource, setPreviewResource] = useState(null);
+  const [showUpgradeForm, setShowUpgradeForm] = useState(false);
+  const [upgradePin, setUpgradePin] = useState('');
+  const [upgrading, setUpgrading] = useState(false);
+  const [upgradeError, setUpgradeError] = useState('');
 
   useEffect(() => { fetch(); }, [fetch]);
 
@@ -29,12 +34,69 @@ export default function StudentDashboard() {
     fetch({});
   }
 
+  async function handleUpgradeSubmit(e) {
+    e.preventDefault();
+    setUpgradeError('');
+    setUpgrading(true);
+    try {
+      await upgradeToProfessor(upgradePin);
+      navigate('/dashboard/professor');
+    } catch (err) {
+      setUpgradeError(err.message || 'PIN verification failed');
+    } finally {
+      setUpgrading(false);
+    }
+  }
+
   return (
     <section className="min-h-screen bg-n-8 text-n-1">
       <div className="max-w-7xl mx-auto px-4 py-8">
         <header className="mb-8">
           <h1 className="h3">Welcome back, {user?.username} 👋</h1>
           <p className="body-2 text-n-4 mt-1">Browse and access academic resources</p>
+
+          {isStudent && (
+            <div className="mt-5 rounded-2xl border border-n-6 bg-n-7 p-4 max-w-xl">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <p className="text-sm font-semibold text-n-2">Profile Role: Student</p>
+                  <p className="text-xs text-n-4 mt-1">Want to publish notes and PYQs? Upgrade to Professor using your secure PIN.</p>
+                </div>
+                <button
+                  onClick={() => setShowUpgradeForm((prev) => !prev)}
+                  className="px-4 py-2 rounded-xl bg-color-1 text-n-8 text-sm font-semibold hover:bg-color-1/90 transition"
+                >
+                  {showUpgradeForm ? 'Cancel' : 'Become Professor'}
+                </button>
+              </div>
+
+              {showUpgradeForm && (
+                <form onSubmit={handleUpgradeSubmit} className="mt-4 flex flex-col sm:flex-row gap-2">
+                  <input
+                    type="password"
+                    inputMode="numeric"
+                    maxLength={10}
+                    value={upgradePin}
+                    onChange={(e) => setUpgradePin(e.target.value)}
+                    placeholder="Enter professor PIN"
+                    className="flex-1 rounded-lg border border-n-6 bg-n-8 px-3 py-2 text-sm focus:outline-none focus:border-color-1"
+                    required
+                  />
+                  <button
+                    type="submit"
+                    disabled={upgrading || upgradePin.length < 4}
+                    className="px-4 py-2 rounded-lg border border-color-1 text-color-1 text-sm font-medium hover:bg-color-1/10 disabled:opacity-50 transition"
+                  >
+                    {upgrading ? 'Upgrading…' : 'Verify & Upgrade'}
+                  </button>
+                </form>
+              )}
+
+              {upgradeError && (
+                <p className="mt-2 text-xs text-red-400">{upgradeError}</p>
+              )}
+            </div>
+          )}
         </header>
 
         <div className="flex gap-6">
