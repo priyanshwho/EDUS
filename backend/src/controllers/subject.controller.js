@@ -51,6 +51,19 @@ async function update(req, res, next) {
   try {
     const { id } = req.params;
 
+    const existingRows = await sql`
+      select *
+      from subjects
+      where id = ${id}
+      limit 1
+    `;
+    const existing = existingRows[0] || null;
+    if (!existing) return res.status(404).json({ error: 'Subject not found' });
+
+    if (req.user.role === 'professor' && String(existing.added_by) !== String(req.user.id)) {
+      return res.status(403).json({ error: 'You can only update your own subjects' });
+    }
+
     const fields = [];
     const values = [];
 
@@ -89,8 +102,21 @@ async function update(req, res, next) {
 async function remove(req, res, next) {
   try {
     const { id } = req.params;
+
+    const existingRows = await sql`
+      select id, added_by
+      from subjects
+      where id = ${id}
+      limit 1
+    `;
+    const existing = existingRows[0] || null;
+    if (!existing) return res.status(404).json({ error: 'Subject not found' });
+
+    if (req.user.role === 'professor' && String(existing.added_by) !== String(req.user.id)) {
+      return res.status(403).json({ error: 'You can only delete your own subjects' });
+    }
+
     const rows = await sql`delete from subjects where id = ${id} returning id`;
-    if (rows.length === 0) return res.status(404).json({ error: 'Subject not found' });
     return res.json({ message: 'Subject deleted' });
   } catch (err) { next(err); }
 }
