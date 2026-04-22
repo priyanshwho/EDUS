@@ -70,6 +70,8 @@ import StudentDashboard from "./dashboard/StudentDashboard";
 import ProfessorDashboard from "./dashboard/ProfessorDashboard";
 import AdminDashboard from "./dashboard/AdminDashboard";
 import ResourcePage from "./Pages/ResourcePage";
+import ProfessorsPage from "./Pages/Professors_Page";
+import ProfessorProfilePage from "./Pages/ProfessorProfile_Page";
 // ───────────────────────────────────────────────────────────────────
 
 const App = () => {
@@ -113,6 +115,12 @@ const App = () => {
         <AdminDashboard />
       </ProtectedRoute>
     } />
+
+    {/* ── Public professor discovery routes ── */}
+    <Route path="/professors" element={<ProfessorsPage />} />
+    <Route path="/professors/:username" element={<ProfessorProfilePage />} />
+    <Route path="/professors/:username/:branch/:semester/:subject" element={<ProfessorProfilePage />} />
+    <Route path="/professors/:username/:branch/:semester/:subject/:resourceType/:slug" element={<ResourcePage />} />
 
     {/* ── Public resource detail (shareable) ── */}
     <Route path="/resource/:slug" element={<ResourcePage />} />

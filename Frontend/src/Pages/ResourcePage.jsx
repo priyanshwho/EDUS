@@ -5,8 +5,10 @@ import { useAuth } from '../context/AuthContext';
 import PreviewModal from '../components/previews/PreviewModal';
 import {
   formatDate,
+  resourcePath,
   resourceTypeLabel,
   semesterLabel,
+  subjectPath,
   resourceShareUrl,
 } from '../utils/format';
 import { isPreviewable } from '../utils/preview';
@@ -59,7 +61,7 @@ export default function ResourcePage() {
   }
 
   function handleCopyLink() {
-    navigator.clipboard.writeText(resourceShareUrl(slug)).then(() => {
+    navigator.clipboard.writeText(resourceShareUrl(resource.slug, resource)).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     });
@@ -86,6 +88,10 @@ export default function ResourcePage() {
   }
 
   const subject = resource.subjects;
+  const subjectRoute = subjectPath(resource);
+  const professorRoute = resource?.uploader?.username
+    ? `/professors/${encodeURIComponent(resource.uploader.username)}`
+    : null;
   const colorClass = TYPE_COLORS[resource.resource_type] || 'bg-n-6 text-n-3';
   const canPreview = isPreviewable(resource);
 
@@ -96,8 +102,19 @@ export default function ResourcePage() {
         <nav className="text-sm text-n-3 mb-6 flex items-center gap-2">
           <Link to="/" className="hover:text-n-1 transition">Home</Link>
           <span>/</span>
-          <Link to="/dashboard/student" className="hover:text-n-1 transition">Resources</Link>
-          <span>/</span>
+          {professorRoute ? (
+            <>
+              <Link to="/professors" className="hover:text-n-1 transition">Professors</Link>
+              <span>/</span>
+              <Link to={professorRoute} className="hover:text-n-1 transition">@{resource.uploader.username}</Link>
+              <span>/</span>
+            </>
+          ) : (
+            <>
+              <Link to="/dashboard/student" className="hover:text-n-1 transition">Resources</Link>
+              <span>/</span>
+            </>
+          )}
           <span className="text-n-1 truncate max-w-xs">{resource.title}</span>
         </nav>
 
@@ -137,6 +154,23 @@ export default function ResourcePage() {
           <MetaItem label="Uploaded" value={formatDate(resource.created_at)} />
           <MetaItem label="Type" value={resourceTypeLabel(resource.resource_type)} />
         </div>
+
+        {resource?.uploader?.username && (
+          <div className="mb-6 text-sm">
+            <span className="text-n-4">Uploaded by </span>
+            <Link to={professorRoute} className="text-color-2 hover:underline">
+              {resource.uploader.name || resource.uploader.username}
+            </Link>
+          </div>
+        )}
+
+        {subjectRoute && (
+          <div className="mb-8">
+            <Link to={subjectRoute} className="text-xs text-color-1 hover:underline">
+              View all resources in this subject route →
+            </Link>
+          </div>
+        )}
 
         {/* Action buttons */}
         <div className="flex flex-wrap gap-3 mb-10">
@@ -194,7 +228,8 @@ export default function ResourcePage() {
         {/* Slug info */}
         <div className="p-4 bg-n-7 rounded-xl border border-n-6">
           <p className="text-xs text-n-4 mb-1">Shareable URL</p>
-          <code className="text-sm text-color-1 break-all">{resourceShareUrl(slug)}</code>
+          <code className="text-sm text-color-1 break-all">{resourceShareUrl(resource.slug, resource)}</code>
+          <p className="text-xs text-n-5 mt-2">Fallback URL: {`${window.location.origin}/resource/${resource.slug}`}</p>
         </div>
       </div>
 
