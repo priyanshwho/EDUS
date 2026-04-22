@@ -7,7 +7,7 @@ export default function SignupPage() {
   const { signup } = useAuth();
   const navigate   = useNavigate();
 
-  const [form,    setForm]    = useState({ username: '', email: '', password: '', role: 'student' });
+  const [form,    setForm]    = useState({ username: '', email: '', password: '' });
   const [loading, setLoading] = useState(false);
   const [error,   setError]   = useState('');
 
@@ -45,11 +45,9 @@ export default function SignupPage() {
           <input name="password" type="password" required placeholder="Password (min 8 chars)" value={form.password} onChange={onChange}
             className="w-full rounded-xl border border-n-6 bg-n-8 px-4 py-3 text-sm focus:outline-none focus:border-color-1" />
 
-          <select name="role" value={form.role} onChange={onChange}
-            className="w-full rounded-xl border border-n-6 bg-n-8 px-4 py-3 text-sm focus:outline-none focus:border-color-1">
-            <option value="student">Student</option>
-            <option value="professor">Professor</option>
-          </select>
+          <p className="text-xs text-n-4 bg-n-8 border border-n-6 rounded-xl px-4 py-3">
+            New accounts start as <span className="text-n-2 font-semibold">Student</span>. You can upgrade to Professor later using your secure PIN.
+          </p>
 
           <button type="submit" disabled={loading}
             className="w-full py-3 rounded-xl bg-color-1 text-n-8 font-semibold hover:bg-color-1/90 disabled:opacity-50 transition">
