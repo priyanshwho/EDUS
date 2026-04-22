@@ -79,8 +79,56 @@ export function resourceTypeLabel(type) {
 }
 
 /**
+ * Convert a string to a URL-safe slug segment.
+ */
+export function slugifySegment(value) {
+  return String(value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+/**
+ * Build a hierarchical subject route for a professor.
+ * Format: /professors/:username/:branch/:semester/:subject
+ */
+export function subjectPath(resource) {
+  const username = resource?.uploader?.username;
+  const branch = resource?.subjects?.branch;
+  const semester = resource?.subjects?.semester;
+  const subjectRaw = resource?.subjects?.acronym || resource?.subjects?.name_full;
+
+  if (!username || !branch || !semester || !subjectRaw) return null;
+
+  const usernameSegment = encodeURIComponent(String(username));
+
+  return [
+    '/professors',
+    usernameSegment,
+    slugifySegment(branch),
+    `sem${semester}`,
+    slugifySegment(subjectRaw),
+  ].join('/');
+}
+
+/**
+ * Build a hierarchical resource route.
+ * Format: /professors/:username/:branch/:semester/:subject/:type/:slug
+ */
+export function resourcePath(resource, fallbackSlug) {
+  const slug = resource?.slug || fallbackSlug;
+  if (!slug) return '/';
+
+  const baseSubjectPath = subjectPath(resource);
+  if (!baseSubjectPath || !resource?.resource_type) return `/resource/${slug}`;
+
+  return `${baseSubjectPath}/${slugifySegment(resource.resource_type)}/${slug}`;
+}
+
+/**
  * Build shareable resource URL
  */
-export function resourceShareUrl(slug) {
-  return `${window.location.origin}/resource/${slug}`;
+export function resourceShareUrl(slug, resource = null) {
+  return `${window.location.origin}${resourcePath(resource, slug)}`;
 }
