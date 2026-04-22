@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { professorService } from '../services';
 import {
@@ -31,7 +31,7 @@ export default function ProfessorProfilePage() {
 
   const decodedUsername = decodeURIComponent(username || '');
 
-  async function fetchProfile(filters = {}) {
+  const fetchProfile = useCallback(async (filters = {}) => {
     setLoading(true);
     setError('');
     try {
@@ -44,11 +44,11 @@ export default function ProfessorProfilePage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [decodedUsername]);
 
   useEffect(() => {
     fetchProfile();
-  }, [decodedUsername]);
+  }, [fetchProfile]);
 
   const filteredResources = useMemo(() => {
     const semNumber = parseSemesterParam(semester);
