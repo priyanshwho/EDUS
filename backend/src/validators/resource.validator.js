@@ -18,10 +18,6 @@ const createResourceValidator = [
     .notEmpty().withMessage('Resource type is required')
     .isIn(RESOURCE_TYPES).withMessage(`Resource type must be one of: ${RESOURCE_TYPES.join(', ')}`),
 
-  body('semester')
-    .notEmpty().withMessage('Semester is required')
-    .isInt({ min: 1, max: 8 }).withMessage('Semester must be between 1 and 8'),
-
   body('pyq_type')
     .optional({ nullable: true })
     .isIn(PYQ_TYPES).withMessage(`PYQ type must be one of: ${PYQ_TYPES.join(', ')}`),
@@ -51,8 +47,8 @@ const createResourceValidator = [
 ];
 
 const updateResourceValidator = [
-  param('slug')
-    .notEmpty().withMessage('Slug is required'),
+  param('id')
+    .notEmpty().withMessage('ID is required'),
 
   body('title')
     .optional()

@@ -31,7 +31,7 @@ async function getUserById(id) {
 async function signup(req, res, next) {
   try {
     if (checkValidation(req, res)) return;
-    const { username, email, password, role = 'student' } = req.body;
+    const { username, email, password } = req.body;
 
     // Validate
     if (!username || !email || !password)
@@ -50,11 +50,8 @@ async function signup(req, res, next) {
 
     const passwordHash = await bcrypt.hash(password, 12);
 
-    const allowedRoles = ['student', 'professor', 'admin'];
-    const requestedRole = allowedRoles.includes(role) ? role : 'student';
-
-    // Admin auto-detection
-    const resolvedRole = email === ADMIN_EMAIL ? 'admin' : requestedRole;
+    // Everyone signs up as student by default, except configured admin email.
+    const resolvedRole = email === ADMIN_EMAIL ? 'admin' : 'student';
 
     const inserted = await sql`
       insert into users (username, email, password_hash, role)
@@ -70,6 +67,50 @@ async function signup(req, res, next) {
     setRefreshCookie(res, refreshToken);
 
     return res.status(201).json({ accessToken, user: payload });
+  } catch (err) {
+    next(err);
+  }
+}
+
+// ── POST /api/auth/upgrade-professor ──────────────────────────────────────
+async function upgradeToProfessor(req, res, next) {
+  try {
+    if (checkValidation(req, res)) return;
+    const { pin } = req.body;
+
+    if (!pin) return res.status(400).json({ error: 'PIN is required' });
+    if (!PROFESSOR_PIN)
+      return res.status(500).json({ error: 'Professor PIN is not configured' });
+    if (pin !== PROFESSOR_PIN)
+      return res.status(403).json({ error: 'Invalid PIN' });
+
+    const currentUser = await getUserById(req.user.id);
+    if (!currentUser) return res.status(404).json({ error: 'User not found' });
+
+    if (currentUser.role === 'admin') {
+      const payload = buildPayload(currentUser);
+      const accessToken = signAccessToken(payload);
+      return res.json({ accessToken, user: payload, message: 'Admin role unchanged' });
+    }
+
+    let user = currentUser;
+    if (currentUser.role !== 'professor') {
+      const rows = await sql`
+        update users
+        set role = 'professor'
+        where id = ${currentUser.id}
+        returning *
+      `;
+      user = rows[0] || null;
+      if (!user) return res.status(500).json({ error: 'Failed to upgrade role' });
+    }
+
+    const payload      = buildPayload(user);
+    const accessToken  = signAccessToken(payload);
+    const refreshToken = signRefreshToken(payload);
+    setRefreshCookie(res, refreshToken);
+
+    return res.json({ accessToken, user: payload, message: 'Role upgraded to professor' });
   } catch (err) {
     next(err);
   }
@@ -206,4 +247,4 @@ async function me(req, res, next) {
   }
 }
 
-module.exports = { signup, login, verifyPin, refresh, logout, me };
+module.exports = { signup, login, verifyPin, upgradeToProfessor, refresh, logout, me };
