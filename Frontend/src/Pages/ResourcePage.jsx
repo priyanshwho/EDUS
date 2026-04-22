@@ -5,7 +5,6 @@ import { useAuth } from '../context/AuthContext';
 import PreviewModal from '../components/previews/PreviewModal';
 import {
   formatDate,
-  resourcePath,
   resourceTypeLabel,
   semesterLabel,
   subjectPath,
