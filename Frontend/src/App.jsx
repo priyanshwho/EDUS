@@ -74,24 +74,22 @@ import ProfessorsPage from "./Pages/Professors_Page";
 import ProfessorProfilePage from "./Pages/ProfessorProfile_Page";
 // ───────────────────────────────────────────────────────────────────
 
-const App = () => {
+const AppShell = () => {
   const requireAuth = (element) => <ProtectedRoute>{element}</ProtectedRoute>;
 
   return (
-    <Router>
-      <AuthProvider>
-        <ScrollToTop />
-        <div className="pt-[4.75rem] lg:pt-[5.25rem] overflow-hidden">
-          <Header />
-           <>
-      <Routes>
+    <>
+      <Header />
+      <div className="pt-[4.75rem] lg:pt-[5.25rem] overflow-hidden">
+        <>
+          <Routes>
     <Route path="/" element={<Homepage/> } />
     <Route path="/about" element={requireAuth(<AboutPage />)} />
     <Route path="/services" element={requireAuth(<ServicesPage />)} />
     <Route path="/contact" element={requireAuth(<Contact />)} />
     <Route path="/demo" element={requireAuth(<DemoOne />)} />
     <Route path="/creators" element={requireAuth(<Makers />)} />
-    <Route path="/ai" element={requireAuth(<Eduai />)} />
+    <Route path="/ai/*" element={requireAuth(<Eduai />)} />
     <Route path="/techskills" element={requireAuth(<TechSkill_page />)} />
     <Route path="/extraskills" element={requireAuth(<ExtraSkills_page />)} />
 
@@ -193,11 +191,21 @@ const App = () => {
       </SignedOut>
       </>} /> */}
     {/* ...other routes */}
-    </Routes>
-  </>
-     </div>
-        <Footer />
-        <ButtonGradient />
+          </Routes>
+        </>
+      </div>
+      <Footer />
+      <ButtonGradient />
+    </>
+  );
+};
+
+const App = () => {
+  return (
+    <Router>
+      <AuthProvider>
+        <ScrollToTop />
+        <AppShell />
       </AuthProvider>
     </Router>
   );

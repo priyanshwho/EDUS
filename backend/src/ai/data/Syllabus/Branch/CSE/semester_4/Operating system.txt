@@ -1,0 +1,40 @@
+OPERATING SYSTEM
+
+SECTION-A CO(s)
+Basic Functions and Concepts of Operating Systems
+Concept of an operating systems, batch system, Multi-programmed, Time sharing,
+Personal Computer System, Parallel system, Real time system, General system
+Architecture. (05)
+1
+Features and Objectives of Operating Systems
+System components, operating system services, System calls, System Programs,
+System Structure, System design and implementation. Concept of process, process
+states, process state transition, process control block, operations of processes,
+concurrent processes, deadlocks, scheduling algorithms, scheduling criteria, Process
+Synchronization. (11)
+2
+Memory Management
+Logical and physical address space, storage allocation and management techniques,
+swapping, concepts of multi programming, paging, segmentation, virtual storage
+management strategies, Demand Paging, Page Replacement Algorithms, and
+Thrashing. (06)
+3
+ SECTION-B
+Information Management
+File concept, Access method, Directory structure, Protection File system structure,
+Allocation methods, Free space management, Directory implementation, Disk structure,
+Disk Scheduling, Disk management, Swap space management. (06)
+4
+Distributed-System Structures
+Network operating system, Distributed operating systems, Remote services,
+Robustness, Design Issues. (06)
+5
+Distributed file systems and Distributed Coordination
+Naming and Transparency, Remote file Access, Stateful versus stateless service, File
+replication, Event ordering, Mutual Exclusion, Atomicity, Concurrency control,
+Deadlock Handling, Election Algorithms, Reaching Agreement. (06)
+5
+Case Studies:
+Unix O.S. Architecture, Operating system services, user perspective, representation of
+files in Unix system processes and their structure, Input-output system, Memory
+management, Unix shell, history and evolution of Unix system. 

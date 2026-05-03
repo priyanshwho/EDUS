@@ -1,0 +1,50 @@
+SECTION-A Hrs 
+Introduction: 
+Data   Communication: Components, Data Flow, Representation of data, Network Categories: 
+LAN, MAN, WAN (Wireless / Wired), Various Connection Topology. 
+Network Software: Concept of layers, protocols, interfaces and services, Reference Model: 
+OSI, TCP/IP and their comparison. 
+LAN Technology and Network Devices: LAN Architecture, Bus LANs, Ring LANs, Star 
+LANs, Virtual LAN, Ethernet (IEEE 802.3 standard), Fast Ethernet, Gigabit Ethernet, 
+Introduction to Wireless LANs (IEEE 802.11 standard), Introduction to Repeaters, Bridges, 
+Switches and Routers.                                                                           
+8 
+Physical Layer: 
+Analog and Digital signal, Bit rate, Bit length, Data Encoding, Spread Spectrum, Asynchronous 
+and Synchronous Transmission. 
+Transmission Impairments: Attenuation, Distortion, Noise; Data rate limits: Nyquist formula, 
+Shannon Formula, 
+Multiplexing: Frequency-Division, Time Division, Wavelength Division, Synchronous Time
+Division Multiplexing, Statistical Time-Division Multiplexing.  
+Transmission media: Guided Transmission Media, Wireless Transmission Media, 
+Communication Satellites 
+Switching: Switched Networks, Circuit-Switching Networks, Switching Concepts, Routing in 
+Circuit-Switched Networks, Control Signaling, Packet-Switching Principles                           
+8 
+Data link layer:  
+Error detection and correction Techniques: Parity check, Checksum, Cyclic Redundancy Check 
+(CRC) error detection, hamming error correction, Flow and Error Control. 
+Sliding window protocols: Stop and Wait ARQ, Go back n ARQ, Selective repeat ARQ 
+Random Access protocols: ALOHA, CSMA, CSMA/CD and CSMA/CA   
+Channel partitioning protocols: TDM-FDM-Code Division Multiple Access(CDMA).   
+8 
+ 
+Page 104 of 232 
+ 
+SECTION-B  
+Network Layer: 
+Logical Addressing: IPv4 and IPv6, Frame Formats and their comparison: IPv4 and IPv6 
+Address mapping: ARP, RARP, BOOTP and DHCP–Delivery, NAT 
+Routing algorithms: Shortest Path, Distance vector, Link State Routing, Flooding 
+Congestion Control: Principles of Congestion Control, Congestion prevention policies, Leaky 
+bucket & Token bucket algorithms 
+8 
+Transport Layer: 
+Process to Process Communication, Addressing, flow control & buffering, multiplexing & de
+multiplexing. Example transport protocols: TCP, UDP and SCTP, Quality of Service. 
+5 
+Application Layer:  
+FTP, DNS, HTTP, EMAIL, SMTP, SIP                                                                                 
+3 
+Telecommunication networks:  
+Introduction to architecture of 1G, 2G, 3G, 4G and 5G Networks

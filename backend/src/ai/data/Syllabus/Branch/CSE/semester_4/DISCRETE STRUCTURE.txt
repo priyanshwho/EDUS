@@ -1,0 +1,47 @@
+DISCRETE STRUCTURE
+
+SECTION-A Hours
+Sets, Relations and Functions
+91
+
+Definition of sets, product sets and sectionitions, Relations and digraphs, matrix of a
+relation, paths in relations and digraphs, equivalence relations and sectionitions,
+operations on relations, transitive closure and warshall’s algorithm.(Scope as in
+Chapter 4, Sections 4.1 – 4.7 of Reference 2).
+Functions, One-to-one and onto functions, Special functions. The pigeon hole
+principle. Function composition and inverse functions (Scope as in Chapter 5,
+Sections 5.1 – 5.6 of Reference 1).
+Sectionially ordered sets; Extremal elements of Sectionially ordered sets, Lattices,
+Linearly ordered sets. (Scope as in Chapter 6, Sections 6.1 – 6.3 of Reference 1).
+ (14)
+Fundamentals of Logic
+Basic connectives and truth tables, Logical equivalence, The laws of logic, Logical
+implication, Rules of Inference, Use of Quantifiers, Definitions and Proofs of
+Theorems (Scope as in Chapter 2, Sections 2.1 – 2.5 of Reference 1).
+ (8)
+SECTION-B
+Principles of Counting
+ Rule of Sum and Product, Permutations, Combinations, Combinations with
+repetition (Scope as in Chapter 1, Sections 1.1 – 1.4 of Reference 1).
+The principle of Inclusion and Exclusion, Generalizations, Derangements (Scope as
+in Chapter 8, Sections 8.1 – 8.3 of Reference 1).
+Generating Functions: Definitions and Examples: Calculation Techniques,
+Sectionitions of Integers, The exponential generating function, The summation
+operator (Scope as in Chapter 9, Sections 9.1 – 9.5 of Reference 1).
+Recurrence relations: The first order linear recurrence relation, The second order
+linear homogeneous recurrence relation with constant coefficients, The non
+homogeneous recurrence relation, The method of generating functions (Scope as in
+Chapter 10, Sections 10.1 – 10.4 of Reference 1).
+(9)
+Graph Theory
+Definitions and examples, Subgraphs, Complements and Graph Isomorphism,
+Vertex degree: Euler trails and circuits, Planar Graphs, Hamilton Paths and Cycles,
+Graph colouring and Chromatic polynomials (Scope as in Chapter 11, Sections 11.1
+– 11.6 of Reference 1).
+(5)
+Groups Theory
+Definition and elementary properties of groups, subgroups, Homomorphism,
+Isomorphism and Cyclic groups, Cosets and Lagrange’s Theorem (Scope as in
+Chapter 16, Sections 16.1 – 16.3 of Reference 1).
+Introduction to Rings and Fields (definitions, examples and basic properties) (Scope
+as in Chapter 14, Sections 14.1-14.2 of Reference 1).  

@@ -1,0 +1,25 @@
+SECTION-A Hrs 
+Introduction: Revisiting space/time complexity and asymptotic notations; Recurrences: 
+writing recurrences, solving recurrences: iterative substitution, recursion-tree method, Master’s 
+theorem, substitution method, randomized algorithms, elementary data structures: priority 
+queues, sets and disjoint set union, graphs. 
+8 
+Divide and Conquer:- General method, Analysis of divide and conquer based solutions to: 
+Binary Search, Merge sort, Quick sort, Selection sort, finding maximum and minimum, 
+Strassen’s matrix multiplication, Convex Hull problem 
+7 
+Greedy Algorithms: -Elements of Greedy strategy, Activity Selection Problem, Knapsack 
+problem, Single source Shortest paths problem, Minimum Spanning tree problem and analysis 
+of these problems. 
+8 
+SECTION-B  
+Dynamic Programming: - Elements of dynamic programming, Traveling Salesperson 
+Problem,  Matrix-chain multiplication, Multistage Graph, All Pairs Shortest paths, Longest 
+common subsequences, 0/1 Knapsack. 
+12 
+Backtracking: - - General method, N-Queen's problem, Graph coloring problem, Sum of 
+subsets Problem, Hamiltonian Cycles. 
+6 
+Introduction to NP-Completeness and Approximation Algorithms:-Polynomial Time, 
+polynomial-time verification, NP-completeness and reducibility, NP-complete problems, 
+introduction to approximation algorithms

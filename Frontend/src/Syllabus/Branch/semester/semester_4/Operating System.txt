@@ -1,0 +1,29 @@
+SECTION-A Hrs 
+Introduction: What is an O.S., O.S. Functions; Different types of O.S.: batch, 
+multiprogrammed, time sharing, real time, distributed, parallel; General structure of operating 
+system, O/S services, system calls. 
+5 
+Process Management: Introduction to processes - Concept of processes, process scheduling, 
+operations on processes; Interprocess Communication, Critical Sections, Mutual Exclusion with 
+Busy Waiting, Sleep and Wakeup, Semaphores, Message passing; CPU scheduling- scheduling 
+criteria, pre- emptive & non-pre-emptive scheduling, Scheduling Algorithms: FCFS, SJF, RR 
+and priority, Threads. 
+10 
+Deadlocks: Introduction to deadlocks, Conditions for deadlock, Resource allocation graphs, 
+Deadlock Detection and Recovery, Deadlock Avoidance, Deadlock Prevention 
+6 
+SECTION-B  
+Memory Management: background, logical vs. physical address space, memory management 
+without swapping; swapping; contiguous memory allocation, paging, segmentation, 
+segmentation with paging; Virtual Memory, demand paging, performance, page replacement, 
+page replacement algorithms (FIFO, Optimal, LRU); Thrashing. 
+6 
+File Systems: Files - file concept, file structure, file types, access methods, File attributes, file 
+operations; directory structure, allocation methods (contiguous, linked, indexed), free-space 
+management (bit vector, linked list, grouping), Protection mechanisms. 
+6 
+Secondary Storage: Disk Structure, Disk Scheduling (FCFS, SSTF, SCAN, C-SCAN, 
+LOOK), Disk Management (Disk Formatting, Boot Blocks, Bad Blocks), Swap Space 
+Management (Swap Space use, Swap Space Location, Swap Space Management) 
+6 
+Case Studies: Brief introduction of MS-DOS, Windows, UNIX and LINUX.
