@@ -454,20 +454,20 @@ res.status(400).json(error('Validation failed', 'VALIDATION_ERROR'));
 ### Using cURL
 ```bash
 # GET (no auth)
-curl http://localhost:5000/api/resources
+curl http://localhost:5001/api/resources
 
 # POST with auth
-curl -X POST http://localhost:5000/api/resources \
+curl -X POST http://localhost:5001/api/resources \
   -H "Authorization: Bearer <token>" \
   -H "Content-Type: application/json" \
   -d '{"title":"My Resource","subject":"ECE",...}'
 
 # With filters
-curl "http://localhost:5000/api/resources?subject=ECE&type=lecture"
+curl "http://localhost:5001/api/resources?subject=ECE&type=lecture"
 ```
 
 ### Using Postman
-1. Create collection with base URL: `http://localhost:5000/api`
+1. Create collection with base URL: `http://localhost:5001/api`
 2. Add Auth token to Authorization tab (Bearer token)
 3. Test each endpoint with sample data
 

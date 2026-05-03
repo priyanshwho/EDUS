@@ -9,6 +9,6 @@ export const authService = {
   logout:    ()       => api.post('/auth/logout'),
   me:        ()       => api.get('/auth/me'),
 
-  googleOAuthUrl:  () => `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/auth/google`,
-  githubOAuthUrl:  () => `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/auth/github`,
+  googleOAuthUrl:  () => `${import.meta.env.VITE_API_URL || 'http://localhost:5001/api'}/auth/google`,
+  githubOAuthUrl:  () => `${import.meta.env.VITE_API_URL || 'http://localhost:5001/api'}/auth/github`,
 };

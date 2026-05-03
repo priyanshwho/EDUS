@@ -170,7 +170,7 @@ npm run preview
 ```bash
 cd backend
 
-# Development server (nodemon, port 5000)
+# Development server (nodemon, port 5001)
 npm run dev
 
 # Production server
@@ -189,14 +189,14 @@ npm run check:s3      # Verify S3/Tigris setup
 
 ### Frontend (.env or .env.local)
 ```env
-VITE_API_BASE_URL=http://localhost:5000/api
+VITE_API_BASE_URL=http://localhost:5001/api
 VITE_OAUTH_REDIRECT_URI=http://localhost:5173/auth/callback
 ```
 
 ### Backend (.env)
 ```env
 # Server
-PORT=5000
+PORT=5001
 NODE_ENV=development
 CLIENT_URL=http://localhost:5173
 
