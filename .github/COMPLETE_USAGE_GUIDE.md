@@ -65,7 +65,7 @@ Keep `.github/QUICK_REFERENCE.md` handy. It has common commands, checklists, and
 # Frontend
 cd frontend
 cp .env.example .env.local   # If available
-# Add: VITE_API_BASE_URL=http://localhost:5000/api
+# Add: VITE_API_BASE_URL=http://localhost:5001/api
 
 # Backend
 cd ../backend
@@ -83,7 +83,7 @@ cd backend && npm run dev
 
 # Verify:
 # Frontend: http://localhost:5173
-# Backend: http://localhost:5000/health → {"status":"ok"}
+# Backend: http://localhost:5001/health → {"status":"ok"}
 ```
 
 ---
@@ -178,7 +178,7 @@ Follow .github/agents/backend-api.md patterns.
 
 #### Step 4: Test with Postman
 ```bash
-POST http://localhost:5000/api/resources/123/rate
+POST http://localhost:5001/api/resources/123/rate
 Authorization: Bearer <token>
 Content-Type: application/json
 { "rating": 5 }
