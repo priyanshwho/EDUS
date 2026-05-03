@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { analyticsService, userService, subjectService, resourceService } from '../services/index';
+import { userService, subjectService, resourceService } from '../services/index';
+import { useAdminDashboardStore } from '../stores/adminDashboard.store';
 
 /**
  * AdminDashboard
@@ -43,9 +44,17 @@ const RESOURCE_TYPES = ['notes', 'assignment', 'pyq', 'lecture'];
 const PYQ_TYPES      = ['minor1', 'minor2', 'major'];
 
 function ResourceManagement() {
-  const [resources,    setResources]    = useState([]);
-  const [subjects,     setSubjects]     = useState([]);
-  const [loading,      setLoading]      = useState(true);
+  const {
+    resources,
+    subjects,
+    loadingResources,
+    loadingSubjects,
+    fetchResources,
+    fetchSubjects,
+    prependResource,
+    updateResource,
+    removeResourceById,
+  } = useAdminDashboardStore();
   const [filters,      setFilters]      = useState({ q: '', resource_type: '' });
   const [editId,       setEditId]       = useState(null);
   const [editForm,     setEditForm]     = useState({});
@@ -58,19 +67,15 @@ function ResourceManagement() {
   const [driveOpen,    setDriveOpen]    = useState(false);
 
   useEffect(() => {
-    Promise.all([resourceService.list({}), subjectService.list()])
-      .then(([rRes, sRes]) => {
-        setResources(rRes.resources || []);
-        setSubjects(sRes.subjects || []);
-      })
-      .finally(() => setLoading(false));
-  }, []);
+    fetchResources().catch(() => {});
+    fetchSubjects().catch(() => {});
+  }, [fetchResources, fetchSubjects]);
 
   /* ── delete ── */
   const handleDelete = async (id) => {
     if (!confirm('Permanently delete this resource?')) return;
     await resourceService.remove(id);
-    setResources(prev => prev.filter(r => r.id !== id));
+    removeResourceById(id);
   };
 
   /* ── edit ── */
@@ -91,7 +96,7 @@ function ResourceManagement() {
     setSaving(true);
     try {
       const { resource } = await resourceService.update(editId, editForm);
-      setResources(prev => prev.map(r => r.id === editId ? { ...r, ...resource } : r));
+      updateResource(resource);
       setEditId(null);
     } finally {
       setSaving(false);
@@ -111,7 +116,7 @@ function ResourceManagement() {
       if (!payload.year)         delete payload.year;
       if (!payload.description)  delete payload.description;
       const { resource } = await resourceService.create(payload);
-      setResources(prev => [resource, ...prev]);
+      prependResource(resource);
       setDriveForm({ subject_id: '', resource_type: 'notes', title: '', description: '', year: '', pyq_type: '', external_link: '' });
       setDriveOpen(false);
     } finally {
@@ -129,7 +134,9 @@ function ResourceManagement() {
     return true;
   });
 
-  if (loading) return <p className="text-n-4">Loading resources…</p>;
+  if ((loadingResources || loadingSubjects) && resources.length === 0) {
+    return <p className="text-n-4">Loading resources…</p>;
+  }
 
   return (
     <div>
@@ -341,18 +348,22 @@ function ResourceManagement() {
 
 // ── Platform Analytics ──────────────────────────────────────────────────────
 function PlatformAnalytics() {
-  const [data, setData] = useState(null);
+  const {
+    platformAnalytics,
+    loadingPlatformAnalytics,
+    fetchPlatformAnalytics,
+  } = useAdminDashboardStore();
 
   useEffect(() => {
-    analyticsService.platformAnalytics().then(setData).catch(() => {});
-  }, []);
+    fetchPlatformAnalytics().catch(() => {});
+  }, [fetchPlatformAnalytics]);
 
-  if (!data) return <p className="text-n-4">Loading…</p>;
+  if (loadingPlatformAnalytics || !platformAnalytics) return <p className="text-n-4">Loading…</p>;
 
   const summaryCards = [
-    { label: 'Total Users',     value: data.totalUsers },
-    { label: 'Total Resources', value: data.totalResources },
-    { label: 'Total Subjects',  value: data.totalSubjects },
+    { label: 'Total Users',     value: platformAnalytics.totalUsers },
+    { label: 'Total Resources', value: platformAnalytics.totalResources },
+    { label: 'Total Subjects',  value: platformAnalytics.totalSubjects },
   ];
 
   return (
@@ -370,7 +381,7 @@ function PlatformAnalytics() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div>
           <h3 className="font-semibold mb-3">Users by Role</h3>
-          {Object.entries(data.usersByRole || {}).map(([role, count]) => (
+          {Object.entries(platformAnalytics.usersByRole || {}).map(([role, count]) => (
             <div key={role} className="flex justify-between py-1.5 border-b border-n-6 text-sm">
               <span className="capitalize text-n-2">{role}</span>
               <span className="text-color-2 font-mono">{count}</span>
@@ -379,7 +390,7 @@ function PlatformAnalytics() {
         </div>
         <div>
           <h3 className="font-semibold mb-3">Resources by Type</h3>
-          {Object.entries(data.resourcesByType || {}).map(([type, count]) => (
+          {Object.entries(platformAnalytics.resourcesByType || {}).map(([type, count]) => (
             <div key={type} className="flex justify-between py-1.5 border-b border-n-6 text-sm">
               <span className="capitalize text-n-2">{type}</span>
               <span className="text-color-2 font-mono">{count}</span>
@@ -393,27 +404,30 @@ function PlatformAnalytics() {
 
 // ── User Management ─────────────────────────────────────────────────────────
 function UserManagement() {
-  const [users,   setUsers]   = useState([]);
-  const [loading, setLoading] = useState(true);
+  const {
+    users,
+    loadingUsers,
+    fetchUsers,
+    setUserRole,
+    removeUserById,
+  } = useAdminDashboardStore();
 
   useEffect(() => {
-    userService.listAll()
-      .then(({ users }) => setUsers(users || []))
-      .finally(() => setLoading(false));
-  }, []);
+    fetchUsers().catch(() => {});
+  }, [fetchUsers]);
 
   const changeRole = async (id, role) => {
     await userService.updateRole(id, role);
-    setUsers(prev => prev.map(u => u.id === id ? { ...u, role } : u));
+    setUserRole(id, role);
   };
 
   const deleteUser = async (id) => {
     if (!confirm('Delete this user?')) return;
     await userService.remove(id);
-    setUsers(prev => prev.filter(u => u.id !== id));
+    removeUserById(id);
   };
 
-  if (loading) return <p className="text-n-4">Loading users…</p>;
+  if (loadingUsers && users.length === 0) return <p className="text-n-4">Loading users…</p>;
 
   return (
     <div>
@@ -463,30 +477,33 @@ function UserManagement() {
 
 // ── Subject Management ──────────────────────────────────────────────────────
 function SubjectManagement() {
-  const [subjects, setSubjects] = useState([]);
+  const {
+    subjects,
+    loadingSubjects,
+    fetchSubjects,
+    addSubject,
+    removeSubjectById,
+  } = useAdminDashboardStore();
   const [form,     setForm]     = useState({ branch: '', semester: '', name_full: '', acronym: '' });
-  const [loading,  setLoading]  = useState(true);
 
   useEffect(() => {
-    subjectService.list()
-      .then(({ subjects }) => setSubjects(subjects || []))
-      .finally(() => setLoading(false));
-  }, []);
+    fetchSubjects().catch(() => {});
+  }, [fetchSubjects]);
 
   const handleAdd = async (e) => {
     e.preventDefault();
     const { subject } = await subjectService.create({ ...form, semester: Number(form.semester) });
-    setSubjects(prev => [...prev, subject]);
+    addSubject(subject);
     setForm({ branch: '', semester: '', name_full: '', acronym: '' });
   };
 
   const handleDelete = async (id) => {
     if (!confirm('Delete subject and all its resources?')) return;
     await subjectService.remove(id);
-    setSubjects(prev => prev.filter(s => s.id !== id));
+    removeSubjectById(id);
   };
 
-  if (loading) return <p className="text-n-4">Loading…</p>;
+  if (loadingSubjects && subjects.length === 0) return <p className="text-n-4">Loading…</p>;
 
   return (
     <div className="max-w-3xl">

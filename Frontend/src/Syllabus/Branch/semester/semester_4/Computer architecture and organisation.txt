@@ -1,0 +1,24 @@
+SECTION-A Hrs 
+Introduction to microprocessor: Microprocessor architecture, 8085 MPU                            2 
+Basic organization of computers, Block level description of the functional units as related to 
+the execution of a program; Fetch, decode and execute cycle. 
+4 
+Machine instructions, Instruction set architectures, Assembly language programming (8085), 
+addressing modes, instruction cycles, registers and storage; discussions about RISC versus 
+CISC architectures; Inside a CPU 
+10 
+Information representation, Floating point representation (IEEE 754), computer arithmetic and 
+their implementation; Fixed-Point Arithmetic: Addition, Subtraction, Multiplication and 
+Division, Arithmetic Logic Units control and data path, data path components, design of ALU 
+and data path, controller design; Hardwired and Micro Programmed Control. 
+10 
+SECTION-B  
+Memory Technology, Cache memory and Memory Hierarchy, Address Mapping, Cache 
+updation schemes.                                                                                                                               
+5 
+I/O subsystems: Interfacing with IO devices, keyboard and display interfaces; Basic concepts 
+Bus Control, Read Write operations, Programmed IO, Concept of handshaking, Polled and 
+Interrupt-driven I/O, DMA data transfer. 
+7 
+Pipeline Processing, Instruction and Arithmetic Pipeline, Pipeline hazards and their resolution, 
+Parallel Processing.        

@@ -1,0 +1,38 @@
+Microprocessor and assembly language
+
+SECTION-A CO(s)
+Microprocessor Architecture and Microcomputer Systems
+Microprocessor Architecture, The 8085 MPU: Block Diagram, Pin Diagram, Address/Data
+Buses, Concept of de-multiplexing of Buses, Control and status signals, Registers, Ports, Flags,
+1,2
+94
+Instruction Decoding and Execution, memory Interfacing. (06)
+
+Interfacing I/O Devices
+Basic Interfacing Concepts, Interfacing Output Displays, Interfacing Input Devices, MemoryMapped I/O. (06)
+2
+Programming the 8085
+Introduction to 8085 Assembly Language Programming, The 8085 Programming Model,
+Instruction Classification, Instruction Format. Data Transfer (Copy) Operations, Arithmetic
+Operations, Logic Operations, Branch Operations, Writing Assembly Language Programs.
+ (07)
+3,6
+Programming Techniques with Additional Instructions
+Programming Techniques Looping, Counting and Indexing, Additional Data Transfer and 16-Bit
+Arithmetic Instructions, Arithmetic Operations Related to Memory, Logic Operations. (6)
+3,6
+SECTION-B
+Counters and Time Delays
+Counters and Time Delays, Hexadecimal Counter, Modulo Ten, Counter, Generating Pulse
+Waveforms, Debugging Counter and Time-Delay Programs. (06)
+4,6
+Stack and Subroutines
+Stack, Subroutine, Conditional Call and Return Instructions. (04)
+5
+Interrupts
+The 8085 Interrupt, 8085 Vectored interrupts. (03)
+5
+General –Purpose Programmable Peripheral Devices
+Block Diagram, Working and Control word of: The 8255A Programmable Peripheral Interface,
+The 8259 A Programmable Interrupt Controller, Programmable communications interface 8251.
+ (07) 

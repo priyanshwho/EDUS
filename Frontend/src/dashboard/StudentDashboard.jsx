@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { useResources } from '../hooks/useResources';
 import { resourceService } from '../services/resource.service';
 import ResourceFilterPanel from '../components/ResourceFilterPanel';
 import PreviewModal from '../components/previews/PreviewModal';
 import { resourceTypeLabel, formatDate, resourcePath, resourceShareUrl } from '../utils/format';
 import { isPreviewable } from '../utils/preview';
+import { useStudentDashboardStore } from '../stores/studentDashboard.store';
 
 /**
  * StudentDashboard
@@ -15,23 +15,34 @@ import { isPreviewable } from '../utils/preview';
 export default function StudentDashboard() {
   const { user, isStudent, upgradeToProfessor } = useAuth();
   const navigate = useNavigate();
-  const { resources, loading, error, fetch, updateFilters, clearFilters, filters } = useResources();
+  const {
+    resources,
+    loading,
+    error,
+    filters,
+    fetchResources,
+    setFilters,
+    clearFilters,
+  } = useStudentDashboardStore();
   const [previewResource, setPreviewResource] = useState(null);
   const [showUpgradeForm, setShowUpgradeForm] = useState(false);
   const [upgradePin, setUpgradePin] = useState('');
   const [upgrading, setUpgrading] = useState(false);
   const [upgradeError, setUpgradeError] = useState('');
 
-  useEffect(() => { fetch(); }, [fetch]);
+  useEffect(() => {
+    fetchResources().catch(() => {});
+  }, [fetchResources]);
 
   function handleFilterChange(newFilters) {
-    updateFilters(newFilters);
-    fetch(newFilters);
+    const merged = { ...filters, ...newFilters };
+    setFilters(newFilters);
+    fetchResources(merged).catch(() => {});
   }
 
   function handleClear() {
     clearFilters();
-    fetch({});
+    fetchResources({}).catch(() => {});
   }
 
   async function handleUpgradeSubmit(e) {

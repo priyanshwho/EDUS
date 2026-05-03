@@ -11,6 +11,14 @@ export default {
   theme: {
     extend: {
       colors: {
+        primary: "#AC6AFF",
+        "primary-dark": "#9F53FF",
+        secondary: "#FF98E2",
+        accent: "#FFC876",
+        background: "#0E0C15",
+        card: "#1B1B2E",
+        text: "#FFFFFF",
+        "text-muted": "#ADA8C3",
         color: {
           1: "#AC6AFF",
           2: "#FFC876",

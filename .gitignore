@@ -15,6 +15,14 @@ dist/
 build/
 */dist/
 */build/
+nudge-dashboard/node_modules/
+nudge-dashboard/dist/
+nudge-dashboard
+nudge-dashboard/.env
+NotesBuddy
+NotesBuddy/node_modules/
+NotesBuddy/dist/
+NotesBuddy/.env
 
 # Logs
 *.log
