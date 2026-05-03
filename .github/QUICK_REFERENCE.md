@@ -18,7 +18,7 @@ cd ../backend && npm install
 
 # Start dev servers
 # Terminal 1: cd frontend && npm run dev  # localhost:5173
-# Terminal 2: cd backend && npm run dev   # localhost:5000
+# Terminal 2: cd backend && npm run dev   # localhost:5001
 ```
 
 ### Common Commands
