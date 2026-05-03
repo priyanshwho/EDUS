@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { analyticsService, announcementService, subjectService } from '../services/index';
-import { useResources } from '../hooks/useResources';
+import { announcementService, subjectService } from '../services/index';
 import { useUpload } from '../hooks/useUpload';
 import { resourceService } from '../services/resource.service';
+import { useProfessorDashboardStore } from '../stores/professorDashboard.store';
 
 /**
  * ProfessorDashboard
@@ -11,14 +11,27 @@ import { resourceService } from '../services/resource.service';
  */
 export default function ProfessorDashboard() {
   const { user } = useAuth();
-  const [analytics,  setAnalytics]  = useState(null);
-  const [subjects,   setSubjects]   = useState([]);
   const [activeTab,  setActiveTab]  = useState('overview');
 
+  const {
+    analytics,
+    subjects,
+    myResources,
+    loadingAnalytics,
+    loadingResources,
+    fetchAnalytics,
+    fetchSubjects,
+    fetchMyResources,
+    prependSubject,
+    removeResourceById,
+    refreshAfterUpload,
+  } = useProfessorDashboardStore();
+
   useEffect(() => {
-    analyticsService.myAnalytics().then(setAnalytics).catch(() => {});
-    subjectService.list().then(({ subjects }) => setSubjects(subjects || []));
-  }, []);
+    fetchAnalytics().catch(() => {});
+    fetchSubjects().catch(() => {});
+    if (user?.id) fetchMyResources(user.id).catch(() => {});
+  }, [fetchAnalytics, fetchMyResources, fetchSubjects, user?.id]);
 
   const tabs = ['overview', 'upload', 'subjects', 'announcements', 'resources'];
 
@@ -43,18 +56,27 @@ export default function ProfessorDashboard() {
         ))}
       </nav>
 
-      {activeTab === 'overview'       && <AnalyticsOverview analytics={analytics} />}
-      {activeTab === 'upload'         && <UploadForm subjects={subjects} />}
-      {activeTab === 'subjects'       && <SubjectsPanel subjects={subjects} setSubjects={setSubjects} userId={user?.id} />}
+      {activeTab === 'overview'       && <AnalyticsOverview analytics={analytics} loading={loadingAnalytics} />}
+      {activeTab === 'upload'         && <UploadForm subjects={subjects} onUploaded={() => refreshAfterUpload(user?.id)} />}
+      {activeTab === 'subjects'       && <SubjectsPanel subjects={subjects} onSubjectCreated={prependSubject} userId={user?.id} />}
       {activeTab === 'announcements'  && <AnnouncementsPanel subjects={subjects} />}
-      {activeTab === 'resources'      && <MyResources userId={user?.id} />}
+      {activeTab === 'resources'      && (
+        <MyResources
+          resources={myResources}
+          loading={loadingResources}
+          onDeleteSuccess={(id) => {
+            removeResourceById(id);
+            fetchAnalytics(true).catch(() => {});
+          }}
+        />
+      )}
     </section>
   );
 }
 
 // ── Analytics Overview ──────────────────────────────────────────────────────
-function AnalyticsOverview({ analytics }) {
-  if (!analytics) return <p className="text-n-4">Loading analytics…</p>;
+function AnalyticsOverview({ analytics, loading }) {
+  if (loading || !analytics) return <p className="text-n-4">Loading analytics…</p>;
 
   const cards = [
     { label: 'Total Uploads',    value: analytics.total },
@@ -93,7 +115,7 @@ function AnalyticsOverview({ analytics }) {
 }
 
 // ── Upload Form ─────────────────────────────────────────────────────────────
-function UploadForm({ subjects }) {
+function UploadForm({ subjects, onUploaded }) {
   const { upload, uploading, progress, error } = useUpload();
   const [form, setForm] = useState({
     subject_id: '', resource_type: 'notes', title: '', description: '',
@@ -119,6 +141,7 @@ function UploadForm({ subjects }) {
         await upload(file, { ...form, year: Number(form.year) || undefined });
       }
       setSuccess(true);
+      onUploaded?.();
       setForm({ subject_id: '', resource_type: 'notes', title: '', description: '', year: '', pyq_type: '', youtube_url: '' });
       setFile(null);
     } catch {
@@ -242,9 +265,7 @@ function AnnouncementsPanel({ subjects }) {
 }
 
 // ── My Resources ───────────────────────────────────────────────────────────
-function MyResources({ userId }) {
-  const { resources, loading, fetch } = useResources({ uploaded_by: userId });
-  useEffect(() => { if (userId) fetch(); }, [userId, fetch]);
+function MyResources({ resources, loading, onDeleteSuccess }) {
 
   if (loading) return <p className="text-n-4">Loading…</p>;
 
@@ -259,7 +280,10 @@ function MyResources({ userId }) {
               <p className="text-xs text-n-5">{r.resource_type} · {r.slug}</p>
             </div>
             <button
-              onClick={async () => { await resourceService.remove(r.id); fetch(); }}
+              onClick={async () => {
+                await resourceService.remove(r.id);
+                onDeleteSuccess?.(r.id);
+              }}
               className="text-xs text-red-400 hover:text-red-300 transition"
             >
               Delete
@@ -274,7 +298,7 @@ function MyResources({ userId }) {
 // ── Subjects Panel ─────────────────────────────────────────────────────────
 const BRANCHES = ['CSE', 'IT', 'ECE', 'EEE', 'ME', 'CE', 'AI/ML', 'DS'];
 
-function SubjectsPanel({ subjects, setSubjects, userId }) {
+function SubjectsPanel({ subjects, onSubjectCreated, userId }) {
   const [form, setForm] = useState({ name_full: '', acronym: '', branch: '', semester: '' });
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState(null);
@@ -292,7 +316,7 @@ function SubjectsPanel({ subjects, setSubjects, userId }) {
         ...form,
         semester: Number(form.semester),
       });
-      setSubjects(prev => [subject, ...prev]);
+      onSubjectCreated?.(subject);
       setForm({ name_full: '', acronym: '', branch: '', semester: '' });
       setSuccess(true);
     } catch {

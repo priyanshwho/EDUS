@@ -11,6 +11,10 @@ const uploadRoutes = require('./routes/upload.routes');
 const analyticsRoutes = require('./routes/analytics.routes');
 const announcementRoutes = require('./routes/announcement.routes');
 const userRoutes = require('./routes/user.routes');
+const aiRoutes = require('./ai/routes/ai.routes');
+const aiNotesRoutes = require('./ai/routes/notes.routes');
+const aiSyllabusRoutes = require('./ai/routes/syllabus.routes');
+const { initRedis, isRedisEnabled } = require('./cache/redis.client');
 
 require('./config/passport.config');
 
@@ -34,9 +38,16 @@ app.use('/api/upload',        uploadRoutes);
 app.use('/api/analytics',     analyticsRoutes);
 app.use('/api/announcements', announcementRoutes);
 app.use('/api/users',         userRoutes);
+app.use('/api/ai',            aiRoutes);
+app.use('/api/notes',         aiNotesRoutes);
+app.use('/api/syllabus',      aiSyllabusRoutes);
 
 // ── Health check ───────────────────────────────────────────────────────────
-app.get('/health', (_req, res) => res.json({ status: 'ok', service: 'EduSphere API' }));
+app.get('/health', (_req, res) => res.json({
+  status: 'ok',
+  service: 'EduSphere API',
+  cache: isRedisEnabled() ? 'redis' : 'none',
+}));
 
 // ── Global error handler ───────────────────────────────────────────────────
 app.use((err, _req, res, _next) => {
@@ -47,6 +58,15 @@ app.use((err, _req, res, _next) => {
 });
 
 const PORT = process.env.PORT || 5001;
-app.listen(PORT, () => console.log(`[EduSphere] Server running on port ${PORT}`));
+
+(async () => {
+  try {
+    await initRedis();
+  } catch (err) {
+    console.warn(`[Redis] init failed: ${err.message}`);
+  }
+
+  app.listen(PORT, () => console.log(`[EduSphere] Server running on port ${PORT}`));
+})();
 
 module.exports = app;

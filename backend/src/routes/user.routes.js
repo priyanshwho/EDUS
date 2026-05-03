@@ -2,10 +2,14 @@ const express = require('express');
 const router  = express.Router();
 const { authenticate } = require('../middleware/authenticate');
 const { requireAdmin } = require('../middleware/role.middleware');
+const { cacheGet, invalidateAllCache } = require('../middleware/cache.middleware');
 const { sql } = require('../db/client');
 
 // Public: list professors (searchable)
-router.get('/public/professors', async (req, res, next) => {
+router.get('/public/professors', cacheGet({
+  scope: 'users:public:professors',
+  ttlSeconds: 180,
+}), async (req, res, next) => {
   try {
     const { q } = req.query;
     const params = [];
@@ -48,7 +52,10 @@ router.get('/public/professors', async (req, res, next) => {
 });
 
 // Public: professor profile + subjects + uploads
-router.get('/public/professors/:username', async (req, res, next) => {
+router.get('/public/professors/:username', cacheGet({
+  scope: 'users:public:professor-profile',
+  ttlSeconds: 120,
+}), async (req, res, next) => {
   try {
     const { username } = req.params;
     const {
@@ -150,7 +157,11 @@ router.get('/public/professors/:username', async (req, res, next) => {
 });
 
 // Admin: list all users
-router.get('/', authenticate, requireAdmin, async (_req, res, next) => {
+router.get('/', authenticate, requireAdmin, cacheGet({
+  scope: 'users:list',
+  ttlSeconds: 120,
+  varyByRole: true,
+}), async (_req, res, next) => {
   try {
     const users = await sql`
       select id, username, name, email, role, created_at
@@ -162,7 +173,7 @@ router.get('/', authenticate, requireAdmin, async (_req, res, next) => {
 });
 
 // Admin: update user role
-router.patch('/:id/role', authenticate, requireAdmin, async (req, res, next) => {
+router.patch('/:id/role', authenticate, requireAdmin, invalidateAllCache(), async (req, res, next) => {
   try {
     const { role } = req.body;
     if (!['student', 'professor', 'admin'].includes(role))
@@ -182,7 +193,7 @@ router.patch('/:id/role', authenticate, requireAdmin, async (req, res, next) => 
 });
 
 // Admin: delete user
-router.delete('/:id', authenticate, requireAdmin, async (req, res, next) => {
+router.delete('/:id', authenticate, requireAdmin, invalidateAllCache(), async (req, res, next) => {
   try {
     const rows = await sql`
       delete from users
@@ -196,7 +207,11 @@ router.delete('/:id', authenticate, requireAdmin, async (req, res, next) => {
 });
 
 // Authenticated: get saved resources
-router.get('/saved', authenticate, async (req, res, next) => {
+router.get('/saved', authenticate, cacheGet({
+  scope: 'users:saved',
+  ttlSeconds: 90,
+  varyByUser: true,
+}), async (req, res, next) => {
   try {
     const saved = await sql`
       select

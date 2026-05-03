@@ -1,0 +1,46 @@
+ 
+SECTION-A Hrs 
+Systems of Linear equations: 
+Introduction, Linear equations, solutions, Linear equations in two unknowns, Systems of linear 
+equations, equivalent systems, Elementary operations, Systems in Triangular and echelon form, 
+Reduction Algorithm, Matrices, Row equivalence and elementary row operations, Systems of 
+Linear equations and matrices, Homogeneous systems of Linear equations. (Scope as in 
+Chapter 1, Sections 1.1-1.10 of Reference 1). 
+5 
+Vector Spaces: 
+Introduction, Vector spaces, examples of vector spaces, subspaces, Linear combinations, 
+Linear spans, Linear dependence and Independence, Basis and Dimension, Linear equations 
+and vector spaces. (Scope as in Chapter 5, Sections 5.1-5.8 of Reference 1). 
+5 
+Eigenvalues and Eigenvectors, Diagonalization: 
+Introduction, Polynomials in matrices, Characteristic polynomial, Cayley-Hamilton theorem, 
+Eigen- values and Eigen-vectors, computing Eigen-values and Eigen-vectors, Diagonalizing 
+matrices. (Scope as in Chapter 8, Sections 8.1-8.5 of Reference 1). 
+4 
+Linear Transformations: 
+Introduction, Mappings, Linear mappings, Kernel and image of a linear mapping, Rank- 
+Nullity theorem (without proof), singular and non-singular linear mappings, isomorphism. 
+(Scope as in Chapter 9, Sections 9.1-9.5 of Reference 1). 
+5 
+Matrices and Linear transformations: 
+Introduction, Matrix representation of a linear operator, Change of basis and Linear operators. 
+(Scope as in Chapter 10, Sections 10.1-10.3 of Reference 1).  
+5 
+SECTION-B  
+Probability 
+Sample Space and Events, the Axioms of probability, some elementary theorems, Conditional 
+probability, Baye’s Theorem, Random Variables-Discrete and Continuous, Independent 
+random variables, Expectation, Variance and Covariance, Means and variances of linear 
+combinations of random variables, Chebyshev’s inequality 
+7 
+Probability Distributions 
+Joint Probability distributions, Marginal and Conditional distributions, Binomial, Poisson, 
+7 
+ 
+Page 98 of 232 
+ 
+Uniform and Normal distributions, Normal and Poisson approximations to Binomial, Moments, 
+Moment generating function. 
+Two Dimensional Random Variables 
+Joint distributions – Marginal and conditional distributions – Covariance – Correlation and 
+Regression   –   function    of    a    random    Variable-Transformation    of    random    variables    - Central limit theorem.  

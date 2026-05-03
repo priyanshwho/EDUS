@@ -23,7 +23,7 @@ EduSphere supports:
 
 - Legacy Google Drive resources
 - Direct professor uploads (Tigris S3-compatible storage)
-- Supabase PostgreSQL database
+- Neon PostgreSQL database (Drizzle ORM)
 - Username + Email + Password authentication
 - Google OAuth
 - GitHub OAuth
@@ -287,8 +287,8 @@ SECTION 10 — PROJECT STRUCTURE
 ============================================================
 
 Root:
-- client/
-- server/
+- frontend/
+- backend/
 - shared/
 - .github/
     - scripts/
@@ -356,7 +356,7 @@ SECTION 12 — AI INTERACTION RULE
 If required credentials or configuration values are missing,
 pause and ask developer for:
 
-- Supabase credentials
+- Neon database credentials
 - OAuth client IDs
 - Tigris keys
 - JWT secret
@@ -371,7 +371,7 @@ SECTION 13 — IMPLEMENTATION ORDER
 Generate in strict order:
 
 1) Backend folder structure
-2) Supabase SQL schema
+2) PostgreSQL schema + Drizzle mapping
 3) Auth system (email + OAuth)
 4) PIN logic
 5) Admin detection

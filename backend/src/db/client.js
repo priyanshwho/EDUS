@@ -6,6 +6,11 @@ if (!process.env.DATABASE_URL) {
 }
 
 const sql = neon(process.env.DATABASE_URL);
+
+// Compatibility helper: some controllers call sql.query(text, params).
+// Neon http client is a function, so expose query() as an alias.
+sql.query = (text, params = []) => sql(text, params);
+
 const db = drizzle({ client: sql });
 
 module.exports = { db, sql };

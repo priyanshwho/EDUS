@@ -2,6 +2,7 @@ const express = require('express');
 const router  = express.Router();
 const passport = require('passport');
 const { authenticate } = require('../middleware/authenticate');
+const { invalidateAllCache } = require('../middleware/cache.middleware');
 const {
   signup, login, verifyPin, upgradeToProfessor, refresh, logout, me,
 } = require('../controllers/auth.controller');
@@ -9,10 +10,10 @@ const { signupValidator, loginValidator, pinValidator } = require('../validators
 const { signAccessToken, signRefreshToken, buildPayload } = require('../auth/jwt.utils');
 
 // ── Traditional auth ───────────────────────────────────────────────────────
-router.post('/signup',     signupValidator, signup);
+router.post('/signup',     signupValidator, invalidateAllCache(), signup);
 router.post('/login',      loginValidator,  login);
 router.post('/verify-pin', pinValidator,    verifyPin);
-router.post('/upgrade-professor', authenticate, pinValidator, upgradeToProfessor);
+router.post('/upgrade-professor', authenticate, pinValidator, invalidateAllCache(), upgradeToProfessor);
 router.post('/refresh',    refresh);
 router.post('/logout',     logout);
 router.get('/me',          authenticate, me);

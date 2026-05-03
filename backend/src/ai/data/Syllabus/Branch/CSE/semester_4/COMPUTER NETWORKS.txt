@@ -1,0 +1,32 @@
+COMPUTER NETWORKS
+
+SECTION-A CO(s)
+Introduction
+Basic concepts of computer networks,; Network Hardware: LAN, MAN, WAN, Wireless
+networks, Internet; Network Software: Layer, Protocols, interfaces and services; Reference Model:
+OSI/TCP/IP and their comparison. (08)
+1
+Physical Layer
+Multiplexing, Line coding techniques, Transmission media: Magnetic, Twisted pair, coaxial
+cable, fiber optics, wireless transmission (radio, microwave, infrared, light wave). Switching:
+Circuit Switching & Packet Switching. Cellular radio and communication satellites. (08)
+2
+Data Link Layer
+Framing, Error control: Error correction & Detection, sliding window protocols (one bit, Go back
+n, selective repeat), Medium Access Sub layer: Channel Allocation, MAC protocols -ALOHA,
+CSMA protocols, Collision free protocols, IEEE 802.3, 802.4, 802.5 standards and their
+comparison. (09)
+3
+SECTION-B
+Network Layer
+Design issues, routing algorithms (shortest path, flooding, flow based, distance vector,
+hierarchical, broadcast, multicast).Congestion control algorithms (Leaky bucket, Token bucket,
+Choke, Packet, Load shedding), IPV4, IP addressing, IPV6. (09)
+4
+Transport Layer
+Addressing, establishing and releasing connection, flow control & buffering, multiplexing, crash
+recovery, Internet Transport protocol (TCP and UDP). (06)
+5
+Application Layer
+Network Security; Domain Name System; Simple Network Management Protocol; Electronic
+Mail. (05) 

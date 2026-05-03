@@ -29,6 +29,7 @@ export function AuthProvider({ children }) {
   // If refresh fails globally, reset to logged-out state.
   useEffect(() => {
     setRefreshFailHandler(() => {
+      setToken(null);
       setUser(null);
       setAccessToken(null);
       setPinPending(false);
@@ -43,6 +44,7 @@ export function AuthProvider({ children }) {
     (async () => {
       try {
         const { accessToken: token, user: u } = await authService.refresh();
+        setToken(token);
         setAccessToken(token);
         setUser(u);
       } catch {
@@ -55,6 +57,7 @@ export function AuthProvider({ children }) {
 
   // ── OAuth callback handler ───────────────────────────────────────────────
   const handleOAuthCallback = useCallback((token) => {
+    setToken(token);
     setAccessToken(token);
     // Decode minimal payload from token
     try {
@@ -68,6 +71,7 @@ export function AuthProvider({ children }) {
   // ── Signup ───────────────────────────────────────────────────────────────
   const signup = useCallback(async (data) => {
     const res = await authService.signup(data);
+    setToken(res.accessToken);
     setAccessToken(res.accessToken);
     setUser(res.user);
     return res;
@@ -81,6 +85,7 @@ export function AuthProvider({ children }) {
       setPinToken(res.pin_token);
       return { pin_required: true };
     }
+    setToken(res.accessToken);
     setAccessToken(res.accessToken);
     setUser(res.user);
     return res;
@@ -91,6 +96,7 @@ export function AuthProvider({ children }) {
     const res = await authService.verifyPin({ pin_token: pinToken, pin });
     setPinPending(false);
     setPinToken(null);
+    setToken(res.accessToken);
     setAccessToken(res.accessToken);
     setUser(res.user);
     return res;
@@ -99,6 +105,7 @@ export function AuthProvider({ children }) {
   // ── Student -> Professor upgrade ────────────────────────────────────────
   const upgradeToProfessor = useCallback(async (pin) => {
     const res = await authService.upgradeProfessor({ pin });
+    setToken(res.accessToken);
     setAccessToken(res.accessToken);
     setUser(res.user);
     return res;
@@ -107,6 +114,7 @@ export function AuthProvider({ children }) {
   // ── Logout ───────────────────────────────────────────────────────────────
   const logout = useCallback(async () => {
     await authService.logout();
+    setToken(null);
     setUser(null);
     setAccessToken(null);
   }, []);
