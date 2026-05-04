@@ -4,6 +4,7 @@
 
 ![EduSphere Preview](frontend/public/image.png)
 
+
 A production-ready, modular academic platform with role-based access control, Google Drive legacy support, Tigris S3 uploads, Neon PostgreSQL + Drizzle, and OAuth.
 
 ---
