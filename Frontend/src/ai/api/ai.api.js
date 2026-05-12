@@ -1,4 +1,4 @@
-const BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/ai`;
+const BASE_URL = `${import.meta.env.VITE_API_URL || 'http://localhost:5001/api'}/ai`;
 
 export const generateFlashcards = async (data) => {
   const res = await fetch(`${BASE_URL}/flashcards`, {
