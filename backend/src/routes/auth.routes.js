@@ -45,16 +45,23 @@ function oauthCallback(req, res) {
   const accessToken  = signAccessToken(payload);
   const refreshToken = signRefreshToken(payload);
 
+  const clientUrl = process.env.CLIENT_URL || '';
+  const isSecure = process.env.NODE_ENV === 'production' || clientUrl.startsWith('https://');
+  const cookieDomain = process.env.COOKIE_DOMAIN || undefined;
+  const sameSiteEnv = process.env.COOKIE_SAMESITE;
+  const sameSite = sameSiteEnv ? sameSiteEnv.toLowerCase() : (isSecure ? 'none' : 'lax');
+
   res.cookie('refreshToken', refreshToken, {
     httpOnly: true,
-    secure:   process.env.NODE_ENV === 'production',
-    sameSite: 'strict',
+    secure:   isSecure,
+    sameSite,
+    domain:   cookieDomain,
     maxAge:   7 * 24 * 60 * 60 * 1000,
   });
 
   // Redirect back to client with access token in query (client stores in memory)
-  const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
-  res.redirect(`${clientUrl}/auth/callback?token=${accessToken}&role=${user.role}`);
+  const redirectBase = clientUrl || 'http://localhost:5173';
+  res.redirect(`${redirectBase}/auth/callback?token=${accessToken}&role=${user.role}`);
 }
 
 module.exports = router;
