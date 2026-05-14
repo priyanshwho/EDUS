@@ -14,10 +14,17 @@ const PROFESSOR_PIN = process.env.PROFESSOR_PIN;
 
 // ── Helper: set refresh cookie ─────────────────────────────────────────────
 function setRefreshCookie(res, token) {
+  const clientUrl = process.env.CLIENT_URL || '';
+  const isSecure = process.env.NODE_ENV === 'production' || clientUrl.startsWith('https://');
+  const cookieDomain = process.env.COOKIE_DOMAIN || undefined;
+  const sameSiteEnv = process.env.COOKIE_SAMESITE;
+  const sameSite = sameSiteEnv ? sameSiteEnv.toLowerCase() : (isSecure ? 'none' : 'lax');
+
   res.cookie('refreshToken', token, {
     httpOnly: true,
-    secure:   process.env.NODE_ENV === 'production',
-    sameSite: 'strict',
+    secure:   isSecure,
+    sameSite,
+    domain:   cookieDomain,
     maxAge:   7 * 24 * 60 * 60 * 1000, // 7 days
   });
 }
