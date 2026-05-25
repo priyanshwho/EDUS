@@ -5,8 +5,13 @@ const SessionContext = createContext();
 
 export const SessionProvider = ({ children }) => {
   const [state, dispatch] = useReducer(sessionReducer, initialState, (initial) => {
-    const saved = localStorage.getItem('edusphere_session');
-    return saved ? JSON.parse(saved) : initial;
+    try {
+      const saved = localStorage.getItem('edusphere_session');
+      return saved ? JSON.parse(saved) : initial;
+    } catch (e) {
+      console.error('Failed to parse session from localStorage', e);
+      return initial;
+    }
   });
 
   useEffect(() => {
