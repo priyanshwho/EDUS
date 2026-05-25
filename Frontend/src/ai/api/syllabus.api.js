@@ -2,17 +2,20 @@ const BASE_URL = `${import.meta.env.VITE_API_URL || 'http://localhost:5001/api'}
 
 export const fetchBranches = async () => {
   const res = await fetch(`${BASE_URL}/branches`);
-  return res.json();
+  const data = await res.json();
+  return Array.isArray(data) ? data : [];
 };
 
 export const fetchSemesters = async (branch) => {
   const res = await fetch(`${BASE_URL}/${branch}/semesters`);
-  return res.json();
+  const data = await res.json();
+  return Array.isArray(data) ? data : [];
 };
 
 export const fetchSubjects = async (branch, semester) => {
   const res = await fetch(`${BASE_URL}/${branch}/${semester}/subjects`);
-  return res.json();
+  const data = await res.json();
+  return Array.isArray(data) ? data : [];
 };
 
 export const fetchSubjectDetails = async (branch, semester, subject) => {

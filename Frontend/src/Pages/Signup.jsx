@@ -22,7 +22,32 @@ export default function SignupPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    if (form.password.length < 8) { setError('Password must be at least 8 characters'); return; }
+    
+    // Username validation
+    const username = form.username.trim();
+    if (username.length < 3 || username.length > 30) {
+      setError('Username must be 3–30 characters');
+      return;
+    }
+    if (!/^[a-zA-Z0-9_.-]+$/.test(username)) {
+      setError('Username can only contain letters, numbers, underscores, dots, and hyphens');
+      return;
+    }
+
+    // Password validation
+    if (form.password.length < 8) {
+      setError('Password must be at least 8 characters');
+      return;
+    }
+    if (!/[A-Z]/.test(form.password)) {
+      setError('Password must contain at least one uppercase letter');
+      return;
+    }
+    if (!/[0-9]/.test(form.password)) {
+      setError('Password must contain at least one number');
+      return;
+    }
+
     setLoading(true);
     try {
       const res = await signup(form);
@@ -54,7 +79,7 @@ export default function SignupPage() {
             className="w-full rounded-xl border border-n-6 bg-n-8 px-4 py-3 text-sm focus:outline-none focus:border-color-1" />
           <input name="email" type="email" required placeholder="Email" value={form.email} onChange={onChange}
             className="w-full rounded-xl border border-n-6 bg-n-8 px-4 py-3 text-sm focus:outline-none focus:border-color-1" />
-          <input name="password" type="password" required placeholder="Password (min 8 chars)" value={form.password} onChange={onChange}
+          <input name="password" type="password" required placeholder="Password (8+ chars, 1 uppercase, 1 number)" value={form.password} onChange={onChange}
             className="w-full rounded-xl border border-n-6 bg-n-8 px-4 py-3 text-sm focus:outline-none focus:border-color-1" />
 
           <p className="text-xs text-n-4 bg-n-8 border border-n-6 rounded-xl px-4 py-3">

@@ -1,16 +1,18 @@
-const { neon } = require('@neondatabase/serverless');
-const { drizzle } = require('drizzle-orm/neon-http');
+const postgres = require('postgres');
+const { drizzle } = require('drizzle-orm/postgres-js');
 
 if (!process.env.DATABASE_URL) {
-  throw new Error('DATABASE_URL is required for Neon/Drizzle database client');
+  throw new Error('DATABASE_URL is required for PostgreSQL database client');
 }
 
-const sql = neon(process.env.DATABASE_URL);
+const isNeon = process.env.DATABASE_URL.includes('neon.tech');
+const sql = postgres(process.env.DATABASE_URL, {
+  ssl: isNeon ? 'require' : false,
+});
 
 // Compatibility helper: some controllers call sql.query(text, params).
-// Neon http client is a function, so expose query() as an alias.
-sql.query = (text, params = []) => sql(text, params);
+sql.query = (text, params = []) => sql.unsafe(text, params);
 
-const db = drizzle({ client: sql });
+const db = drizzle(sql);
 
 module.exports = { db, sql };
