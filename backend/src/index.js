@@ -22,7 +22,11 @@ const app = express();
 
 // ── Middleware ─────────────────────────────────────────────────────────────
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:5173',
+  origin: [
+    process.env.CLIENT_URL || 'http://localhost:5173',
+    'https://eduspherepu.vercel.app',
+    'https://edus-tau.vercel.app'
+  ],
   credentials: true,
 }));
 app.use(express.json());
