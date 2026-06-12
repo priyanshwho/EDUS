@@ -10,6 +10,8 @@ export interface InteractiveMenuItem {
 export interface InteractiveMenuProps {
   items?: InteractiveMenuItem[];
   accentColor?: string;
+  defaultActiveIndex?: number;
+  onSelect?: (item: InteractiveMenuItem, index: number) => void;
 }
 
 const defaultItems: InteractiveMenuItem[] = [
@@ -22,7 +24,7 @@ const defaultItems: InteractiveMenuItem[] = [
 
 const defaultAccentColor = 'var(--component-active-color-default)';
 
-const InteractiveMenu: React.FC<InteractiveMenuProps> = ({ items, accentColor }) => {
+const InteractiveMenu: React.FC<InteractiveMenuProps> = ({ items, accentColor, defaultActiveIndex = 0, onSelect }) => {
 
   const finalItems = useMemo(() => {
      const isValid = items && Array.isArray(items) && items.length >= 2 && items.length <= 5;
@@ -33,7 +35,7 @@ const InteractiveMenu: React.FC<InteractiveMenuProps> = ({ items, accentColor })
      return items;
   }, [items]);
 
-  const [activeIndex, setActiveIndex] = useState(0);
+  const [activeIndex, setActiveIndex] = useState(defaultActiveIndex);
 
   useEffect(() => {
       if (activeIndex >= finalItems.length) {
@@ -65,6 +67,9 @@ const InteractiveMenu: React.FC<InteractiveMenuProps> = ({ items, accentColor })
 
   const handleItemClick = (index: number) => {
     setActiveIndex(index);
+    if (onSelect) {
+      onSelect(finalItems[index], index);
+    }
   };
 
   const navStyle = useMemo(() => {
