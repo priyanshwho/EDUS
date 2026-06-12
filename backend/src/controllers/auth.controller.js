@@ -254,4 +254,37 @@ async function me(req, res, next) {
   }
 }
 
-module.exports = { signup, login, verifyPin, upgradeToProfessor, refresh, logout, me };
+// ── POST /api/auth/superadmin/switch-role ───────────────────────────────────
+async function superadminSwitchRole(req, res, next) {
+  try {
+    const { role } = req.body;
+    if (!['student', 'professor', 'admin'].includes(role)) {
+      return res.status(400).json({ error: 'Invalid role' });
+    }
+
+    const currentUser = await getUserById(req.user.id);
+    if (!currentUser || currentUser.email !== ADMIN_EMAIL) {
+      return res.status(403).json({ error: 'Only the super admin can use this route' });
+    }
+
+    const rows = await sql`
+      update users
+      set role = ${role}
+      where id = ${currentUser.id}
+      returning *
+    `;
+    const user = rows[0] || null;
+    if (!user) return res.status(500).json({ error: 'Failed to switch role' });
+
+    const payload      = buildPayload(user);
+    const accessToken  = signAccessToken(payload);
+    const refreshToken = signRefreshToken(payload);
+    setRefreshCookie(res, refreshToken);
+
+    return res.json({ accessToken, user: payload, message: `Role switched to ${role}` });
+  } catch (err) {
+    next(err);
+  }
+}
+
+module.exports = { signup, login, verifyPin, upgradeToProfessor, refresh, logout, me, superadminSwitchRole };

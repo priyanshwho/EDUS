@@ -72,6 +72,7 @@ import AdminDashboard from "./dashboard/AdminDashboard";
 import ResourcePage from "./Pages/ResourcePage";
 import ProfessorsPage from "./Pages/Professors_Page";
 import ProfessorProfilePage from "./Pages/ProfessorProfile_Page";
+import SuperAdminRoleSwitcher from "./components/SuperAdminRoleSwitcher";
 // ───────────────────────────────────────────────────────────────────
 
 const AppShell = () => {
@@ -82,6 +83,7 @@ const AppShell = () => {
       <Header />
       <div className="pt-[4.75rem] lg:pt-[5.25rem] overflow-hidden">
         <>
+          <SuperAdminRoleSwitcher />
           <Routes>
     <Route path="/" element={<Homepage/> } />
     <Route path="/about" element={requireAuth(<AboutPage />)} />

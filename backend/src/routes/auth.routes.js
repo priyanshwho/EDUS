@@ -4,7 +4,7 @@ const passport = require('passport');
 const { authenticate } = require('../middleware/authenticate');
 const { invalidateAllCache } = require('../middleware/cache.middleware');
 const {
-  signup, login, verifyPin, upgradeToProfessor, refresh, logout, me,
+  signup, login, verifyPin, upgradeToProfessor, refresh, logout, me, superadminSwitchRole,
 } = require('../controllers/auth.controller');
 const { signupValidator, loginValidator, pinValidator } = require('../validators/auth.validator');
 const { signAccessToken, signRefreshToken, buildPayload } = require('../auth/jwt.utils');
@@ -14,6 +14,7 @@ router.post('/signup',     signupValidator, invalidateAllCache(), signup);
 router.post('/login',      loginValidator,  login);
 router.post('/verify-pin', pinValidator,    verifyPin);
 router.post('/upgrade-professor', authenticate, pinValidator, invalidateAllCache(), upgradeToProfessor);
+router.post('/superadmin/switch-role', authenticate, invalidateAllCache(), superadminSwitchRole);
 router.post('/refresh',    refresh);
 router.post('/logout',     logout);
 router.get('/me',          authenticate, me);
