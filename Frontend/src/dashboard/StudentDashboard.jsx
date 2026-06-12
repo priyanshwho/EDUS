@@ -272,9 +272,9 @@ function ResourceCard({ resource: r }) {
         </div>
 
         <div className="flex items-center gap-2 mt-1">
-          {(r.signedUrl || r.external_link || r.youtube_url) && (
+          {(r.signedUrl || r.external_link || r.youtube_url || r.aws_s3_key) && (
             <a
-              href={r.signedUrl || r.external_link || r.youtube_url}
+              href={r.signedUrl || r.external_link || r.youtube_url || (r.aws_s3_key ? `https://fly.storage.tigris.dev/edusphere-files/${r.aws_s3_key}` : '#')}
               target="_blank"
               rel="noopener noreferrer"
               className="flex-1 flex items-center justify-center py-2 rounded-xl bg-cyan-500/10 text-cyan-400 text-sm font-bold border border-cyan-500/20 hover:bg-cyan-500 hover:text-white transition-all"
@@ -282,9 +282,9 @@ function ResourceCard({ resource: r }) {
               Preview
             </a>
           )}
-          {(r.signedUrl || r.external_link) && (
+          {(r.signedUrl || r.external_link || r.aws_s3_key) && (
             <a
-              href={r.signedUrl || r.external_link}
+              href={r.signedUrl || r.external_link || (r.aws_s3_key ? `https://fly.storage.tigris.dev/edusphere-files/${r.aws_s3_key}` : '#')}
               download={!!r.signedUrl}
               target={r.signedUrl ? '_self' : '_blank'}
               rel="noopener noreferrer"
