@@ -50,7 +50,7 @@ const PYQMode = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#0E0C15] pb-20">
+    <div className="min-h-screen flex flex-col bg-[#0E0C15] pb-36 md:pb-12">
       <header className="px-6 py-4 flex items-center justify-between border-b border-[#252134] sticky top-0 z-20 bg-[#0E0C15]/90 backdrop-blur-md">
         <button
           onClick={() => navigate(`/ai/learn/${branch}/${semester}/${subjectSlug}?section=${section}`)}
