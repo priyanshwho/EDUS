@@ -100,7 +100,7 @@ function AnalyticsOverview({ analytics, loading }) {
         {cards.map((c, idx) => (
           <div key={c.label} className="group relative rounded-2xl border border-n-6 bg-n-7/50 backdrop-blur p-6 text-center hover:-translate-y-1 transition-all duration-300 hover:shadow-2xl hover:border-color-1/50 overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-br from-color-1/0 to-color-1/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            <p className="text-4xl font-black bg-clip-text text-transparent bg-gradient-to-r from-color-1 to-color-2 drop-shadow-md mb-2">{c.value}</p>
+            <p className="text-4xl font-black bg-clip-text text-transparent bg-gradient-to-r from-color-1 via-color-5 to-cyan-400 drop-shadow-md mb-2">{c.value}</p>
             <p className="text-sm font-medium text-n-3 tracking-wide">{c.label}</p>
           </div>
         ))}
@@ -164,7 +164,7 @@ function UploadForm({ subjects, onUploaded }) {
   return (
     <form onSubmit={handleSubmit} className="w-full max-w-3xl mx-auto rounded-3xl border border-n-6 bg-n-7/40 backdrop-blur p-8 shadow-2xl">
       <div className="mb-8 text-center">
-        <h2 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-color-1 to-color-2">Upload Resource</h2>
+        <h2 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-color-1 via-color-5 to-cyan-400">Upload Resource</h2>
         <p className="text-n-4 mt-2">Share knowledge with your students</p>
       </div>
 
@@ -248,7 +248,7 @@ function UploadForm({ subjects, onUploaded }) {
       <div className="pt-4 border-t border-n-6">
         {uploading && (
           <div className="mb-4 bg-n-8 rounded-full h-3 overflow-hidden border border-n-6">
-            <div className="bg-gradient-to-r from-color-1 to-color-2 h-full transition-all duration-300 ease-out" style={{ width: `${progress}%` }} />
+            <div className="bg-gradient-to-r from-color-1 via-color-5 to-cyan-400 h-full transition-all duration-300 ease-out" style={{ width: `${progress}%` }} />
           </div>
         )}
 
@@ -324,7 +324,7 @@ function AnnouncementsPanel({ subjects }) {
             {announcements.map(a => (
               <div key={a.id} className="group rounded-2xl border border-n-6 bg-n-7/30 p-5 hover:bg-n-7 hover:border-color-1/40 transition-all">
                 <div className="flex items-center gap-3 mb-3">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-color-1 to-color-2 flex items-center justify-center text-n-8 font-bold">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-color-1 via-color-5 to-cyan-400 flex items-center justify-center text-n-8 font-bold">
                     A
                   </div>
                   <div>
@@ -484,7 +484,7 @@ function SubjectsPanel({ subjects, onSubjectCreated, userId }) {
                     <span className="px-2.5 py-1 rounded bg-color-2/10 text-color-2 text-xs font-mono font-medium border border-color-2/20">
                       {s.acronym}
                     </span>
-                    <span className="px-2.5 py-1 rounded-full bg-blue-500/10 text-blue-300 text-xs font-medium border border-blue-500/20">
+                    <span className="px-2.5 py-1 rounded-full bg-color-2/10 text-blue-300 text-xs font-medium border border-color-2/20">
                       {s.branch}
                     </span>
                   </div>
