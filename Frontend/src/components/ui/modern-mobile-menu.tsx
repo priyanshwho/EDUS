@@ -100,19 +100,19 @@ const InteractiveMenu: React.FC<InteractiveMenuProps> = ({ items, accentColor, d
             key={item.label}
             className={`group relative flex flex-col items-center justify-center rounded-2xl transition-all duration-300 ease-out w-14 h-14 ${
               isActive 
-                ? 'bg-cyan-500/15 text-cyan-400' 
+                ? 'bg-sky-500/15 text-sky-400' 
                 : 'text-n-4 hover:bg-n-7/50 hover:text-n-1'
             }`}
             onClick={() => handleItemClick(index)}
-            ref={(el) => (itemRefs.current[index] = el)}
+            ref={(el) => { itemRefs.current[index] = el; }}
           >
-            <div className={`flex items-center justify-center z-10 transition-transform duration-300 ${isActive || 'group-hover' ? (isActive ? '-translate-y-2.5' : 'group-hover:-translate-y-2.5') : ''}`}>
+            <div className={`flex items-center justify-center z-10 transition-transform duration-300 ${isActive ? '-translate-y-2.5' : 'group-hover:-translate-y-2.5'}`}>
               <IconComponent className={`w-5 h-5 transition-transform duration-300 ${isActive ? 'animate-[iconBounce_0.5s_ease-out]' : 'group-hover:scale-110'}`} />
             </div>
             
             {/* The Text Label - Visible when active or on hover */}
             <div 
-              className={`absolute bottom-2 overflow-hidden transition-all duration-300 ease-out whitespace-nowrap font-semibold text-[10px] flex items-center justify-center ${
+              className={`absolute bottom-2 left-1/2 -translate-x-1/2 overflow-visible transition-all duration-300 ease-out whitespace-nowrap font-semibold text-[10px] flex items-center justify-center ${
                 isActive 
                   ? 'opacity-100 translate-y-0 scale-100' 
                   : 'opacity-0 translate-y-2 scale-95 group-hover:opacity-100 group-hover:translate-y-0 group-hover:scale-100'

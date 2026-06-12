@@ -25,7 +25,9 @@ app.use(cors({
   origin: [
     process.env.CLIENT_URL || 'http://localhost:5173',
     'https://eduspherepu.vercel.app',
-    'https://edus-tau.vercel.app'
+    'https://edus-tau.vercel.app',
+    'https://www.edusphere.live',
+    'https://edusphere.live'
   ],
   credentials: true,
 }));
