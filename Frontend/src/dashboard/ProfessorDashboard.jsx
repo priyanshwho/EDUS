@@ -76,7 +76,11 @@ export default function ProfessorDashboard() {
 
 // ── Analytics Overview ──────────────────────────────────────────────────────
 function AnalyticsOverview({ analytics, loading }) {
-  if (loading || !analytics) return <p className="text-n-4">Loading analytics…</p>;
+  if (loading || !analytics) return (
+    <div className="flex justify-center py-12">
+      <div className="w-8 h-8 border-2 border-color-1 border-t-transparent rounded-full animate-spin"></div>
+    </div>
+  );
 
   const cards = [
     { label: 'Total Uploads',    value: analytics.total },
@@ -89,27 +93,31 @@ function AnalyticsOverview({ analytics, loading }) {
   ];
 
   return (
-    <div>
-      <h2 className="h5 mb-4">Upload Analytics</h2>
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
-        {cards.map(c => (
-          <div key={c.label} className="rounded-xl border border-n-6 bg-n-7 p-4 text-center">
-            <p className="text-2xl font-bold text-color-1">{c.value}</p>
-            <p className="text-xs text-n-4 mt-1">{c.label}</p>
+    <div className="w-full">
+      <h2 className="h4 mb-6">Upload Analytics</h2>
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-12">
+        {cards.map((c, idx) => (
+          <div key={c.label} className="group relative rounded-2xl border border-n-6 bg-n-7/50 backdrop-blur p-6 text-center hover:-translate-y-1 transition-all duration-300 hover:shadow-2xl hover:border-color-1/50 overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-color-1/0 to-color-1/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <p className="text-4xl font-black bg-clip-text text-transparent bg-gradient-to-r from-color-1 to-color-2 drop-shadow-md mb-2">{c.value}</p>
+            <p className="text-sm font-medium text-n-3 tracking-wide">{c.label}</p>
           </div>
         ))}
       </div>
 
       {/* Subject contribution */}
-      <h3 className="font-semibold mb-3">Subject Contributions</h3>
-      <ul className="space-y-2">
+      <h3 className="h5 mb-4">Subject Contributions</h3>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {Object.entries(analytics.bySubject || {}).map(([subject, count]) => (
-          <li key={subject} className="flex items-center justify-between text-sm border-b border-n-6 pb-2">
-            <span className="text-n-2">{subject}</span>
-            <span className="text-color-2 font-mono">{count}</span>
-          </li>
+          <div key={subject} className="flex items-center justify-between rounded-xl border border-n-6 bg-n-7/30 backdrop-blur px-5 py-4 hover:border-color-1/30 transition-colors">
+            <span className="font-medium text-n-2 line-clamp-1 pr-4">{subject}</span>
+            <span className="flex items-center justify-center min-w-[2.5rem] h-8 rounded-full bg-color-1/10 text-color-1 font-bold border border-color-1/20">{count}</span>
+          </div>
         ))}
-      </ul>
+        {Object.keys(analytics.bySubject || {}).length === 0 && (
+          <p className="text-sm text-n-4">No uploads yet.</p>
+        )}
+      </div>
     </div>
   );
 }
@@ -153,62 +161,104 @@ function UploadForm({ subjects, onUploaded }) {
   const isPyq     = form.resource_type === 'pyq';
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-xl space-y-4">
-      <h2 className="h5 mb-4">Upload Resource</h2>
+    <form onSubmit={handleSubmit} className="w-full max-w-3xl mx-auto rounded-3xl border border-n-6 bg-n-7/40 backdrop-blur p-8 shadow-2xl">
+      <div className="mb-8 text-center">
+        <h2 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-color-1 to-color-2">Upload Resource</h2>
+        <p className="text-n-4 mt-2">Share knowledge with your students</p>
+      </div>
 
-      <select name="subject_id" value={form.subject_id} onChange={onChange} required
-        className="w-full rounded-lg border border-n-6 bg-n-7 px-4 py-2 text-sm">
-        <option value="">Select Subject</option>
-        {subjects.map(s => <option key={s.id} value={s.id}>{s.name_full} (Sem {s.semester})</option>)}
-      </select>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        {/* Left Column: Details */}
+        <div className="space-y-5">
+          <div>
+            <label className="block text-xs font-semibold text-n-3 mb-2 uppercase tracking-wide">Subject</label>
+            <select name="subject_id" value={form.subject_id} onChange={onChange} required
+              className="w-full rounded-xl border border-n-6 bg-n-8/50 px-4 py-3 text-sm focus:border-color-1 focus:outline-none transition">
+              <option value="">Select Subject</option>
+              {subjects.map(s => <option key={s.id} value={s.id}>{s.name_full} (Sem {s.semester})</option>)}
+            </select>
+          </div>
 
-      <select name="resource_type" value={form.resource_type} onChange={onChange}
-        className="w-full rounded-lg border border-n-6 bg-n-7 px-4 py-2 text-sm">
-        {['notes','assignment','pyq','lecture'].map(t =>
-          <option key={t} value={t}>{t.charAt(0).toUpperCase() + t.slice(1)}</option>)}
-      </select>
+          <div>
+            <label className="block text-xs font-semibold text-n-3 mb-2 uppercase tracking-wide">Resource Type</label>
+            <select name="resource_type" value={form.resource_type} onChange={onChange}
+              className="w-full rounded-xl border border-n-6 bg-n-8/50 px-4 py-3 text-sm focus:border-color-1 focus:outline-none transition">
+              {['notes','assignment','pyq','lecture'].map(t =>
+                <option key={t} value={t}>{t.charAt(0).toUpperCase() + t.slice(1)}</option>)}
+            </select>
+          </div>
 
-      {isPyq && (
-        <select name="pyq_type" value={form.pyq_type} onChange={onChange}
-          className="w-full rounded-lg border border-n-6 bg-n-7 px-4 py-2 text-sm">
-          <option value="">Select PYQ Type</option>
-          {[['minor1','Minor 1 (30 marks)'],['minor2','Minor 2 (30 marks)'],['major','Major (50 marks)']].map(([v,l]) =>
-            <option key={v} value={v}>{l}</option>)}
-        </select>
-      )}
+          {isPyq && (
+            <div>
+              <label className="block text-xs font-semibold text-n-3 mb-2 uppercase tracking-wide">PYQ Type</label>
+              <select name="pyq_type" value={form.pyq_type} onChange={onChange}
+                className="w-full rounded-xl border border-n-6 bg-n-8/50 px-4 py-3 text-sm focus:border-color-1 focus:outline-none transition">
+                <option value="">Select PYQ Type</option>
+                {[['minor1','Minor 1 (30 marks)'],['minor2','Minor 2 (30 marks)'],['major','Major (50 marks)']].map(([v,l]) =>
+                  <option key={v} value={v}>{l}</option>)}
+              </select>
+            </div>
+          )}
 
-      <input name="title" value={form.title} onChange={onChange} placeholder="Title" required
-        className="w-full rounded-lg border border-n-6 bg-n-7 px-4 py-2 text-sm" />
-      <textarea name="description" value={form.description} onChange={onChange} placeholder="Description (optional)" rows={3}
-        className="w-full rounded-lg border border-n-6 bg-n-7 px-4 py-2 text-sm" />
-      <input name="year" value={form.year} onChange={onChange} placeholder="Year (e.g. 2024)" type="number"
-        className="w-full rounded-lg border border-n-6 bg-n-7 px-4 py-2 text-sm" />
-
-      {isLecture
-        ? <>
-            <input name="youtube_url" value={form.youtube_url} onChange={onChange} placeholder="YouTube URL (required for lectures)" required
-              className="w-full rounded-lg border border-n-6 bg-n-7 px-4 py-2 text-sm" />
-            <p className="text-xs text-n-5">Or upload a PDF instead:</p>
-            <input type="file" accept=".pdf" onChange={e => setFile(e.target.files[0])}
-              className="text-sm text-n-4" />
-          </>
-        : <input type="file" accept=".pdf" onChange={e => setFile(e.target.files[0])} required
-            className="text-sm text-n-4" />
-      }
-
-      {uploading && (
-        <div className="w-full bg-n-6 rounded-full h-2">
-          <div className="bg-color-1 h-2 rounded-full transition-all" style={{ width: `${progress}%` }} />
+          <div className="flex gap-4">
+            <div className="flex-1">
+              <label className="block text-xs font-semibold text-n-3 mb-2 uppercase tracking-wide">Title</label>
+              <input name="title" value={form.title} onChange={onChange} placeholder="Enter title" required
+                className="w-full rounded-xl border border-n-6 bg-n-8/50 px-4 py-3 text-sm focus:border-color-1 focus:outline-none transition" />
+            </div>
+            <div className="w-24">
+              <label className="block text-xs font-semibold text-n-3 mb-2 uppercase tracking-wide">Year</label>
+              <input name="year" value={form.year} onChange={onChange} placeholder="e.g. 2024" type="number"
+                className="w-full rounded-xl border border-n-6 bg-n-8/50 px-4 py-3 text-sm focus:border-color-1 focus:outline-none transition" />
+            </div>
+          </div>
         </div>
-      )}
 
-      {error   && <p className="text-red-400 text-sm">{error}</p>}
-      {success && <p className="text-green-400 text-sm">✅ Resource uploaded successfully!</p>}
+        {/* Right Column: File/Link & Desc */}
+        <div className="space-y-5">
+          <div>
+            <label className="block text-xs font-semibold text-n-3 mb-2 uppercase tracking-wide">Description</label>
+            <textarea name="description" value={form.description} onChange={onChange} placeholder="Brief description (optional)" rows={4}
+              className="w-full rounded-xl border border-n-6 bg-n-8/50 px-4 py-3 text-sm focus:border-color-1 focus:outline-none transition resize-none" />
+          </div>
 
-      <button type="submit" disabled={uploading}
-        className="w-full py-2.5 rounded-xl bg-color-1 text-n-8 font-semibold hover:bg-color-1/90 disabled:opacity-50 transition">
-        {uploading ? `Uploading… ${progress}%` : 'Upload'}
-      </button>
+          {isLecture ? (
+            <div>
+              <label className="block text-xs font-semibold text-n-3 mb-2 uppercase tracking-wide">YouTube Link</label>
+              <input name="youtube_url" value={form.youtube_url} onChange={onChange} placeholder="https://youtube.com/..." required
+                className="w-full rounded-xl border border-n-6 bg-n-8/50 px-4 py-3 text-sm focus:border-color-1 focus:outline-none transition text-red-300" />
+            </div>
+          ) : (
+            <div>
+              <label className="block text-xs font-semibold text-n-3 mb-2 uppercase tracking-wide">File Upload (.pdf)</label>
+              <div className="relative flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-color-1/40 rounded-xl bg-color-1/5 hover:bg-color-1/10 transition-colors cursor-pointer group overflow-hidden">
+                <input type="file" accept=".pdf" onChange={e => setFile(e.target.files[0])} required
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
+                <div className="text-center p-4">
+                  <p className="text-sm font-medium text-color-1 group-hover:scale-105 transition-transform">{file ? file.name : "Click or drag to upload PDF"}</p>
+                  {!file && <p className="text-xs text-n-4 mt-1">Maximum file size: 10MB</p>}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="pt-4 border-t border-n-6">
+        {uploading && (
+          <div className="mb-4 bg-n-8 rounded-full h-3 overflow-hidden border border-n-6">
+            <div className="bg-gradient-to-r from-color-1 to-color-2 h-full transition-all duration-300 ease-out" style={{ width: `${progress}%` }} />
+          </div>
+        )}
+
+        {error   && <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">{error}</div>}
+        {success && <div className="mb-4 p-3 rounded-lg bg-green-500/10 border border-green-500/20 text-green-400 text-sm">✅ Resource uploaded successfully!</div>}
+
+        <button type="submit" disabled={uploading}
+          className="w-full py-3.5 rounded-xl bg-color-1 text-n-8 font-bold text-sm hover:opacity-90 hover:-translate-y-0.5 hover:shadow-[0_0_20px_rgba(172,106,255,0.4)] transition-all duration-300 disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-none">
+          {uploading ? `Uploading... ${progress}%` : 'Publish Resource'}
+        </button>
+      </div>
     </form>
   );
 }
@@ -230,36 +280,63 @@ function AnnouncementsPanel({ subjects }) {
   };
 
   return (
-    <div className="max-w-2xl">
-      <h2 className="h5 mb-4">Post Announcement</h2>
-      <form onSubmit={handlePost} className="space-y-3 mb-8">
-        <select name="subject_id" value={form.subject_id}
-          onChange={e => setForm(p => ({ ...p, subject_id: e.target.value }))}
-          className="w-full rounded-lg border border-n-6 bg-n-7 px-4 py-2 text-sm">
-          <option value="">All Subjects (Global)</option>
-          {subjects.map(s => <option key={s.id} value={s.id}>{s.name_full}</option>)}
-        </select>
-        <input placeholder="Title" value={form.title} required
-          onChange={e => setForm(p => ({ ...p, title: e.target.value }))}
-          className="w-full rounded-lg border border-n-6 bg-n-7 px-4 py-2 text-sm" />
-        <textarea placeholder="Content" rows={4} value={form.content} required
-          onChange={e => setForm(p => ({ ...p, content: e.target.value }))}
-          className="w-full rounded-lg border border-n-6 bg-n-7 px-4 py-2 text-sm" />
-        <button type="submit"
-          className="px-6 py-2 rounded-xl bg-color-1 text-n-8 font-medium text-sm hover:bg-color-1/90 transition">
-          Post
-        </button>
-      </form>
+    <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-10">
+      <div>
+        <h2 className="h4 mb-6">Post Announcement</h2>
+        <form onSubmit={handlePost} className="space-y-4 rounded-2xl border border-n-6 bg-n-7/50 backdrop-blur p-6 shadow-xl hover:border-color-1/50 transition">
+          <div>
+            <label className="block text-xs font-medium text-n-4 mb-2 uppercase">Target Audience</label>
+            <select name="subject_id" value={form.subject_id}
+              onChange={e => setForm(p => ({ ...p, subject_id: e.target.value }))}
+              className="w-full rounded-xl border border-n-6 bg-n-8/50 px-4 py-3 text-sm focus:border-color-1 focus:outline-none transition">
+              <option value="">All Subjects (Global Broadcast)</option>
+              {subjects.map(s => <option key={s.id} value={s.id}>{s.name_full}</option>)}
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-n-4 mb-2 uppercase">Title</label>
+            <input placeholder="Enter title..." value={form.title} required
+              onChange={e => setForm(p => ({ ...p, title: e.target.value }))}
+              className="w-full rounded-xl border border-n-6 bg-n-8/50 px-4 py-3 text-sm focus:border-color-1 focus:outline-none transition" />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-n-4 mb-2 uppercase">Message</label>
+            <textarea placeholder="Write your announcement here..." rows={5} value={form.content} required
+              onChange={e => setForm(p => ({ ...p, content: e.target.value }))}
+              className="w-full rounded-xl border border-n-6 bg-n-8/50 px-4 py-3 text-sm focus:border-color-1 focus:outline-none transition resize-none" />
+          </div>
+          <button type="submit"
+            className="w-full py-3 rounded-xl bg-color-1 text-n-8 font-bold text-sm hover:-translate-y-0.5 hover:shadow-lg hover:shadow-color-1/30 transition-all">
+            Broadcast Announcement
+          </button>
+        </form>
+      </div>
 
-      <h3 className="font-semibold mb-3">Recent Announcements</h3>
-      <ul className="space-y-3">
-        {announcements.map(a => (
-          <li key={a.id} className="rounded-xl border border-n-6 bg-n-7 p-4">
-            <p className="font-semibold text-sm">{a.title}</p>
-            <p className="text-n-4 text-sm mt-1">{a.content}</p>
-          </li>
-        ))}
-      </ul>
+      <div>
+        <h2 className="h4 mb-6">Recent Announcements</h2>
+        {announcements.length === 0 ? (
+          <div className="p-10 text-center rounded-2xl border border-n-6 border-dashed bg-n-8 text-n-4">
+            No announcements posted yet.
+          </div>
+        ) : (
+          <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
+            {announcements.map(a => (
+              <div key={a.id} className="group rounded-2xl border border-n-6 bg-n-7/30 p-5 hover:bg-n-7 hover:border-color-1/40 transition-all">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-color-1 to-color-2 flex items-center justify-center text-n-8 font-bold">
+                    A
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-n-1 leading-tight group-hover:text-color-1 transition-colors">{a.title}</h3>
+                    <p className="text-xs text-n-4">{a.subject_id ? "Specific Subject" : "Global Announcement"}</p>
+                  </div>
+                </div>
+                <p className="text-sm text-n-3 leading-relaxed whitespace-pre-wrap">{a.content}</p>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -328,59 +405,90 @@ function SubjectsPanel({ subjects, onSubjectCreated, userId }) {
 
   const mySubjects = subjects.filter(s => s.added_by === userId);
 
-  const inputCls = 'w-full rounded-lg border border-n-6 bg-n-7 px-4 py-2 text-sm focus:outline-none focus:border-color-1';
-
   return (
-    <div className="max-w-xl">
-      <h2 className="h5 mb-4">Manage Subjects</h2>
+    <div className="w-full">
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="h4">Subject Management</h2>
+        <span className="px-3 py-1 rounded-full bg-color-1/10 border border-color-1/20 text-sm text-color-1 font-medium shadow-sm">
+          {mySubjects.length} Added By You
+        </span>
+      </div>
 
-      {/* Create form */}
-      <form onSubmit={handleCreate} className="space-y-3 mb-8 p-5 bg-n-7 rounded-2xl border border-n-6">
-        <h3 className="font-semibold text-sm text-n-2 mb-1">Add New Subject</h3>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Left Form */}
+        <div className="lg:col-span-1">
+          <form onSubmit={handleCreate} className="sticky top-24 rounded-2xl border border-n-6 bg-n-7/50 backdrop-blur p-6 shadow-2xl transition hover:border-color-1/50">
+            <h3 className="font-semibold mb-5 text-sm text-n-2 uppercase tracking-wider">Add New Subject</h3>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs text-n-4 mb-1.5 uppercase tracking-wide">Full Name</label>
+                <input name="name_full" value={form.name_full} onChange={onChange} placeholder="e.g. Design & Analysis" required
+                  className="w-full rounded-xl border border-n-6 bg-n-8/50 px-4 py-2.5 text-sm focus:border-color-1 focus:outline-none transition" />
+              </div>
+              <div className="flex gap-3">
+                <div className="flex-1">
+                  <label className="block text-xs text-n-4 mb-1.5 uppercase tracking-wide">Acronym</label>
+                  <input name="acronym" value={form.acronym} onChange={onChange} placeholder="e.g. DAA" required
+                    className="w-full rounded-xl border border-n-6 bg-n-8/50 px-4 py-2.5 text-sm uppercase focus:border-color-1 focus:outline-none transition" maxLength={10} />
+                </div>
+                <div className="flex-1">
+                  <label className="block text-xs text-n-4 mb-1.5 uppercase tracking-wide">Semester</label>
+                  <select name="semester" value={form.semester} onChange={onChange} required 
+                    className="w-full rounded-xl border border-n-6 bg-n-8/50 px-4 py-2.5 text-sm focus:border-color-1 focus:outline-none transition">
+                    <option value="">Sem</option>
+                    {Array.from({ length: 8 }, (_, i) => <option key={i + 1} value={i + 1}>{i + 1}</option>)}
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs text-n-4 mb-1.5 uppercase tracking-wide">Branch</label>
+                <select name="branch" value={form.branch} onChange={onChange} required 
+                  className="w-full rounded-xl border border-n-6 bg-n-8/50 px-4 py-2.5 text-sm focus:border-color-1 focus:outline-none transition">
+                  <option value="">Select Branch</option>
+                  {BRANCHES.map(b => <option key={b} value={b}>{b}</option>)}
+                </select>
+              </div>
 
-        <input name="name_full" value={form.name_full} onChange={onChange} placeholder="Full Name (e.g. Design & Analysis of Algorithms)" required
-          className={inputCls} />
-        <div className="flex gap-3">
-          <input name="acronym" value={form.acronym} onChange={onChange} placeholder="Acronym (e.g. DAA)" required
-            className={inputCls + ' uppercase'} maxLength={10} />
-          <select name="semester" value={form.semester} onChange={onChange} required className={inputCls}>
-            <option value="">Semester</option>
-            {Array.from({ length: 8 }, (_, i) => (
-              <option key={i + 1} value={i + 1}>Sem {i + 1}</option>
-            ))}
-          </select>
-        </div>
-        <select name="branch" value={form.branch} onChange={onChange} required className={inputCls}>
-          <option value="">Select Branch</option>
-          {BRANCHES.map(b => <option key={b} value={b}>{b}</option>)}
-        </select>
+              {error   && <p className="text-red-400 text-sm mt-2">{error}</p>}
+              {success && <p className="text-green-400 text-sm mt-2">✅ Subject created!</p>}
 
-        {error   && <p className="text-red-400 text-sm">{error}</p>}
-        {success && <p className="text-green-400 text-sm">✅ Subject created!</p>}
-
-        <button type="submit" disabled={creating}
-          className="w-full py-2.5 rounded-xl bg-color-1 text-n-8 font-semibold text-sm hover:opacity-90 disabled:opacity-50 transition">
-          {creating ? 'Creating…' : 'Create Subject'}
-        </button>
-      </form>
-
-      {/* My subjects */}
-      <h3 className="font-semibold text-sm mb-3 text-n-2">
-        My Subjects ({mySubjects.length})
-      </h3>
-      {mySubjects.length === 0 && (
-        <p className="text-sm text-n-5">You haven't added any subjects yet.</p>
-      )}
-      <ul className="space-y-2">
-        {mySubjects.map(s => (
-          <li key={s.id} className="flex items-center justify-between rounded-xl border border-n-6 bg-n-7 px-4 py-3">
-            <div>
-              <p className="text-sm font-medium">{s.name_full}</p>
-              <p className="text-xs text-n-5 font-mono">{s.acronym} · {s.branch} · Sem {s.semester}</p>
+              <button type="submit" disabled={creating}
+                className="w-full mt-2 py-3 rounded-xl bg-color-1 text-n-8 font-bold text-sm hover:opacity-90 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-color-1/20 transition-all duration-200 disabled:opacity-50">
+                {creating ? 'Creating…' : 'Create Subject'}
+              </button>
             </div>
-          </li>
-        ))}
-      </ul>
+          </form>
+        </div>
+
+        {/* Right List */}
+        <div className="lg:col-span-2">
+          {mySubjects.length === 0 ? (
+             <div className="p-10 text-center rounded-2xl border border-n-6 border-dashed bg-n-7/30 text-n-4">
+               You haven't added any subjects yet.
+             </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {mySubjects.map(s => (
+                <div key={s.id} className="group relative rounded-2xl border border-n-6 bg-n-7/30 backdrop-blur p-5 hover:border-color-1/50 hover:bg-n-7/80 transition-all hover:shadow-xl">
+                  <div className="absolute top-4 right-4 text-xs font-mono font-bold text-color-1/20 group-hover:text-color-1/60 transition-colors text-right">
+                    SEM {s.semester}
+                  </div>
+                  <h3 className="font-bold text-lg text-n-1 mb-1 pr-12 group-hover:text-color-1 transition-colors">{s.name_full}</h3>
+                  <div className="flex items-center gap-2 mt-4">
+                    <span className="px-2.5 py-1 rounded bg-color-2/10 text-color-2 text-xs font-mono font-medium border border-color-2/20">
+                      {s.acronym}
+                    </span>
+                    <span className="px-2.5 py-1 rounded-full bg-blue-500/10 text-blue-300 text-xs font-medium border border-blue-500/20">
+                      {s.branch}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
