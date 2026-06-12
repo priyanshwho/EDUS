@@ -4,3 +4,6 @@ export const fetchChapterNotes = async (branch, semester, subject, chapterId, ch
   const res = await fetch(`${BASE_URL}/${branch}/${semester}/${subject}/${chapterId}?chapterTitle=${encodeURIComponent(chapterTitle)}`);
   return res.json();
 };
+
+
+
