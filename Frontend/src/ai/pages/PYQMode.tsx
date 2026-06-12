@@ -2,8 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useSession } from '../context/SessionContext';
 import { generatePYQ } from '../api/ai.api';
-import { ChevronLeft, ChevronDown, ChevronUp, Brain, FileText } from 'lucide-react';
+import { ChevronLeft, ChevronDown, ChevronUp, FileText } from 'lucide-react';
 import BottomNavBar from '../components/layout/BottomNavBar';
+import { GooeyLoader } from '../../components/ui/loader-10';
 
 const PYQMode = () => {
   const { branch, semester, subjectSlug, section } = useParams();
@@ -39,11 +40,11 @@ const PYQMode = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-[#0E0C15] p-8 text-center pb-20">
-        <div className="w-16 h-16 rounded-2xl flex items-center justify-center bg-sky-400/10 border border-sky-400/20 mb-6">
-          <Brain size={24} className="text-sky-400 animate-pulse" />
+        <div className="mb-12">
+          <GooeyLoader primaryColor="#38bdf8" secondaryColor="#a78bfa" borderColor="#252134" />
         </div>
-        <h2 className="text-xl font-bold text-white mb-2">Predicting Exam Questions…</h2>
-        <p className="text-sm text-slate-400">AI is analyzing historical patterns.</p>
+        <h2 className="text-xl font-bold text-white mb-2 tracking-wide">Predicting Exam Questions…</h2>
+        <p className="text-sm text-slate-400">AI is meticulously analyzing historical patterns.</p>
       </div>
     );
   }
@@ -63,7 +64,7 @@ const PYQMode = () => {
           <p className="text-xs text-slate-500">{state.subjectData?.subjectName}</p>
         </div>
 
-        <span className="edus-badge-blue">{questions.length} Q's</span>
+        <span className="edus-badge-gradient">{questions.length} Q's</span>
       </header>
 
       <main className="max-w-4xl mx-auto w-full px-6 py-8 space-y-5">
@@ -75,25 +76,25 @@ const PYQMode = () => {
                 <div className="flex items-center gap-2 mb-3 flex-wrap">
                   <span className="edus-badge-muted uppercase">{q.type}</span>
                   {q.topic && <span className="text-[11px] text-slate-500 uppercase">{q.topic}</span>}
-                  <span className="ml-auto edus-badge-blue">Q{i + 1}</span>
+                  <span className="ml-auto edus-badge-gradient">Q{i + 1}</span>
                 </div>
 
-                <h4 className="text-lg font-semibold text-white leading-snug mb-4">{q.question}</h4>
+                <h4 className="text-xl font-semibold text-white leading-snug mb-5">{q.question}</h4>
 
                 <button
                   onClick={() => setOpenIdx(isOpen ? null : i)}
-                  className="flex items-center gap-2 text-xs font-semibold text-sky-400 hover:text-sky-300 transition-colors"
+                  className="flex items-center gap-2 text-sm font-semibold edus-gradient-text hover:opacity-80 transition-opacity"
                 >
-                  <FileText size={14} />
+                  <FileText size={16} className="text-sky-400" />
                   <span>{isOpen ? 'Hide' : 'View'} Model Answer</span>
-                  {isOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                  {isOpen ? <ChevronUp size={16} className="text-sky-400" /> : <ChevronDown size={16} className="text-sky-400" />}
                 </button>
               </div>
 
               {isOpen && (
-                <div className="px-6 pb-5 pt-2 border-t border-[#252134]">
-                  <div className="p-4 rounded-xl bg-[#1A1825]">
-                    <p className="text-sm text-slate-300 leading-relaxed">{q.modelAnswer}</p>
+                <div className="px-6 pb-6 pt-2 border-t border-[#252134] bg-sky-400/5">
+                  <div className="p-5 rounded-xl bg-[#1A1825] border border-sky-400/10 shadow-inner">
+                    <p className="text-sm text-slate-300 leading-relaxed whitespace-pre-wrap">{q.modelAnswer}</p>
                   </div>
                 </div>
               )}

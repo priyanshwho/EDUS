@@ -7,6 +7,7 @@ const MODE_CONFIG = [
   { id: 'flashcards', label: 'Flashcards', icon: <Zap size={16} /> },
   { id: 'mcq', label: 'MCQ Quiz', icon: <HelpCircle size={16} /> },
   { id: 'ai', label: 'AI Tutor', icon: <MessageSquare size={16} /> },
+  { id: 'pyq', label: 'PYQ Exam', icon: <BookOpen size={16} /> },
 ];
 
 const ChapterSelector = () => {
@@ -34,7 +35,11 @@ const ChapterSelector = () => {
   const startMode = (chapterId, mode) => {
     dispatch({ type: 'SET_CHAPTER', payload: chapterId });
     dispatch({ type: 'SET_MODE', payload: mode });
-    navigate(`/ai/${mode}/${branch}/${semester}/${subjectSlug}/${chapterId}`);
+    if (mode === 'pyq') {
+      navigate(`/ai/pyq/${branch}/${semester}/${subjectSlug}/${section}`);
+    } else {
+      navigate(`/ai/${mode}/${branch}/${semester}/${subjectSlug}/${chapterId}`);
+    }
   };
 
   return (
@@ -50,7 +55,7 @@ const ChapterSelector = () => {
           <div className="text-right">
             <h1 className="text-lg font-bold text-white">{data.subjectName}</h1>
             <div className="flex items-center gap-2 justify-end mt-1">
-              <span className="edus-badge-blue">Section {section}</span>
+              <span className="edus-badge-gradient">Section {section}</span>
             </div>
           </div>
         </header>
@@ -81,7 +86,7 @@ const ChapterSelector = () => {
                       </span>
                     ))}
                     {chapter.topics.length > 4 && (
-                      <span className="px-2.5 py-1 bg-sky-400/10 border border-sky-400/20 rounded-md text-[11px] text-sky-400">
+                      <span className="px-2.5 py-1 edus-gradient-bg rounded-md text-[11px] text-white">
                         +{chapter.topics.length - 4} more
                       </span>
                     )}
@@ -93,7 +98,7 @@ const ChapterSelector = () => {
                     <button
                       key={mode.id}
                       onClick={() => startMode(chapter.chapterId, mode.id)}
-                      className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium bg-[#1A1825] border border-[#252134] text-slate-300 hover:border-sky-400/50 hover:text-sky-400 transition-colors"
+                      className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium bg-[#1A1825] border border-[#252134] text-slate-300 hover:edus-gradient-border-active transition-colors"
                     >
                       {mode.icon} <span>{mode.label}</span>
                     </button>

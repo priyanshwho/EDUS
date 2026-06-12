@@ -6,7 +6,8 @@ import { generateMCQ } from '../api/ai.api';
 import DifficultySelector from '../components/mcq/DifficultySelector';
 import MCQQuestion from '../components/mcq/MCQQuestion';
 import BottomNavBar from '../components/layout/BottomNavBar';
-import { Loader2, ChevronLeft, Trophy, RotateCcw, BookOpen } from 'lucide-react';
+import { ChevronLeft, Trophy, RotateCcw, BookOpen, ArrowRight, ArrowLeft } from 'lucide-react';
+import { GooeyLoader } from '../../components/ui/loader-10';
 
 const MCQMode = () => {
   const { branch, semester, subjectSlug, chapterId } = useParams();
@@ -16,17 +17,18 @@ const MCQMode = () => {
   const [difficulty, setDifficulty] = useState(null);
   const [questions, setQuestions] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [userAnswers, setUserAnswers] = useState<Record<number, string | null>>({});
   const [score, setScore] = useState(0);
   const [loading, setLoading] = useState(false);
   const [completed, setCompleted] = useState(false);
 
   const chapter = state.subjectData?.sections.A.concat(state.subjectData?.sections.B)
-    .find((c) => c.chapterId === chapterId);
+    .find((c: any) => c.chapterId === chapterId);
 
-  const loadQuestions = async (diff) => {
+  const loadQuestions = async (diff: any) => {
     setLoading(true);
     try {
-      const notes = await fetchChapterNotes(branch, semester, subjectSlug, chapterId, chapter?.title || '');
+      const notes = await fetchChapterNotes(branch!, semester!, subjectSlug!, chapterId!, chapter?.title || '');
       const generated = await generateMCQ({
         chapterTitle: chapter?.title,
         subjectName: state.subjectData?.subjectName,
@@ -44,8 +46,12 @@ const MCQMode = () => {
     }
   };
 
-  const handleAnswer = (correct) => {
+  const handleAnswer = (correct: boolean, option: string) => {
     if (correct) setScore((prev) => prev + 1);
+    setUserAnswers((prev) => ({ ...prev, [currentIndex]: option }));
+  };
+
+  const handleNext = () => {
     if (currentIndex < questions.length - 1) {
       setCurrentIndex((prev) => prev + 1);
     } else {
@@ -53,14 +59,20 @@ const MCQMode = () => {
     }
   };
 
+  const handlePrev = () => {
+    if (currentIndex > 0) {
+      setCurrentIndex((prev) => prev - 1);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-[#0E0C15] p-8 text-center pb-20">
-        <div className="w-16 h-16 rounded-2xl flex items-center justify-center edus-gradient-bg mb-6">
-          <Loader2 size={24} className="text-white animate-spin" />
+        <div className="mb-12">
+          <GooeyLoader primaryColor="#38bdf8" secondaryColor="#a78bfa" borderColor="#252134" />
         </div>
-        <h2 className="text-xl font-bold text-white mb-2">Preparing Your Quiz…</h2>
-        <p className="text-sm text-slate-400">AI is crafting {difficulty} level questions.</p>
+        <h2 className="text-xl font-bold text-white mb-2 tracking-wide">Preparing Your Quiz…</h2>
+        <p className="text-sm text-slate-400">AI is crafting {difficulty} level questions to test your knowledge.</p>
       </div>
     );
   }
@@ -102,7 +114,7 @@ const MCQMode = () => {
           <button onClick={() => window.location.reload()} className="edus-btn">
             <RotateCcw size={16} /> Try Again
           </button>
-          <button onClick={() => navigate(`/ai/learn/${branch}/${semester}/${subjectSlug}`)} className="edus-btn-ghost">
+          <button onClick={() => navigate(`/ai/learn/${branch}/${semester}/${subjectSlug}?section=${state.selectedSection}`)} className="edus-btn-ghost">
             <BookOpen size={16} /> Next Chapter
           </button>
         </div>
@@ -114,7 +126,7 @@ const MCQMode = () => {
   const progress = ((currentIndex + 1) / questions.length) * 100;
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#0E0C15] pb-20">
+    <div className="min-h-screen flex flex-col bg-[#0E0C15] pb-24">
       <header className="px-6 py-4 flex items-center justify-between border-b border-[#252134]">
         <button
           onClick={() => setDifficulty(null)}
@@ -133,10 +145,33 @@ const MCQMode = () => {
         <div className="h-full edus-gradient-bg transition-all duration-300" style={{ width: `${progress}%` }} />
       </div>
 
-      <main className="flex-1 flex items-center justify-center p-6">
-        {questions.length > 0 && (
-          <MCQQuestion key={currentIndex} question={questions[currentIndex]} onAnswer={handleAnswer} />
-        )}
+      <main className="flex-1 flex flex-col items-center justify-center p-6">
+        <div className="w-full max-w-3xl">
+          <MCQQuestion 
+            key={currentIndex} 
+            question={questions[currentIndex]} 
+            onAnswer={handleAnswer} 
+            userAnswer={userAnswers[currentIndex]} 
+          />
+          
+          <div className="flex items-center justify-between mt-8">
+            <button 
+              onClick={handlePrev} 
+              disabled={currentIndex === 0}
+              className="flex items-center gap-2 edus-btn-ghost opacity-80 hover:opacity-100 disabled:opacity-30 disabled:cursor-not-allowed"
+            >
+              <ArrowLeft size={16} /> Previous
+            </button>
+            
+            <button 
+              onClick={handleNext}
+              disabled={!userAnswers[currentIndex]}
+              className="flex items-center gap-2 edus-btn disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {currentIndex === questions.length - 1 ? 'Finish Quiz' : 'Next'} <ArrowRight size={16} />
+            </button>
+          </div>
+        </div>
       </main>
 
       <BottomNavBar />

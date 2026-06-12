@@ -5,7 +5,8 @@ import { fetchChapterNotes } from '../api/notes.api';
 import { generateFlashcards } from '../api/ai.api';
 import FlashCard from '../components/cards/FlashCard';
 import BottomNavBar from '../components/layout/BottomNavBar';
-import { ChevronLeft, ChevronRight, RefreshCw, Zap } from 'lucide-react';
+import { ChevronLeft, ChevronRight, RefreshCw } from 'lucide-react';
+import { GooeyLoader } from '../../components/ui/loader-10';
 
 const FlashcardMode = () => {
   const { branch, semester, subjectSlug, chapterId } = useParams();
@@ -44,11 +45,11 @@ const FlashcardMode = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-[#0E0C15] p-8 text-center pb-20">
-        <div className="w-16 h-16 rounded-2xl flex items-center justify-center bg-sky-400/10 border border-sky-400/20 mb-6">
-          <Zap size={24} className="text-sky-400 animate-pulse" />
+        <div className="mb-12">
+          <GooeyLoader primaryColor="#38bdf8" secondaryColor="#a78bfa" borderColor="#252134" />
         </div>
-        <h2 className="text-xl font-bold text-white mb-2">Generating Flashcards…</h2>
-        <p className="text-sm text-slate-400">AI is analyzing your content.</p>
+        <h2 className="text-xl font-bold text-white mb-2 tracking-wide">Generating Flashcards…</h2>
+        <p className="text-sm text-slate-400">AI is carefully analyzing your study material.</p>
       </div>
     );
   }
@@ -73,7 +74,7 @@ const FlashcardMode = () => {
       </header>
 
       <div className="h-1 bg-slate-800">
-        <div className="h-full bg-sky-400 transition-all duration-300" style={{ width: `${((currentIndex + 1) / (cards.length || 1)) * 100}%` }} />
+        <div className="h-full edus-gradient-bg transition-all duration-300" style={{ width: `${((currentIndex + 1) / (cards.length || 1)) * 100}%` }} />
       </div>
 
       <main className="flex-1 flex items-center justify-center px-6 py-8">

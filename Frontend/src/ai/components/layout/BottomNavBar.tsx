@@ -37,7 +37,7 @@ const BottomNavBar = () => {
               onClick={() => switchMode(mode.id)}
               className={clsx(
                 "flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-colors",
-                isActive ? "text-sky-400 bg-sky-400/10" : "text-slate-500 hover:text-slate-300 hover:bg-slate-800/50"
+                isActive ? "text-white edus-gradient-bg" : "text-slate-500 hover:text-slate-300 hover:bg-slate-800/50"
               )}
             >
               {mode.icon}
