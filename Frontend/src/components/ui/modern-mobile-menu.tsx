@@ -38,6 +38,10 @@ const InteractiveMenu: React.FC<InteractiveMenuProps> = ({ items, accentColor, d
   const [activeIndex, setActiveIndex] = useState(defaultActiveIndex);
 
   useEffect(() => {
+    setActiveIndex(defaultActiveIndex);
+  }, [defaultActiveIndex]);
+
+  useEffect(() => {
       if (activeIndex >= finalItems.length) {
           setActiveIndex(0);
       }
@@ -48,6 +52,7 @@ const InteractiveMenu: React.FC<InteractiveMenuProps> = ({ items, accentColor, d
 
   useEffect(() => {
     const setLineWidth = () => {
+      if (activeIndex < 0) return;
       const activeItemElement = itemRefs.current[activeIndex];
       const activeTextElement = textRefs.current[activeIndex];
 
