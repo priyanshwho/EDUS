@@ -1,5 +1,6 @@
 import React from 'react';
 import { Brain, Flame, Zap } from 'lucide-react';
+import BottomNavBar from '../layout/BottomNavBar';
 
 interface DifficultySelectorProps {
   onSelect: (difficulty: 'easy' | 'medium' | 'hard') => void;
@@ -13,7 +14,7 @@ const LEVELS = [
 
 const DifficultySelector: React.FC<DifficultySelectorProps> = ({ onSelect }) => {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-[#0E0C15] px-6 py-16 text-center pb-24">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-[#0E0C15] px-6 py-16 text-center pb-36 md:pb-24">
       <div className="mb-12">
         <h2 className="text-3xl md:text-4xl font-bold text-white mb-2">Choose Difficulty</h2>
         <p className="text-slate-400">Select a level for your practice quiz</p>
@@ -34,6 +35,7 @@ const DifficultySelector: React.FC<DifficultySelectorProps> = ({ onSelect }) => 
           </button>
         ))}
       </div>
+      <BottomNavBar />
     </div>
   );
 };
