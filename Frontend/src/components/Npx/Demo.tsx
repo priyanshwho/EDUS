@@ -5,7 +5,7 @@ import Section from "../Section";
 const DemoOne = () => {
   const items = [
     {
-      image: "/Priyanshu.jpeg",
+      image: "/priyanshu.png",
       link: "/creators",
       title: "Priyanshu Anand",
       description: "Team Lead"

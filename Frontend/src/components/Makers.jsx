@@ -9,7 +9,7 @@ const Makers = () => {
       name: 'Priyanshu Anand',
       role: 'Lead Full Stack Developer',
       description: 'Leading the technical vision and architecting scalable full-stack solutions with expertise in modern frameworks.',
-      avatar: '/Priyanshu.jpeg',
+      avatar: '/priyanshu.png',
       github: 'https://github.com/priyans11',
       linkedin: 'https://linkedin.com/in/priyans11',
       email: 'priyanshu82711@gmail.com',
