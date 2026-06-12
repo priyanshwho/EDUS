@@ -5,6 +5,7 @@ import { useUpload } from '../hooks/useUpload';
 import { resourceService } from '../services/resource.service';
 import { useProfessorDashboardStore } from '../stores/professorDashboard.store';
 import { GooeyLoader } from '../components/ui/loader-10';
+import DashboardBackground from '../components/design/DashboardBackground';
 
 /**
  * ProfessorDashboard
@@ -38,8 +39,10 @@ export default function ProfessorDashboard() {
   const tabs = ['overview', 'upload', 'subjects', 'announcements', 'resources'];
 
   return (
-    <section className="min-h-screen bg-n-8 text-n-1 p-6">
-      <header className="mb-8">
+    <section className="min-h-screen bg-gradient-to-br from-[#0b1021] via-[#0E0C15] to-[#1a1025] text-n-1 p-6 relative overflow-hidden">
+      <DashboardBackground />
+      <div className="relative z-10">
+        <header className="mb-8">
         <h1 className="h3">Professor Dashboard</h1>
         <p className="body-2 text-n-4">Manage your uploads and announcements</p>
       </header>
@@ -101,6 +104,7 @@ export default function ProfessorDashboard() {
           }}
         />
       )}
+      </div>
     </section>
   );
 }

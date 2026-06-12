@@ -6,6 +6,7 @@ import ResourceFilterPanel from '../components/ResourceFilterPanel';
 import { resourceTypeLabel, formatDate, resourcePath, resourceShareUrl } from '../utils/format';
 import { useStudentDashboardStore } from '../stores/studentDashboard.store';
 import { GooeyLoader } from '../components/ui/loader-10';
+import DashboardBackground from '../components/design/DashboardBackground';
 
 /**
  * StudentDashboard
@@ -58,7 +59,8 @@ export default function StudentDashboard() {
   }
 
   return (
-    <section className="min-h-screen bg-n-8 text-n-1 relative">
+    <section className="min-h-screen bg-gradient-to-br from-[#0b1021] via-[#0E0C15] to-[#1a1025] text-n-1 relative overflow-hidden">
+      <DashboardBackground />
       {/* Decorative background glow */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-64 bg-cyan-500/10 blur-[120px] pointer-events-none rounded-full"></div>
       
