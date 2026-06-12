@@ -55,7 +55,7 @@ const FlashcardMode = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#0E0C15] pb-20">
+    <div className="min-h-screen flex flex-col bg-[#0E0C15] pb-36 md:pb-12">
       <header className="px-6 py-4 flex items-center justify-between border-b border-[#252134]">
         <button
           onClick={() => navigate(`/ai/learn/${branch}/${semester}/${subjectSlug}?section=${state.selectedSection}`)}

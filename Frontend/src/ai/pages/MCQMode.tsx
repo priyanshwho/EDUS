@@ -126,7 +126,7 @@ const MCQMode = () => {
   const progress = ((currentIndex + 1) / questions.length) * 100;
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#0E0C15] pb-24">
+    <div className="min-h-screen flex flex-col bg-[#0E0C15] pb-36 md:pb-12">
       <header className="px-6 py-4 flex items-center justify-between border-b border-[#252134]">
         <button
           onClick={() => setDifficulty(null)}

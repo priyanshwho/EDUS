@@ -94,10 +94,10 @@ const Sidebar = () => {
     <>
       {/* ── Mobile hamburger ── */}
       <button
-        onClick={() => setMobileOpen(true)}
+        onClick={() => setMobileOpen(!mobileOpen)}
         className="lg:hidden fixed top-20 right-4 z-[90] w-10 h-10 rounded-xl flex items-center justify-center bg-[#15131D] border border-[#252134] shadow-md"
       >
-        <Menu size={18} className="text-slate-300" />
+        {mobileOpen ? <X size={18} className="text-slate-300" /> : <Menu size={18} className="text-slate-300" />}
       </button>
 
       {/* ── Mobile overlay ── */}

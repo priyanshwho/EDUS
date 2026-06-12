@@ -18,7 +18,7 @@ const MobileBottomBar = () => {
     { label: 'About', icon: Info, path: '/about' },
     { label: 'Services', icon: Briefcase, path: '/services' },
     { label: 'Contact', icon: Phone, path: '/contact' },
-    { label: 'AI', icon: AiTextIcon, path: '/ai' },
+    { label: 'EduAI', icon: AiTextIcon, path: '/ai' },
   ], []);
 
   // Determine active index based on current path
