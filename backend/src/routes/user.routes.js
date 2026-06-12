@@ -13,7 +13,7 @@ router.get('/public/professors', cacheGet({
   try {
     const { q } = req.query;
     const params = [];
-    const where = [`u.role = 'professor'`];
+    const where = [`u.role in ('professor', 'admin')`];
 
     if (q) {
       params.push(`%${q}%`);
@@ -70,7 +70,7 @@ router.get('/public/professors/:username', cacheGet({
       select id, username, name, role, created_at
       from users
       where username = ${username}
-      and role = 'professor'
+      and role in ('professor', 'admin')
       limit 1
     `;
 
