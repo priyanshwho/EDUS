@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useSession } from '../../context/SessionContext';
 import { fetchBranches, fetchSemesters } from '../../api/syllabus.api';
-import { Sparkles, Menu, X, ChevronRight, Layers, BookOpen } from 'lucide-react';
+import { Menu, X, ChevronRight, Layers, BookOpen } from 'lucide-react';
 import { clsx } from 'clsx';
+import eduAiImg from '../../../assets/eduai.png';
 
 const Sidebar = () => {
   const { state, dispatch } = useSession();
@@ -26,8 +27,8 @@ const Sidebar = () => {
     <div className="flex flex-col h-full p-5 gap-6">
       {/* ── Logo ── */}
       <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl flex items-center justify-center edus-gradient-bg">
-          <Sparkles size={20} className="text-white" />
+        <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-transparent border border-white/10 overflow-hidden">
+          <img src={eduAiImg} className="w-full h-full object-cover" alt="Edu AI" />
         </div>
         <div>
           <div className="font-bold text-lg edus-gradient-text">Edu.ai</div>

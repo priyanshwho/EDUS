@@ -1,7 +1,10 @@
 import React, { useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Home, Info, Briefcase, Phone, Sparkles } from 'lucide-react';
+import { Home, Info, Briefcase, Phone } from 'lucide-react';
 import { InteractiveMenu } from '../ui/modern-mobile-menu';
+import eduAiImg from '../../assets/eduai.png';
+
+const EduAiIcon = ({ className }) => <img src={eduAiImg} className={className} alt="Edu AI" />;
 
 const MobileBottomBar = () => {
   const navigate = useNavigate();
@@ -12,7 +15,7 @@ const MobileBottomBar = () => {
     { label: 'About', icon: Info, path: '/about' },
     { label: 'Services', icon: Briefcase, path: '/services' },
     { label: 'Contact', icon: Phone, path: '/contact' },
-    { label: 'AI', icon: Sparkles, path: '/ai' },
+    { label: 'AI', icon: EduAiIcon, path: '/ai' },
   ], []);
 
   // Determine active index based on current path
