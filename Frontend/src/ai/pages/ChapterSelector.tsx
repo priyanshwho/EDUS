@@ -1,7 +1,7 @@
 import React from 'react';
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { useSession } from '../context/SessionContext';
-import { ChevronLeft, Zap, HelpCircle, MessageSquare, Clock } from 'lucide-react';
+import { ChevronLeft, Zap, HelpCircle, MessageSquare, Clock, BookOpen } from 'lucide-react';
 
 const MODE_CONFIG = [
   { id: 'flashcards', label: 'Flashcards', icon: <Zap size={16} /> },
