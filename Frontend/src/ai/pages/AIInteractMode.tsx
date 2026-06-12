@@ -40,7 +40,7 @@ const TranscriptPanel = ({ messages, streamingText }: { messages: Message[]; str
         <Captions size={16} className="text-slate-400" />
         <span className="text-sm font-semibold text-slate-300">Transcript</span>
       </div>
-      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
+      <div className="flex-1 overflow-y-auto px-4 py-6 space-y-6">
         {messages.length === 0 && !streamingText && (
           <div className="text-center mt-10 text-sm text-slate-500">
             Conversation will appear here…
@@ -49,8 +49,8 @@ const TranscriptPanel = ({ messages, streamingText }: { messages: Message[]; str
         {messages.map((msg, i) => (
           <div key={i} className={clsx('flex', msg.role === 'user' ? 'justify-end' : 'justify-start')}>
             <div className={clsx(
-              "max-w-[85%] px-4 py-3 rounded-2xl text-sm leading-relaxed",
-              msg.role === 'user' ? "bg-sky-500/20 text-sky-100 rounded-br-sm" : "bg-slate-800/50 text-slate-300 border border-slate-700/50 rounded-bl-sm"
+              "max-w-[85%] px-5 py-4 rounded-2xl text-[15px] leading-relaxed shadow-sm",
+              msg.role === 'user' ? "edus-gradient-bg text-white rounded-br-sm shadow-sky-500/10" : "bg-slate-800/80 text-slate-200 border border-slate-700/50 rounded-bl-sm"
             )}>
               {msg.content}
             </div>
@@ -58,9 +58,9 @@ const TranscriptPanel = ({ messages, streamingText }: { messages: Message[]; str
         ))}
         {streamingText && (
           <div className="flex justify-start">
-            <div className="max-w-[85%] px-4 py-3 rounded-2xl text-sm leading-relaxed bg-slate-800/50 text-slate-300 border border-slate-700/50 rounded-bl-sm">
+            <div className="max-w-[85%] px-5 py-4 rounded-2xl text-[15px] leading-relaxed bg-slate-800/80 text-slate-200 border border-slate-700/50 rounded-bl-sm">
               {streamingText}
-              <span className="inline-block w-1.5 h-3 bg-sky-400 ml-1 animate-pulse" />
+              <span className="inline-block w-1.5 h-3 edus-gradient-bg ml-1 animate-pulse" />
             </div>
           </div>
         )}
@@ -72,23 +72,23 @@ const TranscriptPanel = ({ messages, streamingText }: { messages: Message[]; str
 
 const ModeSelector = ({ chapterTitle, onSelect }: { chapterTitle?: string; onSelect: (m: AIMode) => void }) => (
   <div className="min-h-screen flex flex-col items-center justify-center bg-[#0E0C15] p-8 text-center pb-20">
-    <div className="w-16 h-16 rounded-2xl flex items-center justify-center bg-sky-400/10 border border-sky-400/20 mb-6">
-      <Mic size={28} className="text-sky-400" />
+    <div className="w-16 h-16 rounded-2xl flex items-center justify-center edus-gradient-bg mb-6">
+      <Mic size={28} className="text-white" />
     </div>
 
     <h1 className="text-3xl font-bold text-white mb-2">How would you like to learn?</h1>
     <p className="text-sm text-slate-400 mb-8">{chapterTitle}</p>
 
     <div className="grid grid-cols-1 md:grid-cols-2 gap-5 w-full max-w-2xl">
-      <button onClick={() => onSelect('tutor')} className="edus-card p-6 text-left hover:border-sky-400/50 transition-colors group">
-        <div className="w-10 h-10 rounded-xl bg-sky-400/10 border border-sky-400/20 flex items-center justify-center mb-4 text-sky-400">
+      <button onClick={() => onSelect('tutor')} className="edus-card p-6 text-left hover:edus-gradient-border-active transition-colors group">
+        <div className="w-10 h-10 rounded-xl edus-gradient-bg flex items-center justify-center mb-4 text-white">
           <GraduationCap size={20} />
         </div>
         <h3 className="text-lg font-bold text-white mb-2">Step-by-Step Tutor</h3>
         <p className="text-sm text-slate-400">AI teaches topic by topic with checkpoint questions.</p>
       </button>
-      <button onClick={() => onSelect('free')} className="edus-card p-6 text-left hover:border-sky-400/50 transition-colors group">
-        <div className="w-10 h-10 rounded-xl bg-sky-400/10 border border-sky-400/20 flex items-center justify-center mb-4 text-sky-400">
+      <button onClick={() => onSelect('free')} className="edus-card p-6 text-left hover:edus-gradient-border-active transition-colors group">
+        <div className="w-10 h-10 rounded-xl edus-gradient-bg flex items-center justify-center mb-4 text-white">
           <MessageCircle size={20} />
         </div>
         <h3 className="text-lg font-bold text-white mb-2">Free Conversation</h3>
@@ -247,15 +247,15 @@ const AIInteractMode = () => {
         {showCC && <div className="w-1/2"><TranscriptPanel messages={messages} streamingText={streamingText} /></div>}
       </div>
 
-      <div className="flex justify-center p-4 border-t border-[#252134] bg-[#0E0C15]">
+      <div className="flex justify-center p-6 border-t border-[#252134] bg-[#0E0C15]/95 backdrop-blur">
         <button
           onClick={isListening ? stopListening : startListening}
           className={clsx(
-            "w-16 h-16 rounded-full flex items-center justify-center transition-all",
-            isListening ? "bg-red-500 text-white shadow-lg shadow-red-500/20" : isAITalking ? "bg-slate-800 text-slate-500 cursor-not-allowed" : "bg-sky-500 text-white hover:bg-sky-400 shadow-lg shadow-sky-500/20"
+            "w-20 h-20 rounded-full flex items-center justify-center transition-all duration-300",
+            isListening ? "bg-rose-500 text-white shadow-[0_0_30px_rgba(244,63,94,0.4)] scale-105" : isAITalking ? "bg-slate-800 text-slate-500 cursor-not-allowed" : "edus-gradient-bg text-white hover:scale-105 hover:shadow-[0_0_20px_rgba(56,189,248,0.4)]"
           )}
         >
-          {isListening ? <MicOff size={24} /> : <Mic size={24} />}
+          {isListening ? <MicOff size={28} /> : <Mic size={28} />}
         </button>
       </div>
 

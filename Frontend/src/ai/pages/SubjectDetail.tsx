@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useSession } from '../context/SessionContext';
 import { fetchSubjectDetails } from '../api/syllabus.api';
 import { ChevronLeft, Layout, Sparkles, BookOpen } from 'lucide-react';
+import { GooeyLoader } from '../../components/ui/loader-10';
 
 const SubjectDetail = () => {
   const { branch, semester, subjectSlug } = useParams();
@@ -41,11 +42,12 @@ const SubjectDetail = () => {
   );
 
   if (!data) return (
-    <div className="min-h-screen flex items-center justify-center bg-[#0E0C15]">
-      <div className="text-center">
-        <p className="font-semibold text-white mb-1">Loading {subjectName}</p>
-        <p className="text-sm text-slate-400">Fetching syllabus data…</p>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-[#0E0C15] p-8 text-center pb-20">
+      <div className="mb-12">
+        <GooeyLoader primaryColor="#38bdf8" secondaryColor="#a78bfa" borderColor="#252134" />
       </div>
+      <p className="text-xl font-bold text-white mb-2 tracking-wide">Loading {subjectName}</p>
+      <p className="text-sm text-slate-400">Fetching comprehensive syllabus data…</p>
     </div>
   );
 
