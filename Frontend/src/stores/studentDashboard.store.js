@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { resourceService } from '../services/resource.service';
+import { getStaticResources } from '../utils/staticResources';
 
 const CACHE_TTL_MS = 60 * 1000;
 
@@ -50,7 +51,21 @@ export const useStudentDashboardStore = create((set, get) => ({
 
     try {
       const { resources } = await resourceService.list(activeFilters);
-      const nextResources = resources || [];
+      
+      // 1. Fetch and filter static resources
+      const allStatic = getStaticResources();
+      const filteredStatic = allStatic.filter((res) => {
+        if (activeFilters.resource_type && res.resource_type !== activeFilters.resource_type) return false;
+        if (activeFilters.semester && String(res.subjects?.semester) !== String(activeFilters.semester)) return false;
+        if (activeFilters.branch && res.subjects?.branch !== activeFilters.branch) return false;
+        if (activeFilters.q && !res.title.toLowerCase().includes(activeFilters.q.toLowerCase())) return false;
+        return true;
+      });
+
+      // 2. Combine and sort
+      const nextResources = [...(resources || []), ...filteredStatic].sort(
+        (a, b) => new Date(b.created_at) - new Date(a.created_at)
+      );
 
       set((state) => ({
         resources: nextResources,
