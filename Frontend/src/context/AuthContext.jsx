@@ -119,6 +119,15 @@ export function AuthProvider({ children }) {
     setAccessToken(null);
   }, []);
 
+  // ── Super Admin Switch Role ──────────────────────────────────────────────
+  const superadminSwitchRole = useCallback(async (role) => {
+    const res = await authService.superadminSwitchRole({ role });
+    setToken(res.accessToken);
+    setAccessToken(res.accessToken);
+    setUser(res.user);
+    return res;
+  }, []);
+
   const value = {
     user,
     accessToken,
@@ -132,6 +141,7 @@ export function AuthProvider({ children }) {
     login,
     verifyPin,
     upgradeToProfessor,
+    superadminSwitchRole,
     logout,
     handleOAuthCallback,
     setAccessToken,
