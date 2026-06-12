@@ -67,7 +67,7 @@ export default function StudentDashboard() {
       
       <div className="max-w-7xl mx-auto px-4 py-8 relative z-10">
         <header className="mb-10 rounded-3xl border border-n-6 bg-n-7/40 backdrop-blur overflow-hidden shadow-2xl">
-          <div className="bg-gradient-to-r from-color-1/20 to-color-2/20 p-8 sm:p-12 relative overflow-hidden">
+          <div className="bg-gradient-to-r from-color-1/20 via-color-5/20 to-cyan-400/20 p-8 sm:p-12 relative overflow-hidden">
             <div className="relative z-10">
               <h1 className="text-4xl sm:text-5xl font-black bg-clip-text text-transparent bg-gradient-to-r from-n-1 to-n-3 mb-3 tracking-tight">
                 Welcome back, {user?.username} 👋
@@ -85,14 +85,14 @@ export default function StudentDashboard() {
             
             {/* Background elements in banner */}
             <div className="absolute top-[-50%] right-[-10%] w-96 h-96 bg-color-1/30 rounded-full blur-3xl pointer-events-none"></div>
-            <div className="absolute bottom-[-50%] right-[10%] w-80 h-80 bg-color-2/20 rounded-full blur-3xl pointer-events-none"></div>
+            <div className="absolute bottom-[-50%] right-[10%] w-80 h-80 bg-cyan-400/20 rounded-full blur-3xl pointer-events-none"></div>
           </div>
 
           {isStudent && (
             <div className="p-6 sm:p-8 bg-n-8/80 border-t border-n-6/50 flex flex-col md:flex-row items-center justify-between gap-6">
               <div>
                 <div className="flex items-center gap-3 mb-2">
-                  <span className="px-3 py-1 text-xs font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded-full uppercase tracking-wider">
+                  <span className="px-3 py-1 text-xs font-bold bg-color-2/10 text-blue-400 border border-color-2/20 rounded-full uppercase tracking-wider">
                     Student Profile
                   </span>
                 </div>
@@ -103,7 +103,7 @@ export default function StudentDashboard() {
                 {!showUpgradeForm ? (
                   <button
                     onClick={() => setShowUpgradeForm(true)}
-                    className="w-full md:w-auto px-6 py-3 rounded-xl bg-gradient-to-r from-color-1 to-color-2 text-n-8 text-sm font-bold shadow-[0_0_15px_rgba(172,106,255,0.4)] hover:shadow-[0_0_25px_rgba(172,106,255,0.6)] hover:-translate-y-0.5 transition-all"
+                    className="w-full md:w-auto px-6 py-3 rounded-xl bg-gradient-to-r from-color-1 via-color-5 to-cyan-400 text-n-8 text-sm font-bold shadow-[0_0_15px_rgba(172,106,255,0.4)] hover:shadow-[0_0_25px_rgba(172,106,255,0.6)] hover:-translate-y-0.5 transition-all"
                   >
                     Become Professor
                   </button>
@@ -218,7 +218,7 @@ function ResourceCard({ resource: r, onPreview }) {
   }
 
   const typeColors = {
-    notes: 'bg-blue-500/20 text-blue-300',
+    notes: 'bg-color-2/20 text-blue-300',
     pyq: 'bg-purple-500/20 text-purple-300',
     lecture: 'bg-green-500/20 text-green-300',
     assignment: 'bg-yellow-500/20 text-yellow-300',

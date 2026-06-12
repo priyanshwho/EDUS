@@ -373,7 +373,7 @@ function PlatformAnalytics() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-8">
         {summaryCards.map(c => (
           <div key={c.label} className="rounded-xl border border-n-6 bg-n-7 p-5 text-center">
-            <p className="text-3xl font-bold text-color-1">{c.value}</p>
+            <p className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-color-1 via-color-5 to-cyan-400">{c.value}</p>
             <p className="text-sm text-n-4 mt-1">{c.label}</p>
           </div>
         ))}
@@ -572,7 +572,7 @@ function SubjectManagement() {
                     </span>
                   </td>
                   <td className="py-4 px-4">
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-500/10 text-blue-300 border border-blue-500/20">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-color-2/10 text-blue-300 border border-color-2/20">
                       {s.branch}
                     </span>
                   </td>
