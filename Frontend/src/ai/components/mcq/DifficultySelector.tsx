@@ -24,9 +24,9 @@ const DifficultySelector: React.FC<DifficultySelectorProps> = ({ onSelect }) => 
           <button
             key={level.id}
             onClick={() => onSelect(level.id as any)}
-            className="edus-card p-6 text-left hover:border-sky-400/50 transition-colors group"
+            className="edus-card p-6 text-left hover:edus-gradient-border-active transition-colors group"
           >
-            <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-sky-400/10 border border-sky-400/20 text-sky-400 mb-4 group-hover:scale-105 transition-transform">
+            <div className="w-12 h-12 rounded-xl flex items-center justify-center edus-gradient-bg text-white mb-4 group-hover:scale-105 transition-transform">
               {level.icon}
             </div>
             <h3 className="text-lg font-bold text-white mb-1">{level.label}</h3>
