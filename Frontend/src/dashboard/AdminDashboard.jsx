@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { userService, subjectService, resourceService } from '../services/index';
 import { useAdminDashboardStore } from '../stores/adminDashboard.store';
+import { GooeyLoader } from '../components/ui/loader-10';
 
 /**
  * AdminDashboard
@@ -503,7 +504,11 @@ function SubjectManagement() {
     removeSubjectById(id);
   };
 
-  if (loadingSubjects && subjects.length === 0) return <p className="text-n-4">Loading…</p>;
+  if (loadingSubjects && subjects.length === 0) return (
+    <div className="flex justify-center py-12">
+      <GooeyLoader primaryColor="#AC6AFF" secondaryColor="#858DFF" borderColor="#252134" />
+    </div>
+  );
 
   return (
     <div className="w-full">
