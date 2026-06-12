@@ -58,6 +58,7 @@ import Eduai from "./Pages/Eduai";
 import Footer from "./components/Footer";
 import { DemoOne } from "./components/Npx/Demo";
 import Makers from "./components/Makers";
+import MobileBottomBar from "./components/layout/MobileBottomBar";
 
 // ── Auth & Dashboard ────────────────────────────────────────────────
 import { AuthProvider } from "./context/AuthContext";
@@ -196,6 +197,7 @@ const AppShell = () => {
           </Routes>
         </>
       </div>
+      <MobileBottomBar />
       <Footer />
       <ButtonGradient />
     </>
