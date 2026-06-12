@@ -60,11 +60,11 @@ export default function StudentDashboard() {
   return (
     <section className="min-h-screen bg-n-8 text-n-1 relative">
       {/* Decorative background glow */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-64 bg-indigo-500/10 blur-[120px] pointer-events-none rounded-full"></div>
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-64 bg-cyan-500/10 blur-[120px] pointer-events-none rounded-full"></div>
       
       <div className="max-w-7xl mx-auto px-4 py-8 relative z-10">
         <header className="mb-10 rounded-3xl border border-n-6 bg-n-7/40 backdrop-blur overflow-hidden shadow-2xl">
-          <div className="bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-emerald-400/10 p-8 sm:p-12 relative overflow-hidden">
+          <div className="bg-gradient-to-r from-blue-500/10 via-cyan-400/10 to-emerald-400/10 p-8 sm:p-12 relative overflow-hidden">
             <div className="relative z-10">
               <h1 className="text-4xl sm:text-5xl font-black bg-clip-text text-transparent bg-gradient-to-r from-n-1 to-n-3 mb-3 tracking-tight">
                 Welcome back, {user?.username} 👋
@@ -74,14 +74,14 @@ export default function StudentDashboard() {
               </p>
               <Link
                 to="/professors"
-                className="inline-flex items-center text-sm font-semibold text-indigo-400 hover:text-indigo-300 hover:translate-x-1 transition-all"
+                className="inline-flex items-center text-sm font-semibold text-cyan-400 hover:text-cyan-300 hover:translate-x-1 transition-all"
               >
                 Discover professor profiles <span className="ml-2">→</span>
               </Link>
             </div>
             
             {/* Background elements in banner */}
-            <div className="absolute top-[-50%] right-[-10%] w-96 h-96 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none"></div>
+            <div className="absolute top-[-50%] right-[-10%] w-96 h-96 bg-cyan-500/20 rounded-full blur-3xl pointer-events-none"></div>
             <div className="absolute bottom-[-50%] right-[10%] w-80 h-80 bg-emerald-400/10 rounded-full blur-3xl pointer-events-none"></div>
           </div>
 
@@ -100,14 +100,14 @@ export default function StudentDashboard() {
                 {!showUpgradeForm ? (
                   <button
                     onClick={() => setShowUpgradeForm(true)}
-                    className="w-full md:w-auto px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-500 via-purple-500 to-emerald-400 text-white text-sm font-bold shadow-[0_0_15px_rgba(99,102,241,0.4)] hover:shadow-[0_0_25px_rgba(99,102,241,0.6)] hover:-translate-y-0.5 transition-all"
+                    className="w-full md:w-auto px-6 py-3 rounded-xl bg-gradient-to-r from-blue-500 via-cyan-400 to-emerald-400 text-white text-sm font-bold shadow-[0_0_15px_rgba(6,182,212,0.4)] hover:shadow-[0_0_25px_rgba(6,182,212,0.6)] hover:-translate-y-0.5 transition-all"
                   >
                     Become Professor
                   </button>
                 ) : (
-                  <div className="bg-n-7 p-4 rounded-2xl border border-indigo-500/30 relative">
+                  <div className="bg-n-7 p-4 rounded-2xl border border-cyan-500/30 relative">
                     <button onClick={() => setShowUpgradeForm(false)} className="absolute top-2 right-2 text-n-4 hover:text-n-1 p-1">✕</button>
-                    <p className="text-xs font-semibold text-indigo-400 mb-3">Enter Professor PIN</p>
+                    <p className="text-xs font-semibold text-cyan-400 mb-3">Enter Professor PIN</p>
                     <form onSubmit={handleUpgradeSubmit} className="flex flex-col sm:flex-row gap-3">
                       <input
                         type="password"
@@ -116,13 +116,13 @@ export default function StudentDashboard() {
                         value={upgradePin}
                         onChange={(e) => setUpgradePin(e.target.value)}
                         placeholder="••••"
-                        className="w-full sm:w-40 rounded-xl border border-n-6 bg-n-8 px-4 py-2.5 text-center tracking-widest font-mono text-lg focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition"
+                        className="w-full sm:w-40 rounded-xl border border-n-6 bg-n-8 px-4 py-2.5 text-center tracking-widest font-mono text-lg focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition"
                         required
                       />
                       <button
                         type="submit"
                         disabled={upgrading || upgradePin.length < 4}
-                        className="w-full sm:w-auto px-6 py-2.5 rounded-xl border border-indigo-500 bg-indigo-500/10 text-indigo-400 text-sm font-bold hover:bg-indigo-500/20 disabled:opacity-50 transition"
+                        className="w-full sm:w-auto px-6 py-2.5 rounded-xl border border-cyan-500 bg-cyan-500/10 text-cyan-400 text-sm font-bold hover:bg-cyan-500/20 disabled:opacity-50 transition"
                       >
                         {upgrading ? 'Verifying…' : 'Upgrade'}
                       </button>
@@ -209,8 +209,8 @@ function ResourceCard({ resource: r }) {
   }
 
   const typeColors = {
-    notes: 'bg-color-2/20 text-blue-300',
-    pyq: 'bg-purple-500/20 text-purple-300',
+    notes: 'bg-blue-500/20 text-blue-300',
+    pyq: 'bg-blue-500/20 text-blue-300',
     lecture: 'bg-green-500/20 text-green-300',
     assignment: 'bg-yellow-500/20 text-yellow-300',
     lab: 'bg-orange-500/20 text-orange-300',
@@ -218,9 +218,9 @@ function ResourceCard({ resource: r }) {
   const colorClass = typeColors[r.resource_type] || 'bg-n-6 text-n-3';
 
   return (
-    <div className="group relative rounded-3xl border border-n-6 bg-n-7/30 backdrop-blur p-6 flex flex-col gap-4 hover:-translate-y-1.5 hover:shadow-2xl hover:border-indigo-500/50 transition-all duration-300 overflow-hidden">
+    <div className="group relative rounded-3xl border border-n-6 bg-n-7/30 backdrop-blur p-6 flex flex-col gap-4 hover:-translate-y-1.5 hover:shadow-2xl hover:border-cyan-500/50 transition-all duration-300 overflow-hidden">
       {/* Subtle background glow on hover */}
-      <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/0 to-indigo-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+      <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/0 to-cyan-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 
       <div className="relative z-10 flex items-center justify-between gap-2">
         <span className={`inline-flex px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border ${colorClass}`}>
@@ -233,7 +233,7 @@ function ResourceCard({ resource: r }) {
       </div>
 
       <Link to={resourcePath(r, r.slug)} className="relative z-10 mt-1 block">
-        <h3 className="text-lg font-bold text-n-1 leading-tight group-hover:text-indigo-400 transition-colors line-clamp-2">
+        <h3 className="text-lg font-bold text-n-1 leading-tight group-hover:text-cyan-400 transition-colors line-clamp-2">
           {r.title}
         </h3>
       </Link>
@@ -258,9 +258,9 @@ function ResourceCard({ resource: r }) {
           {r.uploader?.username && (
             <Link
               to={`/professors/${encodeURIComponent(r.uploader.username)}`}
-              className="text-xs font-medium text-indigo-300 hover:text-indigo-200 hover:underline transition-colors flex items-center gap-1.5"
+              className="text-xs font-medium text-cyan-300 hover:text-cyan-200 hover:underline transition-colors flex items-center gap-1.5"
             >
-              <div className="w-5 h-5 rounded-full bg-indigo-500/20 border border-indigo-500/50 flex items-center justify-center text-[10px] text-indigo-300">
+              <div className="w-5 h-5 rounded-full bg-cyan-500/20 border border-cyan-500/50 flex items-center justify-center text-[10px] text-cyan-300">
                 {r.uploader.name?.[0] || r.uploader.username[0]}
               </div>
               {r.uploader.name || r.uploader.username}
@@ -275,7 +275,7 @@ function ResourceCard({ resource: r }) {
               href={r.signedUrl || r.external_link || r.youtube_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex-1 flex items-center justify-center py-2 rounded-xl bg-indigo-500/10 text-indigo-400 text-sm font-bold border border-indigo-500/20 hover:bg-indigo-500 hover:text-white transition-all"
+              className="flex-1 flex items-center justify-center py-2 rounded-xl bg-cyan-500/10 text-cyan-400 text-sm font-bold border border-cyan-500/20 hover:bg-cyan-500 hover:text-white transition-all"
             >
               Preview
             </a>
@@ -286,7 +286,7 @@ function ResourceCard({ resource: r }) {
               download={!!r.signedUrl}
               target={r.signedUrl ? '_self' : '_blank'}
               rel="noopener noreferrer"
-              className="flex items-center justify-center w-10 h-10 rounded-xl bg-n-8 border border-n-6 text-n-3 hover:border-indigo-500 hover:text-indigo-400 hover:shadow-[0_0_10px_rgba(99,102,241,0.2)] transition-all"
+              className="flex items-center justify-center w-10 h-10 rounded-xl bg-n-8 border border-n-6 text-n-3 hover:border-cyan-500 hover:text-cyan-400 hover:shadow-[0_0_10px_rgba(6,182,212,0.2)] transition-all"
               title="Download"
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -296,7 +296,7 @@ function ResourceCard({ resource: r }) {
           )}
           <button
             onClick={handleCopy}
-            className="flex items-center justify-center w-10 h-10 rounded-xl bg-n-8 border border-n-6 text-n-3 hover:border-indigo-500 hover:text-indigo-400 hover:shadow-[0_0_10px_rgba(99,102,241,0.2)] transition-all"
+            className="flex items-center justify-center w-10 h-10 rounded-xl bg-n-8 border border-n-6 text-n-3 hover:border-cyan-500 hover:text-cyan-400 hover:shadow-[0_0_10px_rgba(6,182,212,0.2)] transition-all"
             title="Copy link"
           >
             {copied ? (

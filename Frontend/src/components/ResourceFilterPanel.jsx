@@ -112,7 +112,7 @@ export default function ResourceFilterPanel({ filters = {}, onChange, onClear, c
         {activeCount > 0 && (
           <button
             onClick={() => { setSearchInput(''); onClear?.(); }}
-            className="text-xs text-indigo-400 hover:text-indigo-300 hover:underline"
+            className="text-xs text-cyan-400 hover:text-cyan-300 hover:underline"
           >
             Clear all ({activeCount})
           </button>
@@ -209,7 +209,7 @@ export default function ResourceFilterPanel({ filters = {}, onChange, onClear, c
           value={filters.uploaded_by_name || ''}
           onChange={(e) => update('uploaded_by_name', e.target.value || undefined)}
           placeholder="Professor name…"
-          className="w-full bg-n-6 text-n-1 text-sm rounded-lg px-3 py-2 border border-n-5 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/50 transition"
+          className="w-full bg-n-6 text-n-1 text-sm rounded-lg px-3 py-2 border border-n-5 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/50 transition"
         />
       </FilterSection>
     </aside>
@@ -233,7 +233,7 @@ function Pill({ label, active, onClick }) {
       onClick={onClick}
       className={`px-3 py-1.5 rounded-lg text-xs font-medium transition ${
         active
-          ? 'bg-indigo-500 text-white shadow-md shadow-indigo-500/20'
+          ? 'bg-cyan-500 text-white shadow-md shadow-cyan-500/20'
           : 'bg-n-6 text-n-3 hover:text-n-1 hover:bg-n-5'
       }`}
     >
@@ -247,7 +247,7 @@ function Select({ value, onChange, options, fullWidth = false }) {
     <select
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className={`bg-n-6 text-n-1 text-sm rounded-lg px-3 py-2 border border-n-5 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/50 transition ${fullWidth ? 'w-full' : ''}`}
+      className={`bg-n-6 text-n-1 text-sm rounded-lg px-3 py-2 border border-n-5 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/50 transition ${fullWidth ? 'w-full' : ''}`}
     >
       {options.map((o) => (
         <option key={o.value} value={o.value}>{o.label}</option>
@@ -267,7 +267,7 @@ function SearchBox({ value, onChange }) {
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder="Search resources…"
-        className="bg-n-6 text-n-1 text-sm rounded-lg pl-9 pr-3 py-2 border border-n-5 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/50 transition w-full sm:w-56"
+        className="bg-n-6 text-n-1 text-sm rounded-lg pl-9 pr-3 py-2 border border-n-5 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/50 transition w-full sm:w-56"
       />
     </div>
   );
