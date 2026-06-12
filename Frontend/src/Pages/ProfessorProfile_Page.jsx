@@ -282,7 +282,29 @@ export default function ProfessorProfilePage() {
                       {r.subjects?.branch    && <span className="edus-badge-muted">{r.subjects.branch}</span>}
                       {r.subjects?.semester  && <span className="edus-badge-blue">Sem {r.subjects.semester}</span>}
                     </div>
-                    <p style={{ color: '#3F3A52', fontSize: '11px', margin: 0 }}>{formatDate(r.created_at)}</p>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: 'auto' }}>
+                      <p style={{ color: '#3F3A52', fontSize: '11px', margin: 0 }}>{formatDate(r.created_at)}</p>
+                      {(r.signedUrl || r.external_link || (r.aws_s3_key && r.aws_s3_key.startsWith('http') ? r.aws_s3_key : null)) && (
+                        <a
+                          href={r.signedUrl || r.external_link || r.aws_s3_key}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          title="Download"
+                          style={{
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            width: '32px', height: '32px', borderRadius: '8px',
+                            background: 'rgba(255,255,255,0.05)', color: '#CAC6DD',
+                            border: '1px solid rgba(255,255,255,0.1)', transition: 'all 0.2s',
+                          }}
+                          onMouseEnter={e => { e.currentTarget.style.color = '#38bdf8'; e.currentTarget.style.borderColor = 'rgba(56,189,248,0.3)'; e.currentTarget.style.background = 'rgba(56,189,248,0.1)'; }}
+                          onMouseLeave={e => { e.currentTarget.style.color = '#CAC6DD'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; }}
+                        >
+                          <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                          </svg>
+                        </a>
+                      )}
+                    </div>
                   </article>
                 ))}
               </div>
