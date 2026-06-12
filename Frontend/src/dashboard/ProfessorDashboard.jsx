@@ -13,6 +13,7 @@ import { GooeyLoader } from '../components/ui/loader-10';
 export default function ProfessorDashboard() {
   const { user } = useAuth();
   const [activeTab,  setActiveTab]  = useState('overview');
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const {
     analytics,
@@ -43,8 +44,37 @@ export default function ProfessorDashboard() {
         <p className="body-2 text-n-4">Manage your uploads and announcements</p>
       </header>
 
-      {/* ── Tab Navigation ── */}
-      <nav className="flex gap-1 mb-8 border-b border-n-6">
+      {/* ── Mobile Tab Navigation (Dropdown Switcher) ── */}
+      <div className="md:hidden relative mb-8 z-20">
+        <button 
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          className="w-full flex items-center justify-between px-5 py-3.5 bg-n-7 border border-n-6 rounded-xl font-medium text-n-1 shadow-sm"
+        >
+          <span className="capitalize text-cyan-400">Professor Dashboard ▼ {activeTab}</span>
+        </button>
+        
+        {isMobileMenuOpen && (
+          <div className="absolute top-full left-0 right-0 mt-2 bg-n-8/95 backdrop-blur-md border border-n-6 rounded-xl shadow-2xl overflow-hidden flex flex-col">
+            {tabs.map(t => (
+              <button
+                key={t}
+                onClick={() => {
+                  setActiveTab(t);
+                  setIsMobileMenuOpen(false);
+                }}
+                className={`flex items-center px-5 py-3.5 text-sm capitalize transition-colors border-b border-n-6/50 last:border-0
+                  ${activeTab === t ? 'bg-cyan-500/10 text-cyan-400 font-semibold' : 'text-n-3 hover:bg-n-7 hover:text-n-1'}`}
+              >
+                {activeTab === t && <span className="mr-2">✓</span>}
+                {t}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* ── Desktop Tab Navigation ── */}
+      <nav className="hidden md:flex gap-1 mb-8 border-b border-n-6">
         {tabs.map(t => (
           <button
             key={t}
