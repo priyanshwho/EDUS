@@ -79,7 +79,7 @@ const InteractiveMenu: React.FC<InteractiveMenuProps> = ({ items, accentColor, d
 
   return (
     <nav
-      className="menu"
+      className="flex w-full items-center justify-between px-2 py-3 bg-transparent"
       role="navigation"
       style={navStyle}
     >
@@ -93,20 +93,29 @@ const InteractiveMenu: React.FC<InteractiveMenuProps> = ({ items, accentColor, d
         return (
           <button
             key={item.label}
-            className={`menu__item ${isActive ? 'active' : ''}`}
+            className={`group relative flex items-center justify-center rounded-full transition-all duration-300 ease-out px-4 py-2 ${
+              isActive 
+                ? 'bg-cyan-500/15 text-cyan-400' 
+                : 'text-n-4 hover:bg-n-7/50 hover:text-n-1'
+            }`}
             onClick={() => handleItemClick(index)}
             ref={(el) => (itemRefs.current[index] = el)}
-            style={{ '--lineWidth': '0px' } as React.CSSProperties} 
           >
-            <div className="menu__icon">
-              <IconComponent className="icon" />
+            <div className="flex items-center justify-center z-10">
+              <IconComponent className={`w-6 h-6 transition-transform duration-300 ${isActive ? 'animate-[iconBounce_0.5s_ease-out]' : 'group-hover:scale-110'}`} />
             </div>
-            <strong
-              className={`menu__text ${isTextActive ? 'active' : ''}`}
+            
+            {/* The Text Label - Visible when active or on hover */}
+            <div 
+              className={`overflow-hidden transition-all duration-300 ease-in-out whitespace-nowrap font-medium text-sm flex items-center ${
+                isActive 
+                  ? 'opacity-100 ml-2 max-w-[100px]' 
+                  : 'opacity-0 max-w-0 ml-0 group-hover:opacity-100 group-hover:max-w-[100px] group-hover:ml-2'
+              }`}
               ref={(el) => (textRefs.current[index] = el)}
             >
               {item.label}
-            </strong>
+            </div>
           </button>
         );
       })}
