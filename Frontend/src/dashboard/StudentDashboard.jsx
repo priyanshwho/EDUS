@@ -7,6 +7,7 @@ import PreviewModal from '../components/previews/PreviewModal';
 import { resourceTypeLabel, formatDate, resourcePath, resourceShareUrl } from '../utils/format';
 import { isPreviewable } from '../utils/preview';
 import { useStudentDashboardStore } from '../stores/studentDashboard.store';
+import { GooeyLoader } from '../components/ui/loader-10';
 
 /**
  * StudentDashboard
@@ -163,7 +164,7 @@ export default function StudentDashboard() {
 
             {loading && (
               <div className="flex items-center justify-center h-48">
-                <div className="w-8 h-8 border-2 border-color-1 border-t-transparent rounded-full animate-spin" />
+                <GooeyLoader primaryColor="#AC6AFF" secondaryColor="#858DFF" borderColor="#252134" />
               </div>
             )}
             {error && <p className="text-red-400 mb-4">Error: {error}</p>}

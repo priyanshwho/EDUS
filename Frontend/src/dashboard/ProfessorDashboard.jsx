@@ -4,6 +4,7 @@ import { announcementService, subjectService } from '../services/index';
 import { useUpload } from '../hooks/useUpload';
 import { resourceService } from '../services/resource.service';
 import { useProfessorDashboardStore } from '../stores/professorDashboard.store';
+import { GooeyLoader } from '../components/ui/loader-10';
 
 /**
  * ProfessorDashboard
@@ -78,7 +79,7 @@ export default function ProfessorDashboard() {
 function AnalyticsOverview({ analytics, loading }) {
   if (loading || !analytics) return (
     <div className="flex justify-center py-12">
-      <div className="w-8 h-8 border-2 border-color-1 border-t-transparent rounded-full animate-spin"></div>
+      <GooeyLoader primaryColor="#AC6AFF" secondaryColor="#858DFF" borderColor="#252134" />
     </div>
   );
 
@@ -344,7 +345,11 @@ function AnnouncementsPanel({ subjects }) {
 // ── My Resources ───────────────────────────────────────────────────────────
 function MyResources({ resources, loading, onDeleteSuccess }) {
 
-  if (loading) return <p className="text-n-4">Loading…</p>;
+  if (loading) return (
+    <div className="flex justify-center py-12">
+      <GooeyLoader primaryColor="#AC6AFF" secondaryColor="#858DFF" borderColor="#252134" />
+    </div>
+  );
 
   return (
     <div>
