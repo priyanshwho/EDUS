@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { redirectByRole } from '../utils/redirectByRole';
+import { ParticleHero } from '../components/ui/particle-hero';
 
 function isSafeInternalRoute(path) {
   return typeof path === 'string' && path.startsWith('/') && !path.startsWith('/auth');
@@ -66,8 +67,8 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-n-8 px-4">
-      <div className="w-full max-w-md rounded-3xl border border-n-6 bg-n-7 p-8">
+    <ParticleHero>
+      <div className="relative z-10 w-full max-w-md rounded-3xl border border-n-6 bg-n-7 p-8 shadow-[0_0_40px_rgba(56,189,248,0.1)]">
         <h1 className="h4 text-center mb-8">Join EduSphere</h1>
 
         {error && (
@@ -103,6 +104,6 @@ export default function SignupPage() {
           </Link>
         </p>
       </div>
-    </div>
+    </ParticleHero>
   );
 }
