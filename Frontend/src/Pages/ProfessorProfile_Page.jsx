@@ -8,6 +8,7 @@ import {
   semesterLabel,
   slugifySegment,
 } from '../utils/format';
+import { getStaticResources } from '../utils/staticResources';
 import { GooeyLoader } from '../components/ui/loader-10';
 
 const RESOURCE_TYPE_COLORS = {
@@ -72,8 +73,39 @@ export default function ProfessorProfilePage() {
     try {
       const data = await professorService.getByUsername(decodedUsername, filters);
       setProfile(data.professor || null);
-      setSubjects(data.subjects || []);
-      setResources(data.resources || []);
+      
+      let fetchedSubjects = data.subjects || [];
+      let fetchedResources = data.resources || [];
+
+      if (decodedUsername === 'priyanshwho') {
+        let staticRes = getStaticResources();
+        if (filters.q) {
+          const query = filters.q.toLowerCase();
+          staticRes = staticRes.filter(r => 
+            r.title.toLowerCase().includes(query) || 
+            (r.description && r.description.toLowerCase().includes(query))
+          );
+        }
+        
+        fetchedResources = [...fetchedResources, ...staticRes].sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+
+        const existingSubjectNames = new Set(fetchedSubjects.map(s => s.name_full));
+        staticRes.forEach(r => {
+          if (r.subjects && !existingSubjectNames.has(r.subjects.name_full)) {
+            fetchedSubjects.push({
+              id: `static-subj-${r.subjects.name_full}`,
+              name_full: r.subjects.name_full,
+              acronym: r.subjects.name_full, // default to name_full if acronym missing
+              branch: r.subjects.branch,
+              semester: r.subjects.semester
+            });
+            existingSubjectNames.add(r.subjects.name_full);
+          }
+        });
+      }
+
+      setSubjects(fetchedSubjects);
+      setResources(fetchedResources);
     } catch (err) {
       setError(err.message || 'Failed to load professor profile');
     } finally {
