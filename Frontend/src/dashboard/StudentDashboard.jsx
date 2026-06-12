@@ -60,72 +60,93 @@ export default function StudentDashboard() {
   }
 
   return (
-    <section className="min-h-screen bg-n-8 text-n-1">
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <header className="mb-8">
-          <h1 className="h3">Welcome back, {user?.username} 👋</h1>
-          <p className="body-2 text-n-4 mt-1">Browse and access academic resources</p>
-          <div className="mt-3">
-            <Link
-              to="/professors"
-              className="inline-flex text-xs text-color-1 hover:underline"
-            >
-              Discover professor profiles →
-            </Link>
+    <section className="min-h-screen bg-n-8 text-n-1 relative">
+      {/* Decorative background glow */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-64 bg-color-1/10 blur-[120px] pointer-events-none rounded-full"></div>
+      
+      <div className="max-w-7xl mx-auto px-4 py-8 relative z-10">
+        <header className="mb-10 rounded-3xl border border-n-6 bg-n-7/40 backdrop-blur overflow-hidden shadow-2xl">
+          <div className="bg-gradient-to-r from-color-1/20 to-color-2/20 p-8 sm:p-12 relative overflow-hidden">
+            <div className="relative z-10">
+              <h1 className="text-4xl sm:text-5xl font-black bg-clip-text text-transparent bg-gradient-to-r from-n-1 to-n-3 mb-3 tracking-tight">
+                Welcome back, {user?.username} 👋
+              </h1>
+              <p className="text-lg text-n-3 mb-6 max-w-2xl font-medium">
+                Browse and access premium academic resources curated by top professors.
+              </p>
+              <Link
+                to="/professors"
+                className="inline-flex items-center text-sm font-semibold text-color-1 hover:text-color-2 hover:translate-x-1 transition-all"
+              >
+                Discover professor profiles <span className="ml-2">→</span>
+              </Link>
+            </div>
+            
+            {/* Background elements in banner */}
+            <div className="absolute top-[-50%] right-[-10%] w-96 h-96 bg-color-1/30 rounded-full blur-3xl pointer-events-none"></div>
+            <div className="absolute bottom-[-50%] right-[10%] w-80 h-80 bg-color-2/20 rounded-full blur-3xl pointer-events-none"></div>
           </div>
 
           {isStudent && (
-            <div className="mt-5 rounded-2xl border border-n-6 bg-n-7 p-4 max-w-xl">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div>
-                  <p className="text-sm font-semibold text-n-2">Profile Role: Student</p>
-                  <p className="text-xs text-n-4 mt-1">Want to publish notes and PYQs? Upgrade to Professor using your secure PIN.</p>
+            <div className="p-6 sm:p-8 bg-n-8/80 border-t border-n-6/50 flex flex-col md:flex-row items-center justify-between gap-6">
+              <div>
+                <div className="flex items-center gap-3 mb-2">
+                  <span className="px-3 py-1 text-xs font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded-full uppercase tracking-wider">
+                    Student Profile
+                  </span>
                 </div>
-                <button
-                  onClick={() => setShowUpgradeForm((prev) => !prev)}
-                  className="px-4 py-2 rounded-xl bg-color-1 text-n-8 text-sm font-semibold hover:bg-color-1/90 transition"
-                >
-                  {showUpgradeForm ? 'Cancel' : 'Become Professor'}
-                </button>
+                <p className="text-sm text-n-4">Want to publish your own notes and PYQs? Upgrade to Professor status using your secure institute PIN.</p>
               </div>
-
-              {showUpgradeForm && (
-                <form onSubmit={handleUpgradeSubmit} className="mt-4 flex flex-col sm:flex-row gap-2">
-                  <input
-                    type="password"
-                    inputMode="numeric"
-                    maxLength={10}
-                    value={upgradePin}
-                    onChange={(e) => setUpgradePin(e.target.value)}
-                    placeholder="Enter professor PIN"
-                    className="flex-1 rounded-lg border border-n-6 bg-n-8 px-3 py-2 text-sm focus:outline-none focus:border-color-1"
-                    required
-                  />
+              
+              <div className="w-full md:w-auto shrink-0">
+                {!showUpgradeForm ? (
                   <button
-                    type="submit"
-                    disabled={upgrading || upgradePin.length < 4}
-                    className="px-4 py-2 rounded-lg border border-color-1 text-color-1 text-sm font-medium hover:bg-color-1/10 disabled:opacity-50 transition"
+                    onClick={() => setShowUpgradeForm(true)}
+                    className="w-full md:w-auto px-6 py-3 rounded-xl bg-gradient-to-r from-color-1 to-color-2 text-n-8 text-sm font-bold shadow-[0_0_15px_rgba(172,106,255,0.4)] hover:shadow-[0_0_25px_rgba(172,106,255,0.6)] hover:-translate-y-0.5 transition-all"
                   >
-                    {upgrading ? 'Upgrading…' : 'Verify & Upgrade'}
+                    Become Professor
                   </button>
-                </form>
-              )}
-
-              {upgradeError && (
-                <p className="mt-2 text-xs text-red-400">{upgradeError}</p>
-              )}
+                ) : (
+                  <div className="bg-n-7 p-4 rounded-2xl border border-color-1/30 relative">
+                    <button onClick={() => setShowUpgradeForm(false)} className="absolute top-2 right-2 text-n-4 hover:text-n-1 p-1">✕</button>
+                    <p className="text-xs font-semibold text-color-1 mb-3">Enter Professor PIN</p>
+                    <form onSubmit={handleUpgradeSubmit} className="flex flex-col sm:flex-row gap-3">
+                      <input
+                        type="password"
+                        inputMode="numeric"
+                        maxLength={10}
+                        value={upgradePin}
+                        onChange={(e) => setUpgradePin(e.target.value)}
+                        placeholder="••••"
+                        className="w-full sm:w-40 rounded-xl border border-n-6 bg-n-8 px-4 py-2.5 text-center tracking-widest font-mono text-lg focus:outline-none focus:border-color-1 focus:ring-1 focus:ring-color-1 transition"
+                        required
+                      />
+                      <button
+                        type="submit"
+                        disabled={upgrading || upgradePin.length < 4}
+                        className="w-full sm:w-auto px-6 py-2.5 rounded-xl border border-color-1 bg-color-1/10 text-color-1 text-sm font-bold hover:bg-color-1/20 disabled:opacity-50 transition"
+                      >
+                        {upgrading ? 'Verifying…' : 'Upgrade'}
+                      </button>
+                    </form>
+                    {upgradeError && <p className="mt-2 text-xs text-red-400 font-medium">{upgradeError}</p>}
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </header>
 
-        <div className="flex gap-6">
+        <div className="flex flex-col lg:flex-row gap-8">
           {/* Sidebar filter */}
-          <div className="hidden lg:block w-64 flex-shrink-0">
-            <ResourceFilterPanel
-              filters={filters}
-              onChange={handleFilterChange}
-              onClear={handleClear}
-            />
+          <div className="hidden lg:block w-72 flex-shrink-0">
+            <div className="sticky top-24">
+              <ResourceFilterPanel
+                filters={filters}
+                onChange={handleFilterChange}
+                onClear={handleClear}
+              />
+            </div>
           </div>
 
           {/* Main content */}
@@ -205,81 +226,109 @@ function ResourceCard({ resource: r, onPreview }) {
   const colorClass = typeColors[r.resource_type] || 'bg-n-6 text-n-3';
 
   return (
-    <div className="rounded-2xl border border-n-6 bg-n-7 p-5 flex flex-col gap-3 hover:border-color-1 transition group">
-      <div className="flex items-center justify-between gap-2">
-        <span className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium ${colorClass}`}>
+    <div className="group relative rounded-3xl border border-n-6 bg-n-7/30 backdrop-blur p-6 flex flex-col gap-4 hover:-translate-y-1.5 hover:shadow-2xl hover:border-color-1/50 transition-all duration-300 overflow-hidden">
+      {/* Subtle background glow on hover */}
+      <div className="absolute inset-0 bg-gradient-to-br from-color-1/0 to-color-1/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+
+      <div className="relative z-10 flex items-center justify-between gap-2">
+        <span className={`inline-flex px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border ${colorClass}`}>
           {resourceTypeLabel(r.resource_type)}
         </span>
-        <div className="flex items-center gap-1 text-xs text-n-5">
-          {r.pyq_type && <span className="px-1.5 py-0.5 bg-n-6 rounded">{r.pyq_type}</span>}
-          {r.year     && <span className="px-1.5 py-0.5 bg-n-6 rounded">{r.year}</span>}
+        <div className="flex items-center gap-2 text-xs font-mono font-medium">
+          {r.pyq_type && <span className="px-2 py-1 bg-n-8/80 border border-n-6 text-n-3 rounded-md">{r.pyq_type}</span>}
+          {r.year     && <span className="px-2 py-1 bg-n-8/80 border border-n-6 text-n-3 rounded-md">{r.year}</span>}
         </div>
       </div>
 
-      <Link to={resourcePath(r, r.slug)} className="group/title">
-        <h3 className="font-semibold text-n-1 leading-snug group-hover/title:text-color-1 transition line-clamp-2">
+      <Link to={resourcePath(r, r.slug)} className="relative z-10 mt-1 block">
+        <h3 className="text-lg font-bold text-n-1 leading-tight group-hover:text-color-1 transition-colors line-clamp-2">
           {r.title}
         </h3>
       </Link>
 
       {r.description && (
-        <p className="text-sm text-n-4 line-clamp-2">{r.description}</p>
+        <p className="relative z-10 text-sm text-n-4 line-clamp-2">{r.description}</p>
       )}
 
       {r.subjects && (
-        <p className="text-xs text-n-5">
-          {r.subjects.name_full || r.subjects.acronym} · Sem {r.subjects.semester} · {r.subjects.branch}
-        </p>
+        <div className="relative z-10 flex items-center gap-2 mt-2">
+          <span className="px-2.5 py-1 rounded-full bg-n-6/50 text-n-2 text-xs font-medium border border-n-5">
+            {r.subjects.branch} · Sem {r.subjects.semester}
+          </span>
+          <span className="text-xs text-n-5 font-mono truncate">
+            {r.subjects.acronym}
+          </span>
+        </div>
       )}
 
-      {r.uploader?.username && (
-        <Link
-          to={`/professors/${encodeURIComponent(r.uploader.username)}`}
-          className="text-xs text-color-2 hover:underline"
-        >
-          By {r.uploader.name || r.uploader.username}
-        </Link>
-      )}
+      <div className="relative z-10 mt-auto pt-5 border-t border-n-6/50 flex flex-col gap-3">
+        <div className="flex items-center justify-between">
+          {r.uploader?.username && (
+            <Link
+              to={`/professors/${encodeURIComponent(r.uploader.username)}`}
+              className="text-xs font-medium text-color-2 hover:text-color-1 hover:underline transition-colors flex items-center gap-1.5"
+            >
+              <div className="w-5 h-5 rounded-full bg-color-2/20 border border-color-2 flex items-center justify-center text-[10px] text-color-2">
+                {r.uploader.name?.[0] || r.uploader.username[0]}
+              </div>
+              {r.uploader.name || r.uploader.username}
+            </Link>
+          )}
+          <span className="text-[11px] text-n-5 uppercase tracking-wider font-medium">{formatDate(r.created_at)}</span>
+        </div>
 
-      <p className="text-xs text-n-6">{formatDate(r.created_at)}</p>
-
-      <div className="flex items-center gap-2 mt-auto pt-3 border-t border-n-6">
-        {isPreviewable(r) && (
+        <div className="flex items-center gap-2 mt-1">
+          {isPreviewable(r) && (
+            <button
+              onClick={onPreview}
+              className="flex-1 py-2 rounded-xl bg-color-1/10 text-color-1 text-sm font-bold border border-color-1/20 hover:bg-color-1 hover:text-n-8 transition-all"
+            >
+              Preview
+            </button>
+          )}
+          {(r.signedUrl || r.external_link) && (
+            <a
+              href={r.signedUrl || r.external_link}
+              download={!!r.signedUrl}
+              target={r.signedUrl ? '_self' : '_blank'}
+              rel="noopener noreferrer"
+              className="flex items-center justify-center w-10 h-10 rounded-xl bg-n-8 border border-n-6 text-n-3 hover:border-color-1 hover:text-color-1 hover:shadow-[0_0_10px_rgba(172,106,255,0.2)] transition-all"
+              title="Download"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+            </a>
+          )}
           <button
-            onClick={onPreview}
-            className="flex-1 py-1.5 rounded-lg bg-color-1 text-n-8 text-sm font-medium hover:opacity-80 transition"
+            onClick={handleCopy}
+            className="flex items-center justify-center w-10 h-10 rounded-xl bg-n-8 border border-n-6 text-n-3 hover:border-color-1 hover:text-color-1 hover:shadow-[0_0_10px_rgba(172,106,255,0.2)] transition-all"
+            title="Copy link"
           >
-            Preview
+            {copied ? (
+               <svg className="w-4 h-4 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+               </svg>
+            ) : (
+               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+               </svg>
+            )}
           </button>
-        )}
-        {(r.signedUrl || r.external_link) && (
-          <a
-            href={r.signedUrl || r.external_link}
-            download={!!r.signedUrl}
-            target={r.signedUrl ? '_self' : '_blank'}
-            rel="noopener noreferrer"
-            className="px-3 py-1.5 rounded-lg border border-n-6 text-sm text-n-3 hover:border-color-1 hover:text-n-1 transition"
-            title="Download"
+          <button
+            onClick={handleSave}
+            className={`flex items-center justify-center w-10 h-10 rounded-xl bg-n-8 border transition-all ${
+              saved 
+                ? 'border-yellow-500/50 text-yellow-500 bg-yellow-500/10 shadow-[0_0_10px_rgba(234,179,8,0.2)]' 
+                : 'border-n-6 text-n-3 hover:border-yellow-500/50 hover:text-yellow-500'
+            }`}
+            title={saved ? 'Unsave' : 'Save'}
           >
-            ↓
-          </a>
-        )}
-        <button
-          onClick={handleCopy}
-          className="px-3 py-1.5 rounded-lg border border-n-6 text-sm text-n-3 hover:border-color-1 transition"
-          title="Copy link"
-        >
-          {copied ? '✓' : '⎘'}
-        </button>
-        <button
-          onClick={handleSave}
-          className={`px-3 py-1.5 rounded-lg border text-sm transition ${
-            saved ? 'border-color-1 text-color-1' : 'border-n-6 text-n-3 hover:border-color-1'
-          }`}
-          title={saved ? 'Unsave' : 'Save'}
-        >
-          {saved ? '★' : '☆'}
-        </button>
+            <svg className="w-4 h-4" fill={saved ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+            </svg>
+          </button>
+        </div>
       </div>
     </div>
   );
