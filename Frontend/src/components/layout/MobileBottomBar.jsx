@@ -21,7 +21,7 @@ const MobileBottomBar = () => {
       if (item.path === '/') return location.pathname === '/';
       return location.pathname.startsWith(item.path);
     });
-    return index !== -1 ? index : 0;
+    return index;
   }, [location.pathname, items]);
 
   const handleSelect = (item) => {

@@ -14,7 +14,7 @@ export default function AdminDashboard() {
   const tabs = ['analytics', 'users', 'subjects', 'resources'];
 
   return (
-    <section className="min-h-screen bg-gradient-to-br from-[#0b1021] via-[#0E0C15] to-[#1a1025] text-n-1 p-6 relative overflow-hidden">
+    <section className="min-h-screen bg-gradient-to-br from-[#0b1021] via-[#0E0C15] to-[#1a1025] text-n-1 p-6 relative">
       <DashboardBackground />
       <div className="relative z-10">
         <header className="mb-8">
