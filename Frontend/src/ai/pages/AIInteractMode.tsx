@@ -71,7 +71,7 @@ const TranscriptPanel = ({ messages, streamingText }: { messages: Message[]; str
 };
 
 const ModeSelector = ({ chapterTitle, onSelect }: { chapterTitle?: string; onSelect: (m: AIMode) => void }) => (
-  <div className="min-h-screen flex flex-col items-center justify-center bg-[#0E0C15] p-8 text-center pb-20">
+  <div className="min-h-screen flex flex-col items-center justify-center bg-[#0E0C15] p-8 text-center pb-36 md:pb-20">
     <div className="w-16 h-16 rounded-2xl flex items-center justify-center edus-gradient-bg mb-6">
       <Mic size={28} className="text-white" />
     </div>
@@ -95,6 +95,7 @@ const ModeSelector = ({ chapterTitle, onSelect }: { chapterTitle?: string; onSel
         <p className="text-sm text-slate-400">Ask anything about the chapter at your own pace.</p>
       </button>
     </div>
+    <BottomNavBar />
   </div>
 );
 
