@@ -179,6 +179,13 @@ router.patch('/:id/role', authenticate, requireAdmin, invalidateAllCache(), asyn
     if (!['student', 'professor', 'admin'].includes(role))
       return res.status(400).json({ error: 'Invalid role' });
 
+    const targetUser = await sql`select email from users where id = ${req.params.id}`;
+    if (targetUser.length === 0) return res.status(404).json({ error: 'User not found' });
+    
+    if (targetUser[0].email === process.env.ADMIN_EMAIL) {
+      return res.status(403).json({ error: 'Cannot modify super admin role' });
+    }
+
     const rows = await sql`
       update users
       set role = ${role}
@@ -186,7 +193,6 @@ router.patch('/:id/role', authenticate, requireAdmin, invalidateAllCache(), asyn
       returning id, username, email, role
     `;
     const user = rows[0] || null;
-    if (!user) return res.status(404).json({ error: 'User not found' });
 
     return res.json({ user });
   } catch (err) { next(err); }
@@ -195,12 +201,18 @@ router.patch('/:id/role', authenticate, requireAdmin, invalidateAllCache(), asyn
 // Admin: delete user
 router.delete('/:id', authenticate, requireAdmin, invalidateAllCache(), async (req, res, next) => {
   try {
+    const targetUser = await sql`select email from users where id = ${req.params.id}`;
+    if (targetUser.length === 0) return res.status(404).json({ error: 'User not found' });
+    
+    if (targetUser[0].email === process.env.ADMIN_EMAIL) {
+      return res.status(403).json({ error: 'Cannot delete super admin' });
+    }
+
     const rows = await sql`
       delete from users
       where id = ${req.params.id}
       returning id
     `;
-    if (rows.length === 0) return res.status(404).json({ error: 'User not found' });
 
     return res.json({ message: 'User deleted' });
   } catch (err) { next(err); }
