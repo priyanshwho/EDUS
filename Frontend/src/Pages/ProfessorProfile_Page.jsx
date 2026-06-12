@@ -8,6 +8,7 @@ import {
   semesterLabel,
   slugifySegment,
 } from '../utils/format';
+import { GooeyLoader } from '../components/ui/loader-10';
 
 const RESOURCE_TYPE_COLORS = {
   notes:      { badge: 'edus-badge-blue',   dot: '#38bdf8' },
@@ -47,12 +48,7 @@ function LoadingState() {
   return (
     <div style={{ minHeight: '100vh', background: '#0E0C15', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <div style={{ textAlign: 'center' }}>
-        <div style={{
-          width: 48, height: 48, borderRadius: '50%', margin: '0 auto 16px',
-          border: '3px solid rgba(56,189,248,0.15)', borderTopColor: '#38bdf8',
-          animation: 'edus-spin 0.8s linear infinite',
-        }}/>
-        <p style={{ color: '#757185', fontSize: '14px' }}>Loading profile…</p>
+        <GooeyLoader primaryColor="#38bdf8" secondaryColor="#a78bfa" borderColor="#252134" />
       </div>
     </div>
   );

@@ -11,6 +11,7 @@ import {
   resourceShareUrl,
 } from '../utils/format';
 import { isPreviewable } from '../utils/preview';
+import { GooeyLoader } from '../components/ui/loader-10';
 
 const TYPE_COLORS = {
   notes:      'bg-blue-500/20 text-blue-300',
@@ -69,7 +70,7 @@ export default function ResourcePage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-n-8 flex items-center justify-center">
-        <div className="w-10 h-10 border-2 border-color-1 border-t-transparent rounded-full animate-spin" />
+        <GooeyLoader primaryColor="#AC6AFF" secondaryColor="#858DFF" borderColor="#252134" />
       </div>
     );
   }

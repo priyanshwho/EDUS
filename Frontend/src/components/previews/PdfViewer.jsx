@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { GooeyLoader } from '../ui/loader-10';
 
 /**
  * Inline PDF viewer using PDF.js.
@@ -95,8 +96,8 @@ export default function PdfViewer({ url }) {
     return (
       <div className="flex items-center justify-center h-64 bg-n-7 rounded-xl">
         <div className="flex flex-col items-center gap-3 text-n-3">
-          <div className="w-8 h-8 border-2 border-color-1 border-t-transparent rounded-full animate-spin" />
-          <span className="text-sm">Loading PDF…</span>
+          <GooeyLoader primaryColor="#AC6AFF" secondaryColor="#858DFF" borderColor="#252134" />
+          <span className="text-sm mt-4">Loading PDF…</span>
         </div>
       </div>
     );

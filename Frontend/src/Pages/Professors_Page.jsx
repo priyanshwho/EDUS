@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { professorService } from '../services';
+import { GooeyLoader } from '../components/ui/loader-10';
 
 /* ─── Avatar initials ──────────────────────────────────────── */
 function Avatar({ name, size = 48 }) {
@@ -189,12 +190,7 @@ export default function ProfessorsPage() {
         {/* Loading */}
         {loading && (
           <div style={{ display: 'flex', justifyContent: 'center', padding: '64px' }}>
-            <div style={{
-              width: 40, height: 40, borderRadius: '50%',
-              border: '3px solid rgba(56,189,248,0.15)',
-              borderTopColor: '#38bdf8',
-              animation: 'edus-spin 0.8s linear infinite',
-            }}/>
+            <GooeyLoader primaryColor="#38bdf8" secondaryColor="#a78bfa" borderColor="#252134" />
           </div>
         )}
 
