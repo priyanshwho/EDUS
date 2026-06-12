@@ -33,51 +33,61 @@ const SubjectDetail = () => {
   };
 
   if (error) return (
-    <div className="p-12 text-center text-red-400">
-      <p className="text-2xl font-bold mb-2">Error</p>
-      <p>{error}</p>
-      <button onClick={() => navigate('/ai')} className="mt-6 px-6 py-3 glass rounded-xl">Back Home</button>
+    <div className="min-h-screen flex flex-col items-center justify-center p-12 text-center bg-[#0E0C15]">
+      <p className="text-xl font-bold text-white mb-2">Something went wrong</p>
+      <p className="mb-8 text-sm text-slate-400">{error}</p>
+      <button onClick={() => navigate('/ai')} className="edus-btn-ghost">← Back Home</button>
     </div>
   );
-  if (!data) return <div className="p-12 text-center text-text-muted">Loading {subjectName}...</div>;
+
+  if (!data) return (
+    <div className="min-h-screen flex items-center justify-center bg-[#0E0C15]">
+      <div className="text-center">
+        <p className="font-semibold text-white mb-1">Loading {subjectName}</p>
+        <p className="text-sm text-slate-400">Fetching syllabus data…</p>
+      </div>
+    </div>
+  );
+
+  const SECTION_CONFIG = [
+    { id: 'A', title: 'Section A', icon: <BookOpen size={24} />, desc: 'Focus on the first half of the syllabus' },
+    { id: 'B', title: 'Section B', icon: <Sparkles size={24} />, desc: 'Focus on the second half of the syllabus' },
+    { id: 'BOTH', title: 'Full Syllabus', icon: <Layout size={24} />, desc: 'Study everything comprehensively' },
+  ];
 
   return (
-    <div className="min-h-screen bg-background text-text p-8 max-w-6xl mx-auto">
-      <button
-        onClick={() => navigate('/ai')}
-        className="flex items-center gap-2 text-text-muted hover:text-text transition-colors mb-12"
-      >
-        <ChevronLeft size={20} /> Back to Dashboard
-      </button>
+    <div className="min-h-screen bg-[#0E0C15] p-6 md:p-10 text-slate-200">
+      <div className="max-w-5xl mx-auto">
+        <button
+          onClick={() => navigate('/ai')}
+          className="flex items-center gap-2 text-sm font-medium mb-10 text-slate-400 hover:text-sky-400 transition-colors"
+        >
+          <ChevronLeft size={18} /> Back to Dashboard
+        </button>
 
-      <div className="mb-16">
-        <h1 className="text-6xl font-black mb-4 uppercase tracking-tighter">{data.subjectName}</h1>
-        <div className="flex items-center gap-4">
-          <span className="px-4 py-1.5 bg-primary/20 text-primary rounded-full font-bold text-sm">{branch}</span>
-          <span className="px-4 py-1.5 bg-secondary/20 text-secondary rounded-full font-bold text-sm uppercase">{semester?.replace('_', ' ')}</span>
+        <div className="mb-12">
+          <h1 className="text-3xl md:text-4xl font-bold edus-gradient-text mb-4 leading-tight">{data.subjectName}</h1>
+          <div className="flex items-center gap-3">
+            <span className="edus-badge-gradient">{branch}</span>
+            <span className="edus-badge-muted uppercase">{semester?.replace('_', ' ')}</span>
+          </div>
         </div>
-      </div>
 
-      <h2 className="text-2xl font-bold mb-8">How would you like to start?</h2>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        {[
-          { id: 'A', title: 'Section A', icon: <BookOpen />, desc: 'Focus on first half of the syllabus' },
-          { id: 'B', title: 'Section B', icon: <Sparkles />, desc: 'Focus on second half of the syllabus' },
-          { id: 'BOTH', title: 'Full Syllabus', icon: <Layout />, desc: 'Study everything comprehensively' }
-        ].map((item) => (
-          <button
-            key={item.id}
-            onClick={() => selectSection(item.id)}
-            className="glass p-10 rounded-3xl text-left group hover:bg-primary/10 transition-all duration-300 hover:-translate-y-2 border border-white/5"
-          >
-            <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center text-primary group-hover:scale-110 transition-transform mb-6">
-              {item.icon}
-            </div>
-            <h3 className="text-2xl font-black mb-3">{item.title}</h3>
-            <p className="text-text-muted text-lg leading-relaxed">{item.desc}</p>
-          </button>
-        ))}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          {SECTION_CONFIG.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => selectSection(item.id)}
+              className="edus-card p-6 text-left hover:edus-gradient-border-active transition-colors group"
+            >
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center edus-gradient-bg text-white mb-5">
+                {item.icon}
+              </div>
+              <h3 className="text-lg font-bold text-white mb-2">{item.title}</h3>
+              <p className="text-sm text-slate-400">{item.desc}</p>
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );
