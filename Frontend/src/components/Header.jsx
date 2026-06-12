@@ -10,6 +10,7 @@ import MenuSvg from "../assets/svg/MenuSvg";
 import { HamburgerMenu } from "./design/Header";
 import { useAuth } from "../context/AuthContext";
 import ProfileDropdown from "./ProfileDropdown";
+import { User, LogOut, KeyRound, LayoutDashboard } from "lucide-react";
 
 
 const Header = () => {
@@ -97,65 +98,13 @@ const Header = () => {
                     href="/"
                 >
                     <img src={eduIcon} width={40} height={40} alt="Edusphere" />
-                    <span className="text-2xl font-bold text-n-1">EduSphere</span>
+                    <span className="text-2xl font-bold text-n-1 hidden sm:inline-block">EduSphere</span>
                 </a>
 
-                {/* ── Nav links (desktop + mobile overlay) ────────────── */}
-                <nav
-                    className={`${
-                        openNavigation ? 'flex' : 'hidden'
-                    } fixed top-[5rem] left-0 right-0 bottom-0 bg-n-8 lg:static lg:flex lg:mx-auto lg:bg-transparent`}
-                >
-                    <div className="relative z-2 flex flex-col items-center justify-center m-auto lg:flex-row w-full">
+                {/* ── Nav links (desktop ONLY now, mobile uses BottomBar) ────────────── */}
+                <nav className="hidden lg:flex lg:mx-auto lg:bg-transparent relative z-2 items-center justify-center m-auto w-full">
 
-                        {/* ── Mobile: profile block at top of menu ─────── */}
-                        {isAuthenticated && (
-                            <div className="w-full border-b border-n-6 mb-2 lg:hidden">
-                                {/* Avatar row — tap to toggle */}
-                                <button
-                                    onClick={() => setMobileProfileOpen((prev) => !prev)}
-                                    className="flex items-center gap-3 w-full px-6 py-5 text-left"
-                                >
-                                    {/* Gradient initials avatar */}
-                                    <div
-                                        className="w-10 h-10 rounded-full bg-gradient-to-br from-color-1 to-color-2
-                                                   flex items-center justify-center font-bold text-white text-sm shrink-0"
-                                    >
-                                        {avatarLetter}
-                                    </div>
-                                    <div>
-                                        <p className="text-n-1 font-semibold text-sm">
-                                            {user?.name || user?.username || 'Unknown User'}
-                                        </p>
-                                        <p className="text-n-3 text-xs capitalize">
-                                            {user?.role || 'user'}
-                                        </p>
-                                    </div>
-                                    <ChevronDown
-                                        size={16}
-                                        className={`ml-auto text-n-3 transition-transform duration-200 ${
-                                            mobileProfileOpen ? 'rotate-180' : ''
-                                        }`}
-                                    />
-                                </button>
 
-                                {/* Inline dropdown content (mobile) */}
-                                {mobileProfileOpen && (
-                                    <ProfileDropdown
-                                        user={user}
-                                        isStudent={isStudent}
-                                        upgradeToProfessor={upgradeToProfessor}
-                                        logout={logout}
-                                        onClose={() => {
-                                            setMobileProfileOpen(false);
-                                            enablePageScroll();
-                                            setOpenNavigation(false);
-                                        }}
-                                        mobile
-                                    />
-                                )}
-                            </div>
-                        )}
 
                         {/* ── Nav link items ───────────────────────────── */}
                         {navigation.map((item) => {
@@ -199,9 +148,7 @@ const Header = () => {
                                             handleClick(e, item.url);
                                         }
                                     }}
-                                    className={`block relative font-code text-2xl uppercase text-n-1 transition-colors hover:text-color-1 ${
-                                        item.onlyMobile ? 'lg:hidden' : ''
-                                    } px-6 py-6 md:py-8 lg:mr-0.25 lg:text-xs lg:font-semibold ${
+                                    className={`block relative font-code text-2xl uppercase text-n-1 transition-colors hover:text-cyan-400 px-6 py-6 md:py-8 lg:mr-0.25 lg:text-xs lg:font-semibold ${
                                         item.url === pathname.pathname ? 'z-2 lg:text-n-1' : 'lg:text-n-1/50'
                                     } lg:leading-5 lg:hover:text-n-1 xl:px-12`}
                                 >
@@ -209,9 +156,6 @@ const Header = () => {
                                 </a>
                             );
                         })}
-                    </div>
-
-                    <HamburgerMenu />
                 </nav>
 
                 {/* ── Desktop right section ────────────────────────── */}
@@ -254,11 +198,58 @@ const Header = () => {
                     )}
                 </div>
 
-                {/* ── Hamburger button (mobile only) ───────────────── */}
-                <Button className="ml-auto lg:hidden" px="px-3" onClick={toggleNavigation}>
-                    <MenuSvg openNavigation={openNavigation} />
-                </Button>
-
+                {/* ── Mobile right section ───────────────────────────── */}
+                <div className="flex lg:hidden items-center ml-auto gap-2">
+                    {isAuthenticated ? (
+                        <>
+                            <button className="p-2 -mr-2" onClick={toggleNavigation}>
+                                <MenuSvg openNavigation={openNavigation} />
+                            </button>
+                            {openNavigation && (
+                                <div className="absolute top-full left-0 right-0 bg-n-8/95 backdrop-blur-md border-b border-n-6 flex flex-col p-6 shadow-2xl animate-fade-in z-50">
+                                    <div className="flex flex-col items-center justify-center gap-2 mb-6 pt-4">
+                                        <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center text-xl font-bold text-white shadow-lg shadow-cyan-500/20">
+                                            {avatarLetter}
+                                        </div>
+                                        <p className="text-n-1 font-bold text-lg mt-2">{user?.name || user?.username || 'Unknown User'}</p>
+                                        <span className="px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-mono font-medium uppercase tracking-wider">
+                                            {user?.role || 'user'}
+                                        </span>
+                                    </div>
+                                    <div className="flex flex-col gap-3">
+                                        <button 
+                                            onClick={() => { setOpenNavigation(false); navigate(`/dashboard/${user?.role || 'student'}`); }}
+                                            className="flex items-center gap-3 w-full py-3 px-4 rounded-xl bg-n-7 hover:bg-n-6 transition-colors text-n-1 font-medium"
+                                        >
+                                            <LayoutDashboard size={20} className="text-cyan-400" />
+                                            Dashboard
+                                        </button>
+                                        {(isStudent && user?.role !== 'professor') && (
+                                            <button 
+                                                onClick={() => { setOpenNavigation(false); navigate('/auth/pin'); }}
+                                                className="flex items-center gap-3 w-full py-3 px-4 rounded-xl bg-n-7 hover:bg-n-6 transition-colors text-n-1 font-medium"
+                                            >
+                                                <KeyRound size={20} className="text-emerald-400" />
+                                                Professor PIN
+                                            </button>
+                                        )}
+                                        <button 
+                                            onClick={() => { setOpenNavigation(false); logout(); navigate('/'); }}
+                                            className="flex items-center gap-3 w-full py-3 px-4 rounded-xl bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 transition-colors text-red-400 font-medium mt-2"
+                                        >
+                                            <LogOut size={20} />
+                                            Sign Out
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                        </>
+                    ) : (
+                        <Button className="ml-auto" px="px-4" onClick={() => navigate('/login')}>
+                            Get Started
+                        </Button>
+                    )}
+                </div>
             </div>
         </div>
     );
