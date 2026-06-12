@@ -41,12 +41,12 @@ const BottomNavBar = () => {
   };
 
   return (
-    <div className="fixed bottom-28 right-6 z-[100] flex flex-col items-end" ref={menuRef}>
+    <div className="fixed bottom-28 right-6 z-[100]" ref={menuRef}>
       {/* Dropdown Menu */}
       <div 
         className={clsx(
-          "mb-4 flex flex-col gap-2 bg-[#15131D]/95 backdrop-blur-xl border border-[#252134] rounded-2xl p-2 shadow-2xl transition-all duration-300 origin-bottom-right",
-          isOpen ? "scale-100 opacity-100 visible" : "scale-50 opacity-0 invisible"
+          "absolute bottom-[72px] right-0 flex flex-col gap-2 bg-[#15131D]/95 backdrop-blur-xl border border-[#252134] rounded-2xl p-2 shadow-2xl transition-all duration-300 origin-bottom-right",
+          isOpen ? "scale-100 opacity-100 visible pointer-events-auto" : "scale-50 opacity-0 invisible pointer-events-none"
         )}
       >
         {MODES.map((mode) => {
