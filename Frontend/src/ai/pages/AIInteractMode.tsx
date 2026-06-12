@@ -205,7 +205,7 @@ const AIInteractMode = () => {
   if (!mode) return <ModeSelector chapterTitle={chapter?.title} onSelect={setMode} />;
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#0E0C15] pb-16">
+    <div className="min-h-screen flex flex-col bg-[#0E0C15] pb-36 md:pb-16">
       <header className="flex items-center justify-between px-5 py-4 border-b border-[#252134] bg-[#0E0C15]">
         <button
           onClick={() => {
