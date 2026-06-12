@@ -25,6 +25,12 @@ body{
   -moz-osx-font-smoothing: grayscale;
 }
 
+@layer base {
+  body {
+    @apply font-sans bg-n-8 text-n-1 text-base;
+  }
+}
+
 * {
   scroll-behavior: smooth;
   user-select: none;
@@ -113,12 +119,7 @@ body{
   @apply rotate-[-360deg];
 }
 
-html, #root {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-  width: 100%;
-}
+
 
 /* MERC AI utilities */
 .glass {
