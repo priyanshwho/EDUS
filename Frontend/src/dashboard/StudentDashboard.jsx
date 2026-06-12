@@ -63,11 +63,11 @@ export default function StudentDashboard() {
     <section className="min-h-screen bg-gradient-to-br from-[#0b1021] via-[#0E0C15] to-[#1a1025] text-n-1 relative">
       <DashboardBackground />
       {/* Decorative background glow */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-64 bg-sky-400/10 blur-[120px] pointer-events-none rounded-full"></div>
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-64 bg-blue-500/10 blur-[120px] pointer-events-none rounded-full"></div>
       
       <div className="max-w-7xl mx-auto px-4 py-8 relative z-10">
         <header className="mb-10 rounded-3xl border border-n-6 bg-n-7/40 backdrop-blur overflow-hidden shadow-2xl">
-          <div className="bg-gradient-to-r from-sky-500/10 via-sky-400/10 to-violet-400/10 p-8 sm:p-12 relative overflow-hidden">
+          <div className="bg-gradient-to-r from-blue-600/10 via-blue-500/10 to-purple-500/10 p-8 sm:p-12 relative overflow-hidden">
             <div className="relative z-10">
               <h1 className="text-4xl sm:text-5xl font-black bg-clip-text text-transparent bg-gradient-to-r from-n-1 to-n-3 mb-3 tracking-tight">
                 Welcome back, {user?.username} 👋
@@ -77,22 +77,22 @@ export default function StudentDashboard() {
               </p>
               <Link
                 to="/professors"
-                className="inline-flex items-center text-sm font-semibold text-sky-400 hover:text-sky-300 hover:translate-x-1 transition-all"
+                className="inline-flex items-center text-sm font-semibold text-blue-500 hover:text-blue-400 hover:translate-x-1 transition-all"
               >
                 Discover professor profiles <span className="ml-2">→</span>
               </Link>
             </div>
             
             {/* Background elements in banner */}
-            <div className="absolute top-[-50%] right-[-10%] w-96 h-96 bg-sky-400/20 rounded-full blur-3xl pointer-events-none"></div>
-            <div className="absolute bottom-[-50%] right-[10%] w-80 h-80 bg-violet-400/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div className="absolute top-[-50%] right-[-10%] w-96 h-96 bg-blue-500/20 rounded-full blur-3xl pointer-events-none"></div>
+            <div className="absolute bottom-[-50%] right-[10%] w-80 h-80 bg-purple-500/10 rounded-full blur-3xl pointer-events-none"></div>
           </div>
 
           {isStudent && (
             <div className="p-6 sm:p-8 bg-n-8/80 border-t border-n-6/50 flex flex-col md:flex-row items-center justify-between gap-6">
               <div>
                 <div className="flex items-center gap-3 mb-2">
-                  <span className="px-3 py-1 text-xs font-bold bg-sky-500/10 text-sky-400 border border-sky-500/20 rounded-full uppercase tracking-wider">
+                  <span className="px-3 py-1 text-xs font-bold bg-blue-600/10 text-blue-500 border border-blue-600/20 rounded-full uppercase tracking-wider">
                     Student Profile
                   </span>
                 </div>
@@ -103,14 +103,14 @@ export default function StudentDashboard() {
                 {!showUpgradeForm ? (
                   <button
                     onClick={() => setShowUpgradeForm(true)}
-                    className="w-full md:w-auto px-6 py-3 rounded-xl bg-gradient-to-r from-sky-500 via-sky-400 to-violet-400 text-white text-sm font-bold shadow-[0_0_15px_rgba(56,189,248,0.4)] hover:shadow-[0_0_25px_rgba(56,189,248,0.6)] hover:-translate-y-0.5 transition-all"
+                    className="w-full md:w-auto px-6 py-3 rounded-xl bg-gradient-to-r from-blue-600 via-blue-500 to-purple-500 text-white text-sm font-bold shadow-[0_0_15px_rgba(59,130,246,0.4)] hover:shadow-[0_0_25px_rgba(59,130,246,0.6)] hover:-translate-y-0.5 transition-all"
                   >
                     Become Professor
                   </button>
                 ) : (
-                  <div className="bg-n-7 p-4 rounded-2xl border border-sky-400/30 relative">
+                  <div className="bg-n-7 p-4 rounded-2xl border border-blue-500/30 relative">
                     <button onClick={() => setShowUpgradeForm(false)} className="absolute top-2 right-2 text-n-4 hover:text-n-1 p-1">✕</button>
-                    <p className="text-xs font-semibold text-sky-400 mb-3">Enter Professor PIN</p>
+                    <p className="text-xs font-semibold text-blue-500 mb-3">Enter Professor PIN</p>
                     <form onSubmit={handleUpgradeSubmit} className="flex flex-col sm:flex-row gap-3">
                       <input
                         type="password"
@@ -119,13 +119,13 @@ export default function StudentDashboard() {
                         value={upgradePin}
                         onChange={(e) => setUpgradePin(e.target.value)}
                         placeholder="••••"
-                        className="w-full sm:w-40 rounded-xl border border-n-6 bg-n-8 px-4 py-2.5 text-center tracking-widest font-mono text-lg focus:outline-none focus:border-sky-400 focus:ring-1 focus:ring-sky-400 transition"
+                        className="w-full sm:w-40 rounded-xl border border-n-6 bg-n-8 px-4 py-2.5 text-center tracking-widest font-mono text-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
                         required
                       />
                       <button
                         type="submit"
                         disabled={upgrading || upgradePin.length < 4}
-                        className="w-full sm:w-auto px-6 py-2.5 rounded-xl border border-sky-400 bg-sky-400/10 text-sky-400 text-sm font-bold hover:bg-sky-400/20 disabled:opacity-50 transition"
+                        className="w-full sm:w-auto px-6 py-2.5 rounded-xl border border-blue-500 bg-blue-500/10 text-blue-500 text-sm font-bold hover:bg-blue-500/20 disabled:opacity-50 transition"
                       >
                         {upgrading ? 'Verifying…' : 'Upgrade'}
                       </button>
@@ -212,8 +212,8 @@ function ResourceCard({ resource: r }) {
   }
 
   const typeColors = {
-    notes: 'bg-sky-500/20 text-blue-300',
-    pyq: 'bg-sky-500/20 text-blue-300',
+    notes: 'bg-blue-600/20 text-blue-300',
+    pyq: 'bg-blue-600/20 text-blue-300',
     lecture: 'bg-green-500/20 text-green-300',
     assignment: 'bg-yellow-500/20 text-yellow-300',
     lab: 'bg-orange-500/20 text-orange-300',
@@ -221,9 +221,9 @@ function ResourceCard({ resource: r }) {
   const colorClass = typeColors[r.resource_type] || 'bg-n-6 text-n-3';
 
   return (
-    <div className="group relative rounded-3xl border border-n-6 bg-n-7/30 backdrop-blur p-6 flex flex-col gap-4 hover:-translate-y-1.5 hover:shadow-2xl hover:border-sky-400/50 transition-all duration-300 overflow-hidden">
+    <div className="group relative rounded-3xl border border-n-6 bg-n-7/30 backdrop-blur p-6 flex flex-col gap-4 hover:-translate-y-1.5 hover:shadow-2xl hover:border-blue-500/50 transition-all duration-300 overflow-hidden">
       {/* Subtle background glow on hover */}
-      <div className="absolute inset-0 bg-gradient-to-br from-sky-400/0 to-sky-400/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-500/0 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 
       <div className="relative z-10 flex items-center justify-between gap-2">
         <span className={`inline-flex px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border ${colorClass}`}>
@@ -236,7 +236,7 @@ function ResourceCard({ resource: r }) {
       </div>
 
       <Link to={resourcePath(r, r.slug)} className="relative z-10 mt-1 block">
-        <h3 className="text-lg font-bold text-n-1 leading-tight group-hover:text-sky-400 transition-colors line-clamp-2">
+        <h3 className="text-lg font-bold text-n-1 leading-tight group-hover:text-blue-500 transition-colors line-clamp-2">
           {r.title}
         </h3>
       </Link>
@@ -261,9 +261,9 @@ function ResourceCard({ resource: r }) {
           {r.uploader?.username && (
             <Link
               to={`/professors/${encodeURIComponent(r.uploader.username)}`}
-              className="text-xs font-medium text-sky-300 hover:text-sky-200 hover:underline transition-colors flex items-center gap-1.5"
+              className="text-xs font-medium text-blue-400 hover:text-blue-300 hover:underline transition-colors flex items-center gap-1.5"
             >
-              <div className="w-5 h-5 rounded-full bg-sky-400/20 border border-sky-400/50 flex items-center justify-center text-[10px] text-sky-300">
+              <div className="w-5 h-5 rounded-full bg-blue-500/20 border border-blue-500/50 flex items-center justify-center text-[10px] text-blue-400">
                 {r.uploader.name?.[0] || r.uploader.username[0]}
               </div>
               {r.uploader.name || r.uploader.username}
@@ -276,7 +276,7 @@ function ResourceCard({ resource: r }) {
           {(r.signedUrl || r.external_link || r.youtube_url || r.aws_s3_key) && (
             <button
               onClick={(e) => handlePreviewResource(r, e)}
-              className="flex-1 flex items-center justify-center py-2 rounded-xl bg-sky-400/10 text-sky-400 text-sm font-bold border border-sky-400/20 hover:bg-sky-400 hover:text-white transition-all cursor-pointer"
+              className="flex-1 flex items-center justify-center py-2 rounded-xl bg-blue-500/10 text-blue-500 text-sm font-bold border border-blue-500/20 hover:bg-blue-500 hover:text-white transition-all cursor-pointer"
             >
               Preview
             </button>
@@ -284,7 +284,7 @@ function ResourceCard({ resource: r }) {
           {(r.signedUrl || r.external_link || r.aws_s3_key) && (
             <button
               onClick={(e) => handlePreviewResource(r, e)}
-              className="flex items-center justify-center w-10 h-10 rounded-xl bg-n-8 border border-n-6 text-n-3 hover:border-sky-400 hover:text-sky-400 hover:shadow-[0_0_10px_rgba(56,189,248,0.2)] transition-all cursor-pointer"
+              className="flex items-center justify-center w-10 h-10 rounded-xl bg-n-8 border border-n-6 text-n-3 hover:border-blue-500 hover:text-blue-500 hover:shadow-[0_0_10px_rgba(59,130,246,0.2)] transition-all cursor-pointer"
               title="Preview / Open"
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -295,7 +295,7 @@ function ResourceCard({ resource: r }) {
           )}
           <button
             onClick={handleCopy}
-            className="flex items-center justify-center w-10 h-10 rounded-xl bg-n-8 border border-n-6 text-n-3 hover:border-sky-400 hover:text-sky-400 hover:shadow-[0_0_10px_rgba(56,189,248,0.2)] transition-all"
+            className="flex items-center justify-center w-10 h-10 rounded-xl bg-n-8 border border-n-6 text-n-3 hover:border-blue-500 hover:text-blue-500 hover:shadow-[0_0_10px_rgba(59,130,246,0.2)] transition-all"
             title="Copy link"
           >
             {copied ? (

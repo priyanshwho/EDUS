@@ -3,7 +3,8 @@ import Sidebar from '../components/layout/Sidebar';
 import SubjectCard from '../components/cards/SubjectCard';
 import { useSession } from '../context/SessionContext';
 import { fetchSubjects } from '../api/syllabus.api';
-import { Search, Sparkles, ChevronRight, BookOpen, Zap } from 'lucide-react';
+import { Search, ChevronRight, BookOpen, Zap } from 'lucide-react';
+import eduAiImg from '../../assets/eduai.png';
 
 const LoadingCard = () => (
   <div className="edus-card rounded-2xl h-40 animate-pulse bg-slate-800/50" />
@@ -44,8 +45,8 @@ const Home = () => {
         <header className="px-6 md:px-10 pt-10 pb-8 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center edus-gradient-bg">
-                <Sparkles size={20} className="text-white" />
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-transparent border border-white/10 overflow-hidden">
+                <img src={eduAiImg} className="w-full h-full object-cover" alt="Edu AI" />
               </div>
               <h1 className="text-3xl md:text-4xl font-bold edus-gradient-text">Edu.ai</h1>
             </div>
