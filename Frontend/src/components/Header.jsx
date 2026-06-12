@@ -98,7 +98,7 @@ const Header = () => {
                     href="/"
                 >
                     <img src={eduIcon} width={40} height={40} alt="Edusphere" />
-                    <span className="text-2xl font-bold text-n-1 hidden sm:inline-block">EduSphere</span>
+                    <span className="text-xl md:text-2xl font-bold text-n-1 ml-2">EduSphere</span>
                 </a>
 
                 {/* ── Nav links (desktop ONLY now, mobile uses BottomBar) ────────────── */}

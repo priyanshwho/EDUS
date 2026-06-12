@@ -59,7 +59,7 @@ export default function StudentDashboard() {
   }
 
   return (
-    <section className="min-h-screen bg-gradient-to-br from-[#0b1021] via-[#0E0C15] to-[#1a1025] text-n-1 relative overflow-hidden">
+    <section className="min-h-screen bg-gradient-to-br from-[#0b1021] via-[#0E0C15] to-[#1a1025] text-n-1 relative">
       <DashboardBackground />
       {/* Decorative background glow */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-64 bg-cyan-500/10 blur-[120px] pointer-events-none rounded-full"></div>
