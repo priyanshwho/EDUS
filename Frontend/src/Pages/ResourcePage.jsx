@@ -90,6 +90,8 @@ export default function ResourcePage() {
     ? `/professors/${encodeURIComponent(resource.uploader.username)}`
     : null;
   const colorClass = TYPE_COLORS[resource.resource_type] || 'bg-n-6 text-n-3';
+
+  return (
     <div className="min-h-screen bg-n-8 text-n-1">
       <div className="max-w-4xl mx-auto px-4 py-12">
         {/* Breadcrumb */}

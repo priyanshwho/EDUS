@@ -309,19 +309,21 @@ function ResourceCard({ resource: r }) {
                </svg>
             )}
           </button>
-          <button
-            onClick={handleSave}
-            className={`flex items-center justify-center w-10 h-10 rounded-xl bg-n-8 border transition-all ${
-              saved 
-                ? 'border-yellow-500/50 text-yellow-500 bg-yellow-500/10 shadow-[0_0_10px_rgba(234,179,8,0.2)]' 
-                : 'border-n-6 text-n-3 hover:border-yellow-500/50 hover:text-yellow-500'
-            }`}
-            title={saved ? 'Unsave' : 'Save'}
-          >
-            <svg className="w-4 h-4" fill={saved ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-            </svg>
-          </button>
+          {!r.isStatic && (
+            <button
+              onClick={handleSave}
+              className={`flex items-center justify-center w-10 h-10 rounded-xl bg-n-8 border transition-all ${
+                saved 
+                  ? 'border-yellow-500/50 text-yellow-500 bg-yellow-500/10 shadow-[0_0_10px_rgba(234,179,8,0.2)]' 
+                  : 'border-n-6 text-n-3 hover:border-yellow-500/50 hover:text-yellow-500'
+              }`}
+              title={saved ? 'Unsave' : 'Save'}
+            >
+              <svg className="w-4 h-4" fill={saved ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+              </svg>
+            </button>
+          )}
         </div>
       </div>
     </div>
