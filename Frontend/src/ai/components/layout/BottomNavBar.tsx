@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import { Zap, HelpCircle, MessageSquare, BookOpen, OctagonX } from 'lucide-react';
+import { Zap, HelpCircle, MessageSquare, BookOpen, OctagonX, MoreVertical } from 'lucide-react';
 import { useSession } from '../../context/SessionContext';
 import { clsx } from 'clsx';
 
@@ -16,9 +16,23 @@ const BottomNavBar = () => {
   const { branch, semester, subjectSlug, chapterId } = useParams();
   const location = useLocation();
   const { state, dispatch } = useSession();
+  const [isOpen, setIsOpen] = useState(false);
+  const menuRef = useRef(null);
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const switchMode = (modeId) => {
     dispatch({ type: 'SWITCH_MODE', payload: modeId });
+    setIsOpen(false);
     if (modeId === 'pyq') {
       navigate(`/ai/pyq/${branch}/${semester}/${subjectSlug}/${state.selectedSection || 'A'}`);
     } else {
@@ -27,8 +41,14 @@ const BottomNavBar = () => {
   };
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 flex items-center justify-center h-16 bg-[#0E0C15]/95 border-t border-[#252134] backdrop-blur-md">
-      <div className="flex items-center gap-2 px-4">
+    <div className="fixed bottom-28 right-6 z-[100] flex flex-col items-end" ref={menuRef}>
+      {/* Dropdown Menu */}
+      <div 
+        className={clsx(
+          "mb-4 flex flex-col gap-2 bg-[#15131D]/95 backdrop-blur-xl border border-[#252134] rounded-2xl p-2 shadow-2xl transition-all duration-300 origin-bottom-right",
+          isOpen ? "scale-100 opacity-100 visible" : "scale-50 opacity-0 invisible"
+        )}
+      >
         {MODES.map((mode) => {
           const isActive = location.pathname.startsWith(`/ai/${mode.id}/`);
           return (
@@ -36,27 +56,43 @@ const BottomNavBar = () => {
               key={mode.id}
               onClick={() => switchMode(mode.id)}
               className={clsx(
-                "flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-colors",
-                isActive ? "text-white edus-gradient-bg" : "text-slate-500 hover:text-slate-300 hover:bg-slate-800/50"
+                "flex items-center gap-3 px-4 py-3 rounded-xl transition-all min-w-[140px]",
+                isActive 
+                  ? "edus-gradient-bg text-white shadow-lg shadow-cyan-500/20" 
+                  : "text-slate-300 hover:bg-white/10 hover:text-white"
               )}
             >
-              {mode.icon}
-              <span className="text-[10px] font-semibold">{mode.label}</span>
+              <div className="w-6 flex justify-center">{mode.icon}</div>
+              <span className="font-semibold text-sm">{mode.label}</span>
             </button>
           );
         })}
 
-        <div className="w-px h-6 mx-2 bg-[#252134]" />
+        <div className="h-px w-full bg-[#252134] my-1" />
 
         <button
-          onClick={() => dispatch({ type: 'PAUSE_SESSION' })}
-          className="flex flex-col items-center gap-1 px-4 py-2 rounded-xl text-slate-500 hover:text-rose-400 hover:bg-rose-400/10 transition-colors"
+          onClick={() => {
+            dispatch({ type: 'PAUSE_SESSION' });
+            setIsOpen(false);
+          }}
+          className="flex items-center gap-3 px-4 py-3 rounded-xl text-rose-400 hover:bg-rose-400/10 transition-colors min-w-[140px]"
         >
-          <OctagonX size={18} />
-          <span className="text-[10px] font-semibold">Stop</span>
+          <div className="w-6 flex justify-center"><OctagonX size={18} /></div>
+          <span className="font-semibold text-sm">Stop</span>
         </button>
       </div>
-    </nav>
+
+      {/* FAB Button */}
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className={clsx(
+          "flex items-center justify-center w-14 h-14 rounded-full shadow-2xl border border-white/10 transition-all duration-300",
+          isOpen ? "bg-n-6 text-white rotate-90" : "edus-gradient-bg text-white hover:scale-105 hover:shadow-cyan-500/40"
+        )}
+      >
+        <MoreVertical size={28} />
+      </button>
+    </div>
   );
 };
 
