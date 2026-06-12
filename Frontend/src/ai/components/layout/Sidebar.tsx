@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useSession } from '../../context/SessionContext';
 import { fetchBranches, fetchSemesters } from '../../api/syllabus.api';
-import { Settings, Sparkles, Wand2 } from 'lucide-react';
+import { Sparkles, Menu, X, ChevronRight, Layers, BookOpen } from 'lucide-react';
 import { clsx } from 'clsx';
 
 const Sidebar = () => {
   const { state, dispatch } = useSession();
   const [branches, setBranches] = useState([]);
   const [semesters, setSemesters] = useState([]);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
     fetchBranches().then(setBranches).catch(console.error);
@@ -21,78 +22,180 @@ const Sidebar = () => {
     }
   }, [state.branch]);
 
-  return (
-    <aside className="w-80 bg-gradient-to-br from-n-8 via-n-7 to-n-8 border-r border-n-3/20 flex flex-col p-6 h-screen sticky top-0">
-      <div className="relative mb-10">
-        <div className="absolute inset-0 bg-gradient-to-r from-color-1/20 via-color-6/20 to-color-1/20 rounded-3xl blur-xl opacity-70" />
-        <div className="relative p-5 rounded-3xl bg-gradient-to-br from-n-7/90 via-n-6/80 to-n-7/90 border border-color-1/30 shadow-2xl backdrop-blur-xl">
-          <div className="flex items-center gap-3">
-            <div className="w-11 h-11 bg-gradient-to-r from-color-1 to-color-6 rounded-xl flex items-center justify-center text-white">
-              <Sparkles size={22} />
+  const SidebarContent = () => (
+    <div className="flex flex-col h-full p-5 gap-6">
+      {/* ── Logo ── */}
+      <div className="relative">
+        <div className="absolute inset-0 rounded-2xl blur-lg opacity-40"
+          style={{ background: 'linear-gradient(135deg, rgba(56,189,248,0.4), rgba(34,211,238,0.3))' }} />
+        <div className="relative ai-glass-blue rounded-2xl p-4 flex items-center gap-3">
+          {/* Animated ring around icon */}
+          <div className="relative flex-shrink-0">
+            <div className="ai-ring-pulse absolute inset-0 rounded-full"
+              style={{ border: '2px solid rgba(56,189,248,0.4)', margin: '-6px' }} />
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center"
+              style={{ background: 'linear-gradient(135deg, #0ea5e9, #22d3ee)' }}>
+              <Sparkles size={20} className="text-white" />
             </div>
-            <div>
-              <div className="text-xl font-black tracking-tight text-n-1">Edu.ai</div>
-              <div className="text-[10px] uppercase tracking-[0.2em] text-n-3">AI-driven learning hub</div>
-            </div>
+          </div>
+          <div>
+            <div className="font-black text-lg tracking-tight text-white">Edu.ai</div>
+            <div className="text-[10px] uppercase tracking-[0.18em]"
+              style={{ color: '#7dd3fc' }}>AI Learning Hub</div>
           </div>
         </div>
       </div>
 
-      <nav className="flex-1 space-y-8">
-        <div className="flex items-center gap-2 px-2">
-          <div className="p-2 bg-gradient-to-r from-color-1/20 to-color-6/20 rounded-xl">
-            <Wand2 size={18} className="text-n-1" />
-          </div>
-          <div>
-            <p className="text-sm font-bold text-n-1">AI-driven navigator</p>
-            <p className="text-[11px] text-n-3">Filter syllabus by branch and semester</p>
-          </div>
-        </div>
-        <div>
-          <label className="text-[10px] font-bold text-text-muted uppercase tracking-[0.2em] mb-4 block">Select Branch</label>
-          <div className="space-y-2">
-            {branches.map((branch) => (
+      {/* ── Section label ── */}
+      <div className="flex items-center gap-2 px-1">
+        <Layers size={14} style={{ color: '#38bdf8' }} />
+        <span className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#94a3b8' }}>
+          Filter Your Syllabus
+        </span>
+      </div>
+
+      {/* ── Branch ── */}
+      <div className="space-y-2">
+        <label className="text-[10px] font-bold uppercase tracking-[0.2em] px-1 block"
+          style={{ color: '#64748b' }}>Branch</label>
+        <div className="space-y-1 ai-scroll overflow-y-auto max-h-48">
+          {branches.map((branch) => {
+            const active = state.branch === branch;
+            return (
               <button
                 key={branch}
-                onClick={() => dispatch({ type: 'SET_BRANCH', payload: branch })}
+                onClick={() => { dispatch({ type: 'SET_BRANCH', payload: branch }); setMobileOpen(false); }}
                 className={clsx(
-                  'w-full text-left px-4 py-3 rounded-xl transition-all duration-200',
-                  state.branch === branch ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'hover:bg-white/5 text-text-muted'
+                  'w-full text-left px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 flex items-center justify-between group',
+                  active
+                    ? 'text-white'
+                    : 'text-slate-400 hover:text-white hover:bg-white/5'
                 )}
+                style={active ? {
+                  background: 'linear-gradient(135deg, rgba(56,189,248,0.2), rgba(34,211,238,0.1))',
+                  border: '1px solid rgba(56,189,248,0.3)',
+                  boxShadow: '0 0 16px rgba(56,189,248,0.1)',
+                } : {}}
               >
-                {branch}
+                <span>{branch}</span>
+                {active && <ChevronRight size={14} style={{ color: '#38bdf8' }} />}
               </button>
-            ))}
-          </div>
+            );
+          })}
         </div>
+      </div>
 
-        {state.branch && (
-          <div>
-            <label className="text-[10px] font-bold text-text-muted uppercase tracking-[0.2em] mb-4 block">Select Semester</label>
-            <div className="space-y-2 max-h-[300px] overflow-y-auto pr-2">
-              {semesters.map((sem) => (
+      {/* ── Divider ── */}
+      {state.branch && (
+        <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(56,189,248,0.2), transparent)' }} />
+      )}
+
+      {/* ── Semester ── */}
+      {state.branch && (
+        <div className="space-y-2 flex-1">
+          <div className="flex items-center gap-2 px-1">
+            <BookOpen size={14} style={{ color: '#22d3ee' }} />
+            <label className="text-[10px] font-bold uppercase tracking-[0.2em]"
+              style={{ color: '#64748b' }}>Semester</label>
+          </div>
+          <div className="space-y-1 ai-scroll overflow-y-auto max-h-56">
+            {semesters.map((sem) => {
+              const active = state.semester === sem;
+              return (
                 <button
                   key={sem}
-                  onClick={() => dispatch({ type: 'SET_SEMESTER', payload: sem })}
+                  onClick={() => { dispatch({ type: 'SET_SEMESTER', payload: sem }); setMobileOpen(false); }}
                   className={clsx(
-                    'w-full text-left px-4 py-3 rounded-xl transition-all duration-200',
-                    state.semester === sem ? 'bg-secondary text-white shadow-lg shadow-secondary/20' : 'hover:bg-white/5 text-text-muted'
+                    'w-full text-left px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 flex items-center justify-between',
+                    active ? 'text-white' : 'text-slate-400 hover:text-white hover:bg-white/5'
                   )}
+                  style={active ? {
+                    background: 'linear-gradient(135deg, rgba(34,211,238,0.18), rgba(45,212,191,0.1))',
+                    border: '1px solid rgba(34,211,238,0.3)',
+                    boxShadow: '0 0 16px rgba(34,211,238,0.08)',
+                  } : {}}
                 >
-                  {sem.replace('_', ' ')}
+                  <span>{sem.replace('_', ' ')}</span>
+                  {active && <ChevronRight size={14} style={{ color: '#22d3ee' }} />}
                 </button>
-              ))}
-            </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* ── Status chips ── */}
+      <div className="mt-auto space-y-2 pt-4"
+        style={{ borderTop: '1px solid rgba(148,163,184,0.08)' }}>
+        {state.branch && (
+          <div className="flex items-center gap-2 px-1">
+            <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#38bdf8' }} />
+            <span className="text-xs" style={{ color: '#94a3b8' }}>{state.branch}</span>
+            {state.semester && (
+              <>
+                <span style={{ color: '#475569' }}>·</span>
+                <span className="text-xs" style={{ color: '#94a3b8' }}>{state.semester.replace('_', ' ')}</span>
+              </>
+            )}
           </div>
         )}
-      </nav>
-
-      <div className="pt-6 border-t border-white/5 space-y-2">
-        <button className="w-full flex items-center gap-3 px-4 py-3 text-text-muted hover:text-text hover:bg-white/5 rounded-xl transition-all">
-          <Settings size={20} /> <span>Settings</span>
-        </button>
       </div>
-    </aside>
+    </div>
+  );
+
+  return (
+    <>
+      {/* ── Mobile hamburger ── */}
+      <button
+        onClick={() => setMobileOpen(true)}
+        className="lg:hidden fixed top-20 left-4 z-50 w-10 h-10 rounded-xl flex items-center justify-center transition-all"
+        style={{
+          background: 'rgba(15,23,42,0.9)',
+          border: '1px solid rgba(56,189,248,0.25)',
+          boxShadow: '0 4px 20px rgba(56,189,248,0.15)',
+        }}
+      >
+        <Menu size={18} style={{ color: '#38bdf8' }} />
+      </button>
+
+      {/* ── Mobile overlay ── */}
+      {mobileOpen && (
+        <div
+          className="lg:hidden fixed inset-0 z-50"
+          style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }}
+          onClick={() => setMobileOpen(false)}
+        >
+          <aside
+            className="ai-sidebar-open absolute left-0 top-0 bottom-0 w-72 ai-scroll overflow-y-auto"
+            style={{ background: '#0a1628', borderRight: '1px solid rgba(56,189,248,0.15)' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="absolute top-4 right-4">
+              <button
+                onClick={() => setMobileOpen(false)}
+                className="w-8 h-8 rounded-lg flex items-center justify-center"
+                style={{ background: 'rgba(255,255,255,0.05)', color: '#94a3b8' }}
+              >
+                <X size={16} />
+              </button>
+            </div>
+            <SidebarContent />
+          </aside>
+        </div>
+      )}
+
+      {/* ── Desktop sidebar ── */}
+      <aside
+        className="hidden lg:flex flex-col w-72 h-screen sticky top-0 ai-scroll overflow-y-auto flex-shrink-0"
+        style={{
+          background: 'rgba(10, 22, 40, 0.8)',
+          borderRight: '1px solid rgba(56,189,248,0.12)',
+          backdropFilter: 'blur(20px)',
+        }}
+      >
+        <SidebarContent />
+      </aside>
+    </>
   );
 };
 
