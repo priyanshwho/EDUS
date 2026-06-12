@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { resourceService } from '../services/resource.service';
 import { useAuth } from '../context/AuthContext';
-import PreviewModal from '../components/previews/PreviewModal';
 import {
   formatDate,
   resourceTypeLabel,
@@ -10,7 +9,6 @@ import {
   subjectPath,
   resourceShareUrl,
 } from '../utils/format';
-import { isPreviewable } from '../utils/preview';
 import { GooeyLoader } from '../components/ui/loader-10';
 
 const TYPE_COLORS = {
@@ -28,7 +26,6 @@ export default function ResourcePage() {
   const [resource, setResource] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [showPreview, setShowPreview] = useState(false);
   const [saved, setSaved] = useState(false);
   const [copied, setCopied] = useState(false);
 
@@ -93,9 +90,6 @@ export default function ResourcePage() {
     ? `/professors/${encodeURIComponent(resource.uploader.username)}`
     : null;
   const colorClass = TYPE_COLORS[resource.resource_type] || 'bg-n-6 text-n-3';
-  const canPreview = isPreviewable(resource);
-
-  return (
     <div className="min-h-screen bg-n-8 text-n-1">
       <div className="max-w-4xl mx-auto px-4 py-12">
         {/* Breadcrumb */}
@@ -174,23 +168,14 @@ export default function ResourcePage() {
 
         {/* Action buttons */}
         <div className="flex flex-wrap gap-3 mb-10">
-          {canPreview && (
-            <button
-              onClick={() => setShowPreview(true)}
-              className="px-5 py-2.5 bg-color-1 text-n-8 rounded-xl font-medium hover:opacity-80 transition"
-            >
-              Preview
-            </button>
-          )}
-
           {(resource.signedUrl || resource.external_link || resource.youtube_url) && (
             <a
               href={resource.signedUrl || resource.youtube_url || resource.external_link}
               target="_blank"
               rel="noopener noreferrer"
-              className="px-5 py-2.5 bg-n-6 text-n-1 rounded-xl font-medium hover:bg-n-5 transition"
+              className="px-5 py-2.5 bg-color-1 text-n-8 rounded-xl font-medium hover:opacity-80 transition"
             >
-              Open ↗
+              Preview ↗
             </a>
           )}
 
@@ -232,11 +217,6 @@ export default function ResourcePage() {
           <p className="text-xs text-n-5 mt-2">Fallback URL: {`${window.location.origin}/resource/${resource.slug}`}</p>
         </div>
       </div>
-
-      {/* Preview modal */}
-      {showPreview && (
-        <PreviewModal resource={resource} onClose={() => setShowPreview(false)} />
-      )}
     </div>
   );
 }
