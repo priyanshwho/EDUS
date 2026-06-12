@@ -94,7 +94,7 @@ const Sidebar = () => {
       {/* ── Mobile hamburger ── */}
       <button
         onClick={() => setMobileOpen(true)}
-        className="lg:hidden fixed top-20 left-4 z-50 w-10 h-10 rounded-xl flex items-center justify-center bg-[#15131D] border border-[#252134] shadow-md"
+        className="lg:hidden fixed top-20 right-4 z-[90] w-10 h-10 rounded-xl flex items-center justify-center bg-[#15131D] border border-[#252134] shadow-md"
       >
         <Menu size={18} className="text-slate-300" />
       </button>
@@ -106,10 +106,10 @@ const Sidebar = () => {
           onClick={() => setMobileOpen(false)}
         >
           <aside
-            className="absolute left-0 top-0 bottom-0 w-72 bg-[#0E0C15] border-r border-[#252134] overflow-y-auto"
+            className="absolute right-0 top-0 bottom-0 w-72 bg-[#0E0C15] border-l border-[#252134] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="absolute top-4 right-4">
+            <div className="absolute top-4 left-4">
               <button
                 onClick={() => setMobileOpen(false)}
                 className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:bg-white/5"

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { userService, subjectService, resourceService } from '../services/index';
 import { useAdminDashboardStore } from '../stores/adminDashboard.store';
 import { GooeyLoader } from '../components/ui/loader-10';
+import DashboardBackground from '../components/design/DashboardBackground';
 
 /**
  * AdminDashboard
@@ -13,11 +14,13 @@ export default function AdminDashboard() {
   const tabs = ['analytics', 'users', 'subjects', 'resources'];
 
   return (
-    <section className="min-h-screen bg-n-8 text-n-1 p-6">
-      <header className="mb-8">
-        <h1 className="h3">Admin Dashboard</h1>
-        <p className="body-2 text-n-4">Full system access — EduSphere</p>
-      </header>
+    <section className="min-h-screen bg-gradient-to-br from-[#0b1021] via-[#0E0C15] to-[#1a1025] text-n-1 p-6 relative overflow-hidden">
+      <DashboardBackground />
+      <div className="relative z-10">
+        <header className="mb-8">
+          <h1 className="h3">Admin Dashboard</h1>
+          <p className="body-2 text-n-4">Full system access — EduSphere</p>
+        </header>
 
       {/* ── Mobile Tab Navigation (Dropdown Switcher) ── */}
       <div className="md:hidden relative mb-8 z-20">
@@ -66,6 +69,7 @@ export default function AdminDashboard() {
       {activeTab === 'users'     && <UserManagement />}
       {activeTab === 'subjects'  && <SubjectManagement />}
       {activeTab === 'resources' && <ResourceManagement />}
+      </div>
     </section>
   );
 }
