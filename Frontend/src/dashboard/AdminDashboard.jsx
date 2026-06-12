@@ -506,56 +506,92 @@ function SubjectManagement() {
   if (loadingSubjects && subjects.length === 0) return <p className="text-n-4">Loading…</p>;
 
   return (
-    <div className="max-w-3xl">
-      <h2 className="h5 mb-4">Subject Management</h2>
+    <div className="w-full">
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="h4">Subject Management</h2>
+        <span className="px-3 py-1 rounded-full bg-n-7 border border-n-6 text-sm text-color-1 font-medium shadow-sm">
+          {subjects.length} Total Subjects
+        </span>
+      </div>
 
-      {/* Add form */}
-      <form onSubmit={handleAdd} className="grid grid-cols-2 gap-3 mb-8">
-        {[
-          { name: 'branch',    placeholder: 'Branch (e.g. CSE)' },
-          { name: 'semester',  placeholder: 'Semester', type: 'number' },
-          { name: 'name_full', placeholder: 'Full Name (e.g. Data Structures)' },
-          { name: 'acronym',   placeholder: 'Acronym (e.g. DS)' },
-        ].map(f => (
-          <input
-            key={f.name} name={f.name} required
-            type={f.type || 'text'}
-            placeholder={f.placeholder}
-            value={form[f.name]}
-            onChange={e => setForm(p => ({ ...p, [e.target.name]: e.target.value }))}
-            className="rounded-lg border border-n-6 bg-n-7 px-3 py-2 text-sm"
-          />
-        ))}
-        <button type="submit" className="col-span-2 py-2 rounded-xl bg-color-1 text-n-8 font-semibold text-sm hover:bg-color-1/90 transition">
-          Add Subject
-        </button>
-      </form>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Left Column: Form */}
+        <div className="lg:col-span-1">
+          <form onSubmit={handleAdd} className="sticky top-24 rounded-2xl border border-n-6 bg-n-7/50 backdrop-blur p-6 shadow-2xl transition hover:border-color-1/50">
+            <h3 className="font-semibold mb-5 text-sm text-n-2 uppercase tracking-wider">Add New Subject</h3>
+            <div className="space-y-4">
+              {[
+                { name: 'branch',    placeholder: 'Branch (e.g. CSE)' },
+                { name: 'semester',  placeholder: 'Semester (1-8)', type: 'number' },
+                { name: 'name_full', placeholder: 'Full Name (e.g. Data Structures)' },
+                { name: 'acronym',   placeholder: 'Acronym (e.g. DS)' },
+              ].map(f => (
+                <div key={f.name}>
+                  <label className="block text-xs text-n-4 mb-1.5 uppercase tracking-wide">{f.placeholder.split('(')[0].trim()}</label>
+                  <input
+                    name={f.name} required
+                    type={f.type || 'text'}
+                    placeholder={f.placeholder}
+                    value={form[f.name]}
+                    onChange={e => setForm(p => ({ ...p, [e.target.name]: e.target.value }))}
+                    className="w-full rounded-xl border border-n-6 bg-n-8/50 px-4 py-2.5 text-sm transition focus:border-color-1 focus:ring-1 focus:ring-color-1 focus:outline-none placeholder:text-n-5"
+                  />
+                </div>
+              ))}
+              <button type="submit" className="w-full mt-2 py-3 rounded-xl bg-color-1 text-n-8 font-bold text-sm hover:opacity-90 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-color-1/20 transition-all duration-200">
+                Create Subject
+              </button>
+            </div>
+          </form>
+        </div>
 
-      {/* Table */}
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="border-b border-n-6 text-n-4">
-            <th className="text-left pb-2 pr-4">Subject</th>
-            <th className="text-left pb-2 pr-4">Acronym</th>
-            <th className="text-left pb-2 pr-4">Branch</th>
-            <th className="text-left pb-2 pr-4">Sem</th>
-            <th />
-          </tr>
-        </thead>
-        <tbody>
-          {subjects.map(s => (
-            <tr key={s.id} className="border-b border-n-6 hover:bg-n-7 transition">
-              <td className="py-2.5 pr-4">{s.name_full}</td>
-              <td className="py-2.5 pr-4 font-mono text-color-2">{s.acronym}</td>
-              <td className="py-2.5 pr-4 text-n-4">{s.branch}</td>
-              <td className="py-2.5 pr-4 text-n-4">{s.semester}</td>
-              <td className="py-2.5">
-                <button onClick={() => handleDelete(s.id)} className="text-xs text-red-400 hover:text-red-300">Delete</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+        {/* Right Column: Table */}
+        <div className="lg:col-span-2 overflow-x-auto rounded-2xl border border-n-6 bg-n-7/30 backdrop-blur shadow-2xl">
+          <table className="w-full text-sm text-left">
+            <thead className="bg-n-8/50">
+              <tr className="border-b border-n-6 text-n-4 text-xs uppercase tracking-wider">
+                <th className="py-4 pl-6 pr-4 font-medium rounded-tl-2xl">Subject</th>
+                <th className="py-4 px-4 font-medium">Acronym</th>
+                <th className="py-4 px-4 font-medium">Branch</th>
+                <th className="py-4 px-4 font-medium">Sem</th>
+                <th className="py-4 pr-6 pl-4 font-medium text-right rounded-tr-2xl">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-n-6/50">
+              {subjects.map(s => (
+                <tr key={s.id} className="hover:bg-n-7/80 transition-colors group">
+                  <td className="py-4 pl-6 pr-4 font-medium text-n-1 group-hover:text-color-1 transition-colors">{s.name_full}</td>
+                  <td className="py-4 px-4">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-mono font-medium bg-color-2/10 text-color-2 border border-color-2/20">
+                      {s.acronym}
+                    </span>
+                  </td>
+                  <td className="py-4 px-4">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-500/10 text-blue-300 border border-blue-500/20">
+                      {s.branch}
+                    </span>
+                  </td>
+                  <td className="py-4 px-4 text-n-3">
+                    <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-n-6 text-xs font-semibold">
+                      {s.semester}
+                    </span>
+                  </td>
+                  <td className="py-4 pr-6 pl-4 text-right">
+                    <button onClick={() => handleDelete(s.id)} className="px-3 py-1.5 rounded-lg text-xs font-medium text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors">
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {subjects.length === 0 && (
+            <div className="p-8 text-center text-n-4 text-sm">
+              No subjects found. Use the form to add one.
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
