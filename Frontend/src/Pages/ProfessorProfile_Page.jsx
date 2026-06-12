@@ -284,9 +284,9 @@ export default function ProfessorProfilePage() {
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: 'auto' }}>
                       <p style={{ color: '#3F3A52', fontSize: '11px', margin: 0 }}>{formatDate(r.created_at)}</p>
-                      {(r.signedUrl || r.external_link || (r.aws_s3_key && r.aws_s3_key.startsWith('http') ? r.aws_s3_key : null)) && (
+                      {(r.signedUrl || r.external_link || r.aws_s3_key) && (
                         <a
-                          href={r.signedUrl || r.external_link || r.aws_s3_key}
+                          href={r.signedUrl || r.external_link || (r.aws_s3_key ? `https://fly.storage.tigris.dev/edusphere-files/${r.aws_s3_key}` : '#')}
                           target="_blank"
                           rel="noopener noreferrer"
                           title="Download"
