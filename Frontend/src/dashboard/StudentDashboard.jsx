@@ -3,9 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { resourceService } from '../services/resource.service';
 import ResourceFilterPanel from '../components/ResourceFilterPanel';
-import PreviewModal from '../components/previews/PreviewModal';
 import { resourceTypeLabel, formatDate, resourcePath, resourceShareUrl } from '../utils/format';
-import { isPreviewable } from '../utils/preview';
 import { useStudentDashboardStore } from '../stores/studentDashboard.store';
 import { GooeyLoader } from '../components/ui/loader-10';
 
@@ -25,7 +23,6 @@ export default function StudentDashboard() {
     setFilters,
     clearFilters,
   } = useStudentDashboardStore();
-  const [previewResource, setPreviewResource] = useState(null);
   const [showUpgradeForm, setShowUpgradeForm] = useState(false);
   const [upgradePin, setUpgradePin] = useState('');
   const [upgrading, setUpgrading] = useState(false);
@@ -181,23 +178,17 @@ export default function StudentDashboard() {
                 <ResourceCard
                   key={r.id}
                   resource={r}
-                  onPreview={() => setPreviewResource(r)}
                 />
               ))}
             </div>
           </div>
         </div>
       </div>
-
-      {/* Preview modal */}
-      {previewResource && (
-        <PreviewModal resource={previewResource} onClose={() => setPreviewResource(null)} />
-      )}
     </section>
   );
 }
 
-function ResourceCard({ resource: r, onPreview }) {
+function ResourceCard({ resource: r }) {
   const [saved, setSaved] = useState(false);
   const [copied, setCopied] = useState(false);
 
@@ -279,13 +270,15 @@ function ResourceCard({ resource: r, onPreview }) {
         </div>
 
         <div className="flex items-center gap-2 mt-1">
-          {isPreviewable(r) && (
-            <button
-              onClick={onPreview}
-              className="flex-1 py-2 rounded-xl bg-color-1/10 text-color-1 text-sm font-bold border border-color-1/20 hover:bg-color-1 hover:text-n-8 transition-all"
+          {(r.signedUrl || r.external_link || r.youtube_url) && (
+            <a
+              href={r.signedUrl || r.external_link || r.youtube_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-1 flex items-center justify-center py-2 rounded-xl bg-color-1/10 text-color-1 text-sm font-bold border border-color-1/20 hover:bg-color-1 hover:text-n-8 transition-all"
             >
               Preview
-            </button>
+            </a>
           )}
           {(r.signedUrl || r.external_link) && (
             <a
