@@ -25,7 +25,7 @@ export default function AdminDashboard() {
             key={t}
             onClick={() => setActiveTab(t)}
             className={`px-5 py-2 text-sm capitalize transition border-b-2 -mb-px
-              ${activeTab === t ? 'border-indigo-400 text-indigo-400' : 'border-transparent text-n-4 hover:text-n-1'}`}
+              ${activeTab === t ? 'border-cyan-400 text-cyan-400' : 'border-transparent text-n-4 hover:text-n-1'}`}
           >
             {t}
           </button>
@@ -145,7 +145,7 @@ function ResourceManagement() {
         <h2 className="h5">Resource Management ({resources.length})</h2>
         <button
           onClick={() => setDriveOpen(o => !o)}
-          className="px-4 py-1.5 text-xs rounded-lg bg-indigo-500 text-white font-semibold hover:bg-indigo-400 transition"
+          className="px-4 py-1.5 text-xs rounded-lg bg-cyan-500 text-white font-semibold hover:bg-cyan-400 transition"
         >
           {driveOpen ? 'Close' : '+ Add Drive Link'}
         </button>
@@ -207,7 +207,7 @@ function ResourceManagement() {
           </div>
           <button
             type="submit" disabled={driveLoading}
-            className="mt-4 w-full py-2 rounded-xl bg-indigo-500 text-white font-semibold text-sm hover:bg-indigo-400 transition disabled:opacity-50"
+            className="mt-4 w-full py-2 rounded-xl bg-cyan-500 text-white font-semibold text-sm hover:bg-cyan-400 transition disabled:opacity-50"
           >
             {driveLoading ? 'Adding…' : 'Add Resource'}
           </button>
@@ -250,7 +250,7 @@ function ResourceManagement() {
             {filtered.map(r => (
               editId === r.id ? (
                 /* ── Inline edit row ── */
-                <tr key={r.id} className="border-b border-indigo-500/30 bg-n-7">
+                <tr key={r.id} className="border-b border-cyan-500/30 bg-n-7">
                   <td className="py-2 pr-3" colSpan={3}>
                     <div className="flex flex-col gap-1.5">
                       <input value={editForm.title}
@@ -311,7 +311,7 @@ function ResourceManagement() {
                 <tr key={r.id} className="border-b border-n-6 hover:bg-n-7 transition">
                   <td className="py-2.5 pr-3">
                     <span className="font-medium text-n-1">{r.title}</span>
-                    {r.pyq_type && <span className="ml-1.5 text-[10px] font-mono text-indigo-300 uppercase">{r.pyq_type}</span>}
+                    {r.pyq_type && <span className="ml-1.5 text-[10px] font-mono text-cyan-300 uppercase">{r.pyq_type}</span>}
                     <br />
                     <span className="text-[10px] text-n-5 font-mono">{r.slug}</span>
                   </td>
@@ -331,7 +331,7 @@ function ResourceManagement() {
                   <td className="py-2.5">
                     <div className="flex gap-3">
                       <button onClick={() => startEdit(r)}
-                        className="text-xs text-indigo-400 hover:text-indigo-300 transition">Edit</button>
+                        className="text-xs text-cyan-400 hover:text-cyan-300 transition">Edit</button>
                       <button onClick={() => handleDelete(r.id)}
                         className="text-xs text-red-400 hover:text-red-300 transition">Delete</button>
                     </div>
@@ -373,7 +373,7 @@ function PlatformAnalytics() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-8">
         {summaryCards.map(c => (
           <div key={c.label} className="rounded-xl border border-n-6 bg-n-7 p-5 text-center">
-            <p className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 via-purple-500 to-emerald-400">{c.value}</p>
+            <p className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-cyan-400 to-emerald-400">{c.value}</p>
             <p className="text-sm text-n-4 mt-1">{c.label}</p>
           </div>
         ))}
@@ -385,7 +385,7 @@ function PlatformAnalytics() {
           {Object.entries(platformAnalytics.usersByRole || {}).map(([role, count]) => (
             <div key={role} className="flex justify-between py-1.5 border-b border-n-6 text-sm">
               <span className="capitalize text-n-2">{role}</span>
-              <span className="text-indigo-300 font-mono">{count}</span>
+              <span className="text-cyan-300 font-mono">{count}</span>
             </div>
           ))}
         </div>
@@ -394,7 +394,7 @@ function PlatformAnalytics() {
           {Object.entries(platformAnalytics.resourcesByType || {}).map(([type, count]) => (
             <div key={type} className="flex justify-between py-1.5 border-b border-n-6 text-sm">
               <span className="capitalize text-n-2">{type}</span>
-              <span className="text-indigo-300 font-mono">{count}</span>
+              <span className="text-cyan-300 font-mono">{count}</span>
             </div>
           ))}
         </div>
@@ -514,7 +514,7 @@ function SubjectManagement() {
     <div className="w-full">
       <div className="flex items-center justify-between mb-6">
         <h2 className="h4">Subject Management</h2>
-        <span className="px-3 py-1 rounded-full bg-n-7 border border-n-6 text-sm text-indigo-400 font-medium shadow-sm">
+        <span className="px-3 py-1 rounded-full bg-n-7 border border-n-6 text-sm text-cyan-400 font-medium shadow-sm">
           {subjects.length} Total Subjects
         </span>
       </div>
@@ -522,7 +522,7 @@ function SubjectManagement() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Left Column: Form */}
         <div className="lg:col-span-1">
-          <form onSubmit={handleAdd} className="sticky top-24 rounded-2xl border border-n-6 bg-n-7/50 backdrop-blur p-6 shadow-2xl transition hover:border-indigo-500/50">
+          <form onSubmit={handleAdd} className="sticky top-24 rounded-2xl border border-n-6 bg-n-7/50 backdrop-blur p-6 shadow-2xl transition hover:border-cyan-500/50">
             <h3 className="font-semibold mb-5 text-sm text-n-2 uppercase tracking-wider">Add New Subject</h3>
             <div className="space-y-4">
               {[
@@ -539,11 +539,11 @@ function SubjectManagement() {
                     placeholder={f.placeholder}
                     value={form[f.name]}
                     onChange={e => setForm(p => ({ ...p, [e.target.name]: e.target.value }))}
-                    className="w-full rounded-xl border border-n-6 bg-n-8/50 px-4 py-2.5 text-sm transition focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none placeholder:text-n-5"
+                    className="w-full rounded-xl border border-n-6 bg-n-8/50 px-4 py-2.5 text-sm transition focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 focus:outline-none placeholder:text-n-5"
                   />
                 </div>
               ))}
-              <button type="submit" className="w-full mt-2 py-3 rounded-xl bg-indigo-500 text-white font-bold text-sm hover:opacity-90 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-indigo-500/20 transition-all duration-200">
+              <button type="submit" className="w-full mt-2 py-3 rounded-xl bg-cyan-500 text-white font-bold text-sm hover:opacity-90 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-cyan-500/20 transition-all duration-200">
                 Create Subject
               </button>
             </div>
@@ -565,9 +565,9 @@ function SubjectManagement() {
             <tbody className="divide-y divide-n-6/50">
               {subjects.map(s => (
                 <tr key={s.id} className="hover:bg-n-7/80 transition-colors group">
-                  <td className="py-4 pl-6 pr-4 font-medium text-n-1 group-hover:text-indigo-400 transition-colors">{s.name_full}</td>
+                  <td className="py-4 pl-6 pr-4 font-medium text-n-1 group-hover:text-cyan-400 transition-colors">{s.name_full}</td>
                   <td className="py-4 px-4">
-                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-mono font-medium bg-indigo-500/10 text-indigo-300 border border-indigo-500/20">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-mono font-medium bg-cyan-500/10 text-cyan-300 border border-cyan-500/20">
                       {s.acronym}
                     </span>
                   </td>
