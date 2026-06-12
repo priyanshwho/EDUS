@@ -10,20 +10,21 @@ interface SubjectCardProps {
 
 const SubjectCard: React.FC<SubjectCardProps> = ({ name, branch, semester }) => {
   return (
-    <Link
-      to={`/ai/subject/${branch}/${semester}/${encodeURIComponent(name)}`}
-      className="glass group p-6 rounded-2xl transition-all duration-300 hover:scale-[1.02] hover:border-primary/50 flex flex-col justify-between min-h-[160px]"
-    >
-      <div className="flex justify-between items-start">
-        <div className="p-3 rounded-xl bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white transition-colors">
-          <Book size={24} />
+    <Link to={`/ai/subject/${branch}/${semester}/${encodeURIComponent(name)}`} className="block">
+      <div className="edus-card p-5 h-40 flex flex-col justify-between transition-colors hover:edus-gradient-border-active group">
+        <div className="flex items-start justify-between">
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center edus-gradient-bg text-white">
+            <Book size={18} />
+          </div>
+          <ChevronRight size={18} className="text-slate-500 transition-colors" />
         </div>
-        <ChevronRight size={20} className="text-text-muted group-hover:text-text group-hover:translate-x-1 transition-all" />
-      </div>
-
-      <div>
-        <h3 className="text-xl font-bold text-text group-hover:text-primary transition-colors">{name}</h3>
-        <p className="text-sm text-text-muted mt-1 uppercase tracking-wider">{branch} • {semester.replace('_', ' ')}</p>
+        
+        <div>
+          <h3 className="font-semibold text-white mb-1 line-clamp-2">{name}</h3>
+          <p className="text-xs text-slate-400 uppercase tracking-wider">
+            {branch} · {semester.replace('_', ' ')}
+          </p>
+        </div>
       </div>
     </Link>
   );

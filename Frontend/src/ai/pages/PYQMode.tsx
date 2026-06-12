@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useSession } from '../context/SessionContext';
 import { generatePYQ } from '../api/ai.api';
-import { ChevronLeft, Loader2, FileText, CheckCircle } from 'lucide-react';
+import { ChevronLeft, ChevronDown, ChevronUp, Brain, FileText } from 'lucide-react';
 import BottomNavBar from '../components/layout/BottomNavBar';
 
 const PYQMode = () => {
@@ -12,12 +12,15 @@ const PYQMode = () => {
 
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [openIdx, setOpenIdx] = useState<number | null>(null);
 
   useEffect(() => {
     const loadPYQ = async () => {
       setLoading(true);
       try {
-        const sectionContent = section === 'A' ? state.subjectData?.sections.A : state.subjectData?.sections.B;
+        const sectionContent = section === 'A'
+          ? state.subjectData?.sections.A
+          : state.subjectData?.sections.B;
         const generated = await generatePYQ({
           subjectName: state.subjectData?.subjectName,
           sectionContent: JSON.stringify(sectionContent),
@@ -35,61 +38,68 @@ const PYQMode = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-8">
-        <Loader2 className="animate-spin text-primary mb-6" size={48} />
-        <h2 className="text-2xl font-bold">Predicting Exam Questions...</h2>
-        <p className="text-text-muted mt-2">AI is analyzing historical patterns for Section {section}.</p>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-[#0E0C15] p-8 text-center pb-20">
+        <div className="w-16 h-16 rounded-2xl flex items-center justify-center bg-sky-400/10 border border-sky-400/20 mb-6">
+          <Brain size={24} className="text-sky-400 animate-pulse" />
+        </div>
+        <h2 className="text-xl font-bold text-white mb-2">Predicting Exam Questions…</h2>
+        <p className="text-sm text-slate-400">AI is analyzing historical patterns.</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background text-text flex flex-col" style={{ paddingBottom: '64px' }}>
-      <header className="p-8 flex items-center justify-between glass sticky top-0 z-10">
+    <div className="min-h-screen flex flex-col bg-[#0E0C15] pb-20">
+      <header className="px-6 py-4 flex items-center justify-between border-b border-[#252134] sticky top-0 z-20 bg-[#0E0C15]/90 backdrop-blur-md">
         <button
           onClick={() => navigate(`/ai/learn/${branch}/${semester}/${subjectSlug}?section=${section}`)}
-          className="flex items-center gap-2 text-text-muted hover:text-text"
+          className="flex items-center gap-2 text-sm font-medium text-slate-400 hover:text-sky-400 transition-colors"
         >
-          <ChevronLeft size={20} /> Back to Chapters
+          <ChevronLeft size={18} /> Back
         </button>
+
         <div className="text-center">
-          <h2 className="text-xl font-black uppercase tracking-tighter">Section {section} PYQ</h2>
-          <p className="text-xs text-text-muted font-bold tracking-widest">{state.subjectData?.subjectName}</p>
+          <h2 className="text-base font-bold text-white">Section {section} — PYQ</h2>
+          <p className="text-xs text-slate-500">{state.subjectData?.subjectName}</p>
         </div>
-        <div className="w-20" />
+
+        <span className="edus-badge-blue">{questions.length} Q's</span>
       </header>
 
-      <main className="max-w-4xl mx-auto w-full p-8 space-y-8">
-        <div className="bg-primary/10 border border-primary/20 p-6 rounded-3xl flex items-center gap-4">
-          <div className="w-12 h-12 bg-primary rounded-2xl flex items-center justify-center text-white">
-            <FileText size={24} />
-          </div>
-          <div>
-            <h3 className="font-bold text-lg">Predicted Important Questions</h3>
-            <p className="text-text-muted text-sm">Based on syllabus weightage and standard exam patterns.</p>
-          </div>
-        </div>
+      <main className="max-w-4xl mx-auto w-full px-6 py-8 space-y-5">
+        {questions.map((q, i) => {
+          const isOpen = openIdx === i;
+          return (
+            <div key={i} className="edus-card overflow-hidden">
+              <div className="px-6 py-5">
+                <div className="flex items-center gap-2 mb-3 flex-wrap">
+                  <span className="edus-badge-muted uppercase">{q.type}</span>
+                  {q.topic && <span className="text-[11px] text-slate-500 uppercase">{q.topic}</span>}
+                  <span className="ml-auto edus-badge-blue">Q{i + 1}</span>
+                </div>
 
-        {questions.map((q, i) => (
-          <div key={i} className="glass p-8 rounded-3xl border border-white/5 hover:border-white/10 transition-all">
-            <div className="flex items-center justify-between mb-4">
-              <span className="px-3 py-1 bg-white/5 rounded-full text-[10px] font-bold uppercase tracking-widest text-primary">
-                {q.type}
-              </span>
-              <span className="text-xs text-text-muted font-bold">{q.topic}</span>
-            </div>
-            <h4 className="text-2xl font-bold mb-6 leading-tight">{q.question}</h4>
+                <h4 className="text-lg font-semibold text-white leading-snug mb-4">{q.question}</h4>
 
-            <details className="group">
-              <summary className="list-none cursor-pointer flex items-center gap-2 text-primary font-bold hover:gap-3 transition-all">
-                <CheckCircle size={18} /> View Model Answer
-              </summary>
-              <div className="mt-6 p-6 bg-white/5 rounded-2xl text-text-muted leading-relaxed text-lg animate-in slide-in-from-top-2">
-                {q.modelAnswer}
+                <button
+                  onClick={() => setOpenIdx(isOpen ? null : i)}
+                  className="flex items-center gap-2 text-xs font-semibold text-sky-400 hover:text-sky-300 transition-colors"
+                >
+                  <FileText size={14} />
+                  <span>{isOpen ? 'Hide' : 'View'} Model Answer</span>
+                  {isOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                </button>
               </div>
-            </details>
-          </div>
-        ))}
+
+              {isOpen && (
+                <div className="px-6 pb-5 pt-2 border-t border-[#252134]">
+                  <div className="p-4 rounded-xl bg-[#1A1825]">
+                    <p className="text-sm text-slate-300 leading-relaxed">{q.modelAnswer}</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
       </main>
 
       <BottomNavBar />
