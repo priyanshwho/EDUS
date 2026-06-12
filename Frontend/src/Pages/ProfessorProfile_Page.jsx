@@ -8,6 +8,7 @@ import {
   semesterLabel,
   slugifySegment,
 } from '../utils/format';
+import { handlePreviewResource } from '../utils/previewHandler';
 import { getStaticResources } from '../utils/staticResources';
 import { GooeyLoader } from '../components/ui/loader-10';
 
@@ -285,24 +286,24 @@ export default function ProfessorProfilePage() {
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: 'auto' }}>
                       <p style={{ color: '#3F3A52', fontSize: '11px', margin: 0 }}>{formatDate(r.created_at)}</p>
                       {(r.signedUrl || r.external_link || r.aws_s3_key) && (
-                        <a
-                          href={r.signedUrl || r.external_link || (r.aws_s3_key ? `https://fly.storage.tigris.dev/edusphere-files/${r.aws_s3_key}` : '#')}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          title="Download"
+                        <button
+                          onClick={(e) => handlePreviewResource(r, e)}
+                          title="Preview"
                           style={{
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
                             width: '32px', height: '32px', borderRadius: '8px',
                             background: 'rgba(255,255,255,0.05)', color: '#CAC6DD',
                             border: '1px solid rgba(255,255,255,0.1)', transition: 'all 0.2s',
+                            cursor: 'pointer'
                           }}
                           onMouseEnter={e => { e.currentTarget.style.color = '#38bdf8'; e.currentTarget.style.borderColor = 'rgba(56,189,248,0.3)'; e.currentTarget.style.background = 'rgba(56,189,248,0.1)'; }}
                           onMouseLeave={e => { e.currentTarget.style.color = '#CAC6DD'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; }}
                         >
                           <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                           </svg>
-                        </a>
+                        </button>
                       )}
                     </div>
                   </article>
