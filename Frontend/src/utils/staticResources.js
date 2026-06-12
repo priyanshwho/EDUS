@@ -3,7 +3,7 @@ import { sampleLectures } from '../database/Lecture';
 
 export function getStaticResources() {
   const adminUploader = {
-    username: 'priyanswho',
+    username: 'priyanshwho',
     email: 'priyanshu82711@gmail.com',
     name: 'Admin'
   };
