@@ -98,7 +98,7 @@ const InteractiveMenu: React.FC<InteractiveMenuProps> = ({ items, accentColor, d
         return (
           <button
             key={item.label}
-            className={`group relative flex items-center justify-center rounded-full transition-all duration-300 ease-out px-4 py-2 ${
+            className={`group relative flex flex-col items-center justify-center rounded-2xl transition-all duration-300 ease-out w-14 h-14 ${
               isActive 
                 ? 'bg-cyan-500/15 text-cyan-400' 
                 : 'text-n-4 hover:bg-n-7/50 hover:text-n-1'
@@ -106,18 +106,17 @@ const InteractiveMenu: React.FC<InteractiveMenuProps> = ({ items, accentColor, d
             onClick={() => handleItemClick(index)}
             ref={(el) => (itemRefs.current[index] = el)}
           >
-            <div className="flex items-center justify-center z-10">
-              <IconComponent className={`w-6 h-6 transition-transform duration-300 ${isActive ? 'animate-[iconBounce_0.5s_ease-out]' : 'group-hover:scale-110'}`} />
+            <div className={`flex items-center justify-center z-10 transition-transform duration-300 ${isActive || 'group-hover' ? (isActive ? '-translate-y-2.5' : 'group-hover:-translate-y-2.5') : ''}`}>
+              <IconComponent className={`w-5 h-5 transition-transform duration-300 ${isActive ? 'animate-[iconBounce_0.5s_ease-out]' : 'group-hover:scale-110'}`} />
             </div>
             
             {/* The Text Label - Visible when active or on hover */}
             <div 
-              className={`overflow-hidden transition-all duration-300 ease-in-out whitespace-nowrap font-medium text-sm flex items-center ${
+              className={`absolute bottom-2 overflow-hidden transition-all duration-300 ease-out whitespace-nowrap font-semibold text-[10px] flex items-center justify-center ${
                 isActive 
-                  ? 'opacity-100 ml-2 max-w-[100px]' 
-                  : 'opacity-0 max-w-0 ml-0 group-hover:opacity-100 group-hover:max-w-[100px] group-hover:ml-2'
+                  ? 'opacity-100 translate-y-0 scale-100' 
+                  : 'opacity-0 translate-y-2 scale-95 group-hover:opacity-100 group-hover:translate-y-0 group-hover:scale-100'
               }`}
-              ref={(el) => (textRefs.current[index] = el)}
             >
               {item.label}
             </div>
