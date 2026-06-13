@@ -5,6 +5,7 @@ import { generatePYQ } from '../api/ai.api';
 import { ChevronLeft, ChevronDown, ChevronUp, FileText } from 'lucide-react';
 import BottomNavBar from '../components/layout/BottomNavBar';
 import { GooeyLoader } from '../../components/ui/loader-10';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const PYQMode = () => {
   const { branch, semester, subjectSlug, section } = useParams();
@@ -44,7 +45,7 @@ const PYQMode = () => {
           <GooeyLoader primaryColor="#38bdf8" secondaryColor="#a78bfa" borderColor="#252134" />
         </div>
         <h2 className="text-xl font-bold text-white mb-2 tracking-wide">Predicting Exam Questions…</h2>
-        <p className="text-sm text-slate-400">AI is meticulously analyzing historical patterns.</p>
+        <p className="text-base text-slate-400">AI is meticulously analyzing historical patterns.</p>
       </div>
     );
   }
@@ -75,11 +76,11 @@ const PYQMode = () => {
               <div className="px-6 py-5">
                 <div className="flex items-center gap-2 mb-3 flex-wrap">
                   <span className="edus-badge-muted uppercase">{q.type}</span>
-                  {q.topic && <span className="text-[11px] text-slate-500 uppercase">{q.topic}</span>}
+                  {q.topic && <span className="text-xs text-slate-500 uppercase">{q.topic}</span>}
                   <span className="ml-auto edus-badge-gradient">Q{i + 1}</span>
                 </div>
 
-                <h4 className="text-xl font-semibold text-white leading-snug mb-5">{q.question}</h4>
+                <h4 className="text-lg font-semibold text-white leading-snug mb-5">{q.question}</h4>
 
                 <button
                   onClick={() => setOpenIdx(isOpen ? null : i)}
@@ -87,17 +88,38 @@ const PYQMode = () => {
                 >
                   <FileText size={16} className="text-sky-400" />
                   <span>{isOpen ? 'Hide' : 'View'} Model Answer</span>
-                  {isOpen ? <ChevronUp size={16} className="text-sky-400" /> : <ChevronDown size={16} className="text-sky-400" />}
+                  {isOpen
+                    ? <ChevronUp size={16} className="text-sky-400" />
+                    : <ChevronDown size={16} className="text-sky-400" />}
                 </button>
               </div>
 
-              {isOpen && (
-                <div className="px-6 pb-6 pt-2 border-t border-[#252134] bg-sky-400/5">
-                  <div className="p-5 rounded-xl bg-[#1A1825] border border-sky-400/10 shadow-inner">
-                    <p className="text-sm text-slate-300 leading-relaxed whitespace-pre-wrap">{q.modelAnswer}</p>
-                  </div>
-                </div>
-              )}
+              {/* ── Framer Motion animated answer panel ── */}
+              <AnimatePresence initial={false}>
+                {isOpen && (
+                  <motion.div
+                    key="answer"
+                    initial={{ height: 0, opacity: 0, y: -8 }}
+                    animate={{ height: 'auto', opacity: 1, y: 0 }}
+                    exit={{ height: 0, opacity: 0, y: -8 }}
+                    transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+                    style={{ overflow: 'hidden' }}
+                  >
+                    <div className="px-6 pb-6 pt-2 border-t border-[#252134] bg-sky-400/5">
+                      <motion.div
+                        initial={{ opacity: 0, y: 6 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.1, duration: 0.24 }}
+                        className="p-5 rounded-xl bg-[#1A1825] border border-sky-400/10 shadow-inner"
+                      >
+                        <p className="text-sm text-slate-300 leading-relaxed whitespace-pre-wrap">
+                          {q.modelAnswer}
+                        </p>
+                      </motion.div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           );
         })}
