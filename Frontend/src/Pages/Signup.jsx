@@ -230,18 +230,14 @@ export default function SignupPage() {
         >
           {/* Brand mark */}
           <div style={{ textAlign: 'center', marginBottom: '28px' }}>
-            <div
-              style={{
-                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                width: '52px', height: '52px', borderRadius: '16px',
-                background: 'linear-gradient(135deg, #AC6AFF 0%, #858DFF 100%)',
-                marginBottom: '16px',
-                boxShadow: '0 4px 20px rgba(172,106,255,0.35)',
-              }}
-            >
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
+            <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'center' }}>
+              <img
+                src="/eduicon.png"
+                alt="EduSphere"
+                width={72}
+                height={72}
+                style={{ objectFit: 'contain', filter: 'drop-shadow(0 4px 20px rgba(172,106,255,0.35))' }}
+              />
             </div>
             <h1 style={{ color: '#FFFFFF', fontSize: '22px', fontWeight: 700, margin: '0 0 6px', letterSpacing: '-0.02em' }}>
               Create your account
