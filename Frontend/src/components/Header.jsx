@@ -160,10 +160,6 @@ const Header = () => {
 
                 {/* ── Desktop right section ────────────────────────── */}
                 <div className="hidden lg:flex items-center gap-3">
-                    <Button onClick={() => navigate('/creators')}>
-                        Creators
-                    </Button>
-
                     {isAuthenticated ? (
                         /* Profile avatar + dropdown */
                         <div className="relative" ref={dropdownRef}>
@@ -192,7 +188,7 @@ const Header = () => {
                             )}
                         </div>
                     ) : (
-                        <Button onClick={() => navigate('/login')}>
+                        <Button className="whitespace-nowrap" onClick={() => navigate('/login')}>
                             Sign In
                         </Button>
                     )}
