@@ -2,9 +2,56 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="./src/assets/eduIcon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Edusphere</title>
+
+    <!-- Primary SEO -->
+    <title>EduSphere — Academic Resource Platform for Students</title>
+    <meta name="description" content="EduSphere is your all-in-one academic platform. Access notes, PYQs, video lectures, AI study tools, and expert resources to excel in your college journey." />
+    <meta name="keywords" content="edusphere, college notes, PYQs, previous year questions, lectures, academic resources, AI study tools, engineering notes, RGPV" />
+    <meta name="author" content="EduSphere Team" />
+    <link rel="canonical" href="https://edusphere.live/" />
+
+    <!-- Open Graph / Social -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://edusphere.live/" />
+    <meta property="og:title" content="EduSphere — Academic Resource Platform for Students" />
+    <meta property="og:description" content="Notes, PYQs, lectures, AI tools and expert resources for college students. Everything you need to survive and excel in college." />
+    <meta property="og:image" content="https://edusphere.live/pwa-512x512.png" />
+    <meta property="og:site_name" content="EduSphere" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="EduSphere — Academic Resource Platform" />
+    <meta name="twitter:description" content="Notes, PYQs, lectures, AI tools and expert resources for college students." />
+    <meta name="twitter:image" content="https://edusphere.live/pwa-512x512.png" />
+
+    <!-- PWA / Theme -->
+    <meta name="theme-color" content="#0F172A" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="EduSphere" />
+
+    <!-- Favicon / Icons -->
+    <link rel="icon" type="image/svg+xml" href="/src/assets/eduIcon.svg" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+
+    <!-- Content Security Policy -->
+    <meta http-equiv="Content-Security-Policy" content="
+      default-src 'self';
+      script-src 'self' 'unsafe-inline' 'unsafe-eval';
+      style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+      font-src 'self' https://fonts.gstatic.com;
+      img-src 'self' data: https: blob:;
+      connect-src 'self' https://edusphere.live https://*.edusphere.live http://localhost:5001 https://accounts.google.com https://oauth2.googleapis.com;
+      frame-src https://accounts.google.com;
+      object-src 'none';
+      base-uri 'self';
+    " />
+
+    <!-- Preconnect for performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   </head>
   <body>
     <div id="root"></div>
