@@ -50,7 +50,14 @@ export default defineConfig({
         cleanupOutdatedCaches: true,
         clientsClaim: true,
         skipWaiting: true,
-        navigateFallback: '/',
+        // Use /index.html — it IS in the precache manifest; bare '/' is not.
+        navigateFallback: '/index.html',
+        // Don't intercept API calls, auth routes, or static assets with the SW
+        navigateFallbackDenylist: [
+          /^\/api\//,
+          /^\/auth\//,
+          /\.[a-z]{2,4}$/i,   // files with extensions (.png, .js, .css, etc.)
+        ],
       },
     }),
   ],
