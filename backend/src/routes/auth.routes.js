@@ -8,10 +8,11 @@ const {
 } = require('../controllers/auth.controller');
 const { signupValidator, loginValidator, pinValidator } = require('../validators/auth.validator');
 const { signAccessToken, signRefreshToken, buildPayload } = require('../auth/jwt.utils');
+const { loginLimiter, signupLimiter, oauthLimiter } = require('../middleware/rateLimiter');
 
 // ── Traditional auth ───────────────────────────────────────────────────────
-router.post('/signup',     signupValidator, invalidateAllCache(), signup);
-router.post('/login',      loginValidator,  login);
+router.post('/signup',     signupLimiter, signupValidator, invalidateAllCache(), signup);
+router.post('/login',      loginLimiter, loginValidator,  login);
 router.post('/verify-pin', pinValidator,    verifyPin);
 router.post('/upgrade-professor', authenticate, pinValidator, invalidateAllCache(), upgradeToProfessor);
 router.post('/superadmin/switch-role', authenticate, invalidateAllCache(), superadminSwitchRole);
@@ -21,20 +22,24 @@ router.get('/me',          authenticate, me);
 
 // ── Google OAuth ───────────────────────────────────────────────────────────
 router.get('/google',
+  oauthLimiter,
   passport.authenticate('google', { scope: ['profile', 'email'], session: false })
 );
 
 router.get('/google/callback',
+  oauthLimiter,
   passport.authenticate('google', { session: false, failureRedirect: '/login' }),
   oauthCallback
 );
 
 // ── GitHub OAuth ───────────────────────────────────────────────────────────
 router.get('/github',
+  oauthLimiter,
   passport.authenticate('github', { scope: ['user:email'], session: false })
 );
 
 router.get('/github/callback',
+  oauthLimiter,
   passport.authenticate('github', { session: false, failureRedirect: '/login' }),
   oauthCallback
 );
