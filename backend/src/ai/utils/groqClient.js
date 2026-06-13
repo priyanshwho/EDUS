@@ -45,11 +45,14 @@ async function callGroq({ systemPrompt, userPrompt, stream = false, res = null }
         model,
         messages,
         temperature: 0.7,
-        max_tokens: 1500
+        max_tokens: 2000
       });
       return response.choices[0].message.content;
     } catch (error) {
-      console.error('Groq API Error:', error);
+      // Log structured error details for easier diagnosis
+      const status = error?.status || error?.statusCode || 'unknown';
+      const code   = error?.error?.code || error?.code || 'unknown';
+      console.error(`Groq API Error [HTTP ${status}] [code: ${code}]:`, error?.message || error);
       throw error;
     }
   }
