@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+# Disallow private/auth areas
+Disallow: /dashboard/
+Disallow: /auth/
+
+# Sitemap location
+Sitemap: https://edusphere.live/sitemap.xml

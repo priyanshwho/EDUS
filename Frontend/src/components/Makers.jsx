@@ -9,7 +9,7 @@ const Makers = () => {
       name: 'Priyanshu Anand',
       role: 'Lead Full Stack Developer',
       description: 'Leading the technical vision and architecting scalable full-stack solutions with expertise in modern frameworks.',
-      avatar: '/priyanshu.png',
+      avatar: '/priyanshu.webp',
       github: 'https://github.com/priyans11',
       linkedin: 'https://linkedin.com/in/priyans11',
       email: 'priyanshu82711@gmail.com',
@@ -19,7 +19,7 @@ const Makers = () => {
       name: 'Neeraj Kumar Verma',
       role: 'MERN Stack Developer',
       description: 'Specialized in MongoDB, Express.js, React, and Node.js for building dynamic web applications.',
-      avatar: '/Neeraj.jpeg',
+      avatar: '/Neeraj.webp',
       github: 'https://github.com/coder174-ops',
       linkedin: 'https://www.linkedin.com/in/neeraj-kumar-verma-9813b6261',
       email: 'neerajjnv2015@gmail.com',
@@ -29,7 +29,7 @@ const Makers = () => {
       name: 'Anuj Kumar',
       role: 'Web Developer',
       description: 'Creating responsive and interactive web experiences with modern technologies and best practices.',
-      avatar: '/Anuj.jpeg',
+      avatar: '/Anuj.webp',
       github: 'https://github.com/anujarya1435',
       linkedin: 'https://www.linkedin.com/in/nitesh-kumar-1b9b0a362',
       email: 'nraj21284@gmail.com',
@@ -39,7 +39,7 @@ const Makers = () => {
       name: 'Prashant Kumar Singh',
       role: 'Cybersecurity Expert',
       description: 'Ensuring platform security and data protection through advanced cybersecurity practices and protocols.',
-      avatar: '/Prashant.jpeg',
+      avatar: '/Prashant.webp',
       github: 'https://github.com/lifeaboutsily',
       linkedin: 'https://www.linkedin.com/in/prashant-kumar-singh-b612442b5',
       email: 'curiousprashantks@gmail.com',
@@ -60,14 +60,14 @@ const Makers = () => {
             <span className="text-sm font-semibold text-n-1 uppercase tracking-wider">Our Team</span>
           </div>
           
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
+          <h2 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
             <span className="block bg-gradient-to-r from-white via-purple-100 to-white bg-clip-text text-transparent">
               Meet the
             </span>
             <span className="block bg-gradient-to-r from-purple-400 via-blue-400 to-cyan-400 bg-clip-text text-transparent">
               Makers
             </span>
-          </h1>
+          </h2>
           
           <p className="text-lg md:text-xl text-n-3 max-w-3xl mx-auto leading-relaxed">
             Get to know the talented individuals behind EduSphere. Our diverse team of developers, 

@@ -48,7 +48,8 @@ export function AuthProvider({ children }) {
         setAccessToken(token);
         setUser(u);
       } catch {
-        // No valid refresh cookie — user is logged out
+        // Expected on public pages when no refresh cookie is present.
+        // This 401 is benign — the user is simply not logged in yet.
       } finally {
         setLoading(false);
       }
