@@ -45,6 +45,12 @@ const Header = () => {
         };
     }, []);
 
+    // ── Reset scroll lock on route change ─────────────────────────────
+    useEffect(() => {
+        enablePageScroll();
+        setOpenNavigation(false);
+    }, [pathname.pathname]);
+
     // ── Hamburger toggle ─────────────────────────────────────────────
     const toggleNavigation = () => {
         if (openNavigation) {
@@ -214,7 +220,7 @@ const Header = () => {
                                     </div>
                                     <div className="flex flex-col gap-3">
                                         <button 
-                                            onClick={() => { setOpenNavigation(false); navigate(`/dashboard/${user?.role || 'student'}`); }}
+                                            onClick={() => { enablePageScroll(); setOpenNavigation(false); navigate(`/dashboard/${user?.role || 'student'}`); }}
                                             className="flex items-center gap-3 w-full py-3 px-4 rounded-xl bg-n-7 hover:bg-n-6 transition-colors text-n-1 font-medium"
                                         >
                                             <LayoutDashboard size={20} className="text-cyan-400" />
@@ -222,7 +228,7 @@ const Header = () => {
                                         </button>
                                         {(isStudent && user?.role !== 'professor') && (
                                             <button 
-                                                onClick={() => { setOpenNavigation(false); navigate('/auth/pin'); }}
+                                                onClick={() => { enablePageScroll(); setOpenNavigation(false); navigate('/auth/pin'); }}
                                                 className="flex items-center gap-3 w-full py-3 px-4 rounded-xl bg-n-7 hover:bg-n-6 transition-colors text-n-1 font-medium"
                                             >
                                                 <KeyRound size={20} className="text-emerald-400" />
@@ -230,7 +236,7 @@ const Header = () => {
                                             </button>
                                         )}
                                         <button 
-                                            onClick={() => { setOpenNavigation(false); logout(); navigate('/'); }}
+                                            onClick={() => { enablePageScroll(); setOpenNavigation(false); logout(); navigate('/'); }}
                                             className="flex items-center gap-3 w-full py-3 px-4 rounded-xl bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 transition-colors text-red-400 font-medium mt-2"
                                         >
                                             <LogOut size={20} />
