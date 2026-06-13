@@ -1,45 +1,6 @@
-// import ButtonGradient from "./assets/svg/ButtonGradient"
-// import About from "./components/About";
-// import Contact from "./components/Contact";
-// import Feedback from "./components/Feedback";
-// import Header from "./components/Header";
-// import Hero from "./components/Hero";
-// import Makers from "./components/Makers";
-// import Services from "./components/Services";
-
-// // Update App.jsx to include the Login route
-// // import Login from './components/Auth/Login';
-
-// // In your routes:
-
-// const App=()=> {
-
-//   return (
-
-//     <>
-     
-//     <div className="pt-[4.75rem] lg:pt-[5.25rem] overflow-hidden" >
-    
-//     <Header/>
-//     <Hero/>
-//     <About/>
-//     <Services/>
-//     <Contact/>
-//     <Feedback/>
-//     <Makers/>
-    
-// {/* <Route path="/login" element={<Login />} /> */}
-//     </div>
-//     <ButtonGradient/>
-//     </>
-    
-//   )
-// }
-
-// export default App
-
-import ButtonGradient from "./assets/svg/ButtonGradient"
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import ButtonGradient from "./assets/svg/ButtonGradient";
+import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
+import { AnimatePresence } from "framer-motion";
 import Header from "./components/Header";
 import ScrollToTop from "./components/ScrollToTop";
 import LecturesPage from "./Pages/Lectures_Page";
@@ -59,6 +20,7 @@ import Footer from "./components/Footer";
 import { DemoOne } from "./components/Npx/Demo";
 import Makers from "./components/Makers";
 import MobileBottomBar from "./components/layout/MobileBottomBar";
+import PageTransition from "./components/PageTransition";
 
 // ── Auth & Dashboard ────────────────────────────────────────────────
 import { AuthProvider } from "./context/AuthContext";
@@ -73,129 +35,95 @@ import AdminDashboard from "./dashboard/AdminDashboard";
 import ResourcePage from "./Pages/ResourcePage";
 import ProfessorsPage from "./Pages/Professors_Page";
 import ProfessorProfilePage from "./Pages/ProfessorProfile_Page";
-
 // ───────────────────────────────────────────────────────────────────
 
-const AppShell = () => {
+/**
+ * AnimatedRoutes
+ * Uses the location key so AnimatePresence detects route changes and
+ * mounts/unmounts the correct exit + enter animation.
+ * Browser back/forward navigation also triggers the transition because
+ * location.key changes on every history entry.
+ */
+const AnimatedRoutes = () => {
+  const location = useLocation();
   const requireAuth = (element) => <ProtectedRoute>{element}</ProtectedRoute>;
 
+  return (
+    <AnimatePresence mode="wait" initial={false}>
+      {/* key must be location.key (not pathname) so back/forward also animates */}
+      <Routes location={location} key={location.key}>
+        {/* ── Public ── */}
+        <Route path="/" element={<PageTransition><Homepage /></PageTransition>} />
+        <Route path="/about" element={<PageTransition>{requireAuth(<AboutPage />)}</PageTransition>} />
+        <Route path="/services" element={<PageTransition>{requireAuth(<ServicesPage />)}</PageTransition>} />
+        <Route path="/contact" element={<PageTransition>{requireAuth(<Contact />)}</PageTransition>} />
+        <Route path="/demo" element={<PageTransition>{requireAuth(<DemoOne />)}</PageTransition>} />
+        <Route path="/creators" element={<PageTransition>{requireAuth(<Makers />)}</PageTransition>} />
+        <Route path="/ai/*" element={<PageTransition>{requireAuth(<Eduai />)}</PageTransition>} />
+        <Route path="/techskills" element={<PageTransition>{requireAuth(<TechSkill_page />)}</PageTransition>} />
+        <Route path="/extraskills" element={<PageTransition>{requireAuth(<ExtraSkills_page />)}</PageTransition>} />
+
+        {/* ── Auth routes ── */}
+        <Route path="/login" element={<PageTransition><LoginPage /></PageTransition>} />
+        <Route path="/signup" element={<PageTransition><SignupPage /></PageTransition>} />
+        <Route path="/auth/pin" element={<PageTransition><ProfessorPinPage /></PageTransition>} />
+        <Route path="/auth/callback" element={<PageTransition><AuthCallbackPage /></PageTransition>} />
+
+        {/* ── Protected dashboards ── */}
+        <Route path="/dashboard/student" element={
+          <PageTransition>
+            <ProtectedRoute roles={['student', 'professor', 'admin']}>
+              <StudentDashboard />
+            </ProtectedRoute>
+          </PageTransition>
+        } />
+        <Route path="/dashboard/professor" element={
+          <PageTransition>
+            <ProtectedRoute roles={['professor', 'admin']}>
+              <ProfessorDashboard />
+            </ProtectedRoute>
+          </PageTransition>
+        } />
+        <Route path="/dashboard/admin" element={
+          <PageTransition>
+            <ProtectedRoute roles={['admin']}>
+              <AdminDashboard />
+            </ProtectedRoute>
+          </PageTransition>
+        } />
+
+        {/* ── Professor discovery ── */}
+        <Route path="/professors" element={<PageTransition>{requireAuth(<ProfessorsPage />)}</PageTransition>} />
+        <Route path="/professors/:username" element={<PageTransition>{requireAuth(<ProfessorProfilePage />)}</PageTransition>} />
+        <Route path="/professors/:username/:branch/:semester/:subject" element={<PageTransition>{requireAuth(<ProfessorProfilePage />)}</PageTransition>} />
+        <Route path="/professors/:username/:branch/:semester/:subject/:resourceType/:slug" element={<PageTransition>{requireAuth(<ResourcePage />)}</PageTransition>} />
+
+        {/* ── Resource detail ── */}
+        <Route path="/resource/:slug" element={<PageTransition>{requireAuth(<ResourcePage />)}</PageTransition>} />
+
+        {/* ── Study resources ── */}
+        <Route path="/pyqs" element={<PageTransition>{requireAuth(<Pyqs_Page />)}</PageTransition>} />
+        <Route path="/notes" element={<PageTransition>{requireAuth(<Notes_Page />)}</PageTransition>} />
+        <Route path="/lectures" element={<PageTransition>{requireAuth(<LecturesPage />)}</PageTransition>} />
+        <Route path="/webdev" element={<PageTransition>{requireAuth(<Webdev_page />)}</PageTransition>} />
+        <Route path="/dsa" element={<PageTransition>{requireAuth(<Dsa_page />)}</PageTransition>} />
+        <Route path="/aiml" element={<PageTransition>{requireAuth(<Aiml_page />)}</PageTransition>} />
+      </Routes>
+    </AnimatePresence>
+  );
+};
+
+/**
+ * AppShell
+ * Persistent layout elements (Header, MobileBottomBar, Footer) are rendered
+ * OUTSIDE AnimatedRoutes so they never re-animate on route changes.
+ */
+const AppShell = () => {
   return (
     <>
       <Header />
       <div className="pt-[4.75rem] lg:pt-[5.25rem] overflow-x-hidden">
-        <>
-
-          <Routes>
-    <Route path="/" element={<Homepage/> } />
-    <Route path="/about" element={requireAuth(<AboutPage />)} />
-    <Route path="/services" element={requireAuth(<ServicesPage />)} />
-    <Route path="/contact" element={requireAuth(<Contact />)} />
-    <Route path="/demo" element={requireAuth(<DemoOne />)} />
-    <Route path="/creators" element={requireAuth(<Makers />)} />
-    <Route path="/ai/*" element={requireAuth(<Eduai />)} />
-    <Route path="/techskills" element={requireAuth(<TechSkill_page />)} />
-    <Route path="/extraskills" element={requireAuth(<ExtraSkills_page />)} />
-
-    {/* ── Auth routes ── */}
-    <Route path="/login"          element={<LoginPage />} />
-    <Route path="/signup"         element={<SignupPage />} />
-    <Route path="/auth/pin"       element={<ProfessorPinPage />} />
-    <Route path="/auth/callback"  element={<AuthCallbackPage />} />
-
-    {/* ── Protected dashboards ── */}
-    <Route path="/dashboard/student" element={
-      <ProtectedRoute roles={['student','professor','admin']}>
-        <StudentDashboard />
-      </ProtectedRoute>
-    } />
-    <Route path="/dashboard/professor" element={
-      <ProtectedRoute roles={['professor','admin']}>
-        <ProfessorDashboard />
-      </ProtectedRoute>
-    } />
-    <Route path="/dashboard/admin" element={
-      <ProtectedRoute roles={['admin']}>
-        <AdminDashboard />
-      </ProtectedRoute>
-    } />
-
-    {/* ── Public professor discovery routes ── */}
-    <Route path="/professors" element={requireAuth(<ProfessorsPage />)} />
-    <Route path="/professors/:username" element={requireAuth(<ProfessorProfilePage />)} />
-    <Route path="/professors/:username/:branch/:semester/:subject" element={requireAuth(<ProfessorProfilePage />)} />
-    <Route path="/professors/:username/:branch/:semester/:subject/:resourceType/:slug" element={requireAuth(<ResourcePage />)} />
-
-    {/* ── Public resource detail (shareable) ── */}
-    <Route path="/resource/:slug" element={requireAuth(<ResourcePage />)} />
-
-    <Route path="/pyqs" element={requireAuth(<Pyqs_Page />)} />
-    {/* <Route path="/pyqs" element={
-      <>
-      <SignedIn>
-      <Pyqs_Page/>
-      </SignedIn>
-      <SignedOut>
-        <RedirectToSignIn/>
-      </SignedOut>
-      </>
-  } /> */}
-    <Route path="/notes" element={requireAuth(<Notes_Page />)} />
-    {/* <Route path="/notes" element={
-      <>
-      <SignedIn>
-      <Notes_Page />
-      </SignedIn>
-      <SignedOut>
-        <RedirectToSignIn/>
-      </SignedOut>
-      </>
-      } /> */}
-      <Route path="/lectures" element={requireAuth(<LecturesPage />)} />
-      {/* <Route path="/lectures" element={
-      <>
-      <SignedIn>
-      <LecturesPage />
-      </SignedIn>
-      <SignedOut>
-        <RedirectToSignIn/>
-      </SignedOut>
-      </>
-      } /> */}
-      <Route path="/webdev" element={requireAuth(<Webdev_page />)} />
-      {/* <Route path="/webdev" element={
-      <>
-      <SignedIn>
-      <Webdev_page />
-      </SignedIn>
-      <SignedOut>
-        <RedirectToSignIn/>
-      </SignedOut>
-      </>
-      } /> */}
-      <Route path="/dsa" element={requireAuth(<Dsa_page />)} />
-      {/* <Route path="/dsa" element={
-      <>
-      <SignedIn>
-      <Dsa_page />
-      </SignedIn>
-      <SignedOut>
-        <RedirectToSignIn/>
-      </SignedOut>
-      </>
-      } /> */}
-    <Route path="/aiml" element={requireAuth(<Aiml_page />)} />
-    {/* <Route path="/aiml" element={
-      <>
-      <SignedIn>
-      <Aiml_page />
-      </SignedIn>
-      <SignedOut>
-        <RedirectToSignIn/>
-      </SignedOut>
-      </>} /> */}
-    {/* ...other routes */}
-          </Routes>
-        </>
+        <AnimatedRoutes />
       </div>
       <MobileBottomBar />
       <Footer />
