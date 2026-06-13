@@ -107,10 +107,10 @@ const ChapterCard = ({
               {String(index + 1).padStart(2, '0')}
             </div>
             <div className="min-w-0">
-              <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-500 mb-0.5">
+              <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500 mb-0.5">
                 Chapter {String(index + 1).padStart(2, '0')}
               </p>
-              <h3 className="font-bold text-base md:text-lg text-white leading-tight truncate">
+              <h3 className="font-bold text-lg md:text-xl text-white leading-tight truncate">
                 {chapter.title}
               </h3>
             </div>
@@ -150,7 +150,7 @@ const ChapterCard = ({
                     className="flex-shrink-0 mt-[5px] w-1.5 h-1.5 rounded-full"
                     style={{ background: MODE_CONFIG[index % 4].textColor, opacity: 0.7 }}
                   />
-                  <span className="text-[12px] text-slate-300 leading-relaxed">{topic}</span>
+                  <span className="text-sm text-slate-300 leading-relaxed">{topic}</span>
                 </div>
               ))}
             </div>
@@ -158,7 +158,7 @@ const ChapterCard = ({
             {hasMore && (
               <button
                 onClick={() => setExpanded(!expanded)}
-                className="mt-2 flex items-center gap-1.5 text-[11px] font-medium transition-colors"
+                className="mt-2 flex items-center gap-1.5 text-xs font-medium transition-colors"
                 style={{ color: MODE_CONFIG[index % 4].textColor }}
               >
                 {expanded ? (
@@ -207,10 +207,10 @@ const ChapterCard = ({
                       <Icon size={13} style={{ color: mode.textColor }} />
                     </div>
                     <div className="min-w-0">
-                      <p className="text-[12px] font-semibold text-white leading-none mb-0.5">
+                      <p className="text-sm font-semibold text-white leading-none mb-0.5">
                         {mode.label}
                       </p>
-                      <p className="text-[10px] text-slate-500 leading-none">{mode.desc}</p>
+                      <p className="text-[11px] text-slate-500 leading-none">{mode.desc}</p>
                     </div>
                   </button>
                 );
@@ -257,7 +257,7 @@ const ChapterSelector = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0E0C15] text-slate-200">
+    <div className="min-h-screen bg-[#0E0C15] text-slate-200 text-base">
       {/* ── Sticky header ──────────────────────────────────── */}
       <div
         className="sticky top-0 z-20 px-5 md:px-10 py-3 flex items-center justify-between"
