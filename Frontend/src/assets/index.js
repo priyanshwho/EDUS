@@ -3,8 +3,8 @@ import check from "./check.svg";
 import brainwaveSymbol from "./brainwave-symbol.svg";
 import brainwaveWhiteSymbol from "./brainwave-symbol-white.svg";
 import play from "./play.svg";
-import gradient from "./gradient.png";
-import smallSphere from "./4-small.png";
+import gradient from "./gradient.webp";
+import smallSphere from "./4-small.webp";
 import grid from "./grid.png";
 import check2 from "./check-02.svg";
 import loading1 from "./loading-01.svg";
@@ -22,8 +22,8 @@ import loading from "./loading.png";
 import background from "./background.jpg";
 
 import curve from "./hero/curve.png";
-import robot from "./hero/robot.jpg";
-import heroBackground from "./hero/hero-background.jpg";
+import robot from "./hero/robot.webp";
+import heroBackground from "./hero/hero-background.webp";
 
 import curve1 from "./collaboration/curve-1.svg";
 import curve2 from "./collaboration/curve-2.svg";
@@ -36,20 +36,20 @@ import protopie from "./collaboration/protopie.png";
 import raindrop from "./collaboration/raindrop.png";
 import slack from "./collaboration/slack.png";
 
-import service1 from "./services/service-1.png";
-import service2 from "./services/service-2.png";
-import service3 from "./services/service-3.png";
+import service1 from "./services/service-1.webp";
+import service2 from "./services/service-2.webp";
+import service3 from "./services/service-3.webp";
 
 import lines from "./pricing/lines.svg";
 import stars from "./pricing/stars.svg";
 
 import coins from "./roadmap/coins.png";
 import done from "./roadmap/done.svg";
-import hero from "./roadmap/hero.png";
-import roadmap1 from "./roadmap/image-1.png";
-import roadmap2 from "./roadmap/image-2.png";
-import roadmap3 from "./roadmap/image-3.png";
-import roadmap4 from "./roadmap/image-4.png";
+import hero from "./roadmap/hero.webp";
+import roadmap1 from "./roadmap/image-1.webp";
+import roadmap2 from "./roadmap/image-2.webp";
+import roadmap3 from "./roadmap/image-3.webp";
+import roadmap4 from "./roadmap/image-4.webp";
 import undone from "./roadmap/undone.svg";
 
 import notification1 from "./notification/image-1.png";
@@ -67,7 +67,7 @@ import benefitIcon1 from "./benefits/icon-1.svg";
 import benefitIcon2 from "./benefits/icon-2.svg";
 import benefitIcon3 from "./benefits/icon-3.svg";
 import benefitIcon4 from "./benefits/icon-4.svg";
-import benefitImage2 from "./benefits/image-2.png";
+import benefitImage2 from "./benefits/image-2.webp";
 
 import discordBlack from "./socials/discord.svg";
 import facebook from "./socials/facebook.svg";

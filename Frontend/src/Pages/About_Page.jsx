@@ -4,11 +4,11 @@ import { GradientLight } from "../components/design/Benefits";
 import ClipPath from "../assets/svg/ClipPath";
 import { Rings, SideLines, BackgroundCircles } from "../components/design/Header";
 import { gradient, grid, lines, stars } from "../assets";
-import service1 from "../assets/services/service-1.png";
-import service2 from "../assets/services/service-2.png";
-import service3 from "../assets/services/service-3.png";
-import service11 from "../assets/services/service-11.png";
-import service22 from "../assets/services/service-22.png";
+import service1 from "../assets/services/service-1.webp";
+import service2 from "../assets/services/service-2.webp";
+import service3 from "../assets/services/service-3.webp";
+import service11 from "../assets/services/service-11.webp";
+import service22 from "../assets/services/service-22.webp";
 import { 
   CheckCircle, 
   Users, 

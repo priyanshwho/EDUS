@@ -86,8 +86,9 @@ const Services = () => {
               <img
                 className="w-full h-full object-cover md:object-right"
                 width={800}
-                alt="courses"
+                alt="B.E Courses preview"
                 height={730}
+                loading="lazy"
                 src={service1}
               />
             </div>
@@ -106,7 +107,7 @@ const Services = () => {
         key={index}
         className="flex items-start py-4 border-t border-n-6"
       >
-        <img width={24} height={24} src={check} className="py-2" />
+        <img width={24} height={24} src={check} alt="Included" className="py-2" />
         <Link
           to={routes[index]}
           className="ml-4 bg-black/40 backdrop-blur px-4 py-2 rounded text-white hover:bg-purple-500 transition-colors"
@@ -131,7 +132,8 @@ const Services = () => {
                   className="h-full w-full object-cover"
                   width={630}
                   height={750}
-                  alt="robot"
+                  loading="lazy"
+                  alt="Tech skills section"
                 />
               </div>
 
@@ -169,7 +171,7 @@ const Services = () => {
                             : ""
                         }
                       >
-                        <img src={item} width={24} height={24} alt={item} />
+                        <img src={item} width={24} height={24} alt="Service feature" />
                       </div>
                     </li>
                   ))}
@@ -182,7 +184,8 @@ const Services = () => {
                   className="w-full h-full object-cover"
                   width={520}
                   height={400}
-                  alt="Scary robot"
+                  loading="lazy"
+                  alt="Extra skills preview"
                 />
 
                 <VideoChatMessage />
