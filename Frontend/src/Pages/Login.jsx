@@ -245,7 +245,7 @@ export default function LoginPage() {
             </div>
 
             {/* Forgot password */}
-            <div style={{ textAlign: 'right', marginBottom: '24px' }}>
+            {/* <div style={{ textAlign: 'right', marginBottom: '24px' }}>
               <Link
                 to="/auth/forgot-password"
                 style={{ color: '#AC6AFF', fontSize: '13px', textDecoration: 'none', fontWeight: 500 }}
@@ -254,7 +254,7 @@ export default function LoginPage() {
               >
                 Forgot password?
               </Link>
-            </div>
+            </div> */}
 
             {/* Submit button */}
             <button
