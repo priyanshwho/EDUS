@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { authService } from '../services/auth.service';
@@ -83,10 +83,20 @@ function InputField({ id, label, type = 'text', value, onChange, placeholder, au
 
 /* ─── LoginPage ────────────────────────────────────────────────── */
 export default function LoginPage() {
-  const { login } = useAuth();
+  const { login, isAuthenticated, user, loading: authLoading } = useAuth();
   const navigate  = useNavigate();
   const location  = useLocation();
   const returnTo  = location.state?.from;
+
+  useEffect(() => {
+    if (!authLoading && isAuthenticated && user) {
+      if (isSafeInternalRoute(returnTo)) {
+        navigate(returnTo, { replace: true });
+      } else {
+        redirectByRole(user.role, navigate);
+      }
+    }
+  }, [authLoading, isAuthenticated, user, navigate, returnTo]);
 
   const [form,    setForm]    = useState({ email: '', password: '' });
   const [loading, setLoading] = useState(false);
