@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { redirectByRole } from '../utils/redirectByRole';
@@ -180,10 +180,20 @@ function PasswordField({ id, label, value, onChange, autoComplete, required, sho
 
 /* ─── SignupPage ─────────────────────────────────────────────────── */
 export default function SignupPage() {
-  const { signup } = useAuth();
+  const { signup, isAuthenticated, user, loading: authLoading } = useAuth();
   const navigate   = useNavigate();
   const location   = useLocation();
   const returnTo   = location.state?.from;
+
+  useEffect(() => {
+    if (!authLoading && isAuthenticated && user) {
+      if (isSafeInternalRoute(returnTo)) {
+        navigate(returnTo, { replace: true });
+      } else {
+        redirectByRole(user.role, navigate);
+      }
+    }
+  }, [authLoading, isAuthenticated, user, navigate, returnTo]);
 
   const [form,    setForm]    = useState({ username: '', email: '', password: '' });
   const [loading, setLoading] = useState(false);

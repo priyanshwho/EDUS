@@ -29,6 +29,8 @@ export default function StudentDashboard() {
   const [upgradePin, setUpgradePin] = useState('');
   const [upgrading, setUpgrading] = useState(false);
   const [upgradeError, setUpgradeError] = useState('');
+  const [page, setPage] = useState(1);
+  const ITEMS_PER_PAGE = 9;
 
   useEffect(() => {
     fetchResources().catch(() => {});
@@ -37,11 +39,13 @@ export default function StudentDashboard() {
   function handleFilterChange(newFilters) {
     const merged = { ...filters, ...newFilters };
     setFilters(newFilters);
+    setPage(1);
     fetchResources(merged).catch(() => {});
   }
 
   function handleClear() {
     clearFilters();
+    setPage(1);
     fetchResources({}).catch(() => {});
   }
 
@@ -58,6 +62,9 @@ export default function StudentDashboard() {
       setUpgrading(false);
     }
   }
+
+  const totalPages = Math.ceil(resources.length / ITEMS_PER_PAGE);
+  const currentResources = resources.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
 
   return (
     <section className="min-h-screen bg-gradient-to-br from-[#0b1021] via-[#0E0C15] to-[#1a1025] text-n-1 relative">
@@ -177,13 +184,53 @@ export default function StudentDashboard() {
             )}
 
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
-              {resources.map((r) => (
+              {currentResources.map((r) => (
                 <ResourceCard
                   key={r.id}
                   resource={r}
                 />
               ))}
             </div>
+
+            {totalPages > 1 && (
+              <div className="flex items-center justify-center gap-2 mt-10 mb-6">
+                <button
+                  onClick={() => setPage(p => Math.max(1, p - 1))}
+                  disabled={page === 1}
+                  className="p-2 rounded-xl bg-n-7 border border-n-6 text-n-3 hover:text-white hover:border-blue-500 transition-all disabled:opacity-50 disabled:hover:border-n-6 disabled:hover:text-n-3"
+                >
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+                
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
+                    <button
+                      key={p}
+                      onClick={() => setPage(p)}
+                      className={`w-10 h-10 flex items-center justify-center rounded-xl text-sm font-bold transition-all ${
+                        page === p
+                          ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-lg shadow-blue-500/25 border-none'
+                          : 'bg-n-7/50 border border-n-6 text-n-3 hover:text-white hover:border-n-5'
+                      }`}
+                    >
+                      {p}
+                    </button>
+                  ))}
+                </div>
+
+                <button
+                  onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                  disabled={page === totalPages}
+                  className="p-2 rounded-xl bg-n-7 border border-n-6 text-n-3 hover:text-white hover:border-blue-500 transition-all disabled:opacity-50 disabled:hover:border-n-6 disabled:hover:text-n-3"
+                >
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>

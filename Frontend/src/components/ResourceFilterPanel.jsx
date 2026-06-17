@@ -105,14 +105,16 @@ export default function ResourceFilterPanel({ filters = {}, onChange, onClear, c
   }
 
   return (
-    <aside className="w-full bg-n-7 border border-n-6 rounded-2xl p-5 flex flex-col gap-5">
+    <aside className="w-full group relative rounded-3xl border border-n-6 bg-n-7/30 backdrop-blur p-6 flex flex-col gap-5 hover:shadow-2xl hover:border-blue-500/30 transition-all duration-300 overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-500/0 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+      
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <h3 className="font-semibold text-n-1 text-sm">Filters</h3>
+      <div className="relative z-10 flex items-center justify-between">
+        <h3 className="font-bold text-n-1 text-sm tracking-wide">Filters</h3>
         {activeCount > 0 && (
           <button
             onClick={() => { setSearchInput(''); onClear?.(); }}
-            className="text-xs text-cyan-400 hover:text-cyan-300 hover:underline"
+            className="text-xs text-blue-400 hover:text-blue-300 hover:underline font-medium"
           >
             Clear all ({activeCount})
           </button>
@@ -209,7 +211,7 @@ export default function ResourceFilterPanel({ filters = {}, onChange, onClear, c
           value={filters.uploaded_by_name || ''}
           onChange={(e) => update('uploaded_by_name', e.target.value || undefined)}
           placeholder="Professor name…"
-          className="w-full bg-n-6 text-n-1 text-sm rounded-lg px-3 py-2 border border-n-5 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/50 transition"
+          className="w-full bg-n-6 text-n-1 text-sm rounded-lg px-3 py-2 border border-n-5 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 transition relative z-10"
         />
       </FilterSection>
     </aside>
@@ -220,7 +222,7 @@ export default function ResourceFilterPanel({ filters = {}, onChange, onClear, c
 
 function FilterSection({ label, children }) {
   return (
-    <div>
+    <div className="relative z-10">
       <p className="text-xs text-n-4 font-medium mb-2 uppercase tracking-wider">{label}</p>
       {children}
     </div>
@@ -233,7 +235,7 @@ function Pill({ label, active, onClick }) {
       onClick={onClick}
       className={`px-3 py-1.5 rounded-lg text-xs font-medium transition ${
         active
-          ? 'bg-cyan-500 text-white shadow-md shadow-cyan-500/20'
+          ? 'bg-blue-500 text-white shadow-md shadow-blue-500/20'
           : 'bg-n-6 text-n-3 hover:text-n-1 hover:bg-n-5'
       }`}
     >
@@ -247,7 +249,7 @@ function Select({ value, onChange, options, fullWidth = false }) {
     <select
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className={`bg-n-6 text-n-1 text-sm rounded-lg px-3 py-2 border border-n-5 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/50 transition ${fullWidth ? 'w-full' : ''}`}
+      className={`bg-n-6 text-n-1 text-sm rounded-lg px-3 py-2 border border-n-5 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 transition ${fullWidth ? 'w-full' : ''}`}
     >
       {options.map((o) => (
         <option key={o.value} value={o.value}>{o.label}</option>
@@ -258,7 +260,7 @@ function Select({ value, onChange, options, fullWidth = false }) {
 
 function SearchBox({ value, onChange }) {
   return (
-    <div className="relative">
+    <div className="relative z-10">
       <span className="absolute left-3 top-1/2 -translate-y-1/2 text-n-4 text-sm pointer-events-none">
         🔍
       </span>
@@ -267,7 +269,7 @@ function SearchBox({ value, onChange }) {
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder="Search resources…"
-        className="bg-n-6 text-n-1 text-sm rounded-lg pl-9 pr-3 py-2 border border-n-5 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/50 transition w-full sm:w-56"
+        className="bg-n-6 text-n-1 text-sm rounded-lg pl-9 pr-3 py-2 border border-n-5 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 transition w-full sm:w-56"
       />
     </div>
   );
