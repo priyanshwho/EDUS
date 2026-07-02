@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { authService } from '../services/auth.service';
 import { redirectByRole } from '../utils/redirectByRole';
 import { ParticleHero } from '../components/ui/particle-hero';
+import { useSignIn } from '@clerk/clerk-react';
 
 function isSafeInternalRoute(path) {
   return typeof path === 'string' && path.startsWith('/') && !path.startsWith('/auth');
@@ -121,6 +122,24 @@ export default function LoginPage() {
       setError(err.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const { signIn } = useSignIn();
+
+  const handleGoogleSignIn = async (e) => {
+    e.preventDefault();
+    saveOAuthReturnTo();
+    if (!signIn) return;
+    try {
+      await signIn.authenticateWithRedirect({
+        strategy: 'oauth_google',
+        redirectUrl: '/auth/callback',
+        redirectUrlComplete: '/auth/callback',
+      });
+    } catch (err) {
+      console.error('Clerk Google Sign-in error:', err);
+      setError('Google Sign-in failed. Please try again.');
     }
   };
 
@@ -307,44 +326,73 @@ export default function LoginPage() {
 
           {/* OAuth buttons */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '28px' }}>
-            {[
-              { href: authService.googleOAuthUrl(), label: 'Google', Icon: GoogleIcon },
-              { href: authService.githubOAuthUrl(), label: 'GitHub', Icon: GithubIcon },
-            ].map(({ href, label, Icon }) => (
-              <a
-                key={label}
-                href={href}
-                onClick={saveOAuthReturnTo}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px',
-                  padding: '11px',
-                  background: '#15131D',
-                  border: '1px solid #252134',
-                  borderRadius: '11px',
-                  color: '#CAC6DD',
-                  fontSize: '14px',
-                  fontWeight: 500,
-                  textDecoration: 'none',
-                  transition: 'all 0.18s ease',
-                }}
-                onMouseEnter={e => {
-                  e.currentTarget.style.borderColor = 'rgba(172,106,255,0.4)';
-                  e.currentTarget.style.background = 'rgba(172,106,255,0.06)';
-                  e.currentTarget.style.color = '#FFFFFF';
-                }}
-                onMouseLeave={e => {
-                  e.currentTarget.style.borderColor = '#252134';
-                  e.currentTarget.style.background = '#15131D';
-                  e.currentTarget.style.color = '#CAC6DD';
-                }}
-              >
-                <Icon />
-                {label}
-              </a>
-            ))}
+            {/* Google OAuth (via Clerk) */}
+            <button
+              onClick={handleGoogleSignIn}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                padding: '11px',
+                background: '#15131D',
+                border: '1px solid #252134',
+                borderRadius: '11px',
+                color: '#CAC6DD',
+                fontSize: '14px',
+                fontWeight: 500,
+                cursor: 'pointer',
+                transition: 'all 0.18s ease',
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.borderColor = 'rgba(172,106,255,0.4)';
+                e.currentTarget.style.background = 'rgba(172,106,255,0.06)';
+                e.currentTarget.style.color = '#FFFFFF';
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.borderColor = '#252134';
+                e.currentTarget.style.background = '#15131D';
+                e.currentTarget.style.color = '#CAC6DD';
+              }}
+            >
+              <GoogleIcon />
+              Google
+            </button>
+
+            {/* GitHub OAuth (via Passport) */}
+            <a
+              href={authService.githubOAuthUrl()}
+              onClick={saveOAuthReturnTo}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                padding: '11px',
+                background: '#15131D',
+                border: '1px solid #252134',
+                borderRadius: '11px',
+                color: '#CAC6DD',
+                fontSize: '14px',
+                fontWeight: 500,
+                textDecoration: 'none',
+                transition: 'all 0.18s ease',
+                cursor: 'pointer',
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.borderColor = 'rgba(172,106,255,0.4)';
+                e.currentTarget.style.background = 'rgba(172,106,255,0.06)';
+                e.currentTarget.style.color = '#FFFFFF';
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.borderColor = '#252134';
+                e.currentTarget.style.background = '#15131D';
+                e.currentTarget.style.color = '#CAC6DD';
+              }}
+            >
+              <GithubIcon />
+              GitHub
+            </a>
           </div>
 
           {/* Footer link */}
