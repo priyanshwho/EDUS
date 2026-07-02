@@ -109,6 +109,12 @@ export default function LoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+
+    // Client-side validation
+    if (!form.email.trim()) { setError('Email is required.'); return; }
+    if (!/\S+@\S+\.\S+/.test(form.email)) { setError('Please enter a valid email address.'); return; }
+    if (!form.password) { setError('Password is required.'); return; }
+
     setLoading(true);
     try {
       const res = await login(form);
