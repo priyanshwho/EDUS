@@ -43,7 +43,7 @@ async function request(method, path, { body, params } = {}) {
   let res = await fetch(url.toString(), options);
 
   // Auto-retry once after silent refresh on 401
-  if (res.status === 401) {
+  if (res.status === 401 && path !== '/auth/refresh') {
     try {
       await silentRefresh();
       headers['Authorization'] = `Bearer ${_accessToken}`;
