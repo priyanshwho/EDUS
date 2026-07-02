@@ -43,7 +43,9 @@ async function request(method, path, { body, params } = {}) {
   let res = await fetch(url.toString(), options);
 
   // Auto-retry once after silent refresh on 401
-  if (res.status === 401 && path !== '/auth/refresh') {
+  // Skip retry for auth endpoints that handle their own 401s
+  const skipRetry = path === '/auth/refresh' || path === '/auth/clerk-sync';
+  if (res.status === 401 && !skipRetry) {
     try {
       await silentRefresh();
       headers['Authorization'] = `Bearer ${_accessToken}`;
