@@ -148,8 +148,15 @@ export default function LoginPage() {
       });
     } catch (err) {
       console.error('Clerk Google Sign-in error:', err);
-      // Surface the actual Clerk error message if available
-      const msg = err?.errors?.[0]?.message || err?.message || 'Google Sign-in failed. Please try again.';
+      const errMsg = err?.errors?.[0]?.message || err?.message || '';
+
+      // If Clerk says the user is already signed in, just complete the sync via /auth/callback
+      if (errMsg.toLowerCase().includes('already signed in')) {
+        navigate('/auth/callback', { replace: true });
+        return;
+      }
+
+      const msg = err?.errors?.[0]?.longMessage || errMsg || 'Google Sign-in failed. Please try again.';
       setError(msg);
     }
   };
