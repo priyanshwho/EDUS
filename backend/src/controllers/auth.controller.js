@@ -301,8 +301,11 @@ async function clerkSync(req, res, next) {
     try {
       decoded = await verifyClerkToken(token);
     } catch (err) {
-      console.error('Clerk verification error:', err);
-      return res.status(401).json({ error: 'Invalid Clerk token' });
+      console.error('Clerk verification error:', err?.message || err);
+      return res.status(401).json({ 
+        error: 'Invalid Clerk token', 
+        reason: err?.message || String(err) 
+      });
     }
 
     const clerkUserId = decoded.sub;
