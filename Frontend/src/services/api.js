@@ -59,6 +59,7 @@ async function request(method, path, { body, params } = {}) {
 
   if (!res.ok) {
     const data = await res.json().catch(() => ({}));
+    console.error('API Error Response:', data);
     let errMsg = data.error || data.message;
     if (data.errors && Array.isArray(data.errors)) {
       errMsg = data.errors.map(e => e.message).join(', ');
