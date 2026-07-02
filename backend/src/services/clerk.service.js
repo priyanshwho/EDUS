@@ -15,7 +15,15 @@ async function verifyClerkToken(token) {
     throw new Error('Token is required');
   }
   // verifyToken decodes and validates the Clerk session JWT signature and expiration.
-  return await clerkClient.verifyToken(token);
+  // authorizedParties: allowed origins for the 'azp' (Authorized Party) JWT claim.
+  return await clerkClient.verifyToken(token, {
+    authorizedParties: [
+      'https://www.edusphere.live',
+      'https://edusphere.live',
+      'http://localhost:5173',
+      'http://localhost:5174',
+    ],
+  });
 }
 
 module.exports = {
