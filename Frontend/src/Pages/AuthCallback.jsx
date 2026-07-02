@@ -73,8 +73,11 @@ export default function AuthCallbackPage() {
         }
       })();
     } else {
-      // Clerk loaded but not signed in (and no Passport URL token)
-      navigate('/login?error=oauth_failed', { replace: true });
+      // Wait for a short period to allow Clerk to process the redirect parameters
+      const timer = setTimeout(() => {
+        navigate('/login?error=oauth_failed', { replace: true });
+      }, 3000);
+      return () => clearTimeout(timer);
     }
   }, [clerkLoaded, clerkSignedIn, getToken, handleOAuthCallback, navigate, params]);
 
