@@ -11,6 +11,7 @@ const {
 
 const ADMIN_EMAIL   = process.env.ADMIN_EMAIL;
 const PROFESSOR_PIN = process.env.PROFESSOR_PIN;
+const { verifyClerkToken, clerkClient } = require('../services/clerk.service');
 
 // ── Helper: set refresh cookie ─────────────────────────────────────────────
 function setRefreshCookie(res, token) {
@@ -287,4 +288,87 @@ async function superadminSwitchRole(req, res, next) {
   }
 }
 
-module.exports = { signup, login, verifyPin, upgradeToProfessor, refresh, logout, me, superadminSwitchRole };
+// ── POST /api/auth/clerk-sync ────────────────────────────────────────────────
+async function clerkSync(req, res, next) {
+  try {
+    const { token } = req.body;
+    if (!token) {
+      return res.status(400).json({ error: 'Clerk token is required' });
+    }
+
+    // Verify Clerk Token
+    let decoded;
+    try {
+      decoded = await verifyClerkToken(token);
+    } catch (err) {
+      console.error('Clerk verification error:', err);
+      return res.status(401).json({ error: 'Invalid Clerk token' });
+    }
+
+    const clerkUserId = decoded.sub;
+
+    // Fetch user details from Clerk to get email, name, etc.
+    const clerkUser = await clerkClient.users.getUser(clerkUserId);
+    const email = clerkUser.emailAddresses?.[0]?.emailAddress;
+    if (!email) {
+      return res.status(400).json({ error: 'Clerk user email not found' });
+    }
+
+    const name = `${clerkUser.firstName || ''} ${clerkUser.lastName || ''}`.trim() || 'user';
+    const usernameSeed = clerkUser.username || email.split('@')[0];
+
+    // Find or create user in local database
+    let user;
+    const existing = await sql`
+      select * from users where email = ${email} limit 1
+    `;
+
+    if (existing.length > 0) {
+      user = existing[0];
+      // Elevate admin if needed
+      if (email === ADMIN_EMAIL && user.role !== 'admin') {
+        const rows = await sql`
+          update users
+          set role = 'admin'
+          where id = ${user.id}
+          returning *
+        `;
+        user = rows[0];
+      }
+    } else {
+      // Create user
+      const baseUsername = usernameSeed.toLowerCase().replace(/[^a-z0-9_]/g, '').slice(0, 24) || 'user';
+      let candidate = baseUsername;
+      let suffix = 0;
+      while (true) {
+        const rows = await sql`select id from users where username = ${candidate} limit 1`;
+        if (rows.length === 0) break;
+        suffix += 1;
+        candidate = `${baseUsername}${suffix}`;
+      }
+
+      const role = email === ADMIN_EMAIL ? 'admin' : 'student';
+      const rows = await sql`
+        insert into users (email, name, username, role, oauth_provider)
+        values (${email}, ${name}, ${candidate}, ${role}, 'google')
+        returning *
+      `;
+      user = rows[0];
+    }
+
+    if (!user) {
+      return res.status(500).json({ error: 'Failed to sync user' });
+    }
+
+    const payload      = buildPayload(user);
+    const accessToken  = signAccessToken(payload);
+    const refreshToken = signRefreshToken(payload);
+    setRefreshCookie(res, refreshToken);
+
+    return res.json({ accessToken, user: payload });
+  } catch (err) {
+    next(err);
+  }
+}
+
+module.exports = { signup, login, verifyPin, upgradeToProfessor, refresh, logout, me, superadminSwitchRole, clerkSync };

@@ -4,7 +4,7 @@ const passport = require('passport');
 const { authenticate } = require('../middleware/authenticate');
 const { invalidateAllCache } = require('../middleware/cache.middleware');
 const {
-  signup, login, verifyPin, upgradeToProfessor, refresh, logout, me, superadminSwitchRole,
+  signup, login, verifyPin, upgradeToProfessor, refresh, logout, me, superadminSwitchRole, clerkSync,
 } = require('../controllers/auth.controller');
 const { signupValidator, loginValidator, pinValidator } = require('../validators/auth.validator');
 const { signAccessToken, signRefreshToken, buildPayload } = require('../auth/jwt.utils');
@@ -18,6 +18,7 @@ router.post('/upgrade-professor', authenticate, pinValidator, invalidateAllCache
 router.post('/superadmin/switch-role', authenticate, invalidateAllCache(), superadminSwitchRole);
 router.post('/refresh',    refresh);
 router.post('/logout',     logout);
+router.post('/clerk-sync', clerkSync);
 router.get('/me',          authenticate, me);
 
 // ── Google OAuth ───────────────────────────────────────────────────────────

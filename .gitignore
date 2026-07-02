@@ -1,7 +1,10 @@
 # Environment files — NEVER commit real credentials
 backend/.env
+backend/.env.example
 frontend/.env
+frontend/.env.example
 .env
+.env.example
 
 # macOS
 .DS_Store
