@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { useAuth as useClerkAuth } from '@clerk/clerk-react';
+import { useAuth as useClerkAuth, AuthenticateWithRedirectCallback } from '@clerk/clerk-react';
 import { api } from '../services/api';
 
 function isSafeInternalRoute(path) {
@@ -72,14 +72,13 @@ export default function AuthCallbackPage() {
           navigate('/login?error=oauth_failed', { replace: true });
         }
       })();
-    } else {
-      // Wait for a short period to allow Clerk to process the redirect parameters
-      const timer = setTimeout(() => {
-        navigate('/login?error=oauth_failed', { replace: true });
-      }, 3000);
-      return () => clearTimeout(timer);
     }
   }, [clerkLoaded, clerkSignedIn, getToken, handleOAuthCallback, navigate, params]);
+
+  // If we are not signed in yet and Clerk is loaded, mount the callback handler to process it.
+  if (clerkLoaded && !clerkSignedIn && !params.get('token')) {
+    return <AuthenticateWithRedirectCallback />;
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-n-8">
