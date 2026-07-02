@@ -4,7 +4,8 @@ import { useAuth } from '../context/AuthContext';
 import { authService } from '../services/auth.service';
 import { redirectByRole } from '../utils/redirectByRole';
 import { ParticleHero } from '../components/ui/particle-hero';
-import { useSignIn } from '@clerk/clerk-react';
+import { useSignIn, useAuth as useClerkAuth } from '@clerk/clerk-react';
+import { api } from '../services/api';
 
 function isSafeInternalRoute(path) {
   return typeof path === 'string' && path.startsWith('/') && !path.startsWith('/auth');
@@ -84,7 +85,7 @@ function InputField({ id, label, type = 'text', value, onChange, placeholder, au
 
 /* ─── LoginPage ────────────────────────────────────────────────── */
 export default function LoginPage() {
-  const { login, isAuthenticated, user, loading: authLoading } = useAuth();
+  const { login, isAuthenticated, user, loading: authLoading, handleOAuthCallback } = useAuth();
   const navigate  = useNavigate();
   const location  = useLocation();
   const returnTo  = location.state?.from;
@@ -132,10 +133,36 @@ export default function LoginPage() {
   };
 
   const { signIn, isLoaded: signInLoaded } = useSignIn();
+  const { isSignedIn: clerkIsSignedIn, getToken: getClerkToken } = useClerkAuth();
+
+  const syncClerkSessionWithBackend = async () => {
+    setLoading(true);
+    try {
+      const clerkToken = await getClerkToken();
+      if (!clerkToken) throw new Error('Could not retrieve Clerk session token.');
+      const res = await api.post('/auth/clerk-sync', { token: clerkToken });
+      handleOAuthCallback(res.accessToken);
+      const finalRole = res.user?.role || 'student';
+      if (isSafeInternalRoute(returnTo)) { navigate(returnTo, { replace: true }); return; }
+      redirectByRole(finalRole, navigate);
+    } catch (err) {
+      console.error('Clerk direct sync failed:', err);
+      setError('Sign-in failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleGoogleSignIn = async (e) => {
     e.preventDefault();
     saveOAuthReturnTo();
+
+    // If Clerk already has an active session, sync directly with backend
+    if (clerkIsSignedIn) {
+      await syncClerkSessionWithBackend();
+      return;
+    }
+
     if (!signInLoaded || !signIn) {
       setError('Authentication is still loading. Please wait a moment and try again.');
       return;
@@ -150,9 +177,9 @@ export default function LoginPage() {
       console.error('Clerk Google Sign-in error:', err);
       const errMsg = err?.errors?.[0]?.message || err?.message || '';
 
-      // If Clerk says the user is already signed in, just complete the sync via /auth/callback
+      // If Clerk says the user is already signed in, sync directly
       if (errMsg.toLowerCase().includes('already signed in')) {
-        navigate('/auth/callback', { replace: true });
+        await syncClerkSessionWithBackend();
         return;
       }
 
