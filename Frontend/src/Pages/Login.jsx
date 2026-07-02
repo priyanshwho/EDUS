@@ -131,21 +131,26 @@ export default function LoginPage() {
     }
   };
 
-  const { signIn } = useSignIn();
+  const { signIn, isLoaded: signInLoaded } = useSignIn();
 
   const handleGoogleSignIn = async (e) => {
     e.preventDefault();
     saveOAuthReturnTo();
-    if (!signIn) return;
+    if (!signInLoaded || !signIn) {
+      setError('Authentication is still loading. Please wait a moment and try again.');
+      return;
+    }
     try {
       await signIn.authenticateWithRedirect({
         strategy: 'oauth_google',
-        redirectUrl: '/auth/callback',
-        redirectUrlComplete: '/auth/callback',
+        redirectUrl: `${window.location.origin}/auth/callback`,
+        redirectUrlComplete: `${window.location.origin}/auth/callback`,
       });
     } catch (err) {
       console.error('Clerk Google Sign-in error:', err);
-      setError('Google Sign-in failed. Please try again.');
+      // Surface the actual Clerk error message if available
+      const msg = err?.errors?.[0]?.message || err?.message || 'Google Sign-in failed. Please try again.';
+      setError(msg);
     }
   };
 
