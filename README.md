@@ -3,7 +3,6 @@
 > Making Your Academic Life Easier — notes, tips, tools, and real support every day.
 
 🌐 **Live Application:** [https://www.edusphere.live](https://www.edusphere.live)  
-⚡ **Backend API Gateway:** [https://api.edusphere.live](https://api.edusphere.live)
 
 ![EduSphere Preview](Frontend/public/image.png)
 
