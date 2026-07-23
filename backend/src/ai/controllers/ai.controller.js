@@ -145,7 +145,7 @@ Keep responses concise and student-friendly. Use simple examples where helpful.`
     const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
     const streamResponse = await groq.chat.completions.create({
-      model: 'meta-llama/llama-4-scout-17b-16e-instruct',
+      model: process.env.GROQ_MODEL || 'llama-3.3-70b-versatile',
       messages: conversationMessages,
       stream: true,
       temperature: 0.7,
