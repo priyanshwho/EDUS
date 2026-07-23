@@ -11,7 +11,7 @@ async function callGroq({ systemPrompt, userPrompt, stream = false, res = null }
     { role: 'user', content: userPrompt }
   ];
 
-  const model = 'meta-llama/llama-4-scout-17b-16e-instruct';
+  const model = process.env.GROQ_MODEL || 'llama-3.3-70b-versatile';
 
   if (stream && res) {
     // SSE streaming to client
