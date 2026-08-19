@@ -11,7 +11,7 @@ async function callGroq({ systemPrompt, userPrompt, stream = false, res = null }
     { role: 'user', content: userPrompt }
   ];
 
-  const model = process.env.GROQ_MODEL || 'llama-3.3-70b-versatile';
+  const model = process.env.GROQ_MODEL || 'openai/gpt-oss-120b';
 
   if (stream && res) {
     // SSE streaming to client
