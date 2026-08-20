@@ -117,16 +117,21 @@ const AnimatedRoutes = () => {
  * AppShell
  * Persistent layout elements (Header, MobileBottomBar, Footer) are rendered
  * OUTSIDE AnimatedRoutes so they never re-animate on route changes.
+ * They are hidden on auth callback routes so the OAuth processing screen
+ * renders cleanly without nav/footer bleeding through.
  */
 const AppShell = () => {
+  const location = useLocation();
+  const isAuthCallback = location.pathname === '/auth/callback';
+
   return (
     <>
-      <Header />
-      <div className="pt-[4.75rem] lg:pt-[5.25rem] overflow-x-hidden">
+      {!isAuthCallback && <Header />}
+      <div className={isAuthCallback ? 'overflow-x-hidden' : 'pt-[4.75rem] lg:pt-[5.25rem] overflow-x-hidden'}>
         <AnimatedRoutes />
       </div>
-      <MobileBottomBar />
-      <Footer />
+      {!isAuthCallback && <MobileBottomBar />}
+      {!isAuthCallback && <Footer />}
       <ButtonGradient />
     </>
   );
