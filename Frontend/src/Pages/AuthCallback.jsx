@@ -92,16 +92,19 @@ export default function AuthCallbackPage() {
   // If we are not signed in yet and Clerk is loaded, mount the callback handler to process it.
   if (clerkLoaded && !clerkSignedIn && !params.get('token') && !clerkCallbackError) {
     return (
-      <AuthenticateWithRedirectCallback
-        signInUrl="/login"
-        signUpUrl="/signup"
-        signInForceRedirectUrl="/auth/callback"
-        signUpForceRedirectUrl="/auth/callback"
-        afterSignInUrl="/auth/callback"
-        afterSignUpUrl="/auth/callback"
-        // Handle errors from Clerk's OAuth exchange (e.g. CAPTCHA failures)
-        transferable={true}
-      />
+      <div className="min-h-screen flex items-center justify-center bg-n-8">
+        {/* Clerk CAPTCHA mount point — required for custom sign-in flows with bot protection enabled */}
+        <div id="clerk-captcha" />
+        <AuthenticateWithRedirectCallback
+          signInUrl="/login"
+          signUpUrl="/signup"
+          signInForceRedirectUrl="/auth/callback"
+          signUpForceRedirectUrl="/auth/callback"
+          afterSignInUrl="/auth/callback"
+          afterSignUpUrl="/auth/callback"
+          transferable={true}
+        />
+      </div>
     );
   }
 
@@ -113,6 +116,8 @@ export default function AuthCallbackPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-n-8">
+      {/* Clerk CAPTCHA mount point */}
+      <div id="clerk-captcha" />
       <div style={{ textAlign: 'center' }}>
         <div style={{
           width: '36px',

@@ -459,6 +459,8 @@ export default function LoginPage() {
       <style>{`
         @keyframes spin { to { transform: rotate(360deg); } }
       `}</style>
+      {/* Clerk CAPTCHA mount point — required for custom sign-in flows with bot protection enabled */}
+      <div id="clerk-captcha" />
     </ParticleHero>
   );
 }
