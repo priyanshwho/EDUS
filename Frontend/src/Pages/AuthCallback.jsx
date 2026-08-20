@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useAuth as useClerkAuth, AuthenticateWithRedirectCallback } from '@clerk/clerk-react';
@@ -19,6 +19,20 @@ export default function AuthCallbackPage() {
   const { isLoaded: clerkLoaded, isSignedIn: clerkSignedIn, getToken } = useClerkAuth();
   const navigate = useNavigate();
   const [params] = useSearchParams();
+  const [clerkCallbackError, setClerkCallbackError] = useState(false);
+
+  // Timeout: if Clerk callback hasn't completed within 15 seconds, redirect to login
+  useEffect(() => {
+    const token = params.get('token');
+    if (token) return; // Passport flow — skip timeout
+
+    const timeout = setTimeout(() => {
+      console.warn('Auth callback timed out after 15s — redirecting to login.');
+      navigate('/login?error=oauth_timeout', { replace: true });
+    }, 15000);
+
+    return () => clearTimeout(timeout);
+  }, [navigate, params]);
 
   useEffect(() => {
     const token = params.get('token');
@@ -76,13 +90,42 @@ export default function AuthCallbackPage() {
   }, [clerkLoaded, clerkSignedIn, getToken, handleOAuthCallback, navigate, params]);
 
   // If we are not signed in yet and Clerk is loaded, mount the callback handler to process it.
-  if (clerkLoaded && !clerkSignedIn && !params.get('token')) {
-    return <AuthenticateWithRedirectCallback />;
+  if (clerkLoaded && !clerkSignedIn && !params.get('token') && !clerkCallbackError) {
+    return (
+      <AuthenticateWithRedirectCallback
+        signInUrl="/login"
+        signUpUrl="/signup"
+        signInForceRedirectUrl="/auth/callback"
+        signUpForceRedirectUrl="/auth/callback"
+        afterSignInUrl="/auth/callback"
+        afterSignUpUrl="/auth/callback"
+        // Handle errors from Clerk's OAuth exchange (e.g. CAPTCHA failures)
+        transferable={true}
+      />
+    );
+  }
+
+  // If Clerk callback errored, redirect to login
+  if (clerkCallbackError) {
+    navigate('/login?error=oauth_failed', { replace: true });
+    return null;
   }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-n-8">
-      <p className="text-n-4 text-sm animate-pulse">Completing sign in…</p>
+      <div style={{ textAlign: 'center' }}>
+        <div style={{
+          width: '36px',
+          height: '36px',
+          border: '3px solid rgba(172,106,255,0.2)',
+          borderTop: '3px solid #AC6AFF',
+          borderRadius: '50%',
+          animation: 'spin 0.8s linear infinite',
+          margin: '0 auto 16px',
+        }} />
+        <p className="text-n-4 text-sm animate-pulse">Completing sign in…</p>
+      </div>
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   );
 }
