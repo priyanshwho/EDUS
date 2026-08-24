@@ -74,7 +74,7 @@ const PORT = process.env.PORT || 5001;
     console.warn(`[Redis] init failed: ${err.message}`);
   }
 
-  app.listen(PORT, () => console.log(`[EduSphere] Server running on port ${PORT}`));
+  app.listen(PORT, "127.0.0.1", () => console.log(`[EduSphere] Server running on 127.0.0.1:${PORT}`));
 })();
 
 module.exports = app;
