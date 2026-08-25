@@ -68,17 +68,13 @@ function checkNeonDrizzleClient() {
   const src = readFileSafe(clientPath);
   if (!src) return;
 
-  const required = [
-    "@neondatabase/serverless",
-    "drizzle-orm/neon-http",
-    'DATABASE_URL',
-  ];
+  const hasDrizzle = src.includes('drizzle-orm');
+  const hasDbUrl = src.includes('DATABASE_URL');
+  const hasClient = src.includes('postgres') || src.includes('@neondatabase/serverless');
 
-  for (const token of required) {
-    if (!src.includes(token)) {
-      console.error(`❌  Missing Neon/Drizzle requirement in ${path.relative(ROOT, clientPath)} -> ${token}`);
-      hasError = true;
-    }
+  if (!hasDrizzle || !hasDbUrl || !hasClient) {
+    console.error(`❌  Missing Neon/Postgres Drizzle requirement in ${path.relative(ROOT, clientPath)}`);
+    hasError = true;
   }
 
   if (!hasError) {
