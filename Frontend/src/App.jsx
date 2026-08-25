@@ -100,6 +100,7 @@ const AnimatedRoutes = () => {
 
         {/* ── Resource detail ── */}
         <Route path="/resource/:slug" element={<PageTransition>{requireAuth(<ResourcePage />)}</PageTransition>} />
+        <Route path="/resources/:slug" element={<PageTransition>{requireAuth(<ResourcePage />)}</PageTransition>} />
 
         {/* ── Study resources ── */}
         <Route path="/pyqs" element={<PageTransition>{requireAuth(<Pyqs_Page />)}</PageTransition>} />
