@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { announcementService, subjectService } from '../services/index';
 import { useUpload } from '../hooks/useUpload';
 import { resourceService } from '../services/resource.service';
 import { useProfessorDashboardStore } from '../stores/professorDashboard.store';
-import { resourceShareUrl } from '../utils/format';
+import { resourcePath, resourceShareUrl } from '../utils/format';
 import { handlePreviewResource } from '../utils/previewHandler';
 import { GooeyLoader } from '../components/ui/loader-10';
 import DashboardBackground from '../components/design/DashboardBackground';
@@ -456,8 +457,8 @@ const TYPE_CONFIG = {
 function ResourceCard({ r, onDeleteSuccess }) {
   const [copied, setCopied] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const [viewing, setViewing] = useState(false);
   const cfg = TYPE_CONFIG[r.resource_type] || TYPE_CONFIG.notes;
+  const canonicalPath = resourcePath(r, r.slug);
   const shareUrl = resourceShareUrl(r.slug, r);
 
   const handleCopy = async () => {
@@ -489,33 +490,8 @@ function ResourceCard({ r, onDeleteSuccess }) {
   };
 
   // View opens the raw T3 S3 file / YouTube video directly in a new tab
-  const handleView = async () => {
-    if (r.youtube_url) {
-      window.open(r.youtube_url, '_blank', 'noopener,noreferrer');
-      return;
-    }
-    if (r.external_link) {
-      window.open(r.external_link, '_blank', 'noopener,noreferrer');
-      return;
-    }
-    if (r.signedUrl) {
-      window.open(r.signedUrl, '_blank', 'noopener,noreferrer');
-      return;
-    }
-    if (r.slug) {
-      setViewing(true);
-      try {
-        const data = await resourceService.getBySlug(r.slug);
-        const fileUrl = data?.resource?.signedUrl || data?.resource?.external_link || data?.resource?.youtube_url;
-        if (fileUrl) {
-          window.open(fileUrl, '_blank', 'noopener,noreferrer');
-        }
-      } catch (err) {
-        console.error('Failed to open file:', err);
-      } finally {
-        setViewing(false);
-      }
-    }
+  const handleView = (e) => {
+    handlePreviewResource(r, e);
   };
 
   const handleDelete = async () => {
@@ -541,9 +517,13 @@ function ResourceCard({ r, onDeleteSuccess }) {
             {cfg.icon}
           </div>
           <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-n-1 text-sm sm:text-base leading-tight line-clamp-2 group-hover:text-blue-400 transition-colors">
+            <Link
+              to={canonicalPath}
+              className="font-semibold text-n-1 text-sm sm:text-base leading-tight line-clamp-2 hover:text-blue-400 transition-colors block"
+              title="Open resource page"
+            >
               {r.title}
-            </h3>
+            </Link>
             <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
               <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${cfg.bg}`}>
                 {cfg.label}
@@ -562,21 +542,14 @@ function ResourceCard({ r, onDeleteSuccess }) {
           {/* View */}
           <button
             onClick={handleView}
-            disabled={viewing}
-            className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-semibold hover:bg-blue-500/20 hover:border-blue-500/40 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-blue-500/20 transition-all duration-200 disabled:opacity-50"
+            className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-semibold hover:bg-blue-500/20 hover:border-blue-500/40 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-blue-500/20 transition-all duration-200"
+            title="Preview file in T3 storage"
           >
-            {viewing ? (
-              <svg className="w-3.5 h-3.5 animate-spin flex-shrink-0" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
-              </svg>
-            ) : (
-              <svg className="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-              </svg>
-            )}
-            <span>{viewing ? 'Opening…' : 'View'}</span>
+            <svg className="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+            <span>View</span>
           </button>
 
           {/* Copy Link */}
