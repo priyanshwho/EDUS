@@ -200,9 +200,39 @@ async function create(req, res, next) {
         ${year ? Number(year) : null}, ${pyq_type || null}, ${external_link || null}, ${aws_s3_key || null}, ${youtube_url || null},
         ${req.user.id}, ${slug}
       )
-      returning *
+      returning id
     `;
-    const resource = inserted[0];
+    const newId = inserted[0]?.id;
+
+    const fullRows = await sql`
+      select
+        r.*,
+        case
+          when u.id is null then null
+          else jsonb_build_object(
+            'id', u.id,
+            'username', u.username,
+            'name', u.name,
+            'role', u.role
+          )
+        end as uploader,
+        case
+          when s.id is null then null
+          else jsonb_build_object(
+            'id', s.id,
+            'branch', s.branch,
+            'semester', s.semester,
+            'name_full', s.name_full,
+            'acronym', s.acronym
+          )
+        end as subjects
+      from resources r
+      left join subjects s on s.id = r.subject_id
+      left join users u on u.id = r.uploaded_by
+      where r.id = ${newId}
+      limit 1
+    `;
+    const resource = fullRows[0];
 
     return res.status(201).json({ resource });
   } catch (err) {

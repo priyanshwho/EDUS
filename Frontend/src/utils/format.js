@@ -93,11 +93,31 @@ export function slugifySegment(value) {
  * Build a hierarchical subject route for a professor.
  * Format: /professors/:username/:branch/:semester/:subject
  */
-export function subjectPath(resource) {
-  const username = resource?.uploader?.username;
-  const branch = resource?.subjects?.branch;
-  const semester = resource?.subjects?.semester;
-  const subjectRaw = resource?.subjects?.acronym || resource?.subjects?.name_full;
+export function subjectPath(resource, fallbackUser = null, fallbackSubject = null) {
+  const username =
+    resource?.uploader?.username ||
+    (typeof resource?.uploader === 'string' ? resource.uploader : null) ||
+    resource?.username ||
+    fallbackUser?.username ||
+    fallbackUser?.name;
+
+  const branch =
+    resource?.subjects?.branch ||
+    resource?.branch ||
+    fallbackSubject?.branch;
+
+  const semester =
+    resource?.subjects?.semester ||
+    resource?.semester ||
+    fallbackSubject?.semester;
+
+  const subjectRaw =
+    resource?.subjects?.acronym ||
+    resource?.subjects?.name_full ||
+    resource?.acronym ||
+    resource?.name_full ||
+    fallbackSubject?.acronym ||
+    fallbackSubject?.name_full;
 
   if (!username || !branch || !semester || !subjectRaw) return null;
 
@@ -116,19 +136,21 @@ export function subjectPath(resource) {
  * Build a hierarchical resource route.
  * Format: /professors/:username/:branch/:semester/:subject/:type/:slug
  */
-export function resourcePath(resource, fallbackSlug) {
+export function resourcePath(resource, fallbackSlug, fallbackUser = null, fallbackSubject = null) {
   const slug = resource?.slug || fallbackSlug;
   if (!slug) return '/';
 
-  const baseSubjectPath = subjectPath(resource);
-  if (!baseSubjectPath || !resource?.resource_type) return `/resource/${slug}`;
+  const type = resource?.resource_type || (slug.includes('notes') ? 'notes' : slug.includes('pyq') ? 'pyq' : slug.includes('lecture') ? 'lecture' : 'notes');
 
-  return `${baseSubjectPath}/${slugifySegment(resource.resource_type)}/${slug}`;
+  const baseSubjectPath = subjectPath(resource, fallbackUser, fallbackSubject);
+  if (!baseSubjectPath) return `/resources/${slug}`;
+
+  return `${baseSubjectPath}/${slugifySegment(type)}/${slug}`;
 }
 
 /**
  * Build shareable resource URL
  */
-export function resourceShareUrl(slug, resource = null) {
-  return `${window.location.origin}${resourcePath(resource, slug)}`;
+export function resourceShareUrl(slug, resource = null, fallbackUser = null, fallbackSubject = null) {
+  return `${window.location.origin}${resourcePath(resource, slug, fallbackUser, fallbackSubject)}`;
 }
