@@ -68,7 +68,7 @@ jobs:
 
             echo "📦 Installing backend dependencies..."
             cd backend
-            npm ci --omit=dev
+            npm install
 
             echo "🔄 Restarting edus-backend.service..."
             sudo systemctl restart edus-backend
