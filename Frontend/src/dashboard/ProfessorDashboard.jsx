@@ -377,8 +377,171 @@ function AnnouncementsPanel({ subjects }) {
 }
 
 // ── My Resources ───────────────────────────────────────────────────────────
-function MyResources({ resources, loading, onDeleteSuccess }) {
 
+const TYPE_CONFIG = {
+  notes:      { label: 'Notes',      color: 'from-blue-500 to-cyan-500',    bg: 'bg-blue-500/10 border-blue-500/20 text-blue-400',    icon: '📄' },
+  assignment: { label: 'Assignment', color: 'from-orange-500 to-amber-500', bg: 'bg-orange-500/10 border-orange-500/20 text-orange-400', icon: '📝' },
+  pyq:        { label: 'PYQ',        color: 'from-purple-500 to-pink-500',  bg: 'bg-purple-500/10 border-purple-500/20 text-purple-400', icon: '📋' },
+  lecture:    { label: 'Lecture',    color: 'from-red-500 to-rose-500',     bg: 'bg-red-500/10 border-red-500/20 text-red-400',       icon: '🎬' },
+};
+
+function getResourceUrl(r) {
+  if (r.youtube_url) return r.youtube_url;
+  // Build the shareable app link using slug
+  return `${window.location.origin}/resources/${r.slug}`;
+}
+
+function ResourceCard({ r, onDeleteSuccess }) {
+  const [copied, setCopied] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const cfg = TYPE_CONFIG[r.resource_type] || TYPE_CONFIG.notes;
+  const url = getResourceUrl(r);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // fallback
+      const ta = document.createElement('textarea');
+      ta.value = url;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  const handleShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: r.title, url });
+      } catch {/* cancelled */}
+    } else {
+      handleCopy();
+    }
+  };
+
+  const handleView = () => window.open(url, '_blank', 'noopener,noreferrer');
+
+  const handleDelete = async () => {
+    if (!window.confirm(`Delete "${r.title}"?`)) return;
+    setDeleting(true);
+    try {
+      await resourceService.remove(r.id);
+      onDeleteSuccess?.(r.id);
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  return (
+    <div className="group relative rounded-2xl border border-n-6 bg-n-7/50 backdrop-blur overflow-hidden hover:border-blue-500/40 hover:shadow-2xl hover:shadow-blue-500/5 transition-all duration-300">
+      {/* Gradient top accent bar */}
+      <div className={`h-1 w-full bg-gradient-to-r ${cfg.color}`} />
+
+      <div className="p-4 sm:p-5">
+        {/* Header row */}
+        <div className="flex items-start gap-3 mb-3">
+          <div className={`flex-shrink-0 w-9 h-9 rounded-xl bg-gradient-to-br ${cfg.color} flex items-center justify-center text-base shadow-lg`}>
+            {cfg.icon}
+          </div>
+          <div className="flex-1 min-w-0">
+            <h3 className="font-semibold text-n-1 text-sm sm:text-base leading-tight line-clamp-2 group-hover:text-blue-400 transition-colors">
+              {r.title}
+            </h3>
+            <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
+              <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${cfg.bg}`}>
+                {cfg.label}
+              </span>
+              {r.slug && (
+                <span className="text-xs text-n-5 font-mono truncate max-w-[140px]" title={r.slug}>
+                  /{r.slug}
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Action buttons */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-4">
+          {/* View */}
+          <button
+            onClick={handleView}
+            className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-semibold hover:bg-blue-500/20 hover:border-blue-500/40 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-blue-500/20 transition-all duration-200"
+          >
+            <svg className="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+            <span>View</span>
+          </button>
+
+          {/* Copy Link */}
+          <button
+            onClick={handleCopy}
+            className={`flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border text-xs font-semibold transition-all duration-200 hover:-translate-y-0.5
+              ${copied
+                ? 'bg-green-500/15 border-green-500/30 text-green-400 shadow-lg shadow-green-500/20'
+                : 'bg-n-6/50 border-n-5/30 text-n-3 hover:bg-n-6 hover:border-n-5/50 hover:text-n-1 hover:shadow-lg hover:shadow-black/20'
+              }`}
+          >
+            {copied ? (
+              <>
+                <svg className="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                <span>Copied!</span>
+              </>
+            ) : (
+              <>
+                <svg className="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+                <span>Copy Link</span>
+              </>
+            )}
+          </button>
+
+          {/* Share */}
+          <button
+            onClick={handleShare}
+            className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400 text-xs font-semibold hover:bg-purple-500/20 hover:border-purple-500/40 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-purple-500/20 transition-all duration-200"
+          >
+            <svg className="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+            </svg>
+            <span>Share</span>
+          </button>
+
+          {/* Delete */}
+          <button
+            onClick={handleDelete}
+            disabled={deleting}
+            className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-semibold hover:bg-red-500/20 hover:border-red-500/40 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-red-500/20 transition-all duration-200 disabled:opacity-40 disabled:hover:translate-y-0"
+          >
+            {deleting ? (
+              <svg className="w-3.5 h-3.5 animate-spin flex-shrink-0" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+              </svg>
+            ) : (
+              <svg className="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            )}
+            <span>{deleting ? 'Deleting…' : 'Delete'}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function MyResources({ resources, loading, onDeleteSuccess }) {
   if (loading) return (
     <div className="flex justify-center py-12">
       <GooeyLoader primaryColor="#AC6AFF" secondaryColor="#858DFF" borderColor="#252134" />
@@ -387,26 +550,26 @@ function MyResources({ resources, loading, onDeleteSuccess }) {
 
   return (
     <div>
-      <h2 className="h5 mb-4">My Uploads ({resources.length})</h2>
-      <div className="space-y-3">
-        {resources.map(r => (
-          <div key={r.id} className="flex items-center justify-between rounded-xl border border-n-6 bg-n-7 px-4 py-3">
-            <div>
-              <p className="text-sm font-medium">{r.title}</p>
-              <p className="text-xs text-n-5">{r.resource_type} · {r.slug}</p>
-            </div>
-            <button
-              onClick={async () => {
-                await resourceService.remove(r.id);
-                onDeleteSuccess?.(r.id);
-              }}
-              className="text-xs text-red-400 hover:text-red-300 transition"
-            >
-              Delete
-            </button>
-          </div>
-        ))}
+      <div className="flex items-center gap-3 mb-6">
+        <h2 className="h5">My Uploads</h2>
+        <span className="px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-sm text-blue-400 font-semibold">
+          {resources.length}
+        </span>
       </div>
+
+      {resources.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-16 rounded-2xl border border-dashed border-n-6 bg-n-7/20 text-center">
+          <div className="text-4xl mb-3">📂</div>
+          <p className="text-n-3 font-medium">No uploads yet</p>
+          <p className="text-n-5 text-sm mt-1">Switch to the Upload tab to share resources with students.</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+          {resources.map(r => (
+            <ResourceCard key={r.id} r={r} onDeleteSuccess={onDeleteSuccess} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
