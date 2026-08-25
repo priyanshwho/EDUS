@@ -5,6 +5,7 @@ import { useUpload } from '../hooks/useUpload';
 import { resourceService } from '../services/resource.service';
 import { useProfessorDashboardStore } from '../stores/professorDashboard.store';
 import { resourceShareUrl } from '../utils/format';
+import { handlePreviewResource } from '../utils/previewHandler';
 import { GooeyLoader } from '../components/ui/loader-10';
 import DashboardBackground from '../components/design/DashboardBackground';
 
@@ -168,22 +169,29 @@ function UploadForm({ subjects, onUploaded }) {
   const [file, setFile] = useState(null);
   const [success, setSuccess] = useState(false);
 
+  const [uploadedResource, setUploadedResource] = useState(null);
+  const [copiedLink, setCopiedLink] = useState(false);
+
   const onChange = (e) => setForm(p => ({ ...p, [e.target.name]: e.target.value }));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSuccess(false);
+    setUploadedResource(null);
     try {
+      let created = null;
       if (form.resource_type === 'lecture' && form.youtube_url) {
         // YouTube lecture — no file upload needed
-        await resourceService.create({
+        const res = await resourceService.create({
           ...form,
           year: Number(form.year) || undefined,
           youtube_url: form.youtube_url,
         });
+        created = res?.resource;
       } else if (file) {
-        await upload(file, { ...form, year: Number(form.year) || undefined });
+        created = await upload(file, { ...form, year: Number(form.year) || undefined });
       }
+      setUploadedResource(created);
       setSuccess(true);
       onUploaded?.();
       setForm({ subject_id: '', resource_type: 'notes', title: '', description: '', year: '', pyq_type: '', youtube_url: '' });
@@ -287,12 +295,71 @@ function UploadForm({ subjects, onUploaded }) {
           </div>
         )}
 
-        {error   && <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">{error}</div>}
-        {success && <div className="mb-4 p-3 rounded-lg bg-green-500/10 border border-green-500/20 text-green-400 text-sm">✅ Resource uploaded successfully!</div>}
+        {error && <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">{error}</div>}
+        
+        {success && (
+          <div className="mb-6 p-5 rounded-2xl bg-blue-500/10 border border-blue-500/30 text-n-1 space-y-4">
+            <div className="flex items-center gap-2 text-green-400 font-bold text-sm">
+              <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              <span>Resource Published Successfully!</span>
+            </div>
+
+            {uploadedResource && (
+              <>
+                <div className="p-3.5 bg-n-8/80 rounded-xl border border-n-6 space-y-2">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-xs font-semibold text-n-4 uppercase tracking-wider">Sharable Link for Students</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const url = resourceShareUrl(uploadedResource.slug, uploadedResource);
+                        navigator.clipboard.writeText(url);
+                        setCopiedLink(true);
+                        setTimeout(() => setCopiedLink(false), 2000);
+                      }}
+                      className="text-xs px-3 py-1 rounded-lg bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 font-medium transition"
+                    >
+                      {copiedLink ? '✓ Copied!' : 'Copy Link'}
+                    </button>
+                  </div>
+                  <code className="text-xs text-color-1 break-all block font-mono">
+                    {resourceShareUrl(uploadedResource.slug, uploadedResource)}
+                  </code>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-3 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => handlePreviewResource(uploadedResource)}
+                    className="px-4 py-2.5 rounded-xl bg-blue-500 text-white text-xs font-bold hover:bg-blue-600 transition flex items-center gap-1.5 shadow-lg shadow-blue-500/20"
+                  >
+                    <span>View File (T3 Storage)</span>
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                  </button>
+                  <a
+                    href={resourceShareUrl(uploadedResource.slug, uploadedResource)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-4 py-2.5 rounded-xl bg-n-6 text-n-1 text-xs font-bold hover:bg-n-5 transition flex items-center gap-1.5"
+                  >
+                    <span>Open Student Resource Page</span>
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                    </svg>
+                  </a>
+                </div>
+              </>
+            )}
+          </div>
+        )}
 
         <button type="submit" disabled={uploading}
           className="w-full py-3.5 rounded-xl bg-blue-500 text-white font-bold text-sm hover:opacity-90 hover:-translate-y-0.5 hover:shadow-[0_0_20px_rgba(59,130,246,0.4)] transition-all duration-300 disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-none">
-          {uploading ? `Uploading... ${progress}%` : 'Publish Resource'}
+          {uploading ? `Uploading... ${progress}%` : 'Publish Another Resource'}
         </button>
       </div>
     </form>
