@@ -1,0 +1,79 @@
+name: EduSphere Backend CI/CD
+
+on:
+  push:
+    branches: [ main, Priyanshu ]
+    paths:
+      - 'backend/**'
+      - '.github/scripts/**'
+      - '.github/workflows/deploy.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'backend/**'
+      - '.github/scripts/**'
+
+jobs:
+  # ====================================================
+  # CI: Verification & Quality Gate
+  # ====================================================
+  verify:
+    name: Run Architecture & Role Checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install Dependencies
+        working-directory: ./backend
+        run: npm ci
+
+      - name: Run Verification Checks
+        working-directory: ./backend
+        run: |
+          node ../.github/scripts/check-roles.js
+          node ../.github/scripts/check-slug-format.js
+          node ../.github/scripts/check-architecture-consistency.js
+
+  # ====================================================
+  # CD: Deploy to Host & Restart Systemd Service
+  # ====================================================
+  deploy:
+    name: Deploy to Production
+    needs: verify
+    if: (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/Priyanshu') && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: SSH and Update Service
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: ${{ secrets.SERVER_PORT || 22 }}
+          script_stop: true
+          script: |
+            set -e
+            echo "📦 Fetching latest changes..."
+            cd /home/priyanshu/EDUS
+            git fetch origin ${{ github.ref_name }}
+            git reset --hard origin/${{ github.ref_name }}
+
+            echo "📦 Installing backend dependencies..."
+            cd backend
+            npm ci --omit=dev
+
+            echo "🔄 Restarting edus-backend.service..."
+            sudo systemctl restart edus-backend
+
+            echo "🔍 Verifying service status..."
+            sudo systemctl status edus-backend --no-pager
+
+            echo "✅ Deployment completed successfully!"
