@@ -94,13 +94,15 @@ export default function ProfessorDashboard() {
       </nav>
 
       {activeTab === 'overview'       && <AnalyticsOverview analytics={analytics} loading={loadingAnalytics} />}
-      {activeTab === 'upload'         && <UploadForm subjects={subjects} onUploaded={() => refreshAfterUpload(user?.id)} />}
+      {activeTab === 'upload'         && <UploadForm subjects={subjects} user={user} onUploaded={() => refreshAfterUpload(user?.id)} />}
       {activeTab === 'subjects'       && <SubjectsPanel subjects={subjects} onSubjectCreated={prependSubject} userId={user?.id} />}
       {activeTab === 'announcements'  && <AnnouncementsPanel subjects={subjects} />}
       {activeTab === 'resources'      && (
         <MyResources
           resources={myResources}
           loading={loadingResources}
+          user={user}
+          subjects={subjects}
           onDeleteSuccess={(id) => {
             removeResourceById(id);
             fetchAnalytics(true).catch(() => {});
@@ -161,7 +163,7 @@ function AnalyticsOverview({ analytics, loading }) {
 }
 
 // ── Upload Form ─────────────────────────────────────────────────────────────
-function UploadForm({ subjects, onUploaded }) {
+function UploadForm({ subjects, user, onUploaded }) {
   const { upload, uploading, progress, error } = useUpload();
   const [form, setForm] = useState({
     subject_id: '', resource_type: 'notes', title: '', description: '',
@@ -307,54 +309,57 @@ function UploadForm({ subjects, onUploaded }) {
               <span>Resource Published Successfully!</span>
             </div>
 
-            {uploadedResource && (
-              <>
-                <div className="p-3.5 bg-n-8/80 rounded-xl border border-n-6 space-y-2">
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-xs font-semibold text-n-4 uppercase tracking-wider">Sharable Link for Students</span>
+            {uploadedResource && (() => {
+              const uploadSubj = uploadedResource?.subjects || subjects?.find(s => s.id === uploadedResource?.subject_id);
+              const shareUrl = resourceShareUrl(uploadedResource.slug, uploadedResource, user, uploadSubj);
+              return (
+                <>
+                  <div className="p-3.5 bg-n-8/80 rounded-xl border border-n-6 space-y-2">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-xs font-semibold text-n-4 uppercase tracking-wider">Sharable Link for Students</span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          navigator.clipboard.writeText(shareUrl);
+                          setCopiedLink(true);
+                          setTimeout(() => setCopiedLink(false), 2000);
+                        }}
+                        className="text-xs px-3 py-1 rounded-lg bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 font-medium transition"
+                      >
+                        {copiedLink ? '✓ Copied!' : 'Copy Link'}
+                      </button>
+                    </div>
+                    <code className="text-xs text-color-1 break-all block font-mono">
+                      {shareUrl}
+                    </code>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-3 pt-1">
                     <button
                       type="button"
-                      onClick={() => {
-                        const url = resourceShareUrl(uploadedResource.slug, uploadedResource);
-                        navigator.clipboard.writeText(url);
-                        setCopiedLink(true);
-                        setTimeout(() => setCopiedLink(false), 2000);
-                      }}
-                      className="text-xs px-3 py-1 rounded-lg bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 font-medium transition"
+                      onClick={(e) => handlePreviewResource(uploadedResource, e)}
+                      className="px-4 py-2.5 rounded-xl bg-blue-500 text-white text-xs font-bold hover:bg-blue-600 transition flex items-center gap-1.5 shadow-lg shadow-blue-500/20"
                     >
-                      {copiedLink ? '✓ Copied!' : 'Copy Link'}
+                      <span>View File (T3 Storage)</span>
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                      </svg>
                     </button>
+                    <a
+                      href={shareUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-4 py-2.5 rounded-xl bg-n-6 text-n-1 text-xs font-bold hover:bg-n-5 transition flex items-center gap-1.5"
+                    >
+                      <span>Open Student Resource Page</span>
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                      </svg>
+                    </a>
                   </div>
-                  <code className="text-xs text-color-1 break-all block font-mono">
-                    {resourceShareUrl(uploadedResource.slug, uploadedResource)}
-                  </code>
-                </div>
-
-                <div className="flex flex-wrap items-center gap-3 pt-1">
-                  <button
-                    type="button"
-                    onClick={() => handlePreviewResource(uploadedResource)}
-                    className="px-4 py-2.5 rounded-xl bg-blue-500 text-white text-xs font-bold hover:bg-blue-600 transition flex items-center gap-1.5 shadow-lg shadow-blue-500/20"
-                  >
-                    <span>View File (T3 Storage)</span>
-                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                    </svg>
-                  </button>
-                  <a
-                    href={resourceShareUrl(uploadedResource.slug, uploadedResource)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-4 py-2.5 rounded-xl bg-n-6 text-n-1 text-xs font-bold hover:bg-n-5 transition flex items-center gap-1.5"
-                  >
-                    <span>Open Student Resource Page</span>
-                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                    </svg>
-                  </a>
-                </div>
-              </>
-            )}
+                </>
+              );
+            })()}
           </div>
         )}
 
@@ -454,12 +459,13 @@ const TYPE_CONFIG = {
   lecture:    { label: 'Lecture',    color: 'from-red-500 to-rose-500',     bg: 'bg-red-500/10 border-red-500/20 text-red-400',       icon: '🎬' },
 };
 
-function ResourceCard({ r, onDeleteSuccess }) {
+function ResourceCard({ r, user, subjects, onDeleteSuccess }) {
   const [copied, setCopied] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const cfg = TYPE_CONFIG[r.resource_type] || TYPE_CONFIG.notes;
-  const canonicalPath = resourcePath(r, r.slug);
-  const shareUrl = resourceShareUrl(r.slug, r);
+  const subj = r.subjects || subjects?.find(s => s.id === r.subject_id);
+  const canonicalPath = resourcePath(r, r.slug, user, subj);
+  const shareUrl = resourceShareUrl(r.slug, r, user, subj);
 
   const handleCopy = async () => {
     try {
@@ -613,7 +619,7 @@ function ResourceCard({ r, onDeleteSuccess }) {
   );
 }
 
-function MyResources({ resources, loading, onDeleteSuccess }) {
+function MyResources({ resources, loading, user, subjects, onDeleteSuccess }) {
   if (loading) return (
     <div className="flex justify-center py-12">
       <GooeyLoader primaryColor="#AC6AFF" secondaryColor="#858DFF" borderColor="#252134" />
@@ -638,7 +644,7 @@ function MyResources({ resources, loading, onDeleteSuccess }) {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
           {resources.map(r => (
-            <ResourceCard key={r.id} r={r} onDeleteSuccess={onDeleteSuccess} />
+            <ResourceCard key={r.id} r={r} user={user} subjects={subjects} onDeleteSuccess={onDeleteSuccess} />
           ))}
         </div>
       )}
