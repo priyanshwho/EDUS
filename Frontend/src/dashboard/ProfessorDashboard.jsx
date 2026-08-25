@@ -495,10 +495,6 @@ function ResourceCard({ r, user, subjects, onDeleteSuccess }) {
     }
   };
 
-  // View opens the raw T3 S3 file / YouTube video directly in a new tab
-  const handleView = (e) => {
-    handlePreviewResource(r, e);
-  };
 
   const handleDelete = async () => {
     if (!window.confirm(`Delete "${r.title}"?`)) return;
@@ -546,17 +542,19 @@ function ResourceCard({ r, user, subjects, onDeleteSuccess }) {
         {/* Action buttons */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-4">
           {/* View */}
-          <button
-            onClick={handleView}
+          <a
+            href={canonicalPath}
+            target="_blank"
+            rel="noopener noreferrer"
             className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-semibold hover:bg-blue-500/20 hover:border-blue-500/40 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-blue-500/20 transition-all duration-200"
-            title="Preview file in T3 storage"
+            title="Open resource page in new tab"
           >
             <svg className="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
             </svg>
             <span>View</span>
-          </button>
+          </a>
 
           {/* Copy Link */}
           <button
