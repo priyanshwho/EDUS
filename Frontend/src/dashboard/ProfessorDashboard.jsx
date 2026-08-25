@@ -4,6 +4,7 @@ import { announcementService, subjectService } from '../services/index';
 import { useUpload } from '../hooks/useUpload';
 import { resourceService } from '../services/resource.service';
 import { useProfessorDashboardStore } from '../stores/professorDashboard.store';
+import { resourceShareUrl } from '../utils/format';
 import { GooeyLoader } from '../components/ui/loader-10';
 import DashboardBackground from '../components/design/DashboardBackground';
 
@@ -385,27 +386,22 @@ const TYPE_CONFIG = {
   lecture:    { label: 'Lecture',    color: 'from-red-500 to-rose-500',     bg: 'bg-red-500/10 border-red-500/20 text-red-400',       icon: '🎬' },
 };
 
-function getResourceUrl(r) {
-  if (r.youtube_url) return r.youtube_url;
-  // Build the shareable app link using slug
-  return `${window.location.origin}/resources/${r.slug}`;
-}
-
 function ResourceCard({ r, onDeleteSuccess }) {
   const [copied, setCopied] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [viewing, setViewing] = useState(false);
   const cfg = TYPE_CONFIG[r.resource_type] || TYPE_CONFIG.notes;
-  const url = getResourceUrl(r);
+  const shareUrl = resourceShareUrl(r.slug, r);
 
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(url);
+      await navigator.clipboard.writeText(shareUrl);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
       // fallback
       const ta = document.createElement('textarea');
-      ta.value = url;
+      ta.value = shareUrl;
       document.body.appendChild(ta);
       ta.select();
       document.execCommand('copy');
@@ -418,14 +414,42 @@ function ResourceCard({ r, onDeleteSuccess }) {
   const handleShare = async () => {
     if (navigator.share) {
       try {
-        await navigator.share({ title: r.title, url });
+        await navigator.share({ title: r.title, url: shareUrl });
       } catch {/* cancelled */}
     } else {
       handleCopy();
     }
   };
 
-  const handleView = () => window.open(url, '_blank', 'noopener,noreferrer');
+  // View opens the raw T3 S3 file / YouTube video directly in a new tab
+  const handleView = async () => {
+    if (r.youtube_url) {
+      window.open(r.youtube_url, '_blank', 'noopener,noreferrer');
+      return;
+    }
+    if (r.external_link) {
+      window.open(r.external_link, '_blank', 'noopener,noreferrer');
+      return;
+    }
+    if (r.signedUrl) {
+      window.open(r.signedUrl, '_blank', 'noopener,noreferrer');
+      return;
+    }
+    if (r.slug) {
+      setViewing(true);
+      try {
+        const data = await resourceService.getBySlug(r.slug);
+        const fileUrl = data?.resource?.signedUrl || data?.resource?.external_link || data?.resource?.youtube_url;
+        if (fileUrl) {
+          window.open(fileUrl, '_blank', 'noopener,noreferrer');
+        }
+      } catch (err) {
+        console.error('Failed to open file:', err);
+      } finally {
+        setViewing(false);
+      }
+    }
+  };
 
   const handleDelete = async () => {
     if (!window.confirm(`Delete "${r.title}"?`)) return;
@@ -471,13 +495,21 @@ function ResourceCard({ r, onDeleteSuccess }) {
           {/* View */}
           <button
             onClick={handleView}
-            className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-semibold hover:bg-blue-500/20 hover:border-blue-500/40 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-blue-500/20 transition-all duration-200"
+            disabled={viewing}
+            className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-semibold hover:bg-blue-500/20 hover:border-blue-500/40 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-blue-500/20 transition-all duration-200 disabled:opacity-50"
           >
-            <svg className="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-            </svg>
-            <span>View</span>
+            {viewing ? (
+              <svg className="w-3.5 h-3.5 animate-spin flex-shrink-0" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+              </svg>
+            ) : (
+              <svg className="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+            )}
+            <span>{viewing ? 'Opening…' : 'View'}</span>
           </button>
 
           {/* Copy Link */}
