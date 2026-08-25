@@ -7,6 +7,7 @@ import {
   resourceTypeLabel,
   semesterLabel,
   subjectPath,
+  resourcePath,
   resourceShareUrl,
 } from '../utils/format';
 import { GooeyLoader } from '../components/ui/loader-10';
@@ -37,6 +38,12 @@ export default function ResourcePage() {
     resourceService.getBySlug(slug)
       .then((data) => {
         setResource(data.resource);
+        if (data?.resource) {
+          const canonical = resourcePath(data.resource, slug);
+          if (canonical && window.location.pathname !== canonical) {
+            window.history.replaceState(null, '', canonical);
+          }
+        }
       })
       .catch(() => setError('Resource not found or may have been removed.'))
       .finally(() => setLoading(false));
