@@ -133,7 +133,7 @@ async function getBySlug(req, res, next) {
       from resources r
       left join subjects s on s.id = r.subject_id
       left join users u on u.id = r.uploaded_by
-      where r.slug = ${slug}
+      where r.slug = ${slug} or r.id::text = ${slug}
       limit 1
     `;
 
