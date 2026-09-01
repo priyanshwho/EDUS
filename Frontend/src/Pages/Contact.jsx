@@ -41,7 +41,7 @@ const Contact = () => {
       title: "Contact Number",
       content: (
         <a
-          href="tel:+918173970847"
+          href="tel:+916205146659"
           className="text-sky-300 hover:text-sky-200 transition-colors duration-300 hover:underline"
         >
           +91 81739 70847
@@ -88,7 +88,7 @@ const Contact = () => {
     },
     {
       label: "Call Now",
-      action: () => window.location.href = 'tel:+918173970847',
+      action: () => window.location.href = 'tel:+916205146659',
       primary: false
     },
     {
@@ -237,42 +237,52 @@ const Contact = () => {
 
                 <div className="relative h-96 rounded-xl overflow-hidden border border-n-1/10 mb-6">
                   <iframe
-                    src="https://maps.google.com/maps?q=30.7493333,76.7544167&z=17&output=embed"
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3429.6268846067756!2d76.75184177626943!3d30.749333274577803!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390feda45e945a31%3A0xdc967b3a7e0f1e95!2sUniversity%20Institute%20of%20Engineering%20and%20Technology%2C%20Panjab%20University!5e0!3m2!1sen!2sin!4v1717000000000!5m2!1sen!2sin"
                     width="100%"
                     height="100%"
                     style={{ border: 0 }}
                     allowFullScreen={true}
                     loading="lazy"
                     referrerPolicy="no-referrer-when-downgrade"
-                    className="rounded-xl"
+                    className="rounded-xl w-full h-full"
+                    title="UIET Panjab University Map Location"
                   ></iframe>
                   <div className="absolute inset-0 bg-gradient-to-t from-n-8/20 via-transparent to-transparent rounded-xl pointer-events-none"></div>
 
                   <a
-                    href="https://www.google.com/maps/search/?api=1&query=30.7493333,76.7544167"
+                    href="https://maps.app.goo.gl/RXsWLputXCTPVqg89"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="absolute right-4 bottom-4 z-10 bg-n-8/80 text-white px-3 py-2 rounded-lg border border-n-3/20 backdrop-blur hover:bg-n-8/90"
+                    className="absolute right-4 bottom-4 z-10 bg-n-8/80 text-white px-3 py-2 rounded-lg border border-n-3/20 backdrop-blur hover:bg-n-8/90 flex items-center gap-1.5 text-sm transition-colors"
                   >
-                    Open in Maps
+                    <span>Open in Maps</span>
+                    <ExternalLink className="w-3.5 h-3.5" />
                   </a>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4 mb-6">
-                  <div className="bg-orange-500/10 border border-orange-400/20 text-orange-300 hover:bg-orange-500/20 group flex items-center gap-3 px-4 py-3 rounded-lg backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:shadow-lg cursor-pointer">
+                  <a
+                    href="https://maps.app.goo.gl/RXsWLputXCTPVqg89"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="bg-orange-500/10 border border-orange-400/20 text-orange-300 hover:bg-orange-500/20 group flex items-center gap-3 px-4 py-3 rounded-lg backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:shadow-lg cursor-pointer"
+                  >
                     <MapPin className="w-5 h-5" />
                     <div>
                       <div className="text-sm font-bold">Sector 25</div>
                       <div className="text-xs font-medium opacity-80">South Campus</div>
                     </div>
-                  </div>
-                  <div className="bg-red-500/10 border border-red-400/20 text-red-300 hover:bg-red-500/20 group flex items-center gap-3 px-4 py-3 rounded-lg backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:shadow-lg cursor-pointer">
+                  </a>
+                  <a
+                    href="tel:+918173970847"
+                    className="bg-red-500/10 border border-red-400/20 text-red-300 hover:bg-red-500/20 group flex items-center gap-3 px-4 py-3 rounded-lg backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:shadow-lg cursor-pointer"
+                  >
                     <Phone className="w-5 h-5" />
                     <div>
                       <div className="text-sm font-bold">+91 81739 70847</div>
                       <div className="text-xs font-medium opacity-80">Direct Line</div>
                     </div>
-                  </div>
+                  </a>
                 </div>
 
                 {/* Quick Actions */}
