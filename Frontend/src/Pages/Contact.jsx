@@ -1,10 +1,10 @@
 import React from 'react'
-import { 
-  MapPin, 
-  Phone, 
-  Mail, 
-  Globe, 
-  Building2, 
+import {
+  MapPin,
+  Phone,
+  Mail,
+  Globe,
+  Building2,
   Clock,
   Users,
   ExternalLink,
@@ -44,7 +44,7 @@ const Contact = () => {
           href="tel:+916205146659"
           className="text-sky-300 hover:text-sky-200 transition-colors duration-300 hover:underline"
         >
-          +91 81739 70847
+          +91 62051 46659
         </a>
       ),
       color: "from-green-400 to-emerald-400"
@@ -110,7 +110,7 @@ const Contact = () => {
             alt="Background gradient"
           />
         </div>
-        
+
         {/* Secondary background pattern */}
         <div className="absolute inset-0 opacity-5">
           <img
@@ -124,7 +124,7 @@ const Contact = () => {
         <Rings />
         <SideLines />
         <BackgroundCircles />
-        
+
         {/* Additional decorative elements */}
         <div className="absolute top-20 left-10 opacity-20">
           <img src={stars} width={200} height={200} alt="Stars" />
@@ -145,7 +145,7 @@ const Contact = () => {
                 GET IN TOUCH
               </span>
             </div>
-            
+
             <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold mb-4">
               <span className="block text-transparent bg-clip-text bg-gradient-to-r from-white to-[#CCCCCC] leading-tight">
                 Contact
@@ -279,7 +279,7 @@ const Contact = () => {
                   >
                     <Phone className="w-5 h-5" />
                     <div>
-                      <div className="text-sm font-bold">+91 81739 70847</div>
+                      <div className="text-sm font-bold">+91 62051 46659</div>
                       <div className="text-xs font-medium opacity-80">Direct Line</div>
                     </div>
                   </a>
@@ -291,11 +291,10 @@ const Contact = () => {
                     <button
                       key={index}
                       onClick={action.action}
-                      className={`relative group font-medium transition-all duration-300 transform hover:scale-105 cursor-pointer border rounded-lg overflow-hidden px-6 py-3 text-base ${
-                        action.primary
+                      className={`relative group font-medium transition-all duration-300 transform hover:scale-105 cursor-pointer border rounded-lg overflow-hidden px-6 py-3 text-base ${action.primary
                           ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white border-transparent hover:shadow-lg hover:shadow-cyan-500/25 hover:-translate-y-0.5 active:translate-y-0 shadow-md shadow-cyan-500/15'
                           : 'bg-transparent text-n-3 border-n-1/20 hover:bg-n-1/5 hover:border-n-1/30 hover:text-n-1'
-                      }`}
+                        }`}
                     >
                       <span className="relative z-10">{action.label}</span>
                       {action.primary && (
