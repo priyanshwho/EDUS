@@ -235,28 +235,31 @@ const Contact = () => {
                   </h2>
                 </div>
 
-                <div className="relative h-96 rounded-xl overflow-hidden border border-n-1/10 mb-6 group/map">
-                  <iframe
-                    src="https://www.openstreetmap.org/export/embed.html?bbox=76.7460%2C30.7440%2C76.7620%2C30.7550&amp;layer=mapnik&amp;marker=30.74933%2C76.75442"
-                    width="100%"
-                    height="100%"
-                    style={{ border: 0, filter: 'invert(90%) hue-rotate(180deg) brightness(95%) contrast(90%)' }}
-                    loading="lazy"
-                    className="rounded-xl w-full h-full"
-                    title="UIET Panjab University Map Location"
-                  ></iframe>
-                  <div className="absolute inset-0 bg-gradient-to-t from-n-8/40 via-transparent to-transparent rounded-xl pointer-events-none"></div>
+                <a
+                  href="https://maps.app.goo.gl/RXsWLputXCTPVqg89"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block relative h-96 rounded-xl overflow-hidden border border-n-1/10 mb-6 group/map cursor-pointer"
+                >
+                  <img
+                    src="/map-preview.png"
+                    alt="UIET Panjab University Campus Map"
+                    className="w-full h-full object-cover object-center transition-transform duration-500 group-hover/map:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-n-8/80 via-transparent to-n-8/20 transition-opacity duration-300 group-hover/map:opacity-60 pointer-events-none"></div>
 
-                  <a
-                    href="https://maps.app.goo.gl/RXsWLputXCTPVqg89"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="absolute right-4 bottom-4 z-10 bg-n-8/90 text-white px-3.5 py-2 rounded-lg border border-n-3/20 backdrop-blur hover:bg-n-7 hover:border-sky-400/50 flex items-center gap-1.5 text-sm transition-all shadow-lg"
-                  >
+                  {/* Location Tag */}
+                  <div className="absolute top-4 left-4 z-10 flex items-center gap-2 bg-n-8/80 text-n-1 px-3 py-1.5 rounded-lg border border-n-1/10 backdrop-blur-md text-xs font-medium shadow-lg">
+                    <MapPin className="w-3.5 h-3.5 text-orange-400 animate-bounce" />
+                    <span>UIET, Sector 25, Chandigarh</span>
+                  </div>
+
+                  {/* Open in Maps Button */}
+                  <div className="absolute right-4 bottom-4 z-10 bg-n-8/90 text-white px-3.5 py-2 rounded-lg border border-n-3/20 backdrop-blur group-hover/map:bg-n-7 group-hover/map:border-sky-400/50 flex items-center gap-1.5 text-sm transition-all shadow-xl">
                     <span>Open in Maps</span>
                     <ExternalLink className="w-3.5 h-3.5 text-sky-400" />
-                  </a>
-                </div>
+                  </div>
+                </a>
 
                 <div className="grid grid-cols-2 gap-4 mb-6">
                   <a
