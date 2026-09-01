@@ -235,28 +235,26 @@ const Contact = () => {
                   </h2>
                 </div>
 
-                <div className="relative h-96 rounded-xl overflow-hidden border border-n-1/10 mb-6">
+                <div className="relative h-96 rounded-xl overflow-hidden border border-n-1/10 mb-6 group/map">
                   <iframe
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3429.6268846067756!2d76.75184177626943!3d30.749333274577803!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390feda45e945a31%3A0xdc967b3a7e0f1e95!2sUniversity%20Institute%20of%20Engineering%20and%20Technology%2C%20Panjab%20University!5e0!3m2!1sen!2sin!4v1717000000000!5m2!1sen!2sin"
+                    src="https://www.openstreetmap.org/export/embed.html?bbox=76.7460%2C30.7440%2C76.7620%2C30.7550&amp;layer=mapnik&amp;marker=30.74933%2C76.75442"
                     width="100%"
                     height="100%"
-                    style={{ border: 0 }}
-                    allowFullScreen={true}
+                    style={{ border: 0, filter: 'invert(90%) hue-rotate(180deg) brightness(95%) contrast(90%)' }}
                     loading="lazy"
-                    referrerPolicy="no-referrer-when-downgrade"
                     className="rounded-xl w-full h-full"
                     title="UIET Panjab University Map Location"
                   ></iframe>
-                  <div className="absolute inset-0 bg-gradient-to-t from-n-8/20 via-transparent to-transparent rounded-xl pointer-events-none"></div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-n-8/40 via-transparent to-transparent rounded-xl pointer-events-none"></div>
 
                   <a
                     href="https://maps.app.goo.gl/RXsWLputXCTPVqg89"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="absolute right-4 bottom-4 z-10 bg-n-8/80 text-white px-3 py-2 rounded-lg border border-n-3/20 backdrop-blur hover:bg-n-8/90 flex items-center gap-1.5 text-sm transition-colors"
+                    className="absolute right-4 bottom-4 z-10 bg-n-8/90 text-white px-3.5 py-2 rounded-lg border border-n-3/20 backdrop-blur hover:bg-n-7 hover:border-sky-400/50 flex items-center gap-1.5 text-sm transition-all shadow-lg"
                   >
                     <span>Open in Maps</span>
-                    <ExternalLink className="w-3.5 h-3.5" />
+                    <ExternalLink className="w-3.5 h-3.5 text-sky-400" />
                   </a>
                 </div>
 
@@ -274,7 +272,7 @@ const Contact = () => {
                     </div>
                   </a>
                   <a
-                    href="tel:+918173970847"
+                    href="tel:+916205146659"
                     className="bg-red-500/10 border border-red-400/20 text-red-300 hover:bg-red-500/20 group flex items-center gap-3 px-4 py-3 rounded-lg backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:shadow-lg cursor-pointer"
                   >
                     <Phone className="w-5 h-5" />
