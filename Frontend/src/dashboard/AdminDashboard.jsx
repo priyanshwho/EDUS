@@ -447,6 +447,9 @@ function UserManagement() {
     removeUserById,
   } = useAdminDashboardStore();
 
+  const [searchQuery, setSearchQuery] = useState('');
+  const [roleFilter, setRoleFilter] = useState('all');
+
   useEffect(() => {
     fetchUsers().catch(() => {});
   }, [fetchUsers]);
@@ -462,23 +465,55 @@ function UserManagement() {
     removeUserById(id);
   };
 
+  /* ── client-side filter by search + role ── */
+  const filtered = users.filter(u => {
+    if (roleFilter !== 'all' && u.role !== roleFilter) return false;
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      if (!u.username?.toLowerCase().includes(q) && !u.email?.toLowerCase().includes(q)) return false;
+    }
+    return true;
+  });
+
   if (loadingUsers && users.length === 0) return <p className="text-n-4">Loading users…</p>;
 
   return (
     <div>
-      <h2 className="h5 mb-4">User Management ({users.length})</h2>
+      {/* ── Header row: title + search bar ── */}
+      <div className="flex items-center justify-between gap-4 mb-4 flex-wrap">
+        <h2 className="h5 whitespace-nowrap">User Management ({filtered.length})</h2>
+        <input
+          type="text"
+          placeholder="Search by username or email…"
+          value={searchQuery}
+          onChange={e => setSearchQuery(e.target.value)}
+          className="flex-1 min-w-[200px] max-w-md rounded-lg border border-n-6 bg-n-7 px-4 py-2 text-sm placeholder:text-n-5 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition"
+        />
+      </div>
+
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-n-6 text-n-4">
               <th className="text-left pb-3 pr-4">Username</th>
               <th className="text-left pb-3 pr-4">Email</th>
-              <th className="text-left pb-3 pr-4">Role</th>
+              <th className="text-left pb-3 pr-4">
+                <select
+                  value={roleFilter}
+                  onChange={e => setRoleFilter(e.target.value)}
+                  className="bg-transparent border border-n-6 rounded px-2 py-1 text-xs text-n-4 cursor-pointer hover:border-blue-500/50 focus:border-blue-500 focus:outline-none transition"
+                >
+                  <option value="all">Role (All)</option>
+                  <option value="student">Students</option>
+                  <option value="professor">Professors</option>
+                  <option value="admin">Admins</option>
+                </select>
+              </th>
               <th className="text-left pb-3">Actions</th>
             </tr>
           </thead>
           <tbody>
-            {users.map(u => (
+            {filtered.map(u => (
               <tr key={u.id} className="border-b border-n-6 hover:bg-n-7 transition">
                 <td className="py-3 pr-4 font-medium">{u.username}</td>
                 <td className="py-3 pr-4 text-n-4">{u.email}</td>
@@ -503,6 +538,13 @@ function UserManagement() {
                 </td>
               </tr>
             ))}
+            {filtered.length === 0 && (
+              <tr>
+                <td colSpan={4} className="py-8 text-center text-n-4 text-sm">
+                  No users found.
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
