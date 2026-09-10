@@ -31,7 +31,7 @@ const Sidebar = () => {
           <img src={eduAiImg} className="w-full h-full object-cover" alt="Edu AI" />
         </div>
         <div>
-          <div className="font-bold text-lg edus-gradient-text">Edu.ai</div>
+          <div className="font-bold text-lg bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">Edu.ai</div>
           <div className="text-[10px] uppercase tracking-wider text-slate-400">AI Learning Hub</div>
         </div>
       </div>
@@ -49,7 +49,7 @@ const Sidebar = () => {
                 className={clsx(
                   'w-full text-left px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 flex items-center justify-between',
                   active
-                    ? 'edus-gradient-bg text-white'
+                    ? 'bg-gradient-to-r from-blue-600 to-cyan-500 text-white shadow-md shadow-blue-500/20'
                     : 'text-slate-400 hover:text-white hover:bg-white/5 border border-transparent'
                 )}
               >
@@ -75,7 +75,7 @@ const Sidebar = () => {
                   className={clsx(
                     'w-full text-left px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 flex items-center justify-between',
                     active 
-                      ? 'edus-gradient-bg text-white' 
+                      ? 'bg-gradient-to-r from-blue-600 to-cyan-500 text-white shadow-md shadow-blue-500/20' 
                       : 'text-slate-400 hover:text-white hover:bg-white/5 border border-transparent'
                   )}
                 >
@@ -95,7 +95,7 @@ const Sidebar = () => {
       {/* ── Mobile hamburger ── */}
       <button
         onClick={() => setMobileOpen(!mobileOpen)}
-        className="lg:hidden fixed top-20 right-4 z-[90] w-10 h-10 rounded-xl flex items-center justify-center bg-[#15131D] border border-[#252134] shadow-md"
+        className="lg:hidden fixed top-20 right-4 z-[90] w-10 h-10 rounded-xl flex items-center justify-center bg-[#0a1120] border border-blue-500/30 hover:border-blue-500/50 shadow-md"
       >
         {mobileOpen ? <X size={18} className="text-slate-300" /> : <Menu size={18} className="text-slate-300" />}
       </button>
@@ -107,7 +107,7 @@ const Sidebar = () => {
           onClick={() => setMobileOpen(false)}
         >
           <aside
-            className="absolute right-0 top-0 bottom-0 w-72 bg-[#0E0C15] border-l border-[#252134] overflow-y-auto"
+            className="absolute right-0 top-0 bottom-0 w-72 bg-[#0a1120] border-l border-blue-500/20 overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="absolute top-4 left-4">
@@ -125,7 +125,7 @@ const Sidebar = () => {
 
       {/* ── Desktop sidebar ── */}
       <aside
-        className="hidden lg:flex flex-col w-72 h-screen sticky top-0 overflow-y-auto flex-shrink-0 bg-[#15131D]/50 border-r border-[#252134]"
+        className="hidden lg:flex flex-col w-72 h-screen sticky top-0 overflow-y-auto flex-shrink-0 bg-[#0a1120]/90 backdrop-blur-md border-r border-blue-500/20 shadow-xl shadow-blue-950/20"
       >
         <SidebarContent />
       </aside>
