@@ -13,7 +13,7 @@ import {
   Users,
   Activity,
   Mail,
-  Calendar,
+  Globe,
   GraduationCap,
   UserCheck,
 } from 'lucide-react';
@@ -263,7 +263,7 @@ function ResourceManagement() {
           {/* Source Selector Tabs */}
           <div className="mb-4">
             <label className="block text-xs font-semibold text-n-3 mb-2 uppercase tracking-wide">Upload Source</label>
-            <div className="flex gap-2 max-w-md">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 w-full max-w-lg">
               <button
                 type="button"
                 onClick={() => {
@@ -272,7 +272,7 @@ function ResourceManagement() {
                     setCreateForm(p => ({ ...p, resource_type: 'notes' }));
                   }
                 }}
-                className={`flex-1 py-2 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-1.5 ${
+                className={`py-2 px-3 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-1.5 ${
                   uploadMethod === 'file'
                     ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/20'
                     : 'bg-n-6 text-n-3 hover:text-n-1'
@@ -462,8 +462,8 @@ function ResourceManagement() {
       </div>
 
       {/* ── Resource Table ── */}
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm">
+      <div className="overflow-x-auto pb-4">
+        <table className="w-full text-sm min-w-[640px]">
           <thead>
             <tr className="border-b border-n-6 text-n-4">
               <th className="text-left pb-3 pr-3">Title</th>
@@ -766,7 +766,6 @@ function UserManagement() {
     setRoleFilter('all');
     setAuthFilter('all');
     setOnlyActiveToday(false);
-    setOnlyRecentJoined(false);
     setSearchQuery('');
   };
 
@@ -775,7 +774,7 @@ function UserManagement() {
   const totalUsersCount = users.length;
   const activeTodayCount = users.filter(u => u.last_active_at && (now - new Date(u.last_active_at).getTime()) < 24 * 60 * 60 * 1000).length;
   const googleUsersCount = users.filter(u => u.oauth_provider === 'google').length;
-  const joinedThisWeekCount = users.filter(u => u.created_at && (now - new Date(u.created_at).getTime()) < 7 * 24 * 60 * 60 * 1000).length;
+  const emailUsersCount = users.filter(u => !u.oauth_provider || u.oauth_provider === 'email').length;
   const professorCount = users.filter(u => u.role === 'professor').length;
   const studentCount = users.filter(u => u.role === 'student').length;
 
@@ -786,7 +785,7 @@ function UserManagement() {
       value: totalUsersCount,
       icon: Users,
       iconBg: 'bg-rose-500/10 border-rose-500/20 text-rose-400',
-      active: roleFilter === 'all' && authFilter === 'all' && !onlyActiveToday && !onlyRecentJoined,
+      active: roleFilter === 'all' && authFilter === 'all' && !onlyActiveToday,
       onClick: resetAllFilters,
     },
     {
@@ -800,21 +799,21 @@ function UserManagement() {
     },
     {
       id: 'google',
-      label: 'Gmail Connect...',
+      label: 'Google Auth',
       value: googleUsersCount,
-      icon: Mail,
-      iconBg: 'bg-rose-500/10 border-rose-500/20 text-rose-400',
+      icon: Globe,
+      iconBg: 'bg-red-500/10 border-red-500/20 text-red-400',
       active: authFilter === 'google',
       onClick: () => setAuthFilter(p => p === 'google' ? 'all' : 'google'),
     },
     {
-      id: 'recent',
-      label: 'Calendar Conn...',
-      value: joinedThisWeekCount,
-      icon: Calendar,
+      id: 'email',
+      label: 'Email Auth',
+      value: emailUsersCount,
+      icon: Mail,
       iconBg: 'bg-blue-500/10 border-blue-500/20 text-blue-400',
-      active: onlyRecentJoined,
-      onClick: () => setOnlyRecentJoined(p => !p),
+      active: authFilter === 'email',
+      onClick: () => setAuthFilter(p => p === 'email' ? 'all' : 'email'),
     },
     {
       id: 'professors',
@@ -836,7 +835,7 @@ function UserManagement() {
     },
   ];
 
-  /* ── client-side filter by search + role + auth + active + recent ── */
+  /* ── client-side filter by search + role + auth + active ── */
   const filtered = users.filter(u => {
     if (roleFilter !== 'all' && u.role !== roleFilter) return false;
     if (authFilter !== 'all') {
@@ -847,10 +846,6 @@ function UserManagement() {
       const isRecent = u.last_active_at && (now - new Date(u.last_active_at).getTime()) < 24 * 60 * 60 * 1000;
       if (!isRecent) return false;
     }
-    if (onlyRecentJoined) {
-      const isRecent = u.created_at && (now - new Date(u.created_at).getTime()) < 7 * 24 * 60 * 60 * 1000;
-      if (!isRecent) return false;
-    }
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
       if (!u.username?.toLowerCase().includes(q) && !u.email?.toLowerCase().includes(q)) return false;
@@ -858,14 +853,14 @@ function UserManagement() {
     return true;
   });
 
-  const hasActiveFilters = roleFilter !== 'all' || authFilter !== 'all' || onlyActiveToday || onlyRecentJoined || !!searchQuery;
+  const hasActiveFilters = roleFilter !== 'all' || authFilter !== 'all' || onlyActiveToday || !!searchQuery;
 
   if (loadingUsers && users.length === 0) return <p className="text-n-4">Loading users…</p>;
 
   return (
     <div>
       {/* ── Top Analytics Stat Cards ── */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5 mb-6">
+      <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-2.5 sm:gap-3.5 mb-6">
         {userStats.map((stat) => {
           const Icon = stat.icon;
           return (
@@ -874,18 +869,18 @@ function UserManagement() {
               onClick={stat.onClick}
               role="button"
               tabIndex={0}
-              className={`rounded-2xl border p-3.5 flex items-center gap-3.5 transition-all cursor-pointer select-none ${
+              className={`rounded-2xl border p-3 sm:p-3.5 flex items-center gap-2.5 sm:gap-3.5 transition-all cursor-pointer select-none ${
                 stat.active && stat.id !== 'total'
                   ? 'bg-n-7 border-blue-500/70 shadow-lg shadow-blue-500/10 ring-1 ring-blue-500/40 -translate-y-0.5'
                   : 'bg-n-7/50 hover:bg-n-7 border-n-6/70 hover:border-n-5 hover:-translate-y-0.5 shadow-sm'
               }`}
             >
-              <div className={`w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 border ${stat.iconBg}`}>
-                <Icon className="w-5 h-5" />
+              <div className={`w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl flex items-center justify-center shrink-0 border ${stat.iconBg}`}>
+                <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
               </div>
               <div className="min-w-0">
-                <p className="text-xl sm:text-2xl font-black text-n-1 leading-tight tracking-tight">{stat.value}</p>
-                <p className="text-[11px] font-medium text-n-4 truncate">{stat.label}</p>
+                <p className="text-lg sm:text-2xl font-black text-n-1 leading-tight tracking-tight">{stat.value}</p>
+                <p className="text-[10px] sm:text-xs font-medium text-n-4 truncate">{stat.label}</p>
               </div>
             </div>
           );
@@ -893,7 +888,7 @@ function UserManagement() {
       </div>
 
       {/* ── Header row: title + search bar ── */}
-      <div className="flex items-center justify-between gap-4 mb-4 flex-wrap">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
         <div className="flex items-center gap-3">
           <h2 className="h5 whitespace-nowrap">Users ({filtered.length})</h2>
           {hasActiveFilters && (
@@ -910,12 +905,12 @@ function UserManagement() {
           placeholder="Search by name or email…"
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
-          className="flex-1 min-w-[200px] max-w-md rounded-lg border border-n-6 bg-n-7 px-4 py-2 text-sm placeholder:text-n-5 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition"
+          className="w-full sm:w-72 sm:max-w-md rounded-lg border border-n-6 bg-n-7 px-4 py-2 text-sm placeholder:text-n-5 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition"
         />
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm">
+      <div className="overflow-x-auto pb-8">
+        <table className="w-full text-sm min-w-[680px]">
           <thead>
             <tr className="border-b border-n-6 text-n-4 text-xs uppercase tracking-wide">
               <th className="text-left pb-3 pr-4 font-semibold">User</th>
