@@ -1,6 +1,16 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LayoutDashboard, GraduationCap, LogOut, ChevronRight, ChevronDown } from 'lucide-react';
+import {
+  LayoutDashboard,
+  GraduationCap,
+  LogOut,
+  ChevronRight,
+  ChevronDown,
+  Pencil,
+  Check,
+  X,
+} from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 /**
  * ProfileDropdown
@@ -22,6 +32,14 @@ const ProfileDropdown = ({
   mobile = false,
 }) => {
   const navigate = useNavigate();
+  const { renameUsername } = useAuth();
+
+  // Username edit state
+  const [isEditingUsername, setIsEditingUsername] = useState(false);
+  const [newUsername,       setNewUsername]       = useState('');
+  const [usernameError,     setUsernameError]     = useState('');
+  const [savingUsername,    setSavingUsername]    = useState(false);
+  const [usernameSuccess,   setUsernameSuccess]   = useState(false);
 
   // PIN expand state
   const [pinExpanded, setPinExpanded]   = useState(false);
@@ -45,6 +63,41 @@ const ProfileDropdown = ({
       : '/dashboard/student';
 
   // ── Handlers ──────────────────────────────────────────────────────
+  const handleStartEditUsername = () => {
+    setNewUsername(user?.username || '');
+    setUsernameError('');
+    setUsernameSuccess(false);
+    setIsEditingUsername(true);
+  };
+
+  const handleSaveUsername = async (e) => {
+    e?.preventDefault();
+    const cleaned = newUsername.toLowerCase().trim().replace(/[^a-z0-9_]/g, '').slice(0, 24);
+    if (cleaned.length < 3) {
+      setUsernameError('Min 3 chars (letters, numbers, _)');
+      return;
+    }
+    if (cleaned === user?.username) {
+      setIsEditingUsername(false);
+      return;
+    }
+
+    setSavingUsername(true);
+    setUsernameError('');
+    try {
+      await renameUsername(cleaned);
+      setUsernameSuccess(true);
+      setTimeout(() => {
+        setUsernameSuccess(false);
+        setIsEditingUsername(false);
+      }, 1000);
+    } catch (err) {
+      setUsernameError(err?.message || 'Failed to update username');
+    } finally {
+      setSavingUsername(false);
+    }
+  };
+
   const handleDashboard = () => {
     navigate(dashboardPath);
     onClose();
@@ -85,8 +138,73 @@ const ProfileDropdown = ({
       {/* ── User info header ─────────────────────────────────────── */}
       <div className="px-5 py-4 bg-n-8/60 border-b border-n-6">
         <p className="text-n-1 font-semibold text-sm truncate">{displayName}</p>
-        <p className="text-n-3 text-xs mt-0.5">{displayUsername}</p>
-        <p className="text-n-4 text-xs mt-0.5 truncate">{displayEmail}</p>
+
+        {!isEditingUsername ? (
+          <div className="flex items-center justify-between mt-0.5 group/user">
+            <span className="text-n-3 text-xs font-mono">{displayUsername}</span>
+            <button
+              type="button"
+              onClick={handleStartEditUsername}
+              className="inline-flex items-center gap-1 text-[11px] text-n-4 hover:text-blue-400 p-1 -mr-1 rounded hover:bg-n-7 transition-colors"
+              title="Change your username"
+            >
+              <Pencil size={12} />
+              <span className="text-[10px]">Edit</span>
+            </button>
+          </div>
+        ) : (
+          <form onSubmit={handleSaveUsername} className="mt-1.5 space-y-1.5">
+            <div className="flex items-center gap-1.5">
+              <div className="relative flex-1">
+                <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-n-4 text-xs font-mono select-none">
+                  @
+                </span>
+                <input
+                  type="text"
+                  value={newUsername}
+                  onChange={(e) => {
+                    setNewUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '').slice(0, 24));
+                    setUsernameError('');
+                  }}
+                  placeholder="username"
+                  autoFocus
+                  disabled={savingUsername}
+                  className="w-full pl-6 pr-2 py-1 rounded-lg bg-n-8 border border-blue-500/60 text-xs text-n-1 font-mono focus:outline-none focus:border-blue-400"
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={savingUsername || !newUsername.trim() || newUsername === user?.username}
+                title="Save username"
+                className="p-1.5 rounded-lg bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-40 transition flex items-center justify-center shrink-0 shadow-sm"
+              >
+                <Check size={13} />
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsEditingUsername(false);
+                  setUsernameError('');
+                }}
+                disabled={savingUsername}
+                title="Cancel"
+                className="p-1.5 rounded-lg text-n-4 hover:text-n-1 hover:bg-n-7 transition flex items-center justify-center shrink-0"
+              >
+                <X size={13} />
+              </button>
+            </div>
+            {usernameError && (
+              <p className="text-[11px] text-red-400 leading-tight">{usernameError}</p>
+            )}
+            {usernameSuccess && (
+              <p className="text-[11px] text-green-400 leading-tight flex items-center gap-1">
+                <Check size={12} className="inline" /> Username updated!
+              </p>
+            )}
+          </form>
+        )}
+
+        <p className="text-n-4 text-xs mt-1 truncate">{displayEmail}</p>
         <span
           className="inline-block mt-2 px-2 py-0.5 text-[10px] font-semibold
                      bg-color-1/20 text-color-1 rounded-full capitalize"
