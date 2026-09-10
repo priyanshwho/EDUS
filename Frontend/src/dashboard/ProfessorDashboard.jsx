@@ -11,6 +11,8 @@ import {
   Video,
   FolderOpen,
   Trash2,
+  Search,
+  X,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { announcementService, subjectService } from '../services/index';
@@ -720,6 +722,8 @@ function SubjectsPanel({ subjects, onSubjectCreated, onSubjectDeleted, userId })
   const [form, setForm] = useState({ name_full: '', acronym: '', branch: '', semester: '' });
   const [creating, setCreating] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
+  const [scope, setScope] = useState('own'); // 'own' | 'global'
+  const [searchQuery, setSearchQuery] = useState('');
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
 
@@ -761,6 +765,18 @@ function SubjectsPanel({ subjects, onSubjectCreated, onSubjectDeleted, userId })
   };
 
   const mySubjects = subjects.filter(s => String(s.added_by) === String(userId));
+  const displayedSubjects = subjects.filter(s => {
+    if (scope === 'own' && String(s.added_by) !== String(userId)) return false;
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase().trim();
+      const matchesName = s.name_full?.toLowerCase().includes(q);
+      const matchesAcronym = s.acronym?.toLowerCase().includes(q);
+      const matchesBranch = s.branch?.toLowerCase().includes(q);
+      const matchesSem = String(s.semester) === q || `sem ${s.semester}`.includes(q);
+      if (!matchesName && !matchesAcronym && !matchesBranch && !matchesSem) return false;
+    }
+    return true;
+  });
 
   return (
     <div className="w-full">
@@ -823,40 +839,102 @@ function SubjectsPanel({ subjects, onSubjectCreated, onSubjectDeleted, userId })
         </div>
 
         {/* Right List */}
-        <div className="lg:col-span-2">
-          {mySubjects.length === 0 ? (
-             <div className="p-10 text-center rounded-2xl border border-n-6 border-dashed bg-n-7/30 text-n-4">
-               You haven't added any subjects yet.
+        <div className="lg:col-span-2 space-y-4">
+          {/* Controls: Scope toggle & search bar */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+            <div className="inline-flex p-1 rounded-xl bg-n-8/80 border border-n-6 self-start shadow-inner">
+              <button
+                type="button"
+                onClick={() => setScope('own')}
+                className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                  scope === 'own'
+                    ? 'bg-blue-500 text-white shadow-md shadow-blue-500/25'
+                    : 'text-n-4 hover:text-n-2'
+                }`}
+              >
+                Own Subjects ({mySubjects.length})
+              </button>
+              <button
+                type="button"
+                onClick={() => setScope('global')}
+                className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                  scope === 'global'
+                    ? 'bg-blue-500 text-white shadow-md shadow-blue-500/25'
+                    : 'text-n-4 hover:text-n-2'
+                }`}
+              >
+                Global Subjects ({subjects.length})
+              </button>
+            </div>
+
+            <div className="relative flex-1 max-w-sm">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-n-4 pointer-events-none" />
+              <input
+                type="text"
+                placeholder="Search subject, acronym, or branch…"
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                className="w-full pl-9 pr-8 py-2 rounded-xl border border-n-6 bg-n-7 text-xs text-n-1 placeholder:text-n-5 focus:border-blue-500 focus:outline-none transition"
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-n-4 hover:text-n-2 p-1"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+          </div>
+
+          {displayedSubjects.length === 0 ? (
+             <div className="p-10 text-center rounded-2xl border border-n-6 border-dashed bg-n-7/30 text-n-4 text-sm">
+               {scope === 'own'
+                 ? "You haven't added any subjects yet."
+                 : searchQuery
+                 ? "No subjects match your search."
+                 : "No subjects found."}
              </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {mySubjects.map(s => (
-                <div key={s.id} className="group relative rounded-2xl border border-n-6 bg-n-7/30 backdrop-blur p-5 hover:border-blue-500/50 hover:bg-n-7/80 transition-all hover:shadow-xl">
-                  <div className="flex items-center justify-between gap-2 mb-2">
-                    <span className="text-xs font-mono font-bold text-blue-500/50 group-hover:text-blue-500/80 transition-colors">
-                      SEM {s.semester}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => handleDeleteSubject(s.id, s.name_full)}
-                      disabled={deletingId === s.id}
-                      title="Delete Subject"
-                      className="p-1.5 rounded-lg text-n-4 hover:text-red-400 hover:bg-red-500/10 transition-colors disabled:opacity-50"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+              {displayedSubjects.map(s => {
+                const isOwn = String(s.added_by) === String(userId);
+                return (
+                  <div key={s.id} className="group relative rounded-2xl border border-n-6 bg-n-7/30 backdrop-blur p-5 hover:border-blue-500/50 hover:bg-n-7/80 transition-all hover:shadow-xl">
+                    <div className="flex items-center justify-between gap-2 mb-2">
+                      <span className="text-xs font-mono font-bold text-blue-500/50 group-hover:text-blue-500/80 transition-colors">
+                        SEM {s.semester}
+                      </span>
+                      {isOwn ? (
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteSubject(s.id, s.name_full)}
+                          disabled={deletingId === s.id}
+                          title="Delete Subject"
+                          className="p-1.5 rounded-lg text-n-4 hover:text-red-400 hover:bg-red-500/10 transition-colors disabled:opacity-50"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      ) : (
+                        <span className="text-[10px] text-n-5 px-1.5 py-0.5 rounded bg-n-6 font-mono">Catalog</span>
+                      )}
+                    </div>
+                    <h3 className="font-bold text-lg text-n-1 mb-1 group-hover:text-blue-500 transition-colors">{s.name_full}</h3>
+                    <div className="flex items-center gap-2 mt-4">
+                      <span className="px-2.5 py-1 rounded bg-blue-500/10 text-blue-400 text-xs font-mono font-medium border border-blue-500/20">
+                        {s.acronym}
+                      </span>
+                      <span className="px-2.5 py-1 rounded-full bg-blue-600/10 text-blue-300 text-xs font-medium border border-blue-600/20">
+                        {s.branch}
+                      </span>
+                      {isOwn && (
+                        <span className="ml-auto text-[10px] text-blue-400/80 font-mono">Added by you</span>
+                      )}
+                    </div>
                   </div>
-                  <h3 className="font-bold text-lg text-n-1 mb-1 group-hover:text-blue-500 transition-colors">{s.name_full}</h3>
-                  <div className="flex items-center gap-2 mt-4">
-                    <span className="px-2.5 py-1 rounded bg-blue-500/10 text-blue-400 text-xs font-mono font-medium border border-blue-500/20">
-                      {s.acronym}
-                    </span>
-                    <span className="px-2.5 py-1 rounded-full bg-blue-600/10 text-blue-300 text-xs font-medium border border-blue-600/20">
-                      {s.branch}
-                    </span>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>

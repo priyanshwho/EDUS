@@ -60,6 +60,18 @@ const updateResourceValidator = [
     .trim()
     .isLength({ max: 1000 }).withMessage('Description must be at most 1000 characters'),
 
+  body('year')
+    .optional({ nullable: true, checkFalsy: true })
+    .isInt({ min: 2000, max: CURRENT_YEAR }).withMessage(`Year must be between 2000 and ${CURRENT_YEAR}`),
+
+  body('pyq_type')
+    .optional({ nullable: true, checkFalsy: true })
+    .isIn(PYQ_TYPES).withMessage(`PYQ type must be one of: ${PYQ_TYPES.join(', ')}`),
+
+  body('external_link')
+    .optional({ nullable: true, checkFalsy: true })
+    .isURL().withMessage('External link must be a valid URL'),
+
   body('youtube_url')
     .optional({ nullable: true, checkFalsy: true })
     .isURL().withMessage('YouTube URL must be a valid URL')
