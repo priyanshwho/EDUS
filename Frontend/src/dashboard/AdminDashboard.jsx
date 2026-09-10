@@ -16,6 +16,7 @@ import {
   Globe,
   GraduationCap,
   UserCheck,
+  Search,
 } from 'lucide-react';
 import { userService, subjectService, resourceService } from '../services/index';
 import { useAdminDashboardStore } from '../stores/adminDashboard.store';
@@ -114,6 +115,7 @@ function ResourceManagement() {
     removeResourceById,
   } = useAdminDashboardStore();
   const { upload, uploading, progress, error: uploadError } = useUpload();
+  const [scope,         setScope]         = useState('global'); // 'own' | 'global'
   const [filters,       setFilters]       = useState({ q: '', resource_type: '' });
   const [editId,        setEditId]        = useState(null);
   const [editForm,      setEditForm]      = useState({});
@@ -164,9 +166,29 @@ function ResourceManagement() {
   const saveEdit = async () => {
     setSaving(true);
     try {
-      const { resource } = await resourceService.update(editId, editForm);
-      updateResource(resource);
+      const targetResource = resources.find(r => r.id === editId);
+      const payload = {
+        title: editForm.title?.trim(),
+        description: editForm.description ? editForm.description.trim() : null,
+        year: editForm.year ? Number(editForm.year) : null,
+        pyq_type: (targetResource?.resource_type === 'pyq' && editForm.pyq_type) ? editForm.pyq_type : null,
+      };
+
+      if (targetResource?.youtube_url || targetResource?.resource_type === 'lecture') {
+        payload.youtube_url = editForm.youtube_url ? editForm.youtube_url.trim() : null;
+      } else if (targetResource?.external_link) {
+        payload.external_link = editForm.external_link ? editForm.external_link.trim() : null;
+      } else if (targetResource?.aws_s3_key) {
+        payload.aws_s3_key = editForm.aws_s3_key || targetResource.aws_s3_key;
+      }
+
+      const res = await resourceService.update(editId, payload);
+      const updated = res?.resource || res;
+      updateResource(updated);
       setEditId(null);
+    } catch (err) {
+      console.error('Failed to save resource:', err);
+      alert(err.message || 'Failed to save resource changes. Please check all fields.');
     } finally {
       setSaving(false);
     }
@@ -233,10 +255,15 @@ function ResourceManagement() {
 
   /* ── client-side filter ── */
   const filtered = resources.filter(r => {
+    if (scope === 'own' && String(r.uploaded_by) !== String(user?.id)) return false;
     if (filters.resource_type && r.resource_type !== filters.resource_type) return false;
     if (filters.q) {
-      const q = filters.q.toLowerCase();
-      if (!r.title?.toLowerCase().includes(q) && !r.slug?.toLowerCase().includes(q)) return false;
+      const q = filters.q.toLowerCase().trim();
+      const titleMatch = r.title?.toLowerCase().includes(q);
+      const slugMatch = r.slug?.toLowerCase().includes(q);
+      const subjectMatch = r.subjects?.name_full?.toLowerCase().includes(q) || r.subjects?.acronym?.toLowerCase().includes(q);
+      const uploaderMatch = r.uploader?.username?.toLowerCase().includes(q);
+      if (!titleMatch && !slugMatch && !subjectMatch && !uploaderMatch) return false;
     }
     return true;
   });
@@ -450,28 +477,69 @@ function ResourceManagement() {
         </form>
       )}
 
-      {/* ── Filters ── */}
-      <div className="flex gap-3 mb-5 flex-wrap">
-        <input
-          placeholder="Search title / slug…"
-          value={filters.q}
-          onChange={e => setFilters(p => ({ ...p, q: e.target.value }))}
-          className="flex-1 min-w-[180px] rounded-lg border border-n-6 bg-n-7 px-3 py-2 text-sm"
-        />
-        <select
-          value={filters.resource_type}
-          onChange={e => setFilters(p => ({ ...p, resource_type: e.target.value }))}
-          className="rounded-lg border border-n-6 bg-n-7 px-3 py-2 text-sm"
-        >
-          <option value="">All types</option>
-          {RESOURCE_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
-        </select>
-        <span className="text-xs text-n-4 self-center">{filtered.length} results</span>
+      {/* ── Scope Toggle & Filters ── */}
+      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 mb-5">
+        <div className="inline-flex p-1 rounded-xl bg-n-8/80 border border-n-6 self-start shadow-inner">
+          <button
+            type="button"
+            onClick={() => setScope('own')}
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+              scope === 'own'
+                ? 'bg-blue-500 text-white shadow-md shadow-blue-500/25'
+                : 'text-n-4 hover:text-n-2'
+            }`}
+          >
+            Own Resources ({resources.filter(r => String(r.uploaded_by) === String(user?.id)).length})
+          </button>
+          <button
+            type="button"
+            onClick={() => setScope('global')}
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+              scope === 'global'
+                ? 'bg-blue-500 text-white shadow-md shadow-blue-500/25'
+                : 'text-n-4 hover:text-n-2'
+            }`}
+          >
+            Global Resources ({resources.length})
+          </button>
+        </div>
+
+        <div className="flex items-center gap-3 flex-1 max-w-xl">
+          <div className="relative flex-1">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-n-4 pointer-events-none" />
+            <input
+              placeholder="Search title, slug, subject, or uploaded by…"
+              value={filters.q}
+              onChange={e => setFilters(p => ({ ...p, q: e.target.value }))}
+              className="w-full pl-9 pr-8 py-2 rounded-xl border border-n-6 bg-n-7 text-xs text-n-1 placeholder:text-n-5 focus:border-blue-500 focus:outline-none transition"
+            />
+            {filters.q && (
+              <button
+                type="button"
+                onClick={() => setFilters(p => ({ ...p, q: '' }))}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-n-4 hover:text-n-2 p-1"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
+
+          <select
+            value={filters.resource_type}
+            onChange={e => setFilters(p => ({ ...p, resource_type: e.target.value }))}
+            className="rounded-xl border border-n-6 bg-n-7 px-3 py-2 text-xs text-n-1 focus:border-blue-500 focus:outline-none transition"
+          >
+            <option value="">All types</option>
+            {RESOURCE_TYPES.map(t => <option key={t} value={t}>{t.charAt(0).toUpperCase() + t.slice(1)}</option>)}
+          </select>
+
+          <span className="text-xs text-n-4 whitespace-nowrap self-center">{filtered.length} results</span>
+        </div>
       </div>
 
       {/* ── Resource Table ── */}
       <div className="overflow-x-auto pb-4">
-        <table className="w-full text-sm min-w-[640px]">
+        <table className="w-full text-sm min-w-[720px]">
           <thead>
             <tr className="border-b border-n-6 text-n-4">
               <th className="text-left pb-3 pr-3">Title</th>
@@ -479,6 +547,7 @@ function ResourceManagement() {
               <th className="text-left pb-3 pr-3">Subject</th>
               <th className="text-left pb-3 pr-3">Year</th>
               <th className="text-left pb-3 pr-3">Source</th>
+              <th className="text-left pb-3 pr-3">Uploaded By</th>
               <th className="text-left pb-3">Actions</th>
             </tr>
           </thead>
@@ -492,26 +561,29 @@ function ResourceManagement() {
                       <input value={editForm.title}
                         onChange={e => setEditForm(p => ({ ...p, title: e.target.value }))}
                         placeholder="Title"
-                        className="rounded border border-n-5 bg-n-6 px-2 py-1 text-xs w-full"
+                        className="rounded border border-n-5 bg-n-6 px-2 py-1 text-xs w-full text-n-1"
                       />
                       <input value={editForm.description}
                         onChange={e => setEditForm(p => ({ ...p, description: e.target.value }))}
                         placeholder="Description"
-                        className="rounded border border-n-5 bg-n-6 px-2 py-1 text-xs w-full"
+                        className="rounded border border-n-5 bg-n-6 px-2 py-1 text-xs w-full text-n-1"
                       />
-                      {editForm.youtube_url !== undefined && (
+                      {(r.youtube_url || r.resource_type === 'lecture') && (
                         <input value={editForm.youtube_url}
                           onChange={e => setEditForm(p => ({ ...p, youtube_url: e.target.value }))}
                           placeholder="YouTube URL"
-                          className="rounded border border-n-5 bg-n-6 px-2 py-1 text-xs w-full"
+                          className="rounded border border-n-5 bg-n-6 px-2 py-1 text-xs w-full text-n-1"
                         />
                       )}
-                      {editForm.external_link !== undefined && (
+                      {r.external_link && (
                         <input value={editForm.external_link}
                           onChange={e => setEditForm(p => ({ ...p, external_link: e.target.value }))}
                           placeholder="Drive / external URL"
-                          className="rounded border border-n-5 bg-n-6 px-2 py-1 text-xs w-full"
+                          className="rounded border border-n-5 bg-n-6 px-2 py-1 text-xs w-full text-n-1"
                         />
+                      )}
+                      {r.aws_s3_key && (
+                        <span className="text-[11px] text-blue-400 font-mono">PDF stored in S3</span>
                       )}
                     </div>
                   </td>
@@ -519,24 +591,29 @@ function ResourceManagement() {
                     <input type="number" value={editForm.year}
                       onChange={e => setEditForm(p => ({ ...p, year: e.target.value }))}
                       placeholder="Year"
-                      className="rounded border border-n-5 bg-n-6 px-2 py-1 text-xs w-20"
+                      className="rounded border border-n-5 bg-n-6 px-2 py-1 text-xs w-20 text-n-1"
                     />
                   </td>
                   <td className="py-2 pr-3">
                     {r.resource_type === 'pyq' ? (
                       <select value={editForm.pyq_type}
                         onChange={e => setEditForm(p => ({ ...p, pyq_type: e.target.value }))}
-                        className="rounded border border-n-5 bg-n-6 px-1 py-1 text-xs"
+                        className="rounded border border-n-5 bg-n-6 px-1 py-1 text-xs text-n-1"
                       >
                         <option value="">—</option>
                         {PYQ_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
                       </select>
                     ) : <span className="text-n-5 text-xs">—</span>}
                   </td>
+                  <td className="py-2 pr-3 text-xs text-n-4">
+                    {r.uploader?.username || '—'}
+                  </td>
                   <td className="py-2">
                     <div className="flex gap-2">
                       <button onClick={saveEdit} disabled={saving}
-                        className="text-xs text-green-400 hover:text-green-300 disabled:opacity-50">Save</button>
+                        className="text-xs text-green-400 hover:text-green-300 disabled:opacity-50 font-medium">
+                        {saving ? 'Saving…' : 'Save'}
+                      </button>
                       <button onClick={() => setEditId(null)}
                         className="text-xs text-n-4 hover:text-n-1">Cancel</button>
                     </div>
@@ -563,6 +640,18 @@ function ResourceManagement() {
                     {r.aws_s3_key   && <span className="text-blue-500">S3</span>}
                     {r.youtube_url  && <span className="text-red-400">YT</span>}
                     {r.external_link && <span className="text-green-400">Drive</span>}
+                  </td>
+                  <td className="py-2.5 pr-3 text-xs">
+                    {r.uploader?.username ? (
+                      <span className={String(r.uploaded_by) === String(user?.id) ? "text-blue-400 font-medium" : "text-n-3"}>
+                        {r.uploader.username}
+                        {String(r.uploaded_by) === String(user?.id) && (
+                          <span className="ml-1 text-[10px] px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-400 font-mono">You</span>
+                        )}
+                      </span>
+                    ) : (
+                      <span className="text-n-5 text-xs">—</span>
+                    )}
                   </td>
                   <td className="py-2.5">
                     <div className="flex gap-3">
@@ -1076,6 +1165,7 @@ function UserManagement() {
 
 // ── Subject Management ──────────────────────────────────────────────────────
 function SubjectManagement() {
+  const { user } = useAuth();
   const {
     subjects,
     loadingSubjects,
@@ -1085,7 +1175,9 @@ function SubjectManagement() {
     users,
     fetchUsers,
   } = useAdminDashboardStore();
-  const [form,     setForm]     = useState({ branch: '', semester: '', name_full: '', acronym: '' });
+  const [scope,       setScope]       = useState('global'); // 'own' | 'global'
+  const [searchQuery, setSearchQuery] = useState('');
+  const [form,        setForm]        = useState({ branch: '', semester: '', name_full: '', acronym: '' });
 
   useEffect(() => {
     fetchSubjects().catch(() => {});
@@ -1105,11 +1197,31 @@ function SubjectManagement() {
     removeSubjectById(id);
   };
 
+  const filteredSubjects = subjects.filter(s => {
+    if (scope === 'own' && String(s.added_by) !== String(user?.id)) return false;
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase().trim();
+      const creator = users.find(u => String(u.id) === String(s.added_by));
+      const creatorName = creator?.username?.toLowerCase() || '';
+      const matchesName = s.name_full?.toLowerCase().includes(q);
+      const matchesAcronym = s.acronym?.toLowerCase().includes(q);
+      const matchesBranch = s.branch?.toLowerCase().includes(q);
+      const matchesSem = String(s.semester) === q || `sem ${s.semester}`.includes(q);
+      const matchesCreator = creatorName.includes(q);
+      if (!matchesName && !matchesAcronym && !matchesBranch && !matchesSem && !matchesCreator) {
+        return false;
+      }
+    }
+    return true;
+  });
+
   if (loadingSubjects && subjects.length === 0) return (
     <div className="flex justify-center py-12">
       <GooeyLoader primaryColor="#AC6AFF" secondaryColor="#858DFF" borderColor="#252134" />
     </div>
   );
+
+  const ownCount = subjects.filter(s => String(s.added_by) === String(user?.id)).length;
 
   return (
     <div className="w-full">
@@ -1151,68 +1263,125 @@ function SubjectManagement() {
           </form>
         </div>
 
-        {/* Right Column: Table */}
-        <div className="lg:col-span-2 overflow-x-auto rounded-2xl border border-n-6 bg-n-7/30 backdrop-blur shadow-2xl">
-          <table className="w-full text-sm text-left">
-            <thead className="bg-n-8/50">
-              <tr className="border-b border-n-6 text-n-4 text-xs uppercase tracking-wider">
-                <th className="py-4 pl-6 pr-4 font-medium rounded-tl-2xl">Subject</th>
-                <th className="py-4 px-4 font-medium">Acronym</th>
-                <th className="py-4 px-4 font-medium">Branch</th>
-                <th className="py-4 px-4 font-medium">Sem</th>
-                <th className="py-4 px-4 font-medium">Created By</th>
-                <th className="py-4 pr-6 pl-4 font-medium text-right rounded-tr-2xl">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-n-6/50">
-              {subjects.map(s => (
-                <tr key={s.id} className="hover:bg-n-7/80 transition-colors group">
-                  <td className="py-4 pl-6 pr-4 font-medium text-n-1 group-hover:text-blue-500 transition-colors">{s.name_full}</td>
-                  <td className="py-4 px-4">
-                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-mono font-medium bg-blue-500/10 text-blue-400 border border-blue-500/20">
-                      {s.acronym}
-                    </span>
-                  </td>
-                  <td className="py-4 px-4">
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-600/10 text-blue-300 border border-blue-600/20">
-                      {s.branch}
-                    </span>
-                  </td>
-                  <td className="py-4 px-4 text-n-3">
-                    <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-n-6 text-xs font-semibold">
-                      {s.semester}
-                    </span>
-                  </td>
-                  <td className="py-4 px-4 text-xs">
-                    {(() => {
-                      const creator = users.find(u => String(u.id) === String(s.added_by));
-                      if (creator) {
-                        return (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-n-6 text-n-2">
-                            {creator.username}
-                          </span>
-                        );
-                      }
-                      if (s.added_by) {
-                        return <span className="text-n-4 text-xs font-mono">#{s.added_by}</span>;
-                      }
-                      return <span className="text-n-5 text-xs">System</span>;
-                    })()}
-                  </td>
-                  <td className="py-4 pr-6 pl-4 text-right">
-                    <button onClick={() => handleDelete(s.id)} className="px-3 py-1.5 rounded-lg text-xs font-medium text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors">
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          {subjects.length === 0 && (
-            <div className="p-8 text-center text-n-4 text-sm">
-              No subjects found. Use the form to add one.
+        {/* Right Column: Controls + Table */}
+        <div className="lg:col-span-2 space-y-4">
+          {/* Controls: Scope Toggle & Search Bar */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+            <div className="inline-flex p-1 rounded-xl bg-n-8/80 border border-n-6 self-start shadow-inner">
+              <button
+                type="button"
+                onClick={() => setScope('own')}
+                className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                  scope === 'own'
+                    ? 'bg-blue-500 text-white shadow-md shadow-blue-500/25'
+                    : 'text-n-4 hover:text-n-2'
+                }`}
+              >
+                Own Subjects ({ownCount})
+              </button>
+              <button
+                type="button"
+                onClick={() => setScope('global')}
+                className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                  scope === 'global'
+                    ? 'bg-blue-500 text-white shadow-md shadow-blue-500/25'
+                    : 'text-n-4 hover:text-n-2'
+                }`}
+              >
+                Global Subjects ({subjects.length})
+              </button>
             </div>
-          )}
+
+            <div className="relative flex-1 max-w-sm">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-n-4 pointer-events-none" />
+              <input
+                type="text"
+                placeholder="Search subject, branch, or created by…"
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                className="w-full pl-9 pr-8 py-2 rounded-xl border border-n-6 bg-n-7 text-xs text-n-1 placeholder:text-n-5 focus:border-blue-500 focus:outline-none transition"
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-n-4 hover:text-n-2 p-1"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+          </div>
+
+          <div className="overflow-x-auto rounded-2xl border border-n-6 bg-n-7/30 backdrop-blur shadow-2xl">
+            <table className="w-full text-sm text-left">
+              <thead className="bg-n-8/50">
+                <tr className="border-b border-n-6 text-n-4 text-xs uppercase tracking-wider">
+                  <th className="py-4 pl-6 pr-4 font-medium rounded-tl-2xl">Subject</th>
+                  <th className="py-4 px-4 font-medium">Acronym</th>
+                  <th className="py-4 px-4 font-medium">Branch</th>
+                  <th className="py-4 px-4 font-medium">Sem</th>
+                  <th className="py-4 px-4 font-medium">Created By</th>
+                  <th className="py-4 pr-6 pl-4 font-medium text-right rounded-tr-2xl">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-n-6/50">
+                {filteredSubjects.map(s => (
+                  <tr key={s.id} className="hover:bg-n-7/80 transition-colors group">
+                    <td className="py-4 pl-6 pr-4 font-medium text-n-1 group-hover:text-blue-500 transition-colors">{s.name_full}</td>
+                    <td className="py-4 px-4">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-mono font-medium bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                        {s.acronym}
+                      </span>
+                    </td>
+                    <td className="py-4 px-4">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-600/10 text-blue-300 border border-blue-600/20">
+                        {s.branch}
+                      </span>
+                    </td>
+                    <td className="py-4 px-4 text-n-3">
+                      <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-n-6 text-xs font-semibold">
+                        {s.semester}
+                      </span>
+                    </td>
+                    <td className="py-4 px-4 text-xs">
+                      {(() => {
+                        const creator = users.find(u => String(u.id) === String(s.added_by));
+                        if (creator) {
+                          return (
+                            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-n-6 text-n-2">
+                              {creator.username}
+                              {String(s.added_by) === String(user?.id) && (
+                                <span className="ml-1 text-[10px] text-blue-400 font-mono">(You)</span>
+                              )}
+                            </span>
+                          );
+                        }
+                        if (s.added_by) {
+                          return <span className="text-n-4 text-xs font-mono">#{s.added_by}</span>;
+                        }
+                        return <span className="text-n-5 text-xs">System</span>;
+                      })()}
+                    </td>
+                    <td className="py-4 pr-6 pl-4 text-right">
+                      <button onClick={() => handleDelete(s.id)} className="px-3 py-1.5 rounded-lg text-xs font-medium text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors">
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {filteredSubjects.length === 0 && (
+              <div className="p-8 text-center text-n-4 text-sm">
+                {scope === 'own'
+                  ? "You haven't created any subjects yet."
+                  : searchQuery
+                  ? "No subjects match your search."
+                  : "No subjects found."}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
