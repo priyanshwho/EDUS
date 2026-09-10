@@ -164,11 +164,62 @@ router.get('/', authenticate, requireAdmin, cacheGet({
 }), async (_req, res, next) => {
   try {
     const users = await sql`
-      select id, username, name, email, role, created_at
+      select id, username, name, email, role, oauth_provider, created_at, last_active_at
       from users
       order by created_at desc
     `;
     return res.json({ users });
+  } catch (err) { next(err); }
+});
+
+// Authenticated: rename own username
+router.patch('/me/username', authenticate, invalidateAllCache(), async (req, res, next) => {
+  try {
+    const { username } = req.body;
+    if (!username || typeof username !== 'string')
+      return res.status(400).json({ error: 'Username is required' });
+
+    const cleaned = username.toLowerCase().replace(/[^a-z0-9_]/g, '').slice(0, 24);
+    if (cleaned.length < 3)
+      return res.status(400).json({ error: 'Username must be at least 3 characters (letters, numbers, underscores)' });
+
+    // Check uniqueness
+    const existing = await sql`select id from users where username = ${cleaned} and id != ${req.user.id} limit 1`;
+    if (existing.length > 0)
+      return res.status(409).json({ error: 'Username already taken' });
+
+    const rows = await sql`
+      update users set username = ${cleaned} where id = ${req.user.id}
+      returning id, username, email, role
+    `;
+    return res.json({ user: rows[0] });
+  } catch (err) { next(err); }
+});
+
+// Admin: rename any user's username
+router.patch('/:id/username', authenticate, requireAdmin, invalidateAllCache(), async (req, res, next) => {
+  try {
+    const { username } = req.body;
+    if (!username || typeof username !== 'string')
+      return res.status(400).json({ error: 'Username is required' });
+
+    const cleaned = username.toLowerCase().replace(/[^a-z0-9_]/g, '').slice(0, 24);
+    if (cleaned.length < 3)
+      return res.status(400).json({ error: 'Username must be at least 3 characters (letters, numbers, underscores)' });
+
+    // Check uniqueness
+    const existing = await sql`select id from users where username = ${cleaned} and id != ${req.params.id} limit 1`;
+    if (existing.length > 0)
+      return res.status(409).json({ error: 'Username already taken' });
+
+    const rows = await sql`
+      update users set username = ${cleaned} where id = ${req.params.id}
+      returning id, username, email, role
+    `;
+    if (rows.length === 0)
+      return res.status(404).json({ error: 'User not found' });
+
+    return res.json({ user: rows[0] });
   } catch (err) { next(err); }
 });
 
@@ -195,6 +246,44 @@ router.patch('/:id/role', authenticate, requireAdmin, invalidateAllCache(), asyn
     const user = rows[0] || null;
 
     return res.json({ user });
+  } catch (err) { next(err); }
+});
+
+// Admin: delete user AND all their uploaded resources (including S3 cleanup)
+router.delete('/:id/with-resources', authenticate, requireAdmin, invalidateAllCache(), async (req, res, next) => {
+  try {
+    const targetUser = await sql`select id, email from users where id = ${req.params.id}`;
+    if (targetUser.length === 0) return res.status(404).json({ error: 'User not found' });
+
+    if (targetUser[0].email === process.env.ADMIN_EMAIL) {
+      return res.status(403).json({ error: 'Cannot delete super admin' });
+    }
+
+    // 1. Find all resources uploaded by this user
+    const userResources = await sql`
+      select id, aws_s3_key from resources where uploaded_by = ${req.params.id}
+    `;
+
+    // 2. Delete S3 objects for file-based resources
+    const { deleteObject } = require('../services/s3.service');
+    const s3Deletions = userResources
+      .filter(r => r.aws_s3_key)
+      .map(r => deleteObject(r.aws_s3_key).catch(() => {})); // don't fail if S3 delete fails
+    await Promise.all(s3Deletions);
+
+    // 3. Delete all resource records
+    const deletedCount = userResources.length;
+    if (deletedCount > 0) {
+      await sql`delete from resources where uploaded_by = ${req.params.id}`;
+    }
+
+    // 4. Delete the user
+    await sql`delete from users where id = ${req.params.id}`;
+
+    return res.json({
+      message: 'User and all their resources deleted',
+      deletedResourcesCount: deletedCount,
+    });
   } catch (err) { next(err); }
 });
 

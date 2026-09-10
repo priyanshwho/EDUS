@@ -26,6 +26,9 @@ export const userService = {
   listAll:    ()           => api.get('/users'),
   updateRole: (id, role)   => api.patch(`/users/${id}/role`, { role }),
   remove:     (id)         => api.delete(`/users/${id}`),
+  removeWithResources: (id) => api.delete(`/users/${id}/with-resources`),
+  renameUser: (id, username) => api.patch(`/users/${id}/username`, { username }),
+  renameMe:   (username)     => api.patch('/users/me/username', { username }),
   savedList:  ()           => api.get('/users/saved'),
 };
 

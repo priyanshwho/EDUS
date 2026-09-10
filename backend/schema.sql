@@ -16,7 +16,8 @@ create table if not exists users (
   role           text not null default 'student'
                    check (role in ('student', 'professor', 'admin')),
   oauth_provider text,                              -- 'google' | 'github' | null
-  created_at     timestamptz not null default now()
+  created_at     timestamptz not null default now(),
+  last_active_at timestamptz                         -- updated on each authenticated request
 );
 
 create index if not exists idx_users_email on users(email);

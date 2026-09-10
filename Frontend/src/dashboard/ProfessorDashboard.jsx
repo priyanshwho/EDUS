@@ -167,13 +167,14 @@ function UploadForm({ subjects, user, onUploaded }) {
   const { upload, uploading, progress, error } = useUpload();
   const [form, setForm] = useState({
     subject_id: '', resource_type: 'notes', title: '', description: '',
-    year: '', pyq_type: '', youtube_url: '',
+    year: '', pyq_type: '', youtube_url: '', external_link: '',
   });
   const [file, setFile] = useState(null);
   const [success, setSuccess] = useState(false);
 
   const [uploadedResource, setUploadedResource] = useState(null);
   const [copiedLink, setCopiedLink] = useState(false);
+  const [uploadMethod, setUploadMethod] = useState('file'); // 'file' | 'link'
 
   const onChange = (e) => setForm(p => ({ ...p, [e.target.name]: e.target.value }));
 
@@ -191,14 +192,31 @@ function UploadForm({ subjects, user, onUploaded }) {
           youtube_url: form.youtube_url,
         });
         created = res?.resource;
+      } else if (uploadMethod === 'link' && form.external_link) {
+        // Drive / External Link — no file upload needed
+        const payload = {
+          subject_id: form.subject_id,
+          resource_type: form.resource_type,
+          title: form.title,
+          description: form.description || undefined,
+          year: Number(form.year) || undefined,
+          pyq_type: form.pyq_type || undefined,
+          external_link: form.external_link,
+        };
+        if (!payload.description) delete payload.description;
+        if (!payload.year) delete payload.year;
+        if (!payload.pyq_type) delete payload.pyq_type;
+        const res = await resourceService.create(payload);
+        created = res?.resource;
       } else if (file) {
         created = await upload(file, { ...form, year: Number(form.year) || undefined });
       }
       setUploadedResource(created);
       setSuccess(true);
       onUploaded?.();
-      setForm({ subject_id: '', resource_type: 'notes', title: '', description: '', year: '', pyq_type: '', youtube_url: '' });
+      setForm({ subject_id: '', resource_type: 'notes', title: '', description: '', year: '', pyq_type: '', youtube_url: '', external_link: '' });
       setFile(null);
+      setUploadMethod('file');
     } catch {
       setSuccess(false);
     }
@@ -277,15 +295,33 @@ function UploadForm({ subjects, user, onUploaded }) {
             </div>
           ) : (
             <div>
-              <label className="block text-xs font-semibold text-n-3 mb-2 uppercase tracking-wide">File Upload (.pdf)</label>
-              <div className="relative flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-blue-500/40 rounded-xl bg-blue-500/5 hover:bg-blue-500/10 transition-colors cursor-pointer group overflow-hidden">
-                <input type="file" accept=".pdf" onChange={e => setFile(e.target.files[0])} required
-                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
-                <div className="text-center p-4">
-                  <p className="text-sm font-medium text-blue-500 group-hover:scale-105 transition-transform">{file ? file.name : "Click or drag to upload PDF"}</p>
-                  {!file && <p className="text-xs text-n-4 mt-1">Maximum file size: 10MB</p>}
-                </div>
+              {/* Upload Method Toggle */}
+              <label className="block text-xs font-semibold text-n-3 mb-2 uppercase tracking-wide">Source</label>
+              <div className="flex gap-2 mb-3">
+                <button type="button" onClick={() => setUploadMethod('file')}
+                  className={`flex-1 py-2 rounded-lg text-xs font-semibold transition-all ${uploadMethod === 'file' ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/20' : 'bg-n-6 text-n-3 hover:text-n-1'}`}>
+                  📄 File Upload
+                </button>
+                <button type="button" onClick={() => setUploadMethod('link')}
+                  className={`flex-1 py-2 rounded-lg text-xs font-semibold transition-all ${uploadMethod === 'link' ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/20' : 'bg-n-6 text-n-3 hover:text-n-1'}`}>
+                  🔗 Drive / Link
+                </button>
               </div>
+
+              {uploadMethod === 'file' ? (
+                <div className="relative flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-blue-500/40 rounded-xl bg-blue-500/5 hover:bg-blue-500/10 transition-colors cursor-pointer group overflow-hidden">
+                  <input type="file" accept=".pdf" onChange={e => setFile(e.target.files[0])} required={uploadMethod === 'file'}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
+                  <div className="text-center p-4">
+                    <p className="text-sm font-medium text-blue-500 group-hover:scale-105 transition-transform">{file ? file.name : "Click or drag to upload PDF"}</p>
+                    {!file && <p className="text-xs text-n-4 mt-1">Maximum file size: 10MB</p>}
+                  </div>
+                </div>
+              ) : (
+                <input name="external_link" value={form.external_link} onChange={onChange}
+                  placeholder="Google Drive / external URL" required={uploadMethod === 'link'}
+                  className="w-full rounded-xl border border-n-6 bg-n-8/50 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none transition text-green-300" />
+              )}
             </div>
           )}
         </div>
