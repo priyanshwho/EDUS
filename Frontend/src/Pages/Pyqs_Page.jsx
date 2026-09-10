@@ -151,10 +151,10 @@ const Pyqs_Page = () => {
           <div className="space-y-8 w-full">
             <div className="relative group">
               {/* Glowing border effect */}
-              <div className="absolute inset-0 bg-gradient-to-r from-sky-400/20 via-purple-400/20 to-sky-400/20 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="absolute inset-0 bg-gradient-to-r from-sky-400/20 via-blue-500/20 to-cyan-400/20 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
               <Card className="relative p-8 bg-gradient-to-br from-n-7/90 via-n-6/80 to-n-7/90 border border-sky-400/30 rounded-3xl shadow-2xl backdrop-blur-xl">
                 <div className="flex items-center gap-4 mb-8">
-                  <div className="p-2 bg-gradient-to-r from-sky-400/20 to-purple-400/20 rounded-xl">
+                  <div className="p-2 bg-gradient-to-r from-sky-400/20 to-blue-500/20 rounded-xl">
                     <FilterIcon className="h-6 w-6 text-sky-300" />
                   </div>
                   <h3 className="text-xl font-bold bg-gradient-to-r from-white to-sky-200 bg-clip-text text-transparent">Smart Filters</h3>
@@ -168,7 +168,7 @@ const Pyqs_Page = () => {
                       Search
                     </label>
                     <div className="relative group">
-                      <div className="absolute inset-0 bg-gradient-to-r from-sky-400/20 to-purple-400/20 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity" />
+                      <div className="absolute inset-0 bg-gradient-to-r from-sky-400/20 to-blue-500/20 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity" />
                       <SearchIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-sky-300 z-10" />
                       <Input
                         placeholder="Search by title or subject code..."
@@ -182,7 +182,7 @@ const Pyqs_Page = () => {
                   {/* Enhanced Branch Filter */}
                   <div className="space-y-4">
                     <label className="text-sm font-bold text-sky-200 uppercase tracking-widest flex items-center gap-2">
-                      <span className="w-2 h-2 bg-purple-400 rounded-full" />
+                      <span className="w-2 h-2 bg-blue-400 rounded-full" />
                       Branch
                     </label>
                     <Select
@@ -192,7 +192,7 @@ const Pyqs_Page = () => {
                         { value: "all", label: "All Branches" },
                         ...branches.map((branch) => ({ value: branch, label: branch })),
                       ]}
-                      className="bg-n-8/80 border-purple-400/30 text-white"
+                      className="bg-n-8/80 border-blue-400/30 text-white"
                     />
                   </div>
 
@@ -216,14 +216,14 @@ const Pyqs_Page = () => {
                   {/* Enhanced Subject Code Filter */}
                   <div className="space-y-4">
                     <label className="text-sm font-bold text-sky-200 uppercase tracking-widest flex items-center gap-2">
-                      <span className="w-2 h-2 bg-purple-400 rounded-full" />
+                      <span className="w-2 h-2 bg-blue-400 rounded-full" />
                       Subject Code
                     </label>
                     <Input
                       placeholder="e.g., CS201, EC101"
                       value={filters.subjectCode}
                       onChange={(e) => setFilters({ ...filters, subjectCode: e.target.value })}
-                      className="bg-n-8/80 border-purple-400/30 text-white placeholder-n-4 focus:border-purple-400 focus:ring-2 focus:ring-purple-400/30 rounded-xl"
+                      className="bg-n-8/80 border-blue-400/30 text-white placeholder-n-4 focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30 rounded-xl"
                     />
                   </div>
 

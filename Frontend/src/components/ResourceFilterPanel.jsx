@@ -105,8 +105,8 @@ export default function ResourceFilterPanel({ filters = {}, onChange, onClear, c
   }
 
   return (
-    <aside className="w-full group relative rounded-3xl border border-n-6 bg-n-7/30 backdrop-blur p-6 flex flex-col gap-5 hover:shadow-2xl hover:border-blue-500/30 transition-all duration-300 overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-500/0 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+    <aside className="w-full group relative rounded-3xl border border-blue-500/20 bg-slate-900/70 backdrop-blur p-6 flex flex-col gap-5 hover:shadow-2xl hover:shadow-blue-500/10 hover:border-blue-500/40 transition-all duration-300 overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-cyan-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
       
       {/* Header */}
       <div className="relative z-10 flex items-center justify-between">
@@ -211,7 +211,7 @@ export default function ResourceFilterPanel({ filters = {}, onChange, onClear, c
           value={filters.uploaded_by_name || ''}
           onChange={(e) => update('uploaded_by_name', e.target.value || undefined)}
           placeholder="Professor name…"
-          className="w-full bg-n-6 text-n-1 text-sm rounded-lg px-3 py-2 border border-n-5 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 transition relative z-10"
+          className="w-full bg-slate-900/80 text-n-1 text-sm rounded-lg px-3 py-2 border border-slate-700/50 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 transition relative z-10"
         />
       </FilterSection>
     </aside>
@@ -236,7 +236,7 @@ function Pill({ label, active, onClick }) {
       className={`px-3 py-1.5 rounded-lg text-xs font-medium transition ${
         active
           ? 'bg-blue-500 text-white shadow-md shadow-blue-500/20'
-          : 'bg-n-6 text-n-3 hover:text-n-1 hover:bg-n-5'
+          : 'bg-slate-800/80 text-slate-300 hover:text-white hover:bg-slate-700/80 border border-slate-700/40'
       }`}
     >
       {label}
@@ -249,7 +249,7 @@ function Select({ value, onChange, options, fullWidth = false }) {
     <select
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className={`bg-n-6 text-n-1 text-sm rounded-lg px-3 py-2 border border-n-5 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 transition ${fullWidth ? 'w-full' : ''}`}
+      className={`bg-slate-900/80 text-n-1 text-sm rounded-lg px-3 py-2 border border-slate-700/50 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 transition ${fullWidth ? 'w-full' : ''}`}
     >
       {options.map((o) => (
         <option key={o.value} value={o.value}>{o.label}</option>
@@ -269,7 +269,7 @@ function SearchBox({ value, onChange }) {
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder="Search resources…"
-        className="bg-n-6 text-n-1 text-sm rounded-lg pl-9 pr-3 py-2 border border-n-5 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 transition w-full sm:w-56"
+        className="bg-slate-900/80 text-n-1 text-sm rounded-lg pl-9 pr-3 py-2 border border-slate-700/50 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 transition w-full sm:w-56"
       />
     </div>
   );
