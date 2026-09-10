@@ -15,7 +15,7 @@ import {
   X,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { announcementService, subjectService } from '../services/index';
+import { subjectService } from '../services/index';
 import { useUpload } from '../hooks/useUpload';
 import { resourceService } from '../services/resource.service';
 import { useProfessorDashboardStore } from '../stores/professorDashboard.store';
@@ -54,7 +54,7 @@ export default function ProfessorDashboard() {
     if (user?.id) fetchMyResources(user.id).catch(() => {});
   }, [fetchAnalytics, fetchMyResources, fetchSubjects, user?.id]);
 
-  const tabs = ['overview', 'upload', 'subjects', 'announcements', 'resources'];
+  const tabs = ['overview', 'upload', 'subjects', 'resources'];
 
   return (
     <section className="min-h-screen bg-gradient-to-br from-[#0b1021] via-[#0E0C15] to-[#1a1025] text-n-1 p-6 relative">
@@ -62,7 +62,7 @@ export default function ProfessorDashboard() {
       <div className="relative z-10">
         <header className="mb-8">
         <h1 className="h3">Professor Dashboard</h1>
-        <p className="body-2 text-n-4">Manage your uploads and announcements</p>
+        <p className="body-2 text-n-4">Manage your uploads, subjects, and resources</p>
       </header>
 
       {/* ── Mobile Tab Navigation (Dropdown Switcher) ── */}
@@ -113,7 +113,6 @@ export default function ProfessorDashboard() {
       {activeTab === 'overview'       && <AnalyticsOverview analytics={analytics} loading={loadingAnalytics} />}
       {activeTab === 'upload'         && <UploadForm subjects={subjects} user={user} onUploaded={() => refreshAfterUpload(user?.id)} />}
       {activeTab === 'subjects'       && <SubjectsPanel subjects={subjects} onSubjectCreated={prependSubject} onSubjectDeleted={removeSubjectById} userId={user?.id} />}
-      {activeTab === 'announcements'  && <AnnouncementsPanel subjects={subjects} />}
       {activeTab === 'resources'      && (
         <MyResources
           resources={myResources}
@@ -435,83 +434,6 @@ function UploadForm({ subjects, user, onUploaded }) {
   );
 }
 
-// ── Announcements Panel ─────────────────────────────────────────────────────
-function AnnouncementsPanel({ subjects }) {
-  const [announcements, setAnnouncements] = useState([]);
-  const [form, setForm] = useState({ subject_id: '', title: '', content: '' });
-
-  useEffect(() => {
-    announcementService.list().then(({ announcements }) => setAnnouncements(announcements || []));
-  }, []);
-
-  const handlePost = async (e) => {
-    e.preventDefault();
-    const { announcement } = await announcementService.create(form);
-    setAnnouncements(prev => [announcement, ...prev]);
-    setForm({ subject_id: '', title: '', content: '' });
-  };
-
-  return (
-    <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-10">
-      <div>
-        <h2 className="h4 mb-6">Post Announcement</h2>
-        <form onSubmit={handlePost} className="space-y-4 rounded-2xl border border-n-6 bg-n-7/50 backdrop-blur p-6 shadow-xl hover:border-blue-500/50 transition">
-          <div>
-            <label className="block text-xs font-medium text-n-4 mb-2 uppercase">Target Audience</label>
-            <select name="subject_id" value={form.subject_id}
-              onChange={e => setForm(p => ({ ...p, subject_id: e.target.value }))}
-              className="w-full rounded-xl border border-n-6 bg-n-8/50 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none transition">
-              <option value="">All Subjects (Global Broadcast)</option>
-              {subjects.map(s => <option key={s.id} value={s.id}>{s.name_full}</option>)}
-            </select>
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-n-4 mb-2 uppercase">Title</label>
-            <input placeholder="Enter title..." value={form.title} required
-              onChange={e => setForm(p => ({ ...p, title: e.target.value }))}
-              className="w-full rounded-xl border border-n-6 bg-n-8/50 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none transition" />
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-n-4 mb-2 uppercase">Message</label>
-            <textarea placeholder="Write your announcement here..." rows={5} value={form.content} required
-              onChange={e => setForm(p => ({ ...p, content: e.target.value }))}
-              className="w-full rounded-xl border border-n-6 bg-n-8/50 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none transition resize-none" />
-          </div>
-          <button type="submit"
-            className="w-full py-3 rounded-xl bg-blue-500 text-white font-bold text-sm hover:-translate-y-0.5 hover:shadow-lg hover:shadow-blue-500/30 transition-all">
-            Broadcast Announcement
-          </button>
-        </form>
-      </div>
-
-      <div>
-        <h2 className="h4 mb-6">Recent Announcements</h2>
-        {announcements.length === 0 ? (
-          <div className="p-10 text-center rounded-2xl border border-n-6 border-dashed bg-n-8 text-n-4">
-            No announcements posted yet.
-          </div>
-        ) : (
-          <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
-            {announcements.map(a => (
-              <div key={a.id} className="group rounded-2xl border border-n-6 bg-n-7/30 p-5 hover:bg-n-7 hover:border-blue-500/40 transition-all">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-600 via-blue-500 to-purple-500 flex items-center justify-center text-n-8 font-bold">
-                    A
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-n-1 leading-tight group-hover:text-blue-500 transition-colors">{a.title}</h3>
-                    <p className="text-xs text-n-4">{a.subject_id ? "Specific Subject" : "Global Announcement"}</p>
-                  </div>
-                </div>
-                <p className="text-sm text-n-3 leading-relaxed whitespace-pre-wrap">{a.content}</p>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
 
 // ── My Resources ───────────────────────────────────────────────────────────
 
