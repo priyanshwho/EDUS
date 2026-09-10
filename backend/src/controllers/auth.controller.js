@@ -62,8 +62,8 @@ async function signup(req, res, next) {
     const resolvedRole = email === ADMIN_EMAIL ? 'admin' : 'student';
 
     const inserted = await sql`
-      insert into users (username, email, password_hash, role)
-      values (${username}, ${email}, ${passwordHash}, ${resolvedRole})
+      insert into users (username, email, password_hash, role, last_active_at)
+      values (${username}, ${email}, ${passwordHash}, ${resolvedRole}, now())
       returning *
     `;
     const user = inserted[0];
@@ -145,6 +145,10 @@ async function login(req, res, next) {
     const valid = await bcrypt.compare(password, user.password_hash || '');
     if (!valid) return res.status(401).json({ error: 'Invalid credentials' });
 
+    // Mark user active immediately upon login
+    await sql`update users set last_active_at = now() where id = ${user.id}`.catch(() => {});
+    user.last_active_at = new Date();
+
     // Admin auto-detection
     if (email === ADMIN_EMAIL && user.role !== 'admin') {
       await sql`update users set role = 'admin' where id = ${user.id}`;
@@ -196,6 +200,8 @@ async function verifyPin(req, res, next) {
     const user = await getUserById(decoded.id);
     if (!user) return res.status(404).json({ error: 'User not found' });
 
+    await sql`update users set last_active_at = now() where id = ${user.id}`.catch(() => {});
+
     const payload      = buildPayload(user);
     const accessToken  = signAccessToken(payload);
     const refreshToken = signRefreshToken(payload);
@@ -222,6 +228,8 @@ async function refresh(req, res, next) {
 
     const user = await getUserById(decoded.id);
     if (!user) return res.status(401).json({ error: 'User not found' });
+
+    await sql`update users set last_active_at = now() where id = ${user.id}`.catch(() => {});
 
     const payload     = buildPayload(user);
     const accessToken = signAccessToken(payload);
@@ -362,6 +370,8 @@ async function clerkSync(req, res, next) {
     if (!user) {
       return res.status(500).json({ error: 'Failed to sync user' });
     }
+
+    await sql`update users set last_active_at = now() where id = ${user.id}`.catch(() => {});
 
     const payload      = buildPayload(user);
     const accessToken  = signAccessToken(payload);

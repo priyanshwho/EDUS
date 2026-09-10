@@ -45,9 +45,14 @@ router.get('/github/callback',
   oauthCallback
 );
 
+const { sql } = require('../db/client');
+
 // ── Shared OAuth success handler ───────────────────────────────────────────
 function oauthCallback(req, res) {
   const user         = req.user;
+  if (user?.id) {
+    sql`update users set last_active_at = now() where id = ${user.id}`.catch(() => {});
+  }
   const payload      = buildPayload(user);
   const accessToken  = signAccessToken(payload);
   const refreshToken = signRefreshToken(payload);

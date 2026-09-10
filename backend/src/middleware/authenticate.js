@@ -43,7 +43,9 @@ function optionalAuth(req, _res, next) {
   const authHeader = req.headers.authorization;
   if (authHeader && authHeader.startsWith('Bearer ')) {
     try {
-      req.user = verifyAccessToken(authHeader.split(' ')[1]);
+      const decoded = verifyAccessToken(authHeader.split(' ')[1]);
+      req.user = decoded;
+      if (decoded?.id) touchLastActive(decoded.id);
     } catch {
       // ignore invalid token in optional auth
     }
@@ -51,4 +53,4 @@ function optionalAuth(req, _res, next) {
   next();
 }
 
-module.exports = { authenticate, optionalAuth };
+module.exports = { authenticate, optionalAuth, touchLastActive };
