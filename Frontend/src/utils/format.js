@@ -70,6 +70,7 @@ export function semesterLabel(n) {
 export function resourceTypeLabel(type) {
   const map = {
     notes: 'Notes',
+    note: 'Notes',
     pyq: 'PYQ',
     lecture: 'Lecture',
     assignment: 'Assignment',
