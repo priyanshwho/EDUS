@@ -139,9 +139,10 @@ const Notes_Page = () => {
               {/* Sidebar (same design as PYQs) */}
               <div className="space-y-8">
                 <div className="relative group">
+                  <div className="absolute inset-0 bg-gradient-to-r from-sky-400/20 via-blue-500/20 to-cyan-400/20 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   <Card className="relative p-8 bg-gradient-to-br from-n-7/90 via-n-6/80 to-n-7/90 border border-sky-400/30 rounded-3xl shadow-2xl backdrop-blur-xl">
                     <div className="flex items-center gap-4 mb-8">
-                      <div className="p-2 bg-gradient-to-r from-sky-400/20 to-purple-400/20 rounded-xl">
+                      <div className="p-2 bg-gradient-to-r from-sky-400/20 to-blue-500/20 rounded-xl">
                         <FilterIcon className="h-6 w-6 text-sky-300" />
                       </div>
                       <h3 className="text-xl font-bold bg-gradient-to-r from-white to-sky-200 bg-clip-text text-transparent">Smart Filters</h3>
@@ -170,7 +171,7 @@ const Notes_Page = () => {
                             { value: "all", label: "All Branches" },
                             ...branches.map((branch) => ({ value: branch, label: branch })),
                           ]}
-                          className="bg-n-8/80 border-purple-400/30 text-white"
+                          className="bg-n-8/80 border-blue-400/30 text-white"
                         />
                       </div>
 
@@ -193,7 +194,7 @@ const Notes_Page = () => {
                           placeholder="e.g., CS201, EC101"
                           value={filters.subjectCode}
                           onChange={(e) => setFilters({ ...filters, subjectCode: e.target.value })}
-                          className="bg-n-8/80 border-purple-400/30 text-white placeholder-n-4 focus:border-purple-400 focus:ring-2 focus:ring-purple-400/30 rounded-xl"
+                          className="bg-n-8/80 border-blue-400/30 text-white placeholder-n-4 focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30 rounded-xl"
                         />
                       </div>
 
