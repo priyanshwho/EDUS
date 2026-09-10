@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { resourceService } from '../services/resource.service';
-import { useAuth } from '../context/AuthContext';
 import {
   formatDate,
   resourceTypeLabel,
@@ -24,12 +23,10 @@ const TYPE_COLORS = {
 
 export default function ResourcePage() {
   const { slug } = useParams();
-  const { user } = useAuth();
 
   const [resource, setResource] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [saved, setSaved] = useState(false);
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
@@ -81,21 +78,6 @@ export default function ResourcePage() {
       })
       .finally(() => setLoading(false));
   }, [slug]);
-
-  async function handleSave() {
-    if (!resource || resource.isStatic) return;
-    try {
-      if (saved) {
-        await resourceService.unsave(resource.id);
-        setSaved(false);
-      } else {
-        await resourceService.save(resource.id);
-        setSaved(true);
-      }
-    } catch {
-      // fail silently
-    }
-  }
 
   function handleCopyLink() {
     navigator.clipboard.writeText(resourceShareUrl(resource.slug, resource)).then(() => {
@@ -296,19 +278,6 @@ export default function ResourcePage() {
               </>
             )}
           </button>
-
-          {user && !resource.isStatic && (
-            <button
-              onClick={handleSave}
-              className={`px-5 py-2.5 rounded-xl font-medium transition-all flex items-center gap-1.5 ${
-                saved
-                  ? 'bg-blue-500/15 text-sky-400 border border-blue-500/50 shadow-[0_0_15px_rgba(56,189,248,0.2)]'
-                  : 'bg-slate-900/80 hover:bg-slate-800 text-slate-200 hover:text-white border border-blue-500/20 hover:border-blue-400/50'
-              }`}
-            >
-              <span>{saved ? '★ Saved' : '☆ Save'}</span>
-            </button>
-          )}
         </div>
 
         {/* Slug info */}
