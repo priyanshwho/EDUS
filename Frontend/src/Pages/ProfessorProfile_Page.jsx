@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import { AlertTriangle } from 'lucide-react';
 import { professorService } from '../services';
 import {
   formatDate,
@@ -135,7 +136,9 @@ export default function ProfessorProfilePage() {
   if (error || !profile) return (
     <div style={{ minHeight: '100vh', background: '#0E0C15', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
       <div className="edus-card" style={{ maxWidth: '360px', textAlign: 'center', padding: '40px 32px' }}>
-        <div style={{ fontSize: '36px', marginBottom: '12px' }}>⚠️</div>
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '12px' }}>
+          <AlertTriangle size={36} color="#f59e0b" />
+        </div>
         <p style={{ color: '#ef4444', fontSize: '14px', marginBottom: '16px' }}>{error || 'Professor profile not found'}</p>
         <Link to="/professors" className="edus-btn-ghost" style={{ textDecoration: 'none' }}>
           ← Back to Professors
