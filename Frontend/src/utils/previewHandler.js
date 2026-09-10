@@ -52,7 +52,7 @@ export async function handlePreviewResource(r, e = null) {
         : '';
       win.document.body.innerHTML = `
         <div style="text-align: center; max-width: 420px; padding: 24px;">
-          <div style="font-size: 36px; margin-bottom: 16px;">📄</div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin: 0 auto 16px auto; display: block;"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>
           <h2 style="margin: 0 0 8px 0; color: #FFFFFF; font-size: 18px; font-weight: 600;">Opening Resource Preview...</h2>
           <p style="margin: 0; font-size: 13px; color: #757185;">${safeTitle || 'Loading file...'}</p>
         </div>

@@ -1,4 +1,22 @@
 import { useEffect, useState } from 'react';
+import {
+  ChevronDown,
+  Check,
+  X,
+  Link as LinkIcon,
+  Video,
+  MoreVertical,
+  Pencil,
+  Trash2,
+  AlertTriangle,
+  FileUp,
+  Users,
+  Activity,
+  Mail,
+  Calendar,
+  GraduationCap,
+  UserCheck,
+} from 'lucide-react';
 import { userService, subjectService, resourceService } from '../services/index';
 import { useAdminDashboardStore } from '../stores/adminDashboard.store';
 import { useUpload } from '../hooks/useUpload';
@@ -29,7 +47,9 @@ export default function AdminDashboard() {
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           className="w-full flex items-center justify-between px-5 py-3.5 bg-n-7 border border-n-6 rounded-xl font-medium text-n-1 shadow-sm"
         >
-          <span className="capitalize text-blue-500">Admin Dashboard ▼ {activeTab}</span>
+          <span className="capitalize text-blue-500 flex items-center gap-2">
+            Admin Dashboard <ChevronDown className={`w-4 h-4 transition-transform ${isMobileMenuOpen ? 'rotate-180' : ''}`} /> {activeTab}
+          </span>
         </button>
         
         {isMobileMenuOpen && (
@@ -44,7 +64,7 @@ export default function AdminDashboard() {
                 className={`flex items-center px-5 py-3.5 text-sm capitalize transition-colors border-b border-n-6/50 last:border-0
                   ${activeTab === t ? 'bg-blue-500/10 text-blue-500 font-semibold' : 'text-n-3 hover:bg-n-7 hover:text-n-1'}`}
               >
-                {activeTab === t && <span className="mr-2">✓</span>}
+                {activeTab === t && <Check className="w-4 h-4 mr-2 text-blue-500 inline" />}
                 {t}
               </button>
             ))}
@@ -252,13 +272,13 @@ function ResourceManagement() {
                     setCreateForm(p => ({ ...p, resource_type: 'notes' }));
                   }
                 }}
-                className={`flex-1 py-2 rounded-lg text-xs font-semibold transition-all ${
+                className={`flex-1 py-2 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-1.5 ${
                   uploadMethod === 'file'
                     ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/20'
                     : 'bg-n-6 text-n-3 hover:text-n-1'
                 }`}
               >
-                📄 File Upload (S3)
+                <FileUp className="w-3.5 h-3.5" /> File Upload (S3)
               </button>
               <button
                 type="button"
@@ -268,13 +288,13 @@ function ResourceManagement() {
                     setCreateForm(p => ({ ...p, resource_type: 'notes' }));
                   }
                 }}
-                className={`flex-1 py-2 rounded-lg text-xs font-semibold transition-all ${
+                className={`flex-1 py-2 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-1.5 ${
                   uploadMethod === 'link'
                     ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/20'
                     : 'bg-n-6 text-n-3 hover:text-n-1'
                 }`}
               >
-                🔗 Drive / Link
+                <LinkIcon className="w-3.5 h-3.5" /> Drive / Link
               </button>
               <button
                 type="button"
@@ -282,13 +302,13 @@ function ResourceManagement() {
                   setUploadMethod('youtube');
                   setCreateForm(p => ({ ...p, resource_type: 'lecture' }));
                 }}
-                className={`flex-1 py-2 rounded-lg text-xs font-semibold transition-all ${
+                className={`flex-1 py-2 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-1.5 ${
                   uploadMethod === 'youtube'
                     ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/20'
                     : 'bg-n-6 text-n-3 hover:text-n-1'
                 }`}
               >
-                🎥 YouTube Lecture
+                <Video className="w-3.5 h-3.5" /> YouTube Lecture
               </button>
             </div>
           </div>
@@ -674,6 +694,8 @@ function UserManagement() {
   const [searchQuery, setSearchQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
   const [authFilter, setAuthFilter] = useState('all');
+  const [onlyActiveToday, setOnlyActiveToday] = useState(false);
+  const [onlyRecentJoined, setOnlyRecentJoined] = useState(false);
   const [openActionId, setOpenActionId] = useState(null);    // which user's action menu is open
   const [renamingId, setRenamingId] = useState(null);         // which user is being renamed inline
   const [renameValue, setRenameValue] = useState('');
@@ -740,12 +762,94 @@ function UserManagement() {
     setRenameError(null);
   };
 
-  /* ── client-side filter by search + role + auth ── */
+  const resetAllFilters = () => {
+    setRoleFilter('all');
+    setAuthFilter('all');
+    setOnlyActiveToday(false);
+    setOnlyRecentJoined(false);
+    setSearchQuery('');
+  };
+
+  /* ── Stats Calculations ── */
+  const now = Date.now();
+  const totalUsersCount = users.length;
+  const activeTodayCount = users.filter(u => u.last_active_at && (now - new Date(u.last_active_at).getTime()) < 24 * 60 * 60 * 1000).length;
+  const googleUsersCount = users.filter(u => u.oauth_provider === 'google').length;
+  const joinedThisWeekCount = users.filter(u => u.created_at && (now - new Date(u.created_at).getTime()) < 7 * 24 * 60 * 60 * 1000).length;
+  const professorCount = users.filter(u => u.role === 'professor').length;
+  const studentCount = users.filter(u => u.role === 'student').length;
+
+  const userStats = [
+    {
+      id: 'total',
+      label: 'Total Users',
+      value: totalUsersCount,
+      icon: Users,
+      iconBg: 'bg-rose-500/10 border-rose-500/20 text-rose-400',
+      active: roleFilter === 'all' && authFilter === 'all' && !onlyActiveToday && !onlyRecentJoined,
+      onClick: resetAllFilters,
+    },
+    {
+      id: 'active',
+      label: 'Active Today',
+      value: activeTodayCount,
+      icon: Activity,
+      iconBg: 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400',
+      active: onlyActiveToday,
+      onClick: () => setOnlyActiveToday(p => !p),
+    },
+    {
+      id: 'google',
+      label: 'Gmail Connect...',
+      value: googleUsersCount,
+      icon: Mail,
+      iconBg: 'bg-rose-500/10 border-rose-500/20 text-rose-400',
+      active: authFilter === 'google',
+      onClick: () => setAuthFilter(p => p === 'google' ? 'all' : 'google'),
+    },
+    {
+      id: 'recent',
+      label: 'Calendar Conn...',
+      value: joinedThisWeekCount,
+      icon: Calendar,
+      iconBg: 'bg-blue-500/10 border-blue-500/20 text-blue-400',
+      active: onlyRecentJoined,
+      onClick: () => setOnlyRecentJoined(p => !p),
+    },
+    {
+      id: 'professors',
+      label: 'Professors',
+      value: professorCount,
+      icon: GraduationCap,
+      iconBg: 'bg-purple-500/10 border-purple-500/20 text-purple-400',
+      active: roleFilter === 'professor',
+      onClick: () => setRoleFilter(p => p === 'professor' ? 'all' : 'professor'),
+    },
+    {
+      id: 'students',
+      label: 'Students',
+      value: studentCount,
+      icon: UserCheck,
+      iconBg: 'bg-amber-500/10 border-amber-500/20 text-amber-400',
+      active: roleFilter === 'student',
+      onClick: () => setRoleFilter(p => p === 'student' ? 'all' : 'student'),
+    },
+  ];
+
+  /* ── client-side filter by search + role + auth + active + recent ── */
   const filtered = users.filter(u => {
     if (roleFilter !== 'all' && u.role !== roleFilter) return false;
     if (authFilter !== 'all') {
       const provider = u.oauth_provider || 'email';
       if (authFilter !== provider) return false;
+    }
+    if (onlyActiveToday) {
+      const isRecent = u.last_active_at && (now - new Date(u.last_active_at).getTime()) < 24 * 60 * 60 * 1000;
+      if (!isRecent) return false;
+    }
+    if (onlyRecentJoined) {
+      const isRecent = u.created_at && (now - new Date(u.created_at).getTime()) < 7 * 24 * 60 * 60 * 1000;
+      if (!isRecent) return false;
     }
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
@@ -754,13 +858,53 @@ function UserManagement() {
     return true;
   });
 
+  const hasActiveFilters = roleFilter !== 'all' || authFilter !== 'all' || onlyActiveToday || onlyRecentJoined || !!searchQuery;
+
   if (loadingUsers && users.length === 0) return <p className="text-n-4">Loading users…</p>;
 
   return (
     <div>
+      {/* ── Top Analytics Stat Cards ── */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5 mb-6">
+        {userStats.map((stat) => {
+          const Icon = stat.icon;
+          return (
+            <div
+              key={stat.id}
+              onClick={stat.onClick}
+              role="button"
+              tabIndex={0}
+              className={`rounded-2xl border p-3.5 flex items-center gap-3.5 transition-all cursor-pointer select-none ${
+                stat.active && stat.id !== 'total'
+                  ? 'bg-n-7 border-blue-500/70 shadow-lg shadow-blue-500/10 ring-1 ring-blue-500/40 -translate-y-0.5'
+                  : 'bg-n-7/50 hover:bg-n-7 border-n-6/70 hover:border-n-5 hover:-translate-y-0.5 shadow-sm'
+              }`}
+            >
+              <div className={`w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 border ${stat.iconBg}`}>
+                <Icon className="w-5 h-5" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-xl sm:text-2xl font-black text-n-1 leading-tight tracking-tight">{stat.value}</p>
+                <p className="text-[11px] font-medium text-n-4 truncate">{stat.label}</p>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
       {/* ── Header row: title + search bar ── */}
       <div className="flex items-center justify-between gap-4 mb-4 flex-wrap">
-        <h2 className="h5 whitespace-nowrap">Users ({filtered.length})</h2>
+        <div className="flex items-center gap-3">
+          <h2 className="h5 whitespace-nowrap">Users ({filtered.length})</h2>
+          {hasActiveFilters && (
+            <button
+              onClick={resetAllFilters}
+              className="text-xs px-2.5 py-1 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20 hover:bg-blue-500/20 transition flex items-center gap-1"
+            >
+              <X className="w-3 h-3" /> Clear filters
+            </button>
+          )}
+        </div>
         <input
           type="text"
           placeholder="Search by name or email…"
@@ -826,8 +970,12 @@ function UserManagement() {
                             autoFocus
                             className="w-32 rounded border border-blue-500 bg-n-8 px-2 py-0.5 text-xs text-n-1 focus:outline-none"
                           />
-                          <button onClick={() => submitRename(u.id)} className="text-green-400 text-xs hover:text-green-300">✓</button>
-                          <button onClick={cancelRename} className="text-n-4 text-xs hover:text-n-1">✗</button>
+                          <button onClick={() => submitRename(u.id)} className="text-green-400 p-0.5 hover:text-green-300 transition" title="Save">
+                            <Check className="w-3.5 h-3.5" />
+                          </button>
+                          <button onClick={cancelRename} className="text-n-4 p-0.5 hover:text-n-1 transition" title="Cancel">
+                            <X className="w-3.5 h-3.5" />
+                          </button>
                           {renameError && <span className="text-red-400 text-[10px]">{renameError}</span>}
                         </div>
                       ) : (
@@ -874,10 +1022,10 @@ function UserManagement() {
                   <div className="relative">
                     <button
                       onClick={e => { e.stopPropagation(); setOpenActionId(openActionId === u.id ? null : u.id); }}
-                      className="w-8 h-8 rounded-lg flex items-center justify-center text-n-4 hover:text-n-1 hover:bg-n-6 transition text-lg"
+                      className="w-8 h-8 rounded-lg flex items-center justify-center text-n-4 hover:text-n-1 hover:bg-n-6 transition"
                       title="Actions"
                     >
-                      ⋮
+                      <MoreVertical className="w-4 h-4" />
                     </button>
                     {openActionId === u.id && (
                       <div
@@ -888,20 +1036,20 @@ function UserManagement() {
                           onClick={() => startRename(u)}
                           className="w-full flex items-center gap-2.5 px-4 py-2.5 text-xs text-n-2 hover:bg-n-7 hover:text-n-1 transition text-left"
                         >
-                          <span>✏️</span> Rename User
+                          <Pencil className="w-3.5 h-3.5 text-blue-400" /> Rename User
                         </button>
                         <div className="border-t border-n-6" />
                         <button
                           onClick={() => deleteUser(u.id)}
                           className="w-full flex items-center gap-2.5 px-4 py-2.5 text-xs text-red-400 hover:bg-red-500/10 hover:text-red-300 transition text-left"
                         >
-                          <span>🗑️</span> Delete User
+                          <Trash2 className="w-3.5 h-3.5 text-red-400" /> Delete User
                         </button>
                         <button
                           onClick={() => deleteUserWithResources(u)}
                           className="w-full flex items-center gap-2.5 px-4 py-2.5 text-xs text-rose-400 hover:bg-rose-500/10 hover:text-rose-300 transition text-left"
                         >
-                          <span>⚠️</span> Delete + Resources
+                          <AlertTriangle className="w-3.5 h-3.5 text-rose-400" /> Delete + Resources
                         </button>
                       </div>
                     )}

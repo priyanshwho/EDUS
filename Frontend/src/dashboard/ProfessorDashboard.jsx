@@ -1,5 +1,16 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import {
+  ChevronDown,
+  Check,
+  FileUp,
+  Link as LinkIcon,
+  FileText,
+  ClipboardList,
+  GraduationCap,
+  Video,
+  FolderOpen,
+} from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { announcementService, subjectService } from '../services/index';
 import { useUpload } from '../hooks/useUpload';
@@ -56,7 +67,9 @@ export default function ProfessorDashboard() {
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           className="w-full flex items-center justify-between px-5 py-3.5 bg-n-7 border border-n-6 rounded-xl font-medium text-n-1 shadow-sm"
         >
-          <span className="capitalize text-blue-500">Professor Dashboard ▼ {activeTab}</span>
+          <span className="capitalize text-blue-500 flex items-center gap-2">
+            Professor Dashboard <ChevronDown className={`w-4 h-4 transition-transform ${isMobileMenuOpen ? 'rotate-180' : ''}`} /> {activeTab}
+          </span>
         </button>
         
         {isMobileMenuOpen && (
@@ -71,7 +84,7 @@ export default function ProfessorDashboard() {
                 className={`flex items-center px-5 py-3.5 text-sm capitalize transition-colors border-b border-n-6/50 last:border-0
                   ${activeTab === t ? 'bg-blue-500/10 text-blue-500 font-semibold' : 'text-n-3 hover:bg-n-7 hover:text-n-1'}`}
               >
-                {activeTab === t && <span className="mr-2">✓</span>}
+                {activeTab === t && <Check className="w-4 h-4 mr-2 text-blue-500 inline" />}
                 {t}
               </button>
             ))}
@@ -299,12 +312,12 @@ function UploadForm({ subjects, user, onUploaded }) {
               <label className="block text-xs font-semibold text-n-3 mb-2 uppercase tracking-wide">Source</label>
               <div className="flex gap-2 mb-3">
                 <button type="button" onClick={() => setUploadMethod('file')}
-                  className={`flex-1 py-2 rounded-lg text-xs font-semibold transition-all ${uploadMethod === 'file' ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/20' : 'bg-n-6 text-n-3 hover:text-n-1'}`}>
-                  📄 File Upload
+                  className={`flex-1 py-2 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-1.5 ${uploadMethod === 'file' ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/20' : 'bg-n-6 text-n-3 hover:text-n-1'}`}>
+                  <FileUp className="w-3.5 h-3.5" /> File Upload
                 </button>
                 <button type="button" onClick={() => setUploadMethod('link')}
-                  className={`flex-1 py-2 rounded-lg text-xs font-semibold transition-all ${uploadMethod === 'link' ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/20' : 'bg-n-6 text-n-3 hover:text-n-1'}`}>
-                  🔗 Drive / Link
+                  className={`flex-1 py-2 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-1.5 ${uploadMethod === 'link' ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/20' : 'bg-n-6 text-n-3 hover:text-n-1'}`}>
+                  <LinkIcon className="w-3.5 h-3.5" /> Drive / Link
                 </button>
               </div>
 
@@ -360,9 +373,9 @@ function UploadForm({ subjects, user, onUploaded }) {
                           setCopiedLink(true);
                           setTimeout(() => setCopiedLink(false), 2000);
                         }}
-                        className="text-xs px-3 py-1 rounded-lg bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 font-medium transition"
+                        className="text-xs px-3 py-1 rounded-lg bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 font-medium transition flex items-center gap-1"
                       >
-                        {copiedLink ? '✓ Copied!' : 'Copy Link'}
+                        {copiedLink ? <><Check className="w-3 h-3" /> Copied!</> : 'Copy Link'}
                       </button>
                     </div>
                     <code className="text-xs text-color-1 break-all block font-mono">
@@ -489,10 +502,10 @@ function AnnouncementsPanel({ subjects }) {
 // ── My Resources ───────────────────────────────────────────────────────────
 
 const TYPE_CONFIG = {
-  notes:      { label: 'Notes',      color: 'from-blue-500 to-cyan-500',    bg: 'bg-blue-500/10 border-blue-500/20 text-blue-400',    icon: '📄' },
-  assignment: { label: 'Assignment', color: 'from-orange-500 to-amber-500', bg: 'bg-orange-500/10 border-orange-500/20 text-orange-400', icon: '📝' },
-  pyq:        { label: 'PYQ',        color: 'from-purple-500 to-pink-500',  bg: 'bg-purple-500/10 border-purple-500/20 text-purple-400', icon: '📋' },
-  lecture:    { label: 'Lecture',    color: 'from-red-500 to-rose-500',     bg: 'bg-red-500/10 border-red-500/20 text-red-400',       icon: '🎬' },
+  notes:      { label: 'Notes',      color: 'from-blue-500 to-cyan-500',    bg: 'bg-blue-500/10 border-blue-500/20 text-blue-400',    Icon: FileText },
+  assignment: { label: 'Assignment', color: 'from-orange-500 to-amber-500', bg: 'bg-orange-500/10 border-orange-500/20 text-orange-400', Icon: ClipboardList },
+  pyq:        { label: 'PYQ',        color: 'from-purple-500 to-pink-500',  bg: 'bg-purple-500/10 border-purple-500/20 text-purple-400', Icon: GraduationCap },
+  lecture:    { label: 'Lecture',    color: 'from-red-500 to-rose-500',     bg: 'bg-red-500/10 border-red-500/20 text-red-400',       Icon: Video },
 };
 
 function ResourceCard({ r, user, subjects, onDeleteSuccess }) {
@@ -551,8 +564,8 @@ function ResourceCard({ r, user, subjects, onDeleteSuccess }) {
       <div className="p-4 sm:p-5">
         {/* Header row */}
         <div className="flex items-start gap-3 mb-3">
-          <div className={`flex-shrink-0 w-9 h-9 rounded-xl bg-gradient-to-br ${cfg.color} flex items-center justify-center text-base shadow-lg`}>
-            {cfg.icon}
+          <div className={`flex-shrink-0 w-9 h-9 rounded-xl bg-gradient-to-br ${cfg.color} flex items-center justify-center text-white shadow-lg`}>
+            {cfg.Icon && <cfg.Icon className="w-4 h-4" />}
           </div>
           <div className="flex-1 min-w-0">
             <Link
@@ -671,7 +684,9 @@ function MyResources({ resources, loading, user, subjects, onDeleteSuccess }) {
 
       {resources.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16 rounded-2xl border border-dashed border-n-6 bg-n-7/20 text-center">
-          <div className="text-4xl mb-3">📂</div>
+          <div className="mb-3 flex justify-center text-n-4">
+            <FolderOpen className="w-10 h-10 text-n-5" />
+          </div>
           <p className="text-n-3 font-medium">No uploads yet</p>
           <p className="text-n-5 text-sm mt-1">Switch to the Upload tab to share resources with students.</p>
         </div>
@@ -765,7 +780,11 @@ function SubjectsPanel({ subjects, onSubjectCreated, userId }) {
               </div>
 
               {error   && <p className="text-red-400 text-sm mt-2">{error}</p>}
-              {success && <p className="text-green-400 text-sm mt-2">✅ Subject created!</p>}
+              {success && (
+                <p className="text-green-400 text-sm mt-2 flex items-center gap-1.5">
+                  <Check className="w-4 h-4" /> Subject created!
+                </p>
+              )}
 
               <button type="submit" disabled={creating}
                 className="w-full mt-2 py-3 rounded-xl bg-blue-500 text-white font-bold text-sm hover:opacity-90 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-blue-500/20 transition-all duration-200 disabled:opacity-50">
