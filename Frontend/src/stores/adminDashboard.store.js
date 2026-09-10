@@ -123,6 +123,22 @@ export const useAdminDashboardStore = create((set, get) => ({
     }));
   },
 
+  removeUserAndResources: (userId) => {
+    set((state) => ({
+      users: state.users.filter((u) => u.id !== userId),
+      resources: state.resources.filter((r) => r.uploaded_by !== userId),
+      usersFetchedAt: Date.now(),
+      resourcesFetchedAt: Date.now(),
+    }));
+  },
+
+  renameUser: (id, newUsername) => {
+    set((state) => ({
+      users: state.users.map((u) => (u.id === id ? { ...u, username: newUsername } : u)),
+      usersFetchedAt: Date.now(),
+    }));
+  },
+
   addSubject: (subject) => {
     set((state) => ({
       subjects: [...state.subjects, subject],
