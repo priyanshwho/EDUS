@@ -109,6 +109,13 @@ export const useProfessorDashboardStore = create((set, get) => ({
     }));
   },
 
+  removeSubjectById: (subjectId) => {
+    set((state) => ({
+      subjects: state.subjects.filter((s) => s.id !== subjectId),
+      subjectsFetchedAt: Date.now(),
+    }));
+  },
+
   removeResourceById: (resourceId) => {
     set((state) => ({
       myResources: state.myResources.filter((r) => r.id !== resourceId),

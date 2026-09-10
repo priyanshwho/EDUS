@@ -10,6 +10,7 @@ import {
   GraduationCap,
   Video,
   FolderOpen,
+  Trash2,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { announcementService, subjectService } from '../services/index';
@@ -40,6 +41,7 @@ export default function ProfessorDashboard() {
     fetchSubjects,
     fetchMyResources,
     prependSubject,
+    removeSubjectById,
     removeResourceById,
     refreshAfterUpload,
   } = useProfessorDashboardStore();
@@ -108,7 +110,7 @@ export default function ProfessorDashboard() {
 
       {activeTab === 'overview'       && <AnalyticsOverview analytics={analytics} loading={loadingAnalytics} />}
       {activeTab === 'upload'         && <UploadForm subjects={subjects} user={user} onUploaded={() => refreshAfterUpload(user?.id)} />}
-      {activeTab === 'subjects'       && <SubjectsPanel subjects={subjects} onSubjectCreated={prependSubject} userId={user?.id} />}
+      {activeTab === 'subjects'       && <SubjectsPanel subjects={subjects} onSubjectCreated={prependSubject} onSubjectDeleted={removeSubjectById} userId={user?.id} />}
       {activeTab === 'announcements'  && <AnnouncementsPanel subjects={subjects} />}
       {activeTab === 'resources'      && (
         <MyResources
@@ -237,6 +239,7 @@ function UploadForm({ subjects, user, onUploaded }) {
 
   const isLecture = form.resource_type === 'lecture';
   const isPyq     = form.resource_type === 'pyq';
+  const mySubjects = subjects.filter(s => String(s.added_by) === String(user?.id));
 
   return (
     <form onSubmit={handleSubmit} className="w-full max-w-3xl mx-auto rounded-3xl border border-n-6 bg-n-7/40 backdrop-blur p-8 shadow-2xl">
@@ -253,8 +256,17 @@ function UploadForm({ subjects, user, onUploaded }) {
             <select name="subject_id" value={form.subject_id} onChange={onChange} required
               className="w-full rounded-xl border border-n-6 bg-n-8/50 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none transition">
               <option value="">Select Subject</option>
-              {subjects.map(s => <option key={s.id} value={s.id}>{s.name_full} (Sem {s.semester})</option>)}
+              {mySubjects.length === 0 ? (
+                <option value="" disabled>No subjects created by you yet</option>
+              ) : (
+                mySubjects.map(s => <option key={s.id} value={s.id}>{s.name_full} (Sem {s.semester})</option>)
+              )}
             </select>
+            {mySubjects.length === 0 && (
+              <p className="text-xs text-amber-400/90 mt-1.5">
+                You haven't created any subjects yet. Please add a subject in the Subjects tab first.
+              </p>
+            )}
           </div>
 
           <div>
@@ -704,9 +716,10 @@ function MyResources({ resources, loading, user, subjects, onDeleteSuccess }) {
 // ── Subjects Panel ─────────────────────────────────────────────────────────
 const BRANCHES = ['CSE', 'IT', 'ECE', 'EEE', 'ME', 'CE', 'AI/ML', 'DS'];
 
-function SubjectsPanel({ subjects, onSubjectCreated, userId }) {
+function SubjectsPanel({ subjects, onSubjectCreated, onSubjectDeleted, userId }) {
   const [form, setForm] = useState({ name_full: '', acronym: '', branch: '', semester: '' });
   const [creating, setCreating] = useState(false);
+  const [deletingId, setDeletingId] = useState(null);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
 
@@ -732,7 +745,22 @@ function SubjectsPanel({ subjects, onSubjectCreated, userId }) {
     }
   };
 
-  const mySubjects = subjects.filter(s => s.added_by === userId);
+  const handleDeleteSubject = async (id, name) => {
+    if (!window.confirm(`Are you sure you want to delete "${name}"? This will permanently remove the subject and any associated resources.`)) {
+      return;
+    }
+    setDeletingId(id);
+    try {
+      await subjectService.remove(id);
+      onSubjectDeleted?.(id);
+    } catch (err) {
+      alert(err?.response?.data?.error || err?.message || 'Failed to delete subject');
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  const mySubjects = subjects.filter(s => String(s.added_by) === String(userId));
 
   return (
     <div className="w-full">
@@ -804,10 +832,21 @@ function SubjectsPanel({ subjects, onSubjectCreated, userId }) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {mySubjects.map(s => (
                 <div key={s.id} className="group relative rounded-2xl border border-n-6 bg-n-7/30 backdrop-blur p-5 hover:border-blue-500/50 hover:bg-n-7/80 transition-all hover:shadow-xl">
-                  <div className="absolute top-4 right-4 text-xs font-mono font-bold text-blue-500/30 group-hover:text-blue-500/70 transition-colors text-right">
-                    SEM {s.semester}
+                  <div className="flex items-center justify-between gap-2 mb-2">
+                    <span className="text-xs font-mono font-bold text-blue-500/50 group-hover:text-blue-500/80 transition-colors">
+                      SEM {s.semester}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteSubject(s.id, s.name_full)}
+                      disabled={deletingId === s.id}
+                      title="Delete Subject"
+                      className="p-1.5 rounded-lg text-n-4 hover:text-red-400 hover:bg-red-500/10 transition-colors disabled:opacity-50"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
                   </div>
-                  <h3 className="font-bold text-lg text-n-1 mb-1 pr-12 group-hover:text-blue-500 transition-colors">{s.name_full}</h3>
+                  <h3 className="font-bold text-lg text-n-1 mb-1 group-hover:text-blue-500 transition-colors">{s.name_full}</h3>
                   <div className="flex items-center gap-2 mt-4">
                     <span className="px-2.5 py-1 rounded bg-blue-500/10 text-blue-400 text-xs font-mono font-medium border border-blue-500/20">
                       {s.acronym}
