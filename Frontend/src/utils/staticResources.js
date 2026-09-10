@@ -11,20 +11,31 @@ export function getStaticResources() {
   const staticDate = new Date('2024-01-01T00:00:00Z').toISOString();
 
   const geminiResources = geminiData.map((item, index) => {
-    // Determine type based on item.type: 'notes' -> 'note', 'pyqs' -> 'pyq', else 'note'
-    let rType = 'note';
+    // Determine type based on item.type: 'notes' -> 'notes', 'pyqs' -> 'pyq'
+    let rType = 'notes';
+    let pyqType = null;
     if (item.type === 'pyqs') rType = 'pyq';
-    if (item.type === 'notes') rType = 'note';
-    // 'majors' or 'minor' typically fall under PYQs in this project's context, but let's keep them as pyq.
-    if (item.type === 'majors' || item.type === 'minor') rType = 'pyq';
+    if (item.type === 'notes') rType = 'notes';
+    if (item.type === 'majors') {
+      rType = 'pyq';
+      pyqType = 'major';
+    }
+    if (item.type === 'minor') {
+      rType = 'pyq';
+      pyqType = 'minor1';
+    }
     
     return {
       id: `static-gemini-${item.id}-${index}`,
       resource_type: rType,
+      pyq_type: pyqType,
+      year: item.year && item.year !== 'N/A' ? item.year : null,
       title: item.title,
       description: 'Imported resource material.',
       subjects: {
+        id: `static-subj-${item.subject}`,
         name_full: item.subject,
+        acronym: item.subject,
         semester: item.semester,
         branch: item.branch,
       },
@@ -48,7 +59,9 @@ export function getStaticResources() {
         title: lecture.title,
         description: 'Imported lecture video.',
         subjects: {
+          id: `static-subj-${lecture.subject}`,
           name_full: lecture.subject,
+          acronym: lecture.subject,
           semester: lecture.semester,
           branch: lecture.branch,
         },
@@ -70,7 +83,9 @@ export function getStaticResources() {
           title: pl.title || `${lecture.title} Playlist Video ${plIndex + 1}`,
           description: 'Imported lecture playlist video.',
           subjects: {
+            id: `static-subj-${lecture.subject}`,
             name_full: lecture.subject,
+            acronym: lecture.subject,
             semester: lecture.semester,
             branch: lecture.branch,
           },

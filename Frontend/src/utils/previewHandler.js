@@ -1,4 +1,5 @@
 import { resourceService } from '../services/resource.service';
+import { getStaticResources } from './staticResources';
 
 /**
  * Shared handler to ensure both cards and details pages
@@ -63,8 +64,17 @@ export async function handlePreviewResource(r, e = null) {
   }
 
   try {
-    const { resource } = await resourceService.getBySlug(slugOrId);
-    const targetUrl = resource?.signedUrl || resource?.external_link || resource?.youtube_url;
+    let targetResource = null;
+    try {
+      const res = await resourceService.getBySlug(slugOrId);
+      targetResource = res?.resource;
+    } catch (apiErr) {
+      targetResource = getStaticResources().find(
+        (item) => item.slug === slugOrId || item.id === slugOrId
+      );
+      if (!targetResource) throw apiErr;
+    }
+    const targetUrl = targetResource?.signedUrl || targetResource?.external_link || targetResource?.youtube_url;
 
     if (targetUrl) {
       if (win && !win.closed) {
