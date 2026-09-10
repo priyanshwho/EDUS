@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { userService, subjectService, resourceService } from '../services/index';
 import { useAdminDashboardStore } from '../stores/adminDashboard.store';
+import { useUpload } from '../hooks/useUpload';
 import { GooeyLoader } from '../components/ui/loader-10';
 import DashboardBackground from '../components/design/DashboardBackground';
 
@@ -90,16 +91,27 @@ function ResourceManagement() {
     updateResource,
     removeResourceById,
   } = useAdminDashboardStore();
-  const [filters,      setFilters]      = useState({ q: '', resource_type: '' });
-  const [editId,       setEditId]       = useState(null);
-  const [editForm,     setEditForm]     = useState({});
-  const [saving,       setSaving]       = useState(false);
-  const [driveForm,    setDriveForm]    = useState({
-    subject_id: '', resource_type: 'notes', title: '', description: '',
-    year: '', pyq_type: '', external_link: '',
+  const { upload, uploading, progress, error: uploadError } = useUpload();
+  const [filters,       setFilters]       = useState({ q: '', resource_type: '' });
+  const [editId,        setEditId]        = useState(null);
+  const [editForm,      setEditForm]      = useState({});
+  const [saving,        setSaving]        = useState(false);
+
+  const [formOpen,      setFormOpen]      = useState(false);
+  const [uploadMethod,  setUploadMethod]  = useState('file'); // 'file' | 'link' | 'youtube'
+  const [file,          setFile]          = useState(null);
+  const [createForm,    setCreateForm]    = useState({
+    subject_id: '',
+    resource_type: 'notes',
+    title: '',
+    description: '',
+    year: '',
+    pyq_type: '',
+    external_link: '',
+    youtube_url: '',
   });
-  const [driveLoading, setDriveLoading] = useState(false);
-  const [driveOpen,    setDriveOpen]    = useState(false);
+  const [createLoading, setCreateLoading] = useState(false);
+  const [createError,   setCreateError]   = useState(null);
 
   useEffect(() => {
     fetchResources().catch(() => {});
@@ -138,24 +150,62 @@ function ResourceManagement() {
     }
   };
 
-  /* ── add Drive link ── */
-  const addDriveLink = async (e) => {
+  /* ── unified add resource ── */
+  const handleCreateResource = async (e) => {
     e.preventDefault();
-    setDriveLoading(true);
+    setCreateError(null);
+    setCreateLoading(true);
+
     try {
-      const payload = {
-        ...driveForm,
-        year: driveForm.year ? Number(driveForm.year) : undefined,
+      let created = null;
+      const basePayload = {
+        subject_id: createForm.subject_id,
+        resource_type: createForm.resource_type,
+        title: createForm.title,
+        description: createForm.description || undefined,
+        year: createForm.year ? Number(createForm.year) : undefined,
+        pyq_type: (createForm.resource_type === 'pyq' && createForm.pyq_type) ? createForm.pyq_type : undefined,
       };
-      if (!payload.pyq_type)     delete payload.pyq_type;
-      if (!payload.year)         delete payload.year;
-      if (!payload.description)  delete payload.description;
-      const { resource } = await resourceService.create(payload);
-      prependResource(resource);
-      setDriveForm({ subject_id: '', resource_type: 'notes', title: '', description: '', year: '', pyq_type: '', external_link: '' });
-      setDriveOpen(false);
+
+      if (uploadMethod === 'youtube' || createForm.resource_type === 'lecture') {
+        if (!createForm.youtube_url) throw new Error('YouTube URL is required');
+        const res = await resourceService.create({
+          ...basePayload,
+          youtube_url: createForm.youtube_url,
+        });
+        created = res?.resource;
+      } else if (uploadMethod === 'link') {
+        if (!createForm.external_link) throw new Error('External link URL is required');
+        const res = await resourceService.create({
+          ...basePayload,
+          external_link: createForm.external_link,
+        });
+        created = res?.resource;
+      } else {
+        // file upload via S3
+        if (!file) throw new Error('Please select a PDF file to upload');
+        created = await upload(file, basePayload);
+      }
+
+      if (created) {
+        prependResource(created);
+      }
+      setCreateForm({
+        subject_id: '',
+        resource_type: 'notes',
+        title: '',
+        description: '',
+        year: '',
+        pyq_type: '',
+        external_link: '',
+        youtube_url: '',
+      });
+      setFile(null);
+      setFormOpen(false);
+    } catch (err) {
+      setCreateError(err.response?.data?.error || err.message || 'Failed to create resource');
     } finally {
-      setDriveLoading(false);
+      setCreateLoading(false);
     }
   };
 
@@ -178,22 +228,77 @@ function ResourceManagement() {
       <div className="flex items-center justify-between mb-5">
         <h2 className="h5">Resource Management ({resources.length})</h2>
         <button
-          onClick={() => setDriveOpen(o => !o)}
-          className="px-4 py-1.5 text-xs rounded-lg bg-blue-500 text-white font-semibold hover:bg-blue-500 transition"
+          onClick={() => setFormOpen(o => !o)}
+          className="px-4 py-1.5 text-xs rounded-lg bg-blue-500 text-white font-semibold hover:bg-blue-600 transition shadow-lg shadow-blue-500/20"
         >
-          {driveOpen ? 'Close' : '+ Add Drive Link'}
+          {formOpen ? 'Close' : '+ Add Resource'}
         </button>
       </div>
 
-      {/* ── Add Drive Link Form ── */}
-      {driveOpen && (
-        <form onSubmit={addDriveLink} className="mb-8 rounded-xl border border-n-6 bg-n-7 p-5">
-          <h3 className="font-semibold mb-4 text-sm">New Drive-Link Resource (Admin Only)</h3>
+      {/* ── Unified Add Resource Form ── */}
+      {formOpen && (
+        <form onSubmit={handleCreateResource} className="mb-8 rounded-xl border border-n-6 bg-n-7 p-5">
+          <h3 className="font-semibold mb-4 text-sm text-n-1">Add Resource</h3>
+
+          {/* Source Selector Tabs */}
+          <div className="mb-4">
+            <label className="block text-xs font-semibold text-n-3 mb-2 uppercase tracking-wide">Upload Source</label>
+            <div className="flex gap-2 max-w-md">
+              <button
+                type="button"
+                onClick={() => {
+                  setUploadMethod('file');
+                  if (createForm.resource_type === 'lecture') {
+                    setCreateForm(p => ({ ...p, resource_type: 'notes' }));
+                  }
+                }}
+                className={`flex-1 py-2 rounded-lg text-xs font-semibold transition-all ${
+                  uploadMethod === 'file'
+                    ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/20'
+                    : 'bg-n-6 text-n-3 hover:text-n-1'
+                }`}
+              >
+                📄 File Upload (S3)
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setUploadMethod('link');
+                  if (createForm.resource_type === 'lecture') {
+                    setCreateForm(p => ({ ...p, resource_type: 'notes' }));
+                  }
+                }}
+                className={`flex-1 py-2 rounded-lg text-xs font-semibold transition-all ${
+                  uploadMethod === 'link'
+                    ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/20'
+                    : 'bg-n-6 text-n-3 hover:text-n-1'
+                }`}
+              >
+                🔗 Drive / Link
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setUploadMethod('youtube');
+                  setCreateForm(p => ({ ...p, resource_type: 'lecture' }));
+                }}
+                className={`flex-1 py-2 rounded-lg text-xs font-semibold transition-all ${
+                  uploadMethod === 'youtube'
+                    ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/20'
+                    : 'bg-n-6 text-n-3 hover:text-n-1'
+                }`}
+              >
+                🎥 YouTube Lecture
+              </button>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <select
-              required value={driveForm.subject_id}
-              onChange={e => setDriveForm(p => ({ ...p, subject_id: e.target.value }))}
-              className="rounded-lg border border-n-6 bg-n-6 px-3 py-2 text-sm"
+              required
+              value={createForm.subject_id}
+              onChange={e => setCreateForm(p => ({ ...p, subject_id: e.target.value }))}
+              className="rounded-lg border border-n-6 bg-n-6 px-3 py-2 text-sm text-n-1"
             >
               <option value="">Select Subject…</option>
               {subjects.map(s => (
@@ -202,48 +307,117 @@ function ResourceManagement() {
             </select>
 
             <select
-              required value={driveForm.resource_type}
-              onChange={e => setDriveForm(p => ({ ...p, resource_type: e.target.value, pyq_type: '' }))}
-              className="rounded-lg border border-n-6 bg-n-6 px-3 py-2 text-sm"
+              required
+              value={createForm.resource_type}
+              onChange={e => {
+                const val = e.target.value;
+                setCreateForm(p => ({ ...p, resource_type: val, pyq_type: '' }));
+                if (val === 'lecture') setUploadMethod('youtube');
+                else if (uploadMethod === 'youtube') setUploadMethod('file');
+              }}
+              className="rounded-lg border border-n-6 bg-n-6 px-3 py-2 text-sm text-n-1"
             >
-              {RESOURCE_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+              {RESOURCE_TYPES.map(t => <option key={t} value={t}>{t.charAt(0).toUpperCase() + t.slice(1)}</option>)}
             </select>
 
-            <input required placeholder="Title" value={driveForm.title}
-              onChange={e => setDriveForm(p => ({ ...p, title: e.target.value }))}
-              className="rounded-lg border border-n-6 bg-n-6 px-3 py-2 text-sm sm:col-span-2"
+            <input
+              required
+              placeholder="Title"
+              value={createForm.title}
+              onChange={e => setCreateForm(p => ({ ...p, title: e.target.value }))}
+              className="rounded-lg border border-n-6 bg-n-6 px-3 py-2 text-sm text-n-1 sm:col-span-2"
             />
 
-            <input placeholder="Description (optional)" value={driveForm.description}
-              onChange={e => setDriveForm(p => ({ ...p, description: e.target.value }))}
-              className="rounded-lg border border-n-6 bg-n-6 px-3 py-2 text-sm sm:col-span-2"
+            <input
+              placeholder="Description (optional)"
+              value={createForm.description}
+              onChange={e => setCreateForm(p => ({ ...p, description: e.target.value }))}
+              className="rounded-lg border border-n-6 bg-n-6 px-3 py-2 text-sm text-n-1 sm:col-span-2"
             />
 
-            <input required placeholder="Google Drive / external URL" value={driveForm.external_link}
-              onChange={e => setDriveForm(p => ({ ...p, external_link: e.target.value }))}
-              className="rounded-lg border border-n-6 bg-n-6 px-3 py-2 text-sm sm:col-span-2"
+            {/* Conditional Source Inputs */}
+            {uploadMethod === 'file' && (
+              <div className="sm:col-span-2">
+                <label className="block text-xs font-semibold text-n-3 mb-1">Upload PDF File (Max 10MB)</label>
+                <div className="relative flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-blue-500/40 rounded-xl bg-blue-500/5 hover:bg-blue-500/10 transition-colors cursor-pointer group overflow-hidden">
+                  <input
+                    type="file"
+                    accept=".pdf"
+                    onChange={e => setFile(e.target.files[0])}
+                    required={uploadMethod === 'file'}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                  />
+                  <div className="text-center p-2">
+                    <p className="text-sm font-medium text-blue-500 group-hover:scale-105 transition-transform">
+                      {file ? file.name : "Click or drag to upload PDF"}
+                    </p>
+                    {!file && <p className="text-xs text-n-4 mt-0.5">Maximum file size: 10MB</p>}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {uploadMethod === 'link' && (
+              <input
+                required={uploadMethod === 'link'}
+                placeholder="Google Drive / external URL"
+                value={createForm.external_link}
+                onChange={e => setCreateForm(p => ({ ...p, external_link: e.target.value }))}
+                className="rounded-lg border border-n-6 bg-n-6 px-3 py-2 text-sm text-green-300 sm:col-span-2"
+              />
+            )}
+
+            {uploadMethod === 'youtube' && (
+              <input
+                required={uploadMethod === 'youtube'}
+                placeholder="YouTube URL (https://youtube.com/...)"
+                value={createForm.youtube_url}
+                onChange={e => setCreateForm(p => ({ ...p, youtube_url: e.target.value }))}
+                className="rounded-lg border border-n-6 bg-n-6 px-3 py-2 text-sm text-red-300 sm:col-span-2"
+              />
+            )}
+
+            <input
+              placeholder="Year (e.g. 2024)"
+              type="number"
+              value={createForm.year}
+              onChange={e => setCreateForm(p => ({ ...p, year: e.target.value }))}
+              className="rounded-lg border border-n-6 bg-n-6 px-3 py-2 text-sm text-n-1"
             />
 
-            <input placeholder="Year (e.g. 2024)" type="number" value={driveForm.year}
-              onChange={e => setDriveForm(p => ({ ...p, year: e.target.value }))}
-              className="rounded-lg border border-n-6 bg-n-6 px-3 py-2 text-sm"
-            />
-
-            {driveForm.resource_type === 'pyq' && (
-              <select value={driveForm.pyq_type}
-                onChange={e => setDriveForm(p => ({ ...p, pyq_type: e.target.value }))}
-                className="rounded-lg border border-n-6 bg-n-6 px-3 py-2 text-sm"
+            {createForm.resource_type === 'pyq' && (
+              <select
+                value={createForm.pyq_type}
+                onChange={e => setCreateForm(p => ({ ...p, pyq_type: e.target.value }))}
+                className="rounded-lg border border-n-6 bg-n-6 px-3 py-2 text-sm text-n-1"
               >
                 <option value="">PYQ Type…</option>
                 {PYQ_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
               </select>
             )}
           </div>
+
+          {uploading && (
+            <div className="mt-4 bg-n-8 rounded-full h-2 overflow-hidden border border-n-6">
+              <div
+                className="bg-gradient-to-r from-blue-600 via-blue-500 to-purple-500 h-full transition-all duration-300 ease-out"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+          )}
+
+          {(uploadError || createError) && (
+            <div className="mt-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-xs">
+              {uploadError || createError}
+            </div>
+          )}
+
           <button
-            type="submit" disabled={driveLoading}
-            className="mt-4 w-full py-2 rounded-xl bg-blue-500 text-white font-semibold text-sm hover:bg-blue-500 transition disabled:opacity-50"
+            type="submit"
+            disabled={createLoading || uploading}
+            className="mt-4 w-full py-2 rounded-xl bg-blue-500 text-white font-semibold text-sm hover:bg-blue-600 transition disabled:opacity-50 shadow-lg shadow-blue-500/20"
           >
-            {driveLoading ? 'Adding…' : 'Add Resource'}
+            {createLoading || uploading ? (uploading ? `Uploading ${progress}%…` : 'Adding…') : 'Add Resource'}
           </button>
         </form>
       )}
@@ -438,21 +612,85 @@ function PlatformAnalytics() {
 }
 
 // ── User Management ─────────────────────────────────────────────────────────
+
+/* Avatar color from username hash */
+const AVATAR_COLORS = [
+  'bg-rose-500', 'bg-pink-500', 'bg-fuchsia-500', 'bg-purple-500',
+  'bg-violet-500', 'bg-indigo-500', 'bg-blue-500', 'bg-sky-500',
+  'bg-cyan-500', 'bg-teal-500', 'bg-emerald-500', 'bg-green-500',
+  'bg-lime-500', 'bg-amber-500', 'bg-orange-500', 'bg-red-500',
+];
+function avatarColor(name) {
+  let hash = 0;
+  for (let i = 0; i < (name || '').length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
+}
+
+/* Format date in IST */
+function formatIST(dateStr) {
+  if (!dateStr) return null;
+  const d = new Date(dateStr);
+  if (isNaN(d)) return null;
+  return d.toLocaleString('en-IN', {
+    timeZone: 'Asia/Kolkata',
+    day: '2-digit', month: 'short', year: 'numeric',
+    hour: '2-digit', minute: '2-digit', hour12: true,
+  });
+}
+
+/* Relative time string */
+function timeAgo(dateStr) {
+  if (!dateStr) return 'Never';
+  const d = new Date(dateStr);
+  if (isNaN(d)) return 'Never';
+  const diff = (Date.now() - d.getTime()) / 1000;
+  if (diff < 60) return 'Just now';
+  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+  if (diff < 604800) return `${Math.floor(diff / 86400)}d ago`;
+  return `${Math.floor(diff / 604800)}w ago`;
+}
+
+/* Auth badge component */
+function AuthBadge({ provider }) {
+  if (provider === 'google') return <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide bg-green-500/15 text-green-400 border border-green-500/30">Google</span>;
+  if (provider === 'github') return <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide bg-gray-500/15 text-gray-300 border border-gray-500/30">GitHub</span>;
+  return <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide bg-rose-500/15 text-rose-400 border border-rose-500/30">Email</span>;
+}
+
 function UserManagement() {
   const {
     users,
+    resources,
     loadingUsers,
     fetchUsers,
+    fetchResources,
     setUserRole,
     removeUserById,
+    removeUserAndResources,
+    renameUser: storeRenameUser,
   } = useAdminDashboardStore();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
+  const [authFilter, setAuthFilter] = useState('all');
+  const [openActionId, setOpenActionId] = useState(null);    // which user's action menu is open
+  const [renamingId, setRenamingId] = useState(null);         // which user is being renamed inline
+  const [renameValue, setRenameValue] = useState('');
+  const [renameError, setRenameError] = useState(null);
 
   useEffect(() => {
     fetchUsers().catch(() => {});
-  }, [fetchUsers]);
+    fetchResources().catch(() => {});
+  }, [fetchUsers, fetchResources]);
+
+  // Close action menu on outside click
+  useEffect(() => {
+    if (!openActionId) return;
+    const handler = () => setOpenActionId(null);
+    document.addEventListener('click', handler);
+    return () => document.removeEventListener('click', handler);
+  }, [openActionId]);
 
   const changeRole = async (id, role) => {
     await userService.updateRole(id, role);
@@ -460,14 +698,55 @@ function UserManagement() {
   };
 
   const deleteUser = async (id) => {
-    if (!confirm('Delete this user?')) return;
+    if (!confirm('Delete this user? (Their uploaded resources will remain on the platform)')) return;
     await userService.remove(id);
     removeUserById(id);
+    setOpenActionId(null);
   };
 
-  /* ── client-side filter by search + role ── */
+  const deleteUserWithResources = async (user) => {
+    const userResourcesCount = resources.filter(r => r.uploaded_by === user.id).length;
+    const msg = `This will permanently delete user "${user.username}" AND all ${userResourcesCount} resources they uploaded, including S3 files. This cannot be undone.\n\nAre you sure?`;
+    if (!confirm(msg)) return;
+    try {
+      await userService.removeWithResources(user.id);
+      removeUserAndResources(user.id);
+    } catch (err) {
+      alert(err.response?.data?.error || err.message || 'Failed to delete user and resources');
+    }
+    setOpenActionId(null);
+  };
+
+  const startRename = (user) => {
+    setRenamingId(user.id);
+    setRenameValue(user.username);
+    setRenameError(null);
+    setOpenActionId(null);
+  };
+
+  const submitRename = async (userId) => {
+    setRenameError(null);
+    try {
+      const { user } = await userService.renameUser(userId, renameValue);
+      storeRenameUser(userId, user.username);
+      setRenamingId(null);
+    } catch (err) {
+      setRenameError(err.response?.data?.error || err.message || 'Rename failed');
+    }
+  };
+
+  const cancelRename = () => {
+    setRenamingId(null);
+    setRenameError(null);
+  };
+
+  /* ── client-side filter by search + role + auth ── */
   const filtered = users.filter(u => {
     if (roleFilter !== 'all' && u.role !== roleFilter) return false;
+    if (authFilter !== 'all') {
+      const provider = u.oauth_provider || 'email';
+      if (authFilter !== provider) return false;
+    }
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
       if (!u.username?.toLowerCase().includes(q) && !u.email?.toLowerCase().includes(q)) return false;
@@ -481,10 +760,10 @@ function UserManagement() {
     <div>
       {/* ── Header row: title + search bar ── */}
       <div className="flex items-center justify-between gap-4 mb-4 flex-wrap">
-        <h2 className="h5 whitespace-nowrap">User Management ({filtered.length})</h2>
+        <h2 className="h5 whitespace-nowrap">Users ({filtered.length})</h2>
         <input
           type="text"
-          placeholder="Search by username or email…"
+          placeholder="Search by name or email…"
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
           className="flex-1 min-w-[200px] max-w-md rounded-lg border border-n-6 bg-n-7 px-4 py-2 text-sm placeholder:text-n-5 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition"
@@ -494,14 +773,25 @@ function UserManagement() {
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-n-6 text-n-4">
-              <th className="text-left pb-3 pr-4">Username</th>
-              <th className="text-left pb-3 pr-4">Email</th>
-              <th className="text-left pb-3 pr-4">
+            <tr className="border-b border-n-6 text-n-4 text-xs uppercase tracking-wide">
+              <th className="text-left pb-3 pr-4 font-semibold">User</th>
+              <th className="text-left pb-3 pr-4 font-semibold">
+                <select
+                  value={authFilter}
+                  onChange={e => setAuthFilter(e.target.value)}
+                  className="bg-transparent border border-n-6 rounded px-2 py-1 text-xs text-n-4 cursor-pointer hover:border-blue-500/50 focus:border-blue-500 focus:outline-none transition uppercase"
+                >
+                  <option value="all">Auth (All)</option>
+                  <option value="email">Email</option>
+                  <option value="google">Google</option>
+                  <option value="github">GitHub</option>
+                </select>
+              </th>
+              <th className="text-left pb-3 pr-4 font-semibold">
                 <select
                   value={roleFilter}
                   onChange={e => setRoleFilter(e.target.value)}
-                  className="bg-transparent border border-n-6 rounded px-2 py-1 text-xs text-n-4 cursor-pointer hover:border-blue-500/50 focus:border-blue-500 focus:outline-none transition"
+                  className="bg-transparent border border-n-6 rounded px-2 py-1 text-xs text-n-4 cursor-pointer hover:border-blue-500/50 focus:border-blue-500 focus:outline-none transition uppercase"
                 >
                   <option value="all">Role (All)</option>
                   <option value="student">Students</option>
@@ -509,38 +799,119 @@ function UserManagement() {
                   <option value="admin">Admins</option>
                 </select>
               </th>
-              <th className="text-left pb-3">Actions</th>
+              <th className="text-left pb-3 pr-4 font-semibold">Joined</th>
+              <th className="text-left pb-3 pr-4 font-semibold">Last Active (IST)</th>
+              <th className="text-left pb-3 font-semibold">Actions</th>
             </tr>
           </thead>
           <tbody>
             {filtered.map(u => (
-              <tr key={u.id} className="border-b border-n-6 hover:bg-n-7 transition">
-                <td className="py-3 pr-4 font-medium">{u.username}</td>
-                <td className="py-3 pr-4 text-n-4">{u.email}</td>
+              <tr key={u.id} className="border-b border-n-6 hover:bg-n-7/50 transition">
+                {/* USER column: avatar + name + email */}
+                <td className="py-3 pr-4">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-9 h-9 rounded-full flex items-center justify-center text-white font-bold text-sm shrink-0 ${avatarColor(u.username)}`}>
+                      {(u.username || '?')[0].toUpperCase()}
+                    </div>
+                    <div className="min-w-0">
+                      {renamingId === u.id ? (
+                        <div className="flex items-center gap-1.5">
+                          <input
+                            value={renameValue}
+                            onChange={e => setRenameValue(e.target.value)}
+                            onKeyDown={e => {
+                              if (e.key === 'Enter') submitRename(u.id);
+                              if (e.key === 'Escape') cancelRename();
+                            }}
+                            autoFocus
+                            className="w-32 rounded border border-blue-500 bg-n-8 px-2 py-0.5 text-xs text-n-1 focus:outline-none"
+                          />
+                          <button onClick={() => submitRename(u.id)} className="text-green-400 text-xs hover:text-green-300">✓</button>
+                          <button onClick={cancelRename} className="text-n-4 text-xs hover:text-n-1">✗</button>
+                          {renameError && <span className="text-red-400 text-[10px]">{renameError}</span>}
+                        </div>
+                      ) : (
+                        <p className="font-semibold text-n-1 truncate">{u.username}</p>
+                      )}
+                      <p className="text-xs text-n-4 truncate">{u.email}</p>
+                    </div>
+                  </div>
+                </td>
+
+                {/* AUTH column */}
+                <td className="py-3 pr-4">
+                  <AuthBadge provider={u.oauth_provider} />
+                </td>
+
+                {/* ROLE column */}
                 <td className="py-3 pr-4">
                   <select
                     value={u.role}
                     onChange={e => changeRole(u.id, e.target.value)}
-                    className="bg-n-6 border border-n-5 rounded px-2 py-1 text-xs"
+                    className="bg-n-6 border border-n-5 rounded px-2 py-1 text-xs capitalize"
                   >
                     <option value="student">student</option>
                     <option value="professor">professor</option>
                     <option value="admin">admin</option>
                   </select>
                 </td>
+
+                {/* JOINED column */}
+                <td className="py-3 pr-4 text-xs text-n-4 whitespace-nowrap">
+                  {formatIST(u.created_at) || '—'}
+                </td>
+
+                {/* LAST ACTIVE (IST) column */}
+                <td className="py-3 pr-4 whitespace-nowrap">
+                  <p className="text-xs font-medium text-n-2">{timeAgo(u.last_active_at)}</p>
+                  {u.last_active_at && (
+                    <p className="text-[10px] text-n-5">{formatIST(u.last_active_at)}</p>
+                  )}
+                </td>
+
+                {/* ACTIONS column — dropdown */}
                 <td className="py-3">
-                  <button
-                    onClick={() => deleteUser(u.id)}
-                    className="text-xs text-red-400 hover:text-red-300 transition"
-                  >
-                    Delete
-                  </button>
+                  <div className="relative">
+                    <button
+                      onClick={e => { e.stopPropagation(); setOpenActionId(openActionId === u.id ? null : u.id); }}
+                      className="w-8 h-8 rounded-lg flex items-center justify-center text-n-4 hover:text-n-1 hover:bg-n-6 transition text-lg"
+                      title="Actions"
+                    >
+                      ⋮
+                    </button>
+                    {openActionId === u.id && (
+                      <div
+                        onClick={e => e.stopPropagation()}
+                        className="absolute right-0 top-full mt-1 w-52 rounded-xl border border-n-6 bg-n-8/95 backdrop-blur-md shadow-2xl z-30 overflow-hidden"
+                      >
+                        <button
+                          onClick={() => startRename(u)}
+                          className="w-full flex items-center gap-2.5 px-4 py-2.5 text-xs text-n-2 hover:bg-n-7 hover:text-n-1 transition text-left"
+                        >
+                          <span>✏️</span> Rename User
+                        </button>
+                        <div className="border-t border-n-6" />
+                        <button
+                          onClick={() => deleteUser(u.id)}
+                          className="w-full flex items-center gap-2.5 px-4 py-2.5 text-xs text-red-400 hover:bg-red-500/10 hover:text-red-300 transition text-left"
+                        >
+                          <span>🗑️</span> Delete User
+                        </button>
+                        <button
+                          onClick={() => deleteUserWithResources(u)}
+                          className="w-full flex items-center gap-2.5 px-4 py-2.5 text-xs text-rose-400 hover:bg-rose-500/10 hover:text-rose-300 transition text-left"
+                        >
+                          <span>⚠️</span> Delete + Resources
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </td>
               </tr>
             ))}
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={4} className="py-8 text-center text-n-4 text-sm">
+                <td colSpan={6} className="py-8 text-center text-n-4 text-sm">
                   No users found.
                 </td>
               </tr>

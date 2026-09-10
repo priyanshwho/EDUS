@@ -167,9 +167,7 @@ async function create(req, res, next) {
     if (sourceCount > 1)
       return res.status(400).json({ error: 'Only one of external_link, aws_s3_key, or youtube_url can be set' });
 
-    // Legacy Drive links — only admin
-    if (external_link && req.user.role === 'professor')
-      return res.status(403).json({ error: 'Professors cannot add legacy Drive links' });
+
 
     // Resolve subject metadata for slug
     const subjectRows = await sql`
@@ -258,10 +256,7 @@ async function update(req, res, next) {
       if (req.user.role === 'professor' && existing.uploaded_by !== req.user.id)
         return res.status(403).json({ error: 'You can only edit your own resources' });
 
-      // Admins can also update external_link (Drive links); professors cannot
-      const allowedFields = req.user.role === 'admin'
-        ? ['title', 'description', 'year', 'pyq_type', 'aws_s3_key', 'youtube_url', 'external_link']
-        : ['title', 'description', 'year', 'pyq_type', 'aws_s3_key', 'youtube_url'];
+      const allowedFields = ['title', 'description', 'year', 'pyq_type', 'aws_s3_key', 'youtube_url', 'external_link'];
       const updates = {};
       for (const field of allowedFields) {
         if (req.body[field] !== undefined) updates[field] = req.body[field];

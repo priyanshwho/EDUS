@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { authService } from '../services/auth.service';
 import { setToken, setRefreshFailHandler } from '../services/api';
+import { userService } from '../services/index';
 
 const AuthContext = createContext(null);
 
@@ -129,6 +130,22 @@ export function AuthProvider({ children }) {
     return res;
   }, []);
 
+  // ── Rename Own Username ─────────────────────────────────────────────────
+  const renameUsername = useCallback(async (newUsername) => {
+    const { user: updated } = await userService.renameMe(newUsername);
+    // Refresh token so JWT payload has the new username
+    try {
+      const { accessToken: token, user: refreshed } = await authService.refresh();
+      setToken(token);
+      setAccessToken(token);
+      setUser(refreshed);
+    } catch {
+      // Fallback: just update username locally
+      setUser(prev => prev ? { ...prev, username: updated.username } : prev);
+    }
+    return updated;
+  }, []);
+
   const value = {
     user,
     accessToken,
@@ -143,6 +160,7 @@ export function AuthProvider({ children }) {
     verifyPin,
     upgradeToProfessor,
     superadminSwitchRole,
+    renameUsername,
     logout,
     handleOAuthCallback,
     setAccessToken,

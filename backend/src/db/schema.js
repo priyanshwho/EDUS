@@ -10,6 +10,7 @@ const users = pgTable('users', {
   role: text('role').notNull().default('student'),
   oauthProvider: text('oauth_provider'),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  lastActiveAt: timestamp('last_active_at', { withTimezone: true }),
 });
 
 const subjects = pgTable('subjects', {
