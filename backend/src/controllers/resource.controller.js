@@ -249,42 +249,79 @@ async function update(req, res, next) {
     const existing = existingRows[0] || null;
     if (!existing) return res.status(404).json({ error: 'Resource not found' });
 
-    // Legacy protection
-    const legacyCheck = blockProfessorOnLegacy(existing);
-    legacyCheck(req, res, async () => {
-      // Ownership check (professors own-only; admins bypass)
-      if (req.user.role === 'professor' && existing.uploaded_by !== req.user.id)
-        return res.status(403).json({ error: 'You can only edit your own resources' });
-
-      const allowedFields = ['title', 'description', 'year', 'pyq_type', 'aws_s3_key', 'youtube_url', 'external_link'];
-      const updates = {};
-      for (const field of allowedFields) {
-        if (req.body[field] !== undefined) updates[field] = req.body[field];
+    // Legacy & Ownership check (professors own-only; admins bypass)
+    if (req.user.role === 'professor') {
+      const isLegacy = existing.external_link && !existing.aws_s3_key;
+      if (isLegacy) {
+        return res.status(403).json({ error: 'Professors cannot modify legacy Google Drive content' });
       }
+      if (String(existing.uploaded_by) !== String(req.user.id)) {
+        return res.status(403).json({ error: 'You can only edit your own resources' });
+      }
+    }
 
-      if (Object.keys(updates).length === 0)
-        return res.status(400).json({ error: 'No valid fields to update' });
+    const allowedFields = ['title', 'description', 'year', 'pyq_type', 'aws_s3_key', 'youtube_url', 'external_link'];
+    const updates = {};
+    for (const field of allowedFields) {
+      if (req.body[field] !== undefined) updates[field] = req.body[field];
+    }
 
-      const fields = [];
-      const values = [];
+    if (Object.keys(updates).length === 0)
+      return res.status(400).json({ error: 'No valid fields to update' });
 
-      Object.entries(updates).forEach(([key, value]) => {
-        fields.push(`${key} = $${values.length + 1}`);
-        if (key === 'year') values.push(value === null || value === '' ? null : Number(value));
-        else values.push(value);
-      });
+    const fields = [];
+    const values = [];
 
-      values.push(id);
-
-      const rows = await sql.query(
-        `update resources set ${fields.join(', ')} where id = $${values.length} returning *`,
-        values
-      );
-      const data = rows[0] || null;
-      if (!data) return res.status(404).json({ error: 'Resource not found' });
-
-      return res.json({ resource: data });
+    Object.entries(updates).forEach(([key, value]) => {
+      fields.push(`${key} = $${values.length + 1}`);
+      if (key === 'year') {
+        values.push(value === null || value === '' ? null : Number(value));
+      } else if (['pyq_type', 'youtube_url', 'external_link', 'aws_s3_key', 'description'].includes(key)) {
+        values.push(value === '' || value === null ? null : value);
+      } else {
+        values.push(value);
+      }
     });
+
+    values.push(id);
+
+    await sql.query(
+      `update resources set ${fields.join(', ')} where id = $${values.length}`,
+      values
+    );
+
+    const fullRows = await sql`
+      select
+        r.*,
+        case
+          when u.id is null then null
+          else jsonb_build_object(
+            'id', u.id,
+            'username', u.username,
+            'name', u.name,
+            'role', u.role
+          )
+        end as uploader,
+        case
+          when s.id is null then null
+          else jsonb_build_object(
+            'id', s.id,
+            'branch', s.branch,
+            'semester', s.semester,
+            'name_full', s.name_full,
+            'acronym', s.acronym
+          )
+        end as subjects
+      from resources r
+      left join subjects s on s.id = r.subject_id
+      left join users u on u.id = r.uploaded_by
+      where r.id = ${id}
+      limit 1
+    `;
+    const resource = fullRows[0];
+    if (!resource) return res.status(404).json({ error: 'Resource not found' });
+
+    return res.json({ resource });
   } catch (err) {
     next(err);
   }
