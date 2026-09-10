@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Sparkles, ArrowRight, X, Inbox } from 'lucide-react';
+import { ArrowRight, X, Inbox } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { resourceService } from '../services/resource.service';
 import ResourceFilterPanel from '../components/ResourceFilterPanel';
@@ -78,7 +78,7 @@ export default function StudentDashboard() {
           <div className="bg-gradient-to-r from-blue-600/10 via-blue-500/10 to-purple-500/10 p-8 sm:p-12 relative overflow-hidden">
             <div className="relative z-10">
               <h1 className="text-4xl sm:text-5xl font-black bg-clip-text text-transparent bg-gradient-to-r from-n-1 to-n-3 mb-3 tracking-tight flex items-center flex-wrap gap-2">
-                Welcome back, {user?.username} <Sparkles className="w-8 h-8 text-yellow-400 inline" />
+                Welcome back, {user?.username} <span className="inline-block animate-wave origin-[70%_70%] select-none">👋</span>
               </h1>
               <p className="text-lg text-n-3 mb-6 max-w-2xl font-medium">
                 Browse and access premium academic resources curated by top professors.
