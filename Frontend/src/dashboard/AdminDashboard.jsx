@@ -791,7 +791,7 @@ function UserManagement() {
   const [searchQuery, setSearchQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
   const [authFilter, setAuthFilter] = useState('all');
-  const [onlyActiveToday, setOnlyActiveToday] = useState(false);
+  const [onlyActiveMonthly, setOnlyActiveMonthly] = useState(false);
   const [onlyRecentJoined, setOnlyRecentJoined] = useState(false);
   const [openActionId, setOpenActionId] = useState(null);    // which user's action menu is open
   const [renamingId, setRenamingId] = useState(null);         // which user is being renamed inline
@@ -862,14 +862,14 @@ function UserManagement() {
   const resetAllFilters = () => {
     setRoleFilter('all');
     setAuthFilter('all');
-    setOnlyActiveToday(false);
+    setOnlyActiveMonthly(false);
     setSearchQuery('');
   };
 
   /* ── Stats Calculations ── */
   const now = Date.now();
   const totalUsersCount = users.length;
-  const activeTodayCount = users.filter(u => u.last_active_at && (now - new Date(u.last_active_at).getTime()) < 24 * 60 * 60 * 1000).length;
+  const activeMonthlyCount = users.filter(u => u.last_active_at && (now - new Date(u.last_active_at).getTime()) < 30 * 24 * 60 * 60 * 1000).length;
   const googleUsersCount = users.filter(u => u.oauth_provider === 'google').length;
   const emailUsersCount = users.filter(u => !u.oauth_provider || u.oauth_provider === 'email').length;
   const professorCount = users.filter(u => u.role === 'professor').length;
@@ -882,17 +882,17 @@ function UserManagement() {
       value: totalUsersCount,
       icon: Users,
       iconBg: 'bg-rose-500/10 border-rose-500/20 text-rose-400',
-      active: roleFilter === 'all' && authFilter === 'all' && !onlyActiveToday,
+      active: roleFilter === 'all' && authFilter === 'all' && !onlyActiveMonthly,
       onClick: resetAllFilters,
     },
     {
       id: 'active',
-      label: 'Active Today',
-      value: activeTodayCount,
+      label: 'Active Monthly',
+      value: activeMonthlyCount,
       icon: Activity,
       iconBg: 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400',
-      active: onlyActiveToday,
-      onClick: () => setOnlyActiveToday(p => !p),
+      active: onlyActiveMonthly,
+      onClick: () => setOnlyActiveMonthly(p => !p),
     },
     {
       id: 'google',
@@ -939,8 +939,8 @@ function UserManagement() {
       const provider = u.oauth_provider || 'email';
       if (authFilter !== provider) return false;
     }
-    if (onlyActiveToday) {
-      const isRecent = u.last_active_at && (now - new Date(u.last_active_at).getTime()) < 24 * 60 * 60 * 1000;
+    if (onlyActiveMonthly) {
+      const isRecent = u.last_active_at && (now - new Date(u.last_active_at).getTime()) < 30 * 24 * 60 * 60 * 1000;
       if (!isRecent) return false;
     }
     if (searchQuery) {
@@ -950,7 +950,7 @@ function UserManagement() {
     return true;
   });
 
-  const hasActiveFilters = roleFilter !== 'all' || authFilter !== 'all' || onlyActiveToday || !!searchQuery;
+  const hasActiveFilters = roleFilter !== 'all' || authFilter !== 'all' || onlyActiveMonthly || !!searchQuery;
 
   if (loadingUsers && users.length === 0) return <p className="text-n-4">Loading users…</p>;
 
