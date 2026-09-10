@@ -20,6 +20,7 @@ import {
 import { userService, subjectService, resourceService } from '../services/index';
 import { useAdminDashboardStore } from '../stores/adminDashboard.store';
 import { useUpload } from '../hooks/useUpload';
+import { useAuth } from '../context/AuthContext';
 import { GooeyLoader } from '../components/ui/loader-10';
 import DashboardBackground from '../components/design/DashboardBackground';
 
@@ -100,6 +101,7 @@ const RESOURCE_TYPES = ['notes', 'assignment', 'pyq', 'lecture'];
 const PYQ_TYPES      = ['minor1', 'minor2', 'major'];
 
 function ResourceManagement() {
+  const { user } = useAuth();
   const {
     resources,
     subjects,
@@ -321,9 +323,15 @@ function ResourceManagement() {
               className="rounded-lg border border-n-6 bg-n-6 px-3 py-2 text-sm text-n-1"
             >
               <option value="">Select Subject…</option>
-              {subjects.map(s => (
-                <option key={s.id} value={s.id}>{s.name_full} ({s.branch} S{s.semester})</option>
-              ))}
+              {subjects.filter(s => String(s.added_by) === String(user?.id)).length === 0 ? (
+                <option value="" disabled>No subjects created by you yet</option>
+              ) : (
+                subjects
+                  .filter(s => String(s.added_by) === String(user?.id))
+                  .map(s => (
+                    <option key={s.id} value={s.id}>{s.name_full} ({s.branch} S{s.semester})</option>
+                  ))
+              )}
             </select>
 
             <select
@@ -1074,12 +1082,15 @@ function SubjectManagement() {
     fetchSubjects,
     addSubject,
     removeSubjectById,
+    users,
+    fetchUsers,
   } = useAdminDashboardStore();
   const [form,     setForm]     = useState({ branch: '', semester: '', name_full: '', acronym: '' });
 
   useEffect(() => {
     fetchSubjects().catch(() => {});
-  }, [fetchSubjects]);
+    fetchUsers().catch(() => {});
+  }, [fetchSubjects, fetchUsers]);
 
   const handleAdd = async (e) => {
     e.preventDefault();
@@ -1149,6 +1160,7 @@ function SubjectManagement() {
                 <th className="py-4 px-4 font-medium">Acronym</th>
                 <th className="py-4 px-4 font-medium">Branch</th>
                 <th className="py-4 px-4 font-medium">Sem</th>
+                <th className="py-4 px-4 font-medium">Created By</th>
                 <th className="py-4 pr-6 pl-4 font-medium text-right rounded-tr-2xl">Actions</th>
               </tr>
             </thead>
@@ -1170,6 +1182,22 @@ function SubjectManagement() {
                     <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-n-6 text-xs font-semibold">
                       {s.semester}
                     </span>
+                  </td>
+                  <td className="py-4 px-4 text-xs">
+                    {(() => {
+                      const creator = users.find(u => String(u.id) === String(s.added_by));
+                      if (creator) {
+                        return (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-n-6 text-n-2">
+                            {creator.username}
+                          </span>
+                        );
+                      }
+                      if (s.added_by) {
+                        return <span className="text-n-4 text-xs font-mono">#{s.added_by}</span>;
+                      }
+                      return <span className="text-n-5 text-xs">System</span>;
+                    })()}
                   </td>
                   <td className="py-4 pr-6 pl-4 text-right">
                     <button onClick={() => handleDelete(s.id)} className="px-3 py-1.5 rounded-lg text-xs font-medium text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors">
