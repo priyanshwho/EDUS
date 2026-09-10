@@ -17,6 +17,9 @@ import {
   GraduationCap,
   UserCheck,
   Search,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
 } from 'lucide-react';
 import { userService, subjectService, resourceService } from '../services/index';
 import { useAdminDashboardStore } from '../stores/adminDashboard.store';
@@ -792,11 +795,21 @@ function UserManagement() {
   const [roleFilter, setRoleFilter] = useState('all');
   const [authFilter, setAuthFilter] = useState('all');
   const [onlyActiveMonthly, setOnlyActiveMonthly] = useState(false);
-  const [onlyRecentJoined, setOnlyRecentJoined] = useState(false);
+  const [sortBy, setSortBy] = useState('joined');           // 'joined' | 'active' | 'name'
+  const [sortOrder, setSortOrder] = useState('desc');        // 'asc' | 'desc'
   const [openActionId, setOpenActionId] = useState(null);    // which user's action menu is open
   const [renamingId, setRenamingId] = useState(null);         // which user is being renamed inline
   const [renameValue, setRenameValue] = useState('');
   const [renameError, setRenameError] = useState(null);
+
+  const handleHeaderSort = (field) => {
+    if (sortBy === field) {
+      setSortOrder(prev => (prev === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setSortBy(field);
+      setSortOrder(field === 'name' ? 'asc' : 'desc');
+    }
+  };
 
   useEffect(() => {
     fetchUsers().catch(() => {});
@@ -864,6 +877,8 @@ function UserManagement() {
     setAuthFilter('all');
     setOnlyActiveMonthly(false);
     setSearchQuery('');
+    setSortBy('joined');
+    setSortOrder('desc');
   };
 
   /* ── Stats Calculations ── */
@@ -950,7 +965,39 @@ function UserManagement() {
     return true;
   });
 
-  const hasActiveFilters = roleFilter !== 'all' || authFilter !== 'all' || onlyActiveMonthly || !!searchQuery;
+  /* ── client-side sort by joined, last active, or alphabetical (asc/desc) ── */
+  const sortedUsers = [...filtered].sort((a, b) => {
+    if (sortBy === 'name') {
+      const nameA = (a.username || a.name || '').toLowerCase();
+      const nameB = (b.username || b.name || '').toLowerCase();
+      const comp = nameA.localeCompare(nameB);
+      if (comp !== 0) return sortOrder === 'asc' ? comp : -comp;
+    } else if (sortBy === 'active') {
+      const hasA = Boolean(a.last_active_at);
+      const hasB = Boolean(b.last_active_at);
+      if (hasA && hasB) {
+        const timeA = new Date(a.last_active_at).getTime();
+        const timeB = new Date(b.last_active_at).getTime();
+        if (timeA !== timeB) return sortOrder === 'asc' ? timeA - timeB : timeB - timeA;
+      } else if (hasA && !hasB) {
+        return -1; // Active users come before 'Never'
+      } else if (!hasA && hasB) {
+        return 1;  // Active users come before 'Never'
+      }
+    } else {
+      // Default 'joined' (created_at)
+      const timeA = a.created_at ? new Date(a.created_at).getTime() : 0;
+      const timeB = b.created_at ? new Date(b.created_at).getTime() : 0;
+      if (timeA !== timeB) return sortOrder === 'asc' ? timeA - timeB : timeB - timeA;
+    }
+
+    // Tie-breaker: fallback to created_at desc, then id
+    const fallback = (new Date(b.created_at || 0).getTime()) - (new Date(a.created_at || 0).getTime());
+    if (fallback !== 0) return fallback;
+    return String(a.id).localeCompare(String(b.id));
+  });
+
+  const hasActiveFilters = roleFilter !== 'all' || authFilter !== 'all' || onlyActiveMonthly || !!searchQuery || sortBy !== 'joined' || sortOrder !== 'desc';
 
   if (loadingUsers && users.length === 0) return <p className="text-n-4">Loading users…</p>;
 
@@ -984,10 +1031,10 @@ function UserManagement() {
         })}
       </div>
 
-      {/* ── Header row: title + search bar ── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-        <div className="flex items-center gap-3">
-          <h2 className="h5 whitespace-nowrap">Users ({filtered.length})</h2>
+      {/* ── Header row: title + sort selector + search bar ── */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4">
+        <div className="flex items-center gap-3 flex-wrap">
+          <h2 className="h5 whitespace-nowrap">Users ({sortedUsers.length})</h2>
           {hasActiveFilters && (
             <button
               onClick={resetAllFilters}
@@ -997,20 +1044,72 @@ function UserManagement() {
             </button>
           )}
         </div>
-        <input
-          type="text"
-          placeholder="Search by name or email…"
-          value={searchQuery}
-          onChange={e => setSearchQuery(e.target.value)}
-          className="w-full sm:w-72 sm:max-w-md rounded-lg border border-n-6 bg-n-7 px-4 py-2 text-sm placeholder:text-n-5 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition"
-        />
+
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+          {/* Sort dropdown control */}
+          <div className="flex items-center gap-2 bg-n-7 border border-n-6 rounded-lg px-3 py-2 text-xs text-n-3 hover:border-blue-500/50 focus-within:border-blue-500 transition">
+            <ArrowUpDown className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+            <span className="text-n-4 text-xs font-semibold uppercase tracking-wider whitespace-nowrap">Sort:</span>
+            <select
+              value={`${sortBy}_${sortOrder}`}
+              onChange={e => {
+                const [field, order] = e.target.value.split('_');
+                setSortBy(field);
+                setSortOrder(order);
+              }}
+              className="bg-transparent text-xs text-n-1 font-medium focus:outline-none cursor-pointer pr-1"
+            >
+              <option value="joined_desc" className="bg-n-8 text-n-1">Joined Date (Newest first)</option>
+              <option value="joined_asc" className="bg-n-8 text-n-1">Joined Date (Oldest first)</option>
+              <option value="active_desc" className="bg-n-8 text-n-1">Last Active (Most recent first)</option>
+              <option value="active_asc" className="bg-n-8 text-n-1">Last Active (Least recent first)</option>
+              <option value="name_asc" className="bg-n-8 text-n-1">Alphabetical (A → Z)</option>
+              <option value="name_desc" className="bg-n-8 text-n-1">Alphabetical (Z → A)</option>
+            </select>
+          </div>
+
+          {/* Search bar */}
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Search by name or email…"
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              className="w-full sm:w-64 md:w-72 rounded-lg border border-n-6 bg-n-7 pl-9 pr-4 py-2 text-sm placeholder:text-n-5 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition"
+            />
+            <Search className="w-4 h-4 text-n-4 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+          </div>
+        </div>
       </div>
 
       <div className="overflow-x-auto pb-8">
         <table className="w-full text-sm min-w-[680px]">
           <thead>
             <tr className="border-b border-n-6 text-n-4 text-xs uppercase tracking-wide">
-              <th className="text-left pb-3 pr-4 font-semibold">User</th>
+              {/* USER column header (sortable) */}
+              <th className="text-left pb-3 pr-4 font-semibold">
+                <button
+                  type="button"
+                  onClick={() => handleHeaderSort('name')}
+                  className={`group inline-flex items-center gap-1.5 uppercase transition hover:text-n-1 cursor-pointer select-none ${
+                    sortBy === 'name' ? 'text-blue-400 font-bold' : 'text-n-4'
+                  }`}
+                  title="Sort alphabetically (A-Z / Z-A)"
+                >
+                  <span>User</span>
+                  {sortBy === 'name' ? (
+                    sortOrder === 'asc' ? (
+                      <ArrowUp className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+                    ) : (
+                      <ArrowDown className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+                    )
+                  ) : (
+                    <ArrowUpDown className="w-3 h-3 text-n-5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
+                  )}
+                </button>
+              </th>
+
+              {/* AUTH column filter dropdown */}
               <th className="text-left pb-3 pr-4 font-semibold">
                 <select
                   value={authFilter}
@@ -1023,6 +1122,8 @@ function UserManagement() {
                   <option value="github">GitHub</option>
                 </select>
               </th>
+
+              {/* ROLE column filter dropdown */}
               <th className="text-left pb-3 pr-4 font-semibold">
                 <select
                   value={roleFilter}
@@ -1035,13 +1136,58 @@ function UserManagement() {
                   <option value="admin">Admins</option>
                 </select>
               </th>
-              <th className="text-left pb-3 pr-4 font-semibold">Joined</th>
-              <th className="text-left pb-3 pr-4 font-semibold">Last Active (IST)</th>
+
+              {/* JOINED column header (sortable) */}
+              <th className="text-left pb-3 pr-4 font-semibold">
+                <button
+                  type="button"
+                  onClick={() => handleHeaderSort('joined')}
+                  className={`group inline-flex items-center gap-1.5 uppercase transition hover:text-n-1 cursor-pointer select-none ${
+                    sortBy === 'joined' ? 'text-blue-400 font-bold' : 'text-n-4'
+                  }`}
+                  title="Sort by joined date (Newest / Oldest)"
+                >
+                  <span>Joined</span>
+                  {sortBy === 'joined' ? (
+                    sortOrder === 'asc' ? (
+                      <ArrowUp className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+                    ) : (
+                      <ArrowDown className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+                    )
+                  ) : (
+                    <ArrowUpDown className="w-3 h-3 text-n-5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
+                  )}
+                </button>
+              </th>
+
+              {/* LAST ACTIVE (IST) column header (sortable) */}
+              <th className="text-left pb-3 pr-4 font-semibold">
+                <button
+                  type="button"
+                  onClick={() => handleHeaderSort('active')}
+                  className={`group inline-flex items-center gap-1.5 uppercase transition hover:text-n-1 cursor-pointer select-none ${
+                    sortBy === 'active' ? 'text-blue-400 font-bold' : 'text-n-4'
+                  }`}
+                  title="Sort by last active (Most recent / Least recent)"
+                >
+                  <span>Last Active (IST)</span>
+                  {sortBy === 'active' ? (
+                    sortOrder === 'asc' ? (
+                      <ArrowUp className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+                    ) : (
+                      <ArrowDown className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+                    )
+                  ) : (
+                    <ArrowUpDown className="w-3 h-3 text-n-5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
+                  )}
+                </button>
+              </th>
+
               <th className="text-left pb-3 font-semibold">Actions</th>
             </tr>
           </thead>
           <tbody>
-            {filtered.map(u => (
+            {sortedUsers.map(u => (
               <tr key={u.id} className="border-b border-n-6 hover:bg-n-7/50 transition">
                 {/* USER column: avatar + name + email */}
                 <td className="py-3 pr-4">
