@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Video, FileText } from "lucide-react";
 
 function LectureCard({ lecture }) {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -26,8 +27,18 @@ function LectureCard({ lecture }) {
 
       {/* Type badge */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <span className={lecture.type === 'Video' ? 'edus-badge-blue' : 'edus-badge-muted'}>
-          {lecture.type === 'Video' ? '▶ Video' : '📄 ' + lecture.type}
+        <span className={lecture.type === 'Video' ? 'edus-badge-blue' : 'edus-badge-muted'} style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+          {lecture.type === 'Video' ? (
+            <>
+              <Video size={12} />
+              <span>Video</span>
+            </>
+          ) : (
+            <>
+              <FileText size={12} />
+              <span>{lecture.type}</span>
+            </>
+          )}
         </span>
         {lecture.playlistVideos?.length > 0 && (
           <span className="edus-badge-violet">{lecture.playlistVideos.length} in playlist</span>

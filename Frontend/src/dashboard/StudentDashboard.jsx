@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { Sparkles, ArrowRight, X, Inbox } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { resourceService } from '../services/resource.service';
 import ResourceFilterPanel from '../components/ResourceFilterPanel';
@@ -76,17 +77,17 @@ export default function StudentDashboard() {
         <header className="mb-10 rounded-3xl border border-n-6 bg-n-7/40 backdrop-blur overflow-hidden shadow-2xl">
           <div className="bg-gradient-to-r from-blue-600/10 via-blue-500/10 to-purple-500/10 p-8 sm:p-12 relative overflow-hidden">
             <div className="relative z-10">
-              <h1 className="text-4xl sm:text-5xl font-black bg-clip-text text-transparent bg-gradient-to-r from-n-1 to-n-3 mb-3 tracking-tight">
-                Welcome back, {user?.username} 👋
+              <h1 className="text-4xl sm:text-5xl font-black bg-clip-text text-transparent bg-gradient-to-r from-n-1 to-n-3 mb-3 tracking-tight flex items-center flex-wrap gap-2">
+                Welcome back, {user?.username} <Sparkles className="w-8 h-8 text-yellow-400 inline" />
               </h1>
               <p className="text-lg text-n-3 mb-6 max-w-2xl font-medium">
                 Browse and access premium academic resources curated by top professors.
               </p>
               <Link
                 to="/professors"
-                className="inline-flex items-center text-sm font-semibold text-blue-500 hover:text-blue-400 hover:translate-x-1 transition-all"
+                className="inline-flex items-center text-sm font-semibold text-blue-500 hover:text-blue-400 hover:translate-x-1 transition-all group"
               >
-                Discover professor profiles <span className="ml-2">→</span>
+                Discover professor profiles <ArrowRight className="w-4 h-4 ml-1.5 transition-transform group-hover:translate-x-1" />
               </Link>
             </div>
             
@@ -116,7 +117,9 @@ export default function StudentDashboard() {
                   </button>
                 ) : (
                   <div className="bg-n-7 p-4 rounded-2xl border border-blue-500/30 relative">
-                    <button onClick={() => setShowUpgradeForm(false)} className="absolute top-2 right-2 text-n-4 hover:text-n-1 p-1">✕</button>
+                    <button onClick={() => setShowUpgradeForm(false)} className="absolute top-2 right-2 text-n-4 hover:text-n-1 p-1">
+                      <X className="w-4 h-4" />
+                    </button>
                     <p className="text-xs font-semibold text-blue-500 mb-3">Enter Professor PIN</p>
                     <form onSubmit={handleUpgradeSubmit} className="flex flex-col sm:flex-row gap-3">
                       <input
@@ -178,7 +181,7 @@ export default function StudentDashboard() {
 
             {!loading && resources.length === 0 && (
               <div className="flex flex-col items-center justify-center h-48 text-n-4 gap-2">
-                <p className="text-4xl">📭</p>
+                <Inbox className="w-10 h-10 text-n-5" />
                 <p>No resources match your filters.</p>
               </div>
             )}
