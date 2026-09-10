@@ -310,13 +310,13 @@ function UploadForm({ subjects, user, onUploaded }) {
             <div>
               {/* Upload Method Toggle */}
               <label className="block text-xs font-semibold text-n-3 mb-2 uppercase tracking-wide">Source</label>
-              <div className="flex gap-2 mb-3">
+              <div className="grid grid-cols-2 gap-2 mb-3">
                 <button type="button" onClick={() => setUploadMethod('file')}
-                  className={`flex-1 py-2 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-1.5 ${uploadMethod === 'file' ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/20' : 'bg-n-6 text-n-3 hover:text-n-1'}`}>
+                  className={`py-2 px-3 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-1.5 ${uploadMethod === 'file' ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/20' : 'bg-n-6 text-n-3 hover:text-n-1'}`}>
                   <FileUp className="w-3.5 h-3.5" /> File Upload
                 </button>
                 <button type="button" onClick={() => setUploadMethod('link')}
-                  className={`flex-1 py-2 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-1.5 ${uploadMethod === 'link' ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/20' : 'bg-n-6 text-n-3 hover:text-n-1'}`}>
+                  className={`py-2 px-3 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-1.5 ${uploadMethod === 'link' ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/20' : 'bg-n-6 text-n-3 hover:text-n-1'}`}>
                   <LinkIcon className="w-3.5 h-3.5" /> Drive / Link
                 </button>
               </div>
