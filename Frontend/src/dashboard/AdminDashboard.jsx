@@ -1046,26 +1046,32 @@ function UserManagement() {
         </div>
 
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
-          {/* Sort dropdown control */}
-          <div className="flex items-center gap-2 bg-n-7 border border-n-6 rounded-lg px-3 py-2 text-xs text-n-3 hover:border-blue-500/50 focus-within:border-blue-500 transition">
-            <ArrowUpDown className="w-3.5 h-3.5 text-blue-400 shrink-0" />
-            <span className="text-n-4 text-xs font-semibold uppercase tracking-wider whitespace-nowrap">Sort:</span>
+          {/* Sort dropdown (3 options) + outside order toggle icon */}
+          <div className="flex items-center gap-1.5 bg-n-7 border border-n-6 rounded-lg p-1.5 text-xs text-n-3 hover:border-blue-500/50 focus-within:border-blue-500 transition">
+            <span className="text-n-4 text-xs font-semibold uppercase tracking-wider whitespace-nowrap pl-2">Sort:</span>
             <select
-              value={`${sortBy}_${sortOrder}`}
-              onChange={e => {
-                const [field, order] = e.target.value.split('_');
-                setSortBy(field);
-                setSortOrder(order);
-              }}
-              className="bg-transparent text-xs text-n-1 font-medium focus:outline-none cursor-pointer pr-1"
+              value={sortBy}
+              onChange={e => setSortBy(e.target.value)}
+              className="bg-transparent text-xs text-n-1 font-medium focus:outline-none cursor-pointer px-1 py-0.5"
             >
-              <option value="joined_desc" className="bg-n-8 text-n-1">Joined Date (Newest first)</option>
-              <option value="joined_asc" className="bg-n-8 text-n-1">Joined Date (Oldest first)</option>
-              <option value="active_desc" className="bg-n-8 text-n-1">Last Active (Most recent first)</option>
-              <option value="active_asc" className="bg-n-8 text-n-1">Last Active (Least recent first)</option>
-              <option value="name_asc" className="bg-n-8 text-n-1">Alphabetical (A → Z)</option>
-              <option value="name_desc" className="bg-n-8 text-n-1">Alphabetical (Z → A)</option>
+              <option value="joined" className="bg-n-8 text-n-1">Joined Date</option>
+              <option value="active" className="bg-n-8 text-n-1">Last Active</option>
+              <option value="name" className="bg-n-8 text-n-1">Alphabetical</option>
             </select>
+            <div className="w-px h-4 bg-n-6 mx-0.5" />
+            <button
+              type="button"
+              onClick={() => setSortOrder(prev => (prev === 'asc' ? 'desc' : 'asc'))}
+              className="flex items-center gap-1 px-2 py-1 rounded-md bg-n-8/80 hover:bg-blue-500/10 text-blue-400 hover:text-blue-300 border border-n-6 hover:border-blue-500/40 transition cursor-pointer select-none"
+              title={sortOrder === 'asc' ? 'Ascending order (click for Descending)' : 'Descending order (click for Ascending)'}
+            >
+              {sortOrder === 'asc' ? (
+                <ArrowUp className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+              ) : (
+                <ArrowDown className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+              )}
+              <span className="text-[10px] font-bold uppercase tracking-wider">{sortOrder}</span>
+            </button>
           </div>
 
           {/* Search bar */}
