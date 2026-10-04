@@ -3,7 +3,7 @@ import Sidebar from '../components/layout/Sidebar';
 import SubjectCard from '../components/cards/SubjectCard';
 import { useSession } from '../context/SessionContext';
 import { fetchSubjects } from '../api/syllabus.api';
-import { Search, ChevronRight, BookOpen, Zap } from 'lucide-react';
+import { Search, ChevronRight, BookOpen, Zap, X } from 'lucide-react';
 import eduAiImg from '../../assets/eduai.png';
 
 const LoadingCard = () => (
@@ -53,15 +53,25 @@ const Home = () => {
             <p className="text-sm text-slate-400">AI-driven challenges to sharpen your learning</p>
           </div>
 
-          <div className="relative max-w-sm w-full">
-            <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
+          <div className="relative max-w-sm w-full group">
+            <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-sky-400 pointer-events-none transition-colors" />
             <input
               type="text"
               placeholder="Search subjects…"
-              className="edus-input w-full py-3 pl-11 pr-4"
+              className="edus-input edus-input-search w-full py-2.5 !pl-10 pr-9 text-sm"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
+            {searchTerm && (
+              <button
+                type="button"
+                onClick={() => setSearchTerm('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white p-1 rounded-md hover:bg-slate-800 transition-colors"
+                aria-label="Clear search"
+              >
+                <X size={14} />
+              </button>
+            )}
           </div>
         </header>
 
