@@ -124,6 +124,11 @@ const AnimatedRoutes = () => {
 const AppShell = () => {
   const location = useLocation();
   const isAuthCallback = location.pathname === '/auth/callback';
+  const isAiSession = location.pathname.startsWith('/ai/ai/') || 
+                      location.pathname.startsWith('/ai/flashcards/') || 
+                      location.pathname.startsWith('/ai/mcq/') || 
+                      location.pathname.startsWith('/ai/pyq/');
+  const hideChrome = isAuthCallback || isAiSession;
 
   return (
     <>
@@ -131,8 +136,8 @@ const AppShell = () => {
       <div className={isAuthCallback ? 'overflow-x-hidden' : 'pt-[4.75rem] lg:pt-[5.25rem] overflow-x-hidden'}>
         <AnimatedRoutes />
       </div>
-      {!isAuthCallback && <MobileBottomBar />}
-      {!isAuthCallback && <Footer />}
+      {!hideChrome && <MobileBottomBar />}
+      {!hideChrome && <Footer />}
       <ButtonGradient />
     </>
   );
