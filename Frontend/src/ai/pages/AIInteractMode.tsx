@@ -31,16 +31,24 @@ const SoundWave = ({ active }: { active: boolean }) => {
 };
 
 const TranscriptPanel = ({ messages, streamingText }: { messages: Message[]; streamingText: string }) => {
-  const bottomRef = useRef<HTMLDivElement>(null);
-  useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages, streamingText]);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight;
+    }
+  }, [messages, streamingText]);
 
   return (
     <div className="flex flex-col h-full bg-[#15131D] border-l border-[#252134]">
-      <div className="px-5 py-4 border-b border-[#252134] flex items-center gap-2">
-        <Captions size={16} className="text-slate-400" />
-        <span className="text-sm font-semibold text-slate-300">Transcript</span>
+      <div className="px-5 py-4 border-b border-[#252134] flex items-center justify-between shrink-0">
+        <div className="flex items-center gap-2">
+          <Captions size={16} className="text-slate-400" />
+          <span className="text-sm font-semibold text-slate-300">Transcript</span>
+        </div>
+        <span className="text-xs text-slate-500">{messages.length} messages</span>
       </div>
-      <div className="flex-1 overflow-y-auto px-4 py-6 space-y-6">
+      <div ref={scrollContainerRef} className="flex-1 overflow-y-auto px-4 py-6 space-y-4">
         {messages.length === 0 && !streamingText && (
           <div className="text-center mt-10 text-sm text-slate-500">
             Conversation will appear here…
@@ -49,8 +57,10 @@ const TranscriptPanel = ({ messages, streamingText }: { messages: Message[]; str
         {messages.map((msg, i) => (
           <div key={i} className={clsx('flex', msg.role === 'user' ? 'justify-end' : 'justify-start')}>
             <div className={clsx(
-              "max-w-[85%] px-5 py-4 rounded-2xl text-[15px] leading-relaxed shadow-sm",
-              msg.role === 'user' ? "edus-gradient-bg text-white rounded-br-sm shadow-sky-500/10" : "bg-slate-800/80 text-slate-200 border border-slate-700/50 rounded-bl-sm"
+              "max-w-[90%] px-5 py-3.5 rounded-2xl text-[14px] leading-relaxed shadow-sm whitespace-pre-wrap",
+              msg.role === 'user' 
+                ? "edus-gradient-bg text-white rounded-br-sm shadow-sky-500/10" 
+                : "bg-slate-800/80 text-slate-200 border border-slate-700/50 rounded-bl-sm"
             )}>
               {msg.content}
             </div>
@@ -58,13 +68,12 @@ const TranscriptPanel = ({ messages, streamingText }: { messages: Message[]; str
         ))}
         {streamingText && (
           <div className="flex justify-start">
-            <div className="max-w-[85%] px-5 py-4 rounded-2xl text-[15px] leading-relaxed bg-slate-800/80 text-slate-200 border border-slate-700/50 rounded-bl-sm">
+            <div className="max-w-[90%] px-5 py-3.5 rounded-2xl text-[14px] leading-relaxed bg-slate-800/80 text-slate-200 border border-slate-700/50 rounded-bl-sm whitespace-pre-wrap">
               {streamingText}
               <span className="inline-block w-1.5 h-3 edus-gradient-bg ml-1 animate-pulse" />
             </div>
           </div>
         )}
-        <div ref={bottomRef} />
       </div>
     </div>
   );
@@ -142,21 +151,24 @@ const AIInteractMode = () => {
       .replace(/[\p{Extended_Pictographic}\u{1F300}-\u{1F9FF}\u{1F600}-\u{1F64F}\u{1F680}-\u{1F6FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '')
       // 2. Replace em dashes, en dashes, and multi-hyphens with a natural pause comma
       .replace(/[\u2014\u2013]|--+/g, ', ')
-      // 3. Remove markdown formatting: bold/italic asterisks, underscores, hashes, backticks, tildes, blockquotes, bullets
-      .replace(/[*_#`~>•·]/g, '')
-      // 4. Remove all remaining hyphens/dashes so TTS never pronounces 'dash' (e.g. full-stack -> full stack, step-by-step -> step by step)
+      // 3. Convert bullet points at start of lines into a natural spoken pause
+      .replace(/^\s*[•·\-\*]\s*/gm, '')
+      .replace(/\n+\s*[•·\-\*]\s*/g, '. ')
+      // 4. Remove markdown formatting: bold/italic asterisks, underscores, hashes, backticks, tildes, blockquotes
+      .replace(/[*_#`~>]/g, '')
+      // 5. Remove all remaining hyphens/dashes so TTS never pronounces 'dash' (e.g. full-stack -> full stack, step-by-step -> step by step)
       .replace(/-/g, ' ')
-      // 5. Remove brackets, braces, parentheses, quotes to avoid punctuation callouts
+      // 6. Remove brackets, braces, parentheses, quotes to avoid punctuation callouts
       .replace(/[()[\]{}"'“”‘’]/g, ' ')
-      // 6. Convert slashes in alternatives like "React/Node" -> "React or Node"
+      // 7. Convert slashes in alternatives like "React/Node" -> "React or Node"
       .replace(/(\b\w+)\/(\w+\b)/g, '$1 or $2')
-      // 7. Clean up ellipsis, multiple commas, colons, and punctuation pauses
+      // 8. Clean up ellipsis, multiple commas, colons, and punctuation pauses
       .replace(/\.{2,}/g, '.')
       .replace(/\s+,/g, ',')
       .replace(/,(\s*,)+/g, ',')
       .replace(/\s*,\s*\./g, '.')
       .replace(/\s*:\s*/g, '. ')
-      // 8. Collapse whitespace
+      // 9. Collapse whitespace and linebreaks into clean flowing speech
       .replace(/\s+/g, ' ')
       .trim();
   };
@@ -203,12 +215,12 @@ const AIInteractMode = () => {
       },
       () => {
         const rawText = streamedRef.current;
-        const cleanText = sanitizeForSpeech(rawText);
-        setMessages(prev => [...prev, { role: 'assistant', content: cleanText }]);
+        setMessages(prev => [...prev, { role: 'assistant', content: rawText }]);
         setStreamingText(''); 
         streamedRef.current = ''; 
-        setCaptionText(cleanText);
-        speakText(cleanText);
+        const cleanSpeech = sanitizeForSpeech(rawText);
+        setCaptionText(cleanSpeech);
+        speakText(cleanSpeech);
       },
       (err: any) => {
         console.error(err);
@@ -245,8 +257,8 @@ const AIInteractMode = () => {
   if (!mode) return <ModeSelector chapterTitle={chapter?.title} onSelect={setMode} />;
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#0E0C15] pb-36 md:pb-16">
-      <header className="flex items-center justify-between px-5 py-4 border-b border-[#252134] bg-[#0E0C15]">
+    <div className="h-screen max-h-screen flex flex-col bg-[#0E0C15] overflow-hidden">
+      <header className="flex items-center justify-between px-5 py-4 border-b border-[#252134] bg-[#0E0C15] shrink-0">
         <button
           onClick={() => {
             setMode(null); setMessages([]); setStreamingText(''); setCaptionText(''); setLiveTranscript('');
@@ -265,37 +277,47 @@ const AIInteractMode = () => {
         </button>
       </header>
 
-      <div className="flex flex-1 overflow-hidden">
-        <div className={clsx("flex flex-col items-center justify-center transition-all", showCC ? "w-1/2" : "w-full")}>
-          <div className="w-48 h-48 mb-8 border border-[#252134] rounded-full flex items-center justify-center bg-[#15131D]">
+      <div className="flex flex-1 overflow-hidden min-h-0">
+        <div className={clsx("flex flex-col items-center justify-center p-4 transition-all relative overflow-hidden", showCC ? "w-1/2" : "w-full")}>
+          <div className="w-44 h-44 mb-6 border border-[#252134] rounded-full flex items-center justify-center bg-[#15131D] shrink-0">
             <TalkingAvatar isTalking={isAITalking} emotion={isAITalking ? 'neutral' : 'happy'} />
           </div>
 
           <SoundWave active={isAITalking || isListening} />
           
-          <p className="mt-4 text-sm font-medium text-slate-400">
+          <p className="mt-3 text-sm font-medium text-slate-400 shrink-0">
             {isListening ? 'Listening…' : isAITalking ? 'Speaking…' : 'Tap mic to speak'}
           </p>
 
-          {(captionText || liveTranscript) && (
-            <div className="absolute bottom-24 max-w-lg px-6 py-4 rounded-xl bg-[#15131D] border border-[#252134] text-sm text-center">
-              {liveTranscript ? <span className="text-sky-400">You: {liveTranscript}</span> : <span className="text-white">{captionText}</span>}
-            </div>
-          )}
+          <div className="mt-3 w-full max-w-md px-4 flex flex-col items-center min-h-[48px] justify-center shrink-0">
+            {liveTranscript ? (
+              <div className="px-4 py-2 rounded-xl bg-sky-500/10 border border-sky-500/30 text-sky-300 text-xs text-center animate-fadeIn">
+                <span className="font-semibold text-sky-400">You: </span>{liveTranscript}
+              </div>
+            ) : !showCC && captionText ? (
+              <div className="max-h-24 overflow-y-auto px-4 py-2 rounded-xl bg-[#15131D]/90 border border-[#252134] text-xs text-slate-200 text-center leading-relaxed shadow-lg whitespace-pre-wrap">
+                {captionText}
+              </div>
+            ) : null}
+          </div>
         </div>
 
-        {showCC && <div className="w-1/2"><TranscriptPanel messages={messages} streamingText={streamingText} /></div>}
+        {showCC && (
+          <div className="w-1/2 h-full overflow-hidden">
+            <TranscriptPanel messages={messages} streamingText={streamingText} />
+          </div>
+        )}
       </div>
 
-      <div className="flex justify-center p-6 border-t border-[#252134] bg-[#0E0C15]/95 backdrop-blur">
+      <div className="flex justify-center p-4 pb-20 md:pb-6 border-t border-[#252134] bg-[#0E0C15]/95 backdrop-blur shrink-0">
         <button
           onClick={isListening ? stopListening : startListening}
           className={clsx(
-            "w-20 h-20 rounded-full flex items-center justify-center transition-all duration-300",
+            "w-16 h-16 rounded-full flex items-center justify-center transition-all duration-300",
             isListening ? "bg-rose-500 text-white shadow-[0_0_30px_rgba(244,63,94,0.4)] scale-105" : isAITalking ? "bg-slate-800 text-slate-500 cursor-not-allowed" : "edus-gradient-bg text-white hover:scale-105 hover:shadow-[0_0_20px_rgba(56,189,248,0.4)]"
           )}
         >
-          {isListening ? <MicOff size={28} /> : <Mic size={28} />}
+          {isListening ? <MicOff size={26} /> : <Mic size={26} />}
         </button>
       </div>
 
