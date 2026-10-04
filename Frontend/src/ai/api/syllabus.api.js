@@ -37,6 +37,6 @@ export const deleteSyllabus = async (id) => {
   return api.delete(`/syllabus/${id}`);
 };
 
-export const fetchMyUploads = async () => {
-  return api.get('/syllabus/my-uploads');
+export const fetchMyUploads = async (scope = 'all') => {
+  return api.get(`/syllabus/my-uploads?scope=${encodeURIComponent(scope)}`);
 };

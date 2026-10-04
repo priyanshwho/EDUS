@@ -3,7 +3,7 @@ import Sidebar from '../components/layout/Sidebar';
 import SubjectCard from '../components/cards/SubjectCard';
 import { useSession } from '../context/SessionContext';
 import { fetchSubjects, fetchMyUploads, deleteSyllabus } from '../api/syllabus.api';
-import { Search, ChevronRight, BookOpen, Zap, X, Plus, FolderUp, CheckCircle } from 'lucide-react';
+import { Search, ChevronRight, BookOpen, Zap, X, Plus, FolderUp, Globe, CheckCircle } from 'lucide-react';
 import eduAiImg from '../../assets/eduai.png';
 import { useAuth } from '../../context/AuthContext';
 import { AddSyllabusModal } from '../components/AddSyllabusModal';
@@ -30,16 +30,42 @@ const Home = () => {
   const [selectedProfessor, setSelectedProfessor] = useState('ALL');
 
   const isMyUploadsMode = state.viewMode === 'my_uploads';
+  const isGlobalUploadsMode = state.viewMode === 'global_uploads';
 
   const loadData = async () => {
     setLoading(true);
     try {
       if (isMyUploadsMode) {
-        const data = await fetchMyUploads();
+        const data = await fetchMyUploads('mine');
         setSubjects(Array.isArray(data) ? data : []);
-      } else if (state.branch && state.semester) {
-        const data = await fetchSubjects(state.branch, state.semester);
+      } else if (isGlobalUploadsMode) {
+        const data = await fetchMyUploads('global');
         setSubjects(Array.isArray(data) ? data : []);
+      } else if (state.branch) {
+        const selectedSemesters = Array.isArray(state.selectedSemesters) && state.selectedSemesters.length > 0
+          ? state.selectedSemesters
+          : (state.semester ? [state.semester] : []);
+
+        if (selectedSemesters.length > 0) {
+          const results = await Promise.all(
+            selectedSemesters.map(async (sem) => {
+              try {
+                const data = await fetchSubjects(state.branch, sem);
+                return (Array.isArray(data) ? data : []).map((item) => {
+                  if (typeof item === 'object' && item !== null) {
+                    return { ...item, branch: item.branch || state.branch, semester: item.semester || sem };
+                  }
+                  return { name: item, branch: state.branch, semester: sem };
+                });
+              } catch (e) {
+                return [];
+              }
+            })
+          );
+          setSubjects(results.flat());
+        } else {
+          setSubjects([]);
+        }
       } else {
         setSubjects([]);
       }
@@ -55,16 +81,16 @@ const Home = () => {
     if (!authLoading) {
       loadData();
     }
-  }, [state.branch, state.semester, state.viewMode, authLoading]);
+  }, [state.branch, state.semester, state.selectedSemesters, state.viewMode, authLoading]);
 
   const handleSyllabusCreated = async (newSubject: string, branch: string, semester: string, isEdit = false) => {
     setNotification(`Syllabus for "${newSubject}" ${isEdit ? 'updated' : 'created'} successfully!`);
     setTimeout(() => setNotification(''), 4000);
     setEditingItem(null);
 
-    if (isMyUploadsMode) {
+    if (isMyUploadsMode || isGlobalUploadsMode) {
       await loadData();
-    } else if (state.branch === branch && state.semester === semester) {
+    } else if (state.branch === branch && (state.selectedSemesters?.includes(semester) || state.semester === semester)) {
       await loadData();
     } else {
       dispatch({ type: 'SET_BRANCH', payload: branch });
@@ -99,14 +125,14 @@ const Home = () => {
   };
 
   const professorsList = React.useMemo(() => {
-    if (!isAdmin || !isMyUploadsMode) return [];
+    if (!isAdmin || !isGlobalUploadsMode) return [];
     const profs = new Set<string>();
     subjects.forEach((s) => {
       const name = s?.creatorName || s?.creator_name;
       if (name && name !== 'Unknown') profs.add(name);
     });
     return Array.from(profs).sort();
-  }, [subjects, isAdmin, isMyUploadsMode]);
+  }, [subjects, isAdmin, isGlobalUploadsMode]);
 
   const filteredSubjects = Array.isArray(subjects)
     ? subjects.filter((s) => {
@@ -116,7 +142,7 @@ const Home = () => {
         const query = typeof searchTerm === 'string' ? searchTerm.toLowerCase().trim() : '';
         const matchesQuery = rawName.toLowerCase().includes(query);
 
-        if (isAdmin && isMyUploadsMode && selectedProfessor !== 'ALL') {
+        if (isAdmin && isGlobalUploadsMode && selectedProfessor !== 'ALL') {
           const profName = s.creatorName || s.creator_name || '';
           return matchesQuery && profName === selectedProfessor;
         }
@@ -137,18 +163,20 @@ const Home = () => {
                 <img src={eduAiImg} className="w-full h-full object-cover" alt="Edu AI" />
               </div>
               <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold edus-gradient-text">
-                {isMyUploadsMode ? (isAdmin ? 'Global Uploads' : 'My Uploads') : 'Edu.ai'}
+                {isMyUploadsMode ? 'My Uploads' : isGlobalUploadsMode ? 'Global Uploads' : 'Edu.ai'}
               </h1>
             </div>
             <p className="text-xs sm:text-sm text-slate-400">
               {isMyUploadsMode
-                ? (isAdmin ? 'Review and manage all uploaded syllabi across departments' : 'Manage syllabi uploaded by you')
-                : 'AI-driven challenges to sharpen your learning'}
+                ? 'Manage syllabi uploaded by you'
+                : isGlobalUploadsMode
+                  ? 'Review and manage all uploaded syllabi across departments'
+                  : 'AI-driven challenges to sharpen your learning'}
             </p>
           </div>
 
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
-            {isAdmin && isMyUploadsMode && professorsList.length > 0 && (
+            {isAdmin && isGlobalUploadsMode && professorsList.length > 0 && (
               <div className="relative">
                 <select
                   value={selectedProfessor}
@@ -205,8 +233,14 @@ const Home = () => {
           <div className="flex items-center gap-2 text-slate-300">
             <span className="font-semibold text-white">
               {isMyUploadsMode
-                ? (isAdmin ? '🌐 Global Uploads' : '📂 My Uploads')
-                : `${state.branch || 'Branch'} · ${(state.semester || 'semester_1').replace('_', ' ')}`}
+                ? '📂 My Uploads'
+                : isGlobalUploadsMode
+                  ? '🌐 Global Uploads'
+                  : `${state.branch || 'Branch'} · ${
+                      (state.selectedSemesters?.length ?? 0) > 1
+                        ? `${state.selectedSemesters.length} Semesters`
+                        : ((state.selectedSemesters?.[0] || state.semester || 'semester_1')).replace('_', ' ')
+                    }`}
             </span>
           </div>
           <span className="text-slate-400 text-[11px]">
@@ -298,13 +332,9 @@ const Home = () => {
               <div className="w-16 h-16 rounded-2xl flex items-center justify-center bg-slate-800/50 border border-slate-700 mb-6">
                 <FolderUp size={28} className="text-slate-400" />
               </div>
-              <h2 className="text-xl font-bold mb-2 text-white">
-                {isAdmin ? 'No dynamic syllabi found' : 'No uploaded syllabi yet'}
-              </h2>
+              <h2 className="text-xl font-bold mb-2 text-white">No uploaded syllabi yet</h2>
               <p className="max-w-xs text-sm text-slate-400 mb-6">
-                {isAdmin
-                  ? 'No dynamic syllabi have been uploaded to the database yet.'
-                  : 'You have not uploaded any syllabi yet. Uploaded syllabi will appear here.'}
+                You have not uploaded any syllabi yet. Uploaded syllabi will appear here.
               </p>
               {canAddSyllabus && (
                 <button
@@ -315,14 +345,36 @@ const Home = () => {
                 </button>
               )}
             </div>
+          ) : isGlobalUploadsMode ? (
+            <div className="flex flex-col items-center justify-center py-24 text-center">
+              <div className="w-16 h-16 rounded-2xl flex items-center justify-center bg-slate-800/50 border border-slate-700 mb-6">
+                <Globe size={28} className="text-slate-400" />
+              </div>
+              <h2 className="text-xl font-bold mb-2 text-white">No dynamic syllabi found</h2>
+              <p className="max-w-xs text-sm text-slate-400 mb-6">
+                No dynamic syllabi have been uploaded to the database yet.
+              </p>
+              {canAddSyllabus && (
+                <button
+                  onClick={() => setIsAddModalOpen(true)}
+                  className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 text-white text-sm font-semibold hover:opacity-95 transition"
+                >
+                  Add Syllabus
+                </button>
+              )}
+            </div>
           ) : (
             <div className="flex flex-col items-center justify-center py-24 text-center">
               <div className="w-16 h-16 rounded-2xl flex items-center justify-center bg-slate-800/50 border border-slate-700 mb-6">
                 <BookOpen size={28} className="text-slate-400" />
               </div>
-              <h2 className="text-xl font-bold mb-2 text-white">Select Branch & Semester</h2>
+              <h2 className="text-xl font-bold mb-2 text-white">
+                {state.branch ? 'Select Semester' : 'Select Branch & Semester'}
+              </h2>
               <p className="max-w-xs text-sm text-slate-400">
-                Use the sidebar to filter subjects by your academic details.
+                {state.branch
+                  ? 'Select one or more semesters from the sidebar to view available subjects.'
+                  : 'Use the sidebar to filter subjects by your academic details.'}
               </p>
             </div>
           )}

@@ -101,7 +101,8 @@ exports.deleteSyllabus = async (req, res) => {
 
 exports.getMyUploads = async (req, res) => {
   try {
-    const uploads = await syllabusService.getMyUploads(req.user);
+    const { scope } = req.query;
+    const uploads = await syllabusService.getMyUploads(req.user, scope);
     res.json(uploads);
   } catch (error) {
     console.error('[syllabus.controller] getMyUploads error:', error);

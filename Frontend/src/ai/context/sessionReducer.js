@@ -2,6 +2,7 @@ export const initialState = {
   // Navigation state
   branch: null,
   semester: null,
+  selectedSemesters: [],
   subject: null,
   subjectData: null,
   viewMode: 'normal',
@@ -34,9 +35,41 @@ export const initialState = {
 export const sessionReducer = (state, action) => {
   switch (action.type) {
     case 'SET_BRANCH':
-      return { ...state, branch: action.payload, viewMode: 'normal' };
+      return {
+        ...state,
+        branch: action.payload,
+        semester: null,
+        selectedSemesters: [],
+        viewMode: 'normal',
+      };
     case 'SET_SEMESTER':
-      return { ...state, semester: action.payload, viewMode: 'normal' };
+      return {
+        ...state,
+        semester: action.payload,
+        selectedSemesters: action.payload ? [action.payload] : [],
+        viewMode: 'normal',
+      };
+    case 'SET_SEMESTERS':
+      return {
+        ...state,
+        selectedSemesters: Array.isArray(action.payload) ? action.payload : [],
+        semester: (Array.isArray(action.payload) && action.payload[0]) || null,
+        viewMode: 'normal',
+      };
+    case 'TOGGLE_SEMESTER': {
+      const sem = action.payload;
+      const current = Array.isArray(state.selectedSemesters)
+        ? [...state.selectedSemesters]
+        : (state.semester ? [state.semester] : []);
+      const exists = current.includes(sem);
+      const updated = exists ? current.filter((s) => s !== sem) : [...current, sem];
+      return {
+        ...state,
+        selectedSemesters: updated,
+        semester: updated[0] || null,
+        viewMode: 'normal',
+      };
+    }
     case 'SET_VIEW_MODE':
       return { ...state, viewMode: action.payload };
     case 'SET_SUBJECT':
@@ -94,7 +127,7 @@ export const sessionReducer = (state, action) => {
     case 'SWITCH_MODE':
       return { ...state, currentMode: action.payload };
     case 'CLEAR_FILTERS':
-      return { ...state, branch: null, semester: null, subject: null, subjectData: null, viewMode: 'normal' };
+      return { ...state, branch: null, semester: null, selectedSemesters: [], subject: null, subjectData: null, viewMode: 'normal' };
     default:
       return state;
   }
