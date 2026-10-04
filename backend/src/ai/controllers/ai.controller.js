@@ -111,22 +111,39 @@ exports.interact = async (req, res) => {
 
   const noNotesNote = notesExist
     ? ''
-    : `\nNote: No specific notes are available for this chapter. Tell the student this upfront and teach based on standard curriculum.\n`;
+    : `\nNote: No specific notes are available for this chapter. State this directly in one brief sentence and teach based on standard curriculum.\n`;
+
+  const unslopRules = `
+CRITICAL VOICE AND WRITING RULES (UNSLOP & SPEECH-FIRST):
+1. Voice and speech formatting:
+   - NEVER use emojis anywhere.
+   - NEVER use em dashes (—), en dashes (–), or hyphens as dashes (-- or -). Use periods or commas only.
+   - NEVER hyphenate compound words. Write them as separate words so text-to-speech does not speak the word "dash" (e.g., write "full stack", "front end", "real time", "step by step", "object oriented").
+   - NEVER use markdown formatting like asterisks (**bold**), backticks, hashes (#), or bullet list hyphens (- item). Write plain spoken paragraphs.
+2. Tone and communication:
+   - No chatbot filler or sycophancy. NEVER say "Certainly!", "Of course!", "Great question!", "I hope this helps!", or "You're absolutely right!". Answer directly.
+   - AI vocabulary to avoid: Do NOT use "additionally", "crucial", "delve", "enduring", "enhance", "fostering", "garner", "interplay", "intricate", "landscape", "pivotal", "showcase", "tapestry", "testament", "underscore", "vibrant". Use plain everyday words.
+   - Fancy ways to say "is": Do not say "serves as", "stands as", "boasts", or "features". Just say "is" or "has".
+   - "Not just X, but Y": State the point directly instead.
+   - Filler phrases: Use "To" instead of "In order to". Use "Because" instead of "Due to the fact that". Cut "It is important to note that".
+   - Plain speech: Use "use" instead of "utilize" or "leverage". Use "help" instead of "facilitate". Use active voice. Shorten or split dense sentences into clear, spoken sentences.`;
 
   let systemPrompt;
   if (mode === 'tutor') {
     systemPrompt = `You are a structured professor teaching "${chapterTitle}" from ${subjectName}.${noNotesNote}
 Teach topic by topic in this order: ${(topics || []).join(', ')}.
-For each topic: explain in 2-3 sentences, then ask ONE comprehension question.
+For each topic: explain in 2-3 clear spoken sentences, then ask one focused comprehension question.
 Wait for the student's response before moving to the next topic.
 Reference notes: ${notesContent || 'Use standard curriculum knowledge.'}
-Keep each response under 150 words.`;
+Keep each response under 120 words.
+${unslopRules}`;
   } else {
-    systemPrompt = `You are a knowledgeable, friendly tutor for ${subjectName}.${noNotesNote}
+    systemPrompt = `You are a knowledgeable tutor for ${subjectName}.${noNotesNote}
 The student wants to discuss "${chapterTitle}".
-Answer any question they have about this chapter freely and clearly.
+Answer any question they have about this chapter directly and clearly.
 Reference material: ${notesContent || 'Use standard curriculum knowledge.'}
-Keep responses concise and student-friendly. Use simple examples where helpful.`;
+Keep responses concise, clear, and student-friendly. Use simple examples.
+${unslopRules}`;
   }
 
   const conversationMessages = [
