@@ -153,14 +153,14 @@ async function getSemesters(branch) {
 }
 
 /**
- * Get all subject names for a branch and semester.
+ * Get all subjects for a branch and semester with metadata.
  */
 async function getSubjects(branch, semester) {
   const upperBranch = branch.toUpperCase();
   const semNum = normalizeSemester(semester);
   const semKey = formatSemesterKey(semNum);
 
-  const subjectMap = new Map(); // lowercase name -> display name
+  const subjectMap = new Map(); // lowercase name -> subject object
 
   // 1. Filesystem subjects
   try {
@@ -172,7 +172,14 @@ async function getSubjects(branch, semester) {
         .map((file) => file.replace('.txt', ''));
 
       files.forEach((name) => {
-        subjectMap.set(name.toLowerCase(), name);
+        subjectMap.set(name.toLowerCase(), {
+          name,
+          id: null,
+          isCustom: false,
+          createdBy: null,
+          branch: upperBranch,
+          semester: semKey,
+        });
       });
     }
   } catch (err) {
@@ -182,21 +189,70 @@ async function getSubjects(branch, semester) {
   // 2. Database subjects (DB overrides or adds)
   try {
     const dbRows = await sql`
-      SELECT subject_name 
+      SELECT id, subject_name, subject_code, branch, semester, created_by 
       FROM syllabi 
       WHERE UPPER(branch) = ${upperBranch} AND semester = ${semNum}
       ORDER BY subject_name ASC
     `;
     dbRows.forEach((row) => {
       if (row.subject_name) {
-        subjectMap.set(row.subject_name.toLowerCase(), row.subject_name);
+        subjectMap.set(row.subject_name.toLowerCase(), {
+          name: row.subject_name,
+          subjectCode: row.subject_code,
+          id: row.id,
+          isCustom: true,
+          createdBy: row.created_by,
+          branch: row.branch,
+          semester: formatSemesterKey(row.semester),
+        });
       }
     });
   } catch (err) {
     console.warn('[SyllabusService] Warning reading database subjects:', err.message);
   }
 
-  return Array.from(subjectMap.values()).sort((a, b) => a.localeCompare(b));
+  return Array.from(subjectMap.values()).sort((a, b) => a.name.localeCompare(b.name));
+}
+
+/**
+ * Get all syllabi uploaded by the current user (or all if admin).
+ */
+async function getMyUploads(user) {
+  if (!user) return [];
+  const isAdmin = user.role === 'admin';
+
+  let rows;
+  if (isAdmin) {
+    rows = await sql`
+      SELECT s.id, s.subject_name, s.subject_code, s.branch, s.semester, s.created_by, s.created_at,
+             u.name AS creator_name, u.email AS creator_email
+      FROM syllabi s
+      LEFT JOIN users u ON s.created_by = u.id
+      ORDER BY s.created_at DESC
+    `;
+  } else {
+    rows = await sql`
+      SELECT s.id, s.subject_name, s.subject_code, s.branch, s.semester, s.created_by, s.created_at,
+             u.name AS creator_name, u.email AS creator_email
+      FROM syllabi s
+      LEFT JOIN users u ON s.created_by = u.id
+      WHERE s.created_by = ${user.id}
+      ORDER BY s.created_at DESC
+    `;
+  }
+
+  return rows.map((r) => ({
+    id: r.id,
+    name: r.subject_name,
+    subjectCode: r.subject_code,
+    branch: r.branch,
+    semester: formatSemesterKey(r.semester),
+    semesterNumber: r.semester,
+    createdBy: r.created_by,
+    creatorName: r.creator_name || r.creator_email || 'Unknown',
+    createdAt: r.created_at,
+    isCustom: true,
+  }));
 }
 
 /**
@@ -404,4 +460,5 @@ module.exports = {
   getSubjectDetails,
   createSyllabus,
   deleteSyllabus,
+  getMyUploads,
 };
