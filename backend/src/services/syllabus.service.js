@@ -230,16 +230,16 @@ async function getMyUploads(user) {
   let rows;
   if (isAdmin) {
     rows = await sql`
-      SELECT s.id, s.subject_name, s.subject_code, s.branch, s.semester, s.created_by, s.created_at,
-             u.name AS creator_name, u.email AS creator_email
+      SELECT s.id, s.subject_name, s.subject_code, s.branch, s.semester, s.content, s.created_by, s.created_at,
+             u.name AS creator_name, u.email AS creator_email, u.role AS creator_role
       FROM syllabi s
       LEFT JOIN users u ON s.created_by = u.id
       ORDER BY s.created_at DESC
     `;
   } else {
     rows = await sql`
-      SELECT s.id, s.subject_name, s.subject_code, s.branch, s.semester, s.created_by, s.created_at,
-             u.name AS creator_name, u.email AS creator_email
+      SELECT s.id, s.subject_name, s.subject_code, s.branch, s.semester, s.content, s.created_by, s.created_at,
+             u.name AS creator_name, u.email AS creator_email, u.role AS creator_role
       FROM syllabi s
       LEFT JOIN users u ON s.created_by = u.id
       WHERE s.created_by = ${user.id}
@@ -255,8 +255,11 @@ async function getMyUploads(user) {
     branch: r.branch,
     semester: formatSemesterKey(r.semester),
     semesterNumber: typeof r.semester === 'number' ? r.semester : parseInt(String(r.semester).replace(/\D/g, ''), 10) || 1,
+    content: r.content,
     createdBy: r.created_by,
     creatorName: r.creator_name || r.creator_email || 'Unknown',
+    creatorEmail: r.creator_email || null,
+    creatorRole: r.creator_role || 'professor',
     createdAt: r.created_at,
     isCustom: true,
   }));
@@ -437,6 +440,68 @@ async function createSyllabus({ subjectName, subjectCode, branch, semester, cont
 }
 
 /**
+ * Update an existing syllabus by ID. Only admins or the creator professor can edit.
+ */
+async function updateSyllabus(id, { subjectName, subjectCode, branch, semester, content, sectionA, sectionB }, user) {
+  const existing = await sql`
+    SELECT * FROM syllabi WHERE id = ${id} LIMIT 1
+  `;
+
+  if (existing.length === 0) {
+    throw new Error('Syllabus not found');
+  }
+
+  const record = existing[0];
+  const isOwner = user?.id && String(record.created_by) === String(user.id);
+  const isAdmin = user?.role === 'admin';
+
+  if (!isAdmin && !isOwner) {
+    throw new Error('You do not have permission to edit this syllabus');
+  }
+
+  const cleanSubjectName = subjectName ? subjectName.trim() : record.subject_name;
+  const cleanSubjectCode = subjectCode !== undefined ? (subjectCode ? subjectCode.trim() : null) : record.subject_code;
+  const upperBranch = branch ? branch.toUpperCase() : record.branch;
+  const semNum = semester ? normalizeSemester(semester) : record.semester;
+
+  const fullContent = content ? buildFullContent(content, sectionA, sectionB) : record.content;
+  const { sectionA: extA, sectionB: extB } = extractSectionsFromContent(fullContent);
+
+  const updated = await sql`
+    UPDATE syllabi
+    SET subject_name = ${cleanSubjectName},
+        subject_code = ${cleanSubjectCode},
+        branch       = ${upperBranch},
+        semester     = ${semNum},
+        content      = ${fullContent},
+        section_a    = ${extA},
+        section_b    = ${extB},
+        updated_at   = now()
+    WHERE id = ${id}
+    RETURNING *
+  `;
+
+  const result = updated[0];
+  const slug = toSlug(result.subject_name);
+  const sections = parseSyllabus(slug, result.content);
+
+  return {
+    id: result.id,
+    subjectName: result.subject_name,
+    name: result.subject_name,
+    subjectCode: result.subject_code,
+    branch: result.branch,
+    semester: formatSemesterKey(result.semester),
+    semesterNumber: result.semester,
+    rawText: result.content,
+    sectionA: result.section_a,
+    sectionB: result.section_b,
+    sections,
+    isCustom: true,
+  };
+}
+
+/**
  * Delete a syllabus by ID. Only admins or the creator professor can delete.
  */
 async function deleteSyllabus(id, user) {
@@ -466,6 +531,7 @@ module.exports = {
   getSubjects,
   getSubjectDetails,
   createSyllabus,
+  updateSyllabus,
   deleteSyllabus,
   getMyUploads,
 };

@@ -72,6 +72,22 @@ exports.createSyllabus = async (req, res) => {
   }
 };
 
+exports.updateSyllabus = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const { subjectName, subjectCode, branch, semester, content, sectionA, sectionB } = req.body;
+    const result = await syllabusService.updateSyllabus(
+      id,
+      { subjectName, subjectCode, branch, semester, content, sectionA, sectionB },
+      req.user
+    );
+    res.json({ message: 'Syllabus updated successfully', syllabus: result });
+  } catch (error) {
+    console.error('[syllabus.controller] updateSyllabus error:', error);
+    res.status(400).json({ error: error.message || 'Failed to update syllabus' });
+  }
+};
+
 exports.deleteSyllabus = async (req, res) => {
   const { id } = req.params;
   try {
