@@ -111,12 +111,12 @@ const Home = () => {
                 <img src={eduAiImg} className="w-full h-full object-cover" alt="Edu AI" />
               </div>
               <h1 className="text-3xl md:text-4xl font-bold edus-gradient-text">
-                {isMyUploadsMode ? (isAdmin ? 'All Uploaded Syllabi' : 'My Uploaded Syllabi') : 'Edu.ai'}
+                {isMyUploadsMode ? 'My Uploads' : 'Edu.ai'}
               </h1>
             </div>
             <p className="text-sm text-slate-400">
               {isMyUploadsMode
-                ? (isAdmin ? 'Manage all dynamically created syllabi across departments' : 'Manage syllabi uploaded by you')
+                ? 'Manage syllabi uploaded by you'
                 : 'AI-driven challenges to sharpen your learning'}
             </p>
           </div>

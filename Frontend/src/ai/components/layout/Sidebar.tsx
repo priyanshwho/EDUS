@@ -91,12 +91,12 @@ const Sidebar = () => {
         </div>
       )}
 
-      {/* ── Professor & Admin: Uploaded Syllabi Section ── */}
+      {/* ── Professor & Admin: My Uploads Section ── */}
       {canManage && (
         <div className="space-y-2 mt-4 pt-4 border-t border-slate-800">
           <div className="flex items-center justify-between px-1">
             <label className="text-xs font-semibold uppercase text-slate-500">
-              {isAdmin ? 'Manage Syllabi' : 'My Syllabi'}
+              My Uploads
             </label>
             <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-sky-500/10 text-sky-400 font-semibold border border-sky-500/20">
               {isAdmin ? 'Admin' : 'Professor'}
@@ -117,7 +117,7 @@ const Sidebar = () => {
           >
             <div className="flex items-center gap-2.5">
               <FolderUp size={16} />
-              <span>{isAdmin ? 'All Uploaded Syllabi' : 'My Uploaded Syllabi'}</span>
+              <span>My Uploads</span>
             </div>
             {state.viewMode === 'my_uploads' && <ChevronRight size={14} />}
           </button>
