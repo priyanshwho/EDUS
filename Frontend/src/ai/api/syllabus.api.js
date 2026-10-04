@@ -29,6 +29,10 @@ export const createSyllabus = async (payload) => {
   return api.post('/syllabus', payload);
 };
 
+export const updateSyllabus = async (id, payload) => {
+  return api.put(`/syllabus/${id}`, payload);
+};
+
 export const deleteSyllabus = async (id) => {
   return api.delete(`/syllabus/${id}`);
 };

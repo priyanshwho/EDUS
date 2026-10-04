@@ -26,6 +26,9 @@ const Home = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [notification, setNotification] = useState('');
 
+  const [editingItem, setEditingItem] = useState<any | null>(null);
+  const [selectedProfessor, setSelectedProfessor] = useState('ALL');
+
   const isMyUploadsMode = state.viewMode === 'my_uploads';
 
   const loadData = async () => {
@@ -54,9 +57,10 @@ const Home = () => {
     }
   }, [state.branch, state.semester, state.viewMode, authLoading]);
 
-  const handleSyllabusCreated = async (newSubject: string, branch: string, semester: string) => {
-    setNotification(`Syllabus for "${newSubject}" created successfully!`);
+  const handleSyllabusCreated = async (newSubject: string, branch: string, semester: string, isEdit = false) => {
+    setNotification(`Syllabus for "${newSubject}" ${isEdit ? 'updated' : 'created'} successfully!`);
     setTimeout(() => setNotification(''), 4000);
+    setEditingItem(null);
 
     if (isMyUploadsMode) {
       await loadData();
@@ -66,6 +70,11 @@ const Home = () => {
       dispatch({ type: 'SET_BRANCH', payload: branch });
       dispatch({ type: 'SET_SEMESTER', payload: semester });
     }
+  };
+
+  const handleEditSyllabus = (item: any) => {
+    setEditingItem(item);
+    setIsAddModalOpen(true);
   };
 
   const handleDeleteSyllabus = (id: string, name: string) => {
@@ -89,13 +98,30 @@ const Home = () => {
     }
   };
 
+  const professorsList = React.useMemo(() => {
+    if (!isAdmin || !isMyUploadsMode) return [];
+    const profs = new Set<string>();
+    subjects.forEach((s) => {
+      const name = s?.creatorName || s?.creator_name;
+      if (name && name !== 'Unknown') profs.add(name);
+    });
+    return Array.from(profs).sort();
+  }, [subjects, isAdmin, isMyUploadsMode]);
+
   const filteredSubjects = Array.isArray(subjects)
     ? subjects.filter((s) => {
         if (!s) return false;
         const rawName = typeof s === 'string' ? s : (s.name || s.subjectName || s.subject_name || '');
         if (typeof rawName !== 'string' || !rawName) return false;
         const query = typeof searchTerm === 'string' ? searchTerm.toLowerCase().trim() : '';
-        return rawName.toLowerCase().includes(query);
+        const matchesQuery = rawName.toLowerCase().includes(query);
+
+        if (isAdmin && isMyUploadsMode && selectedProfessor !== 'ALL') {
+          const profName = s.creatorName || s.creator_name || '';
+          return matchesQuery && profName === selectedProfessor;
+        }
+
+        return matchesQuery;
       })
     : [];
 
@@ -104,28 +130,46 @@ const Home = () => {
       <Sidebar />
 
       <main className="flex-1 overflow-y-auto pb-10">
-        <header className="px-6 md:px-10 pt-10 pb-8 flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <header className="px-4 sm:px-6 md:px-10 pt-6 sm:pt-10 pb-6 sm:pb-8 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-transparent border border-white/10 overflow-hidden">
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-transparent border border-white/10 overflow-hidden shrink-0">
                 <img src={eduAiImg} className="w-full h-full object-cover" alt="Edu AI" />
               </div>
-              <h1 className="text-3xl md:text-4xl font-bold edus-gradient-text">
-                {isMyUploadsMode ? 'My Uploads' : 'Edu.ai'}
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold edus-gradient-text">
+                {isMyUploadsMode ? (isAdmin ? 'Global Uploads' : 'My Uploads') : 'Edu.ai'}
               </h1>
             </div>
-            <p className="text-sm text-slate-400">
+            <p className="text-xs sm:text-sm text-slate-400">
               {isMyUploadsMode
-                ? 'Manage syllabi uploaded by you'
+                ? (isAdmin ? 'Review and manage all uploaded syllabi across departments' : 'Manage syllabi uploaded by you')
                 : 'AI-driven challenges to sharpen your learning'}
             </p>
           </div>
 
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
+            {isAdmin && isMyUploadsMode && professorsList.length > 0 && (
+              <div className="relative">
+                <select
+                  value={selectedProfessor}
+                  onChange={(e) => setSelectedProfessor(e.target.value)}
+                  className="w-full sm:w-auto bg-[#14121F] border border-slate-700/70 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-sky-500 transition"
+                >
+                  <option value="ALL">All Faculty ({subjects.length})</option>
+                  {professorsList.map((p) => (
+                    <option key={p} value={p}>{p}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+
             {canAddSyllabus && (
               <button
                 type="button"
-                onClick={() => setIsAddModalOpen(true)}
+                onClick={() => {
+                  setEditingItem(null);
+                  setIsAddModalOpen(true);
+                }}
                 className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 text-white text-sm font-semibold hover:opacity-95 hover:shadow-lg hover:shadow-blue-500/20 transition shrink-0"
               >
                 <Plus size={16} />
@@ -156,8 +200,22 @@ const Home = () => {
           </div>
         </header>
 
+        {/* Mobile Context / Filter Pill */}
+        <div className="lg:hidden mx-4 sm:mx-6 mb-4 flex items-center justify-between p-2.5 rounded-xl bg-[#14121F] border border-slate-800 text-xs">
+          <div className="flex items-center gap-2 text-slate-300">
+            <span className="font-semibold text-white">
+              {isMyUploadsMode
+                ? (isAdmin ? '🌐 Global Uploads' : '📂 My Uploads')
+                : `${state.branch || 'Branch'} · ${(state.semester || 'semester_1').replace('_', ' ')}`}
+            </span>
+          </div>
+          <span className="text-slate-400 text-[11px]">
+            {filteredSubjects.length} subject{filteredSubjects.length === 1 ? '' : 's'}
+          </span>
+        </div>
+
         {notification && (
-          <div className="mx-6 md:mx-10 mb-4 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs flex items-center justify-between animate-fadeIn">
+          <div className="mx-4 sm:mx-6 md:mx-10 mb-4 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs flex items-center justify-between animate-fadeIn">
             <div className="flex items-center gap-2">
               <CheckCircle size={16} />
               <span>{notification}</span>
@@ -170,9 +228,13 @@ const Home = () => {
 
         <AddSyllabusModal
           isOpen={isAddModalOpen}
-          onClose={() => setIsAddModalOpen(false)}
+          onClose={() => {
+            setIsAddModalOpen(false);
+            setEditingItem(null);
+          }}
           defaultBranch={state.branch}
           defaultSemester={state.semester}
+          editItem={editingItem}
           onSuccess={handleSyllabusCreated}
         />
 
@@ -184,11 +246,11 @@ const Home = () => {
           isDeleting={isDeleting}
         />
 
-        <div className="mx-6 md:mx-10 mb-8 h-px bg-slate-800" />
+        <div className="mx-4 sm:mx-6 md:mx-10 mb-6 sm:mb-8 h-px bg-slate-800" />
 
-        <section className="px-6 md:px-10">
+        <section className="px-4 sm:px-6 md:px-10">
           {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
               {[0, 1, 2, 3, 4, 5].map((i) => <LoadingCard key={i} />)}
             </div>
           ) : subjects.length > 0 ? (
@@ -199,7 +261,7 @@ const Home = () => {
                   <p className="font-medium text-white">No results found</p>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
                   {filteredSubjects.map((s, idx) => {
                     const isObj = typeof s === 'object' && s !== null;
                     const name = isObj ? (s.name || s.subjectName || s.subject_name || 'Untitled') : String(s || 'Untitled');
@@ -208,6 +270,7 @@ const Home = () => {
                     const itemSemester = isObj ? (s.semester || state.semester || 'semester_1') : (state.semester || 'semester_1');
                     const createdBy = isObj ? (s.createdBy || s.created_by) : null;
                     const isOwner = Boolean(user?.id && createdBy && String(createdBy) === String(user.id));
+                    const canEdit = Boolean(id && (isAdmin || isOwner));
                     const canDelete = Boolean(id && (isAdmin || isOwner));
 
                     return (
@@ -217,9 +280,13 @@ const Home = () => {
                         branch={itemBranch}
                         semester={itemSemester}
                         id={id}
+                        canEdit={canEdit}
                         canDelete={canDelete}
+                        onEdit={handleEditSyllabus}
                         onDelete={handleDeleteSyllabus}
                         creatorName={isAdmin && isObj ? (s.creatorName || s.creator_name) : null}
+                        creatorEmail={isAdmin && isObj ? (s.creatorEmail || s.creator_email) : null}
+                        rawItem={s}
                       />
                     );
                   })}
@@ -231,7 +298,9 @@ const Home = () => {
               <div className="w-16 h-16 rounded-2xl flex items-center justify-center bg-slate-800/50 border border-slate-700 mb-6">
                 <FolderUp size={28} className="text-slate-400" />
               </div>
-              <h2 className="text-xl font-bold mb-2 text-white">No uploaded syllabi yet</h2>
+              <h2 className="text-xl font-bold mb-2 text-white">
+                {isAdmin ? 'No dynamic syllabi found' : 'No uploaded syllabi yet'}
+              </h2>
               <p className="max-w-xs text-sm text-slate-400 mb-6">
                 {isAdmin
                   ? 'No dynamic syllabi have been uploaded to the database yet.'
