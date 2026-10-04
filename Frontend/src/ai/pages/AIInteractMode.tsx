@@ -135,13 +135,44 @@ const AIInteractMode = () => {
     window.speechSynthesis?.cancel();
   }, []);
 
+  const sanitizeForSpeech = (text: string): string => {
+    if (!text) return '';
+    return text
+      // 1. Remove all emojis and pictographs
+      .replace(/[\p{Extended_Pictographic}\u{1F300}-\u{1F9FF}\u{1F600}-\u{1F64F}\u{1F680}-\u{1F6FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '')
+      // 2. Replace em dashes, en dashes, and multi-hyphens with a natural pause comma
+      .replace(/[\u2014\u2013]|--+/g, ', ')
+      // 3. Remove markdown formatting: bold/italic asterisks, underscores, hashes, backticks, tildes, blockquotes, bullets
+      .replace(/[*_#`~>•·]/g, '')
+      // 4. Remove all remaining hyphens/dashes so TTS never pronounces 'dash' (e.g. full-stack -> full stack, step-by-step -> step by step)
+      .replace(/-/g, ' ')
+      // 5. Remove brackets, braces, parentheses, quotes to avoid punctuation callouts
+      .replace(/[()[\]{}"'“”‘’]/g, ' ')
+      // 6. Convert slashes in alternatives like "React/Node" -> "React or Node"
+      .replace(/(\b\w+)\/(\w+\b)/g, '$1 or $2')
+      // 7. Clean up ellipsis, multiple commas, colons, and punctuation pauses
+      .replace(/\.{2,}/g, '.')
+      .replace(/\s+,/g, ',')
+      .replace(/,(\s*,)+/g, ',')
+      .replace(/\s*,\s*\./g, '.')
+      .replace(/\s*:\s*/g, '. ')
+      // 8. Collapse whitespace
+      .replace(/\s+/g, ' ')
+      .trim();
+  };
+
   const speakText = useCallback((text: string) => {
-    if (!window.speechSynthesis || !text.trim()) return;
+    if (!window.speechSynthesis) return;
+    const cleanSpeech = sanitizeForSpeech(text);
+    if (!cleanSpeech) return;
+
     window.speechSynthesis.cancel();
-    const utt = new SpeechSynthesisUtterance(text);
-    utt.lang = 'en-US'; utt.rate = 1.05; utt.pitch = 1.0;
+    const utt = new SpeechSynthesisUtterance(cleanSpeech);
+    utt.lang = 'en-US'; 
+    utt.rate = 1.02; 
+    utt.pitch = 1.0;
     const voices = window.speechSynthesis.getVoices();
-    const preferred = voices.find(v => v.lang.startsWith('en') && v.name.includes('Google'));
+    const preferred = voices.find(v => v.lang.startsWith('en') && (v.name.includes('Google') || v.name.includes('Natural') || v.name.includes('Samantha')));
     if (preferred) utt.voice = preferred;
     utt.onstart = () => { setIsAITalking(true); isAITalkingRef.current = true; };
     utt.onend   = () => { setIsAITalking(false); isAITalkingRef.current = false; setCaptionText(''); };
@@ -165,11 +196,19 @@ const AIInteractMode = () => {
       { chapterTitle: chapterRef.current?.title, subjectName: state.subjectData?.subjectName,
         notesContent: notes.content, notesExist: notes.notesExist, messages: updatedMsgs,
         mode: modeRef.current, topics: chapterRef.current?.topics },
-      (token: string) => { streamedRef.current += token; setStreamingText(streamedRef.current); setCaptionText(streamedRef.current); },
+      (token: string) => { 
+        streamedRef.current += token; 
+        setStreamingText(streamedRef.current); 
+        setCaptionText(sanitizeForSpeech(streamedRef.current)); 
+      },
       () => {
-        const finalText = streamedRef.current;
-        setMessages(prev => [...prev, { role: 'assistant', content: finalText }]);
-        setStreamingText(''); streamedRef.current = ''; speakText(finalText);
+        const rawText = streamedRef.current;
+        const cleanText = sanitizeForSpeech(rawText);
+        setMessages(prev => [...prev, { role: 'assistant', content: cleanText }]);
+        setStreamingText(''); 
+        streamedRef.current = ''; 
+        setCaptionText(cleanText);
+        speakText(cleanText);
       },
       (err: any) => {
         console.error(err);
