@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useSession } from '../../context/SessionContext';
 import { fetchBranches, fetchSemesters } from '../../api/syllabus.api';
-import { Menu, X, ChevronRight, Layers, BookOpen, FolderUp } from 'lucide-react';
+import { Menu, X, ChevronRight, Layers, BookOpen, FolderUp, Globe, Check } from 'lucide-react';
 import { clsx } from 'clsx';
 import eduAiImg from '../../../assets/eduai.png';
 import { useAuth } from '../../../context/AuthContext';
@@ -25,6 +25,30 @@ const Sidebar = () => {
       setSemesters([]);
     }
   }, [state.branch]);
+
+  const validSemesters = useMemo(() => {
+    return semesters.filter((sem) => {
+      const num = parseInt(String(sem).replace(/\D/g, ''), 10);
+      return !isNaN(num) && num >= 1 && num <= 8;
+    });
+  }, [semesters]);
+
+  const selectedList = useMemo(() => {
+    if (Array.isArray(state.selectedSemesters) && state.selectedSemesters.length > 0) {
+      return state.selectedSemesters;
+    }
+    return state.semester ? [state.semester] : [];
+  }, [state.selectedSemesters, state.semester]);
+
+  const isAllSelected = validSemesters.length > 0 && validSemesters.every((s) => selectedList.includes(s));
+
+  const handleSelectAll = () => {
+    if (isAllSelected) {
+      dispatch({ type: 'SET_SEMESTERS', payload: [] });
+    } else {
+      dispatch({ type: 'SET_SEMESTERS', payload: validSemesters });
+    }
+  };
 
   const SidebarContent = () => (
     <div className="flex flex-col h-full p-5 gap-6">
@@ -65,68 +89,118 @@ const Sidebar = () => {
       </div>
 
       {/* ── Semester ── */}
-      {state.branch && state.viewMode !== 'my_uploads' && (
+      {state.branch && state.viewMode !== 'my_uploads' && state.viewMode !== 'global_uploads' && (
         <div className="space-y-2 mt-4">
-          <label className="text-xs font-semibold uppercase text-slate-500 px-1">Semester</label>
+          <div className="flex items-center justify-between px-1">
+            <label className="text-xs font-semibold uppercase text-slate-500">Semester</label>
+            {validSemesters.length > 0 && (
+              <label className="flex items-center gap-1.5 cursor-pointer text-xs text-slate-400 hover:text-white select-none transition-colors">
+                <input
+                  type="checkbox"
+                  checked={isAllSelected}
+                  onChange={handleSelectAll}
+                  className="w-3.5 h-3.5 rounded border-slate-700 bg-slate-900/80 text-blue-500 focus:ring-0 focus:ring-offset-0 cursor-pointer accent-blue-500"
+                />
+                <span className="font-medium text-[11px]">Select All</span>
+              </label>
+            )}
+          </div>
           <div className="space-y-1 overflow-y-auto max-h-56">
-            {semesters
-              .filter((sem) => {
-                const num = parseInt(String(sem).replace(/\D/g, ''), 10);
-                return !isNaN(num) && num >= 1 && num <= 8;
-              })
-              .map((sem) => {
-                const active = state.branch && state.semester === sem && state.viewMode !== 'my_uploads';
-                return (
-                  <button
-                    key={sem}
-                    onClick={() => { dispatch({ type: 'SET_SEMESTER', payload: sem }); setMobileOpen(false); }}
-                    className={clsx(
-                      'w-full text-left px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 flex items-center justify-between',
-                      active 
-                        ? 'bg-gradient-to-r from-blue-600 to-cyan-500 text-white shadow-md shadow-blue-500/20' 
-                        : 'text-slate-400 hover:text-white hover:bg-white/5 border border-transparent'
-                    )}
-                  >
-                    <span>{sem.replace('_', ' ')}</span>
-                    {active && <ChevronRight size={14} />}
-                  </button>
-                );
-              })}
+            {validSemesters.map((sem) => {
+              const active = selectedList.includes(sem);
+              return (
+                <div
+                  key={sem}
+                  onClick={() => dispatch({ type: 'TOGGLE_SEMESTER', payload: sem })}
+                  className={clsx(
+                    'w-full text-left px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 flex items-center justify-between cursor-pointer group select-none',
+                    active
+                      ? 'bg-gradient-to-r from-blue-600 to-cyan-500 text-white shadow-md shadow-blue-500/20'
+                      : 'text-slate-400 hover:text-white hover:bg-white/5 border border-transparent'
+                  )}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <div
+                      className={clsx(
+                        'w-4 h-4 rounded flex items-center justify-center border transition-all duration-150',
+                        active
+                          ? 'bg-white text-blue-600 border-white shadow-sm'
+                          : 'border-slate-600 bg-slate-800/60 group-hover:border-slate-400'
+                      )}
+                    >
+                      {active && <Check size={12} strokeWidth={3} />}
+                    </div>
+                    <span className="capitalize">{sem.replace('_', ' ')}</span>
+                  </div>
+                  {active && (
+                    <span className="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-white/20 text-white">
+                      Active
+                    </span>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
 
-      {/* ── Professor & Admin: My Uploads Section ── */}
       {/* ── Professor & Admin Uploads Section ── */}
       {canManage && (
         <div className="space-y-2 mt-4 pt-4 border-t border-slate-800">
           <div className="flex items-center justify-between px-1">
             <label className="text-xs font-semibold uppercase text-slate-500">
-              {isAdmin ? 'Global Uploads' : 'My Uploads'}
+              Uploads
             </label>
             <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-sky-500/10 text-sky-400 font-semibold border border-sky-500/20">
-              {isAdmin ? 'Admin Only' : 'Professor'}
+              {isAdmin ? 'Admin' : 'Professor'}
             </span>
           </div>
-          <button
-            type="button"
-            onClick={() => {
-              dispatch({ type: 'SET_VIEW_MODE', payload: 'my_uploads' });
-              setMobileOpen(false);
-            }}
-            className={clsx(
-              'w-full text-left px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 flex items-center justify-between',
-              state.viewMode === 'my_uploads'
-                ? 'bg-gradient-to-r from-blue-600 to-cyan-500 text-white shadow-md shadow-blue-500/20'
-                : 'text-slate-400 hover:text-white hover:bg-white/5 border border-transparent'
+
+          <div className="space-y-1">
+            {/* My Uploads */}
+            <button
+              type="button"
+              onClick={() => {
+                dispatch({ type: 'SET_VIEW_MODE', payload: 'my_uploads' });
+                setMobileOpen(false);
+              }}
+              className={clsx(
+                'w-full text-left px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 flex items-center justify-between',
+                state.viewMode === 'my_uploads'
+                  ? 'bg-gradient-to-r from-blue-600 to-cyan-500 text-white shadow-md shadow-blue-500/20'
+                  : 'text-slate-400 hover:text-white hover:bg-white/5 border border-transparent'
+              )}
+            >
+              <div className="flex items-center gap-2.5">
+                <FolderUp size={16} />
+                <span>My Uploads</span>
+              </div>
+              {state.viewMode === 'my_uploads' && <ChevronRight size={14} />}
+            </button>
+
+            {/* Global Uploads (Admin only) */}
+            {isAdmin && (
+              <button
+                type="button"
+                onClick={() => {
+                  dispatch({ type: 'SET_VIEW_MODE', payload: 'global_uploads' });
+                  setMobileOpen(false);
+                }}
+                className={clsx(
+                  'w-full text-left px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 flex items-center justify-between',
+                  state.viewMode === 'global_uploads'
+                    ? 'bg-gradient-to-r from-blue-600 to-cyan-500 text-white shadow-md shadow-blue-500/20'
+                    : 'text-slate-400 hover:text-white hover:bg-white/5 border border-transparent'
+                )}
+              >
+                <div className="flex items-center gap-2.5">
+                  <Globe size={16} />
+                  <span>Global Uploads</span>
+                </div>
+                {state.viewMode === 'global_uploads' && <ChevronRight size={14} />}
+              </button>
             )}
-          >
-            <div className="flex items-center gap-2.5">
-              <FolderUp size={16} />
-              <span>{isAdmin ? 'Global Uploads' : 'My Uploads'}</span>
-            </div>
-            {state.viewMode === 'my_uploads' && <ChevronRight size={14} />}
-          </button>
+          </div>
         </div>
       )}
     </div>
