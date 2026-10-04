@@ -187,17 +187,27 @@ function UploadForm({ subjects, user, onUploaded }) {
   });
   const [file, setFile] = useState(null);
   const [success, setSuccess] = useState(false);
+  const [customError, setCustomError] = useState('');
 
   const [uploadedResource, setUploadedResource] = useState(null);
   const [copiedLink, setCopiedLink] = useState(false);
   const [uploadMethod, setUploadMethod] = useState('file'); // 'file' | 'link'
 
-  const onChange = (e) => setForm(p => ({ ...p, [e.target.name]: e.target.value }));
+  const onChange = (e) => {
+    setCustomError('');
+    setForm(p => ({ ...p, [e.target.name]: e.target.value }));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSuccess(false);
     setUploadedResource(null);
+    setCustomError('');
+
+    if (form.year && Number(form.year) < 2020) {
+      setCustomError('Year must be 2020 or later.');
+      return;
+    }
     try {
       let created = null;
       if (form.resource_type === 'lecture' && form.youtube_url) {
@@ -254,15 +264,18 @@ function UploadForm({ subjects, user, onUploaded }) {
         <div className="space-y-5">
           <div>
             <label className="block text-xs font-semibold text-n-3 mb-2 uppercase tracking-wide">Subject</label>
-            <select name="subject_id" value={form.subject_id} onChange={onChange} required
-              className="w-full rounded-xl border border-n-6 bg-n-8/50 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none transition">
-              <option value="">Select Subject</option>
-              {mySubjects.length === 0 ? (
-                <option value="" disabled>No subjects created by you yet</option>
-              ) : (
-                mySubjects.map(s => <option key={s.id} value={s.id}>{s.name_full} (Sem {s.semester})</option>)
-              )}
-            </select>
+            <div className="relative">
+              <select name="subject_id" value={form.subject_id} onChange={onChange} required
+                className="w-full appearance-none rounded-xl border border-n-6 bg-n-8/50 px-4 py-3 pr-10 text-sm focus:border-blue-500 focus:outline-none transition cursor-pointer">
+                <option value="">Select Subject</option>
+                {mySubjects.length === 0 ? (
+                  <option value="" disabled>No subjects created by you yet</option>
+                ) : (
+                  mySubjects.map(s => <option key={s.id} value={s.id}>{s.name_full} (Sem {s.semester})</option>)
+                )}
+              </select>
+              <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-n-4 pointer-events-none" />
+            </div>
             {mySubjects.length === 0 && (
               <p className="text-xs text-amber-400/90 mt-1.5">
                 You haven't created any subjects yet. Please add a subject in the Subjects tab first.
@@ -272,22 +285,28 @@ function UploadForm({ subjects, user, onUploaded }) {
 
           <div>
             <label className="block text-xs font-semibold text-n-3 mb-2 uppercase tracking-wide">Resource Type</label>
-            <select name="resource_type" value={form.resource_type} onChange={onChange}
-              className="w-full rounded-xl border border-n-6 bg-n-8/50 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none transition">
-              {['notes','assignment','pyq','lecture'].map(t =>
-                <option key={t} value={t}>{t.charAt(0).toUpperCase() + t.slice(1)}</option>)}
-            </select>
+            <div className="relative">
+              <select name="resource_type" value={form.resource_type} onChange={onChange}
+                className="w-full appearance-none rounded-xl border border-n-6 bg-n-8/50 px-4 py-3 pr-10 text-sm focus:border-blue-500 focus:outline-none transition cursor-pointer">
+                {['notes','assignment','pyq','lecture'].map(t =>
+                  <option key={t} value={t}>{t.charAt(0).toUpperCase() + t.slice(1)}</option>)}
+              </select>
+              <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-n-4 pointer-events-none" />
+            </div>
           </div>
 
           {isPyq && (
             <div>
               <label className="block text-xs font-semibold text-n-3 mb-2 uppercase tracking-wide">PYQ Type</label>
-              <select name="pyq_type" value={form.pyq_type} onChange={onChange}
-                className="w-full rounded-xl border border-n-6 bg-n-8/50 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none transition">
-                <option value="">Select PYQ Type</option>
-                {[['minor1','Minor 1 (30 marks)'],['minor2','Minor 2 (30 marks)'],['major','Major (50 marks)']].map(([v,l]) =>
-                  <option key={v} value={v}>{l}</option>)}
-              </select>
+              <div className="relative">
+                <select name="pyq_type" value={form.pyq_type} onChange={onChange}
+                  className="w-full appearance-none rounded-xl border border-n-6 bg-n-8/50 px-4 py-3 pr-10 text-sm focus:border-blue-500 focus:outline-none transition cursor-pointer">
+                  <option value="">Select PYQ Type</option>
+                  {[['minor1','Minor 1 (30 marks)'],['minor2','Minor 2 (30 marks)'],['major','Major (50 marks)']].map(([v,l]) =>
+                    <option key={v} value={v}>{l}</option>)}
+                </select>
+                <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-n-4 pointer-events-none" />
+              </div>
             </div>
           )}
 
@@ -297,9 +316,10 @@ function UploadForm({ subjects, user, onUploaded }) {
               <input name="title" value={form.title} onChange={onChange} placeholder="Enter title" required
                 className="w-full rounded-xl border border-n-6 bg-n-8/50 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none transition" />
             </div>
-            <div className="w-24">
+            <div className="w-32">
               <label className="block text-xs font-semibold text-n-3 mb-2 uppercase tracking-wide">Year</label>
-              <input name="year" value={form.year} onChange={onChange} placeholder="e.g. 2024" type="number"
+              <input name="year" value={form.year} onChange={onChange} placeholder="2024" type="number"
+                min="2020" max={new Date().getFullYear() + 2}
                 className="w-full rounded-xl border border-n-6 bg-n-8/50 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none transition" />
             </div>
           </div>
@@ -360,7 +380,7 @@ function UploadForm({ subjects, user, onUploaded }) {
           </div>
         )}
 
-        {error && <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">{error}</div>}
+        {(error || customError) && <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">{customError || error}</div>}
         
         {success && (
           <div className="mb-6 p-5 rounded-2xl bg-blue-500/10 border border-blue-500/30 text-n-1 space-y-4">
@@ -727,20 +747,26 @@ function SubjectsPanel({ subjects, onSubjectCreated, onSubjectDeleted, userId })
                 </div>
                 <div className="flex-1">
                   <label className="block text-xs text-n-4 mb-1.5 uppercase tracking-wide">Semester</label>
-                  <select name="semester" value={form.semester} onChange={onChange} required 
-                    className="w-full rounded-xl border border-n-6 bg-n-8/50 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none transition">
-                    <option value="">Sem</option>
-                    {Array.from({ length: 8 }, (_, i) => <option key={i + 1} value={i + 1}>{i + 1}</option>)}
-                  </select>
+                  <div className="relative">
+                    <select name="semester" value={form.semester} onChange={onChange} required 
+                      className="w-full appearance-none rounded-xl border border-n-6 bg-n-8/50 px-4 py-2.5 pr-10 text-sm focus:border-blue-500 focus:outline-none transition cursor-pointer">
+                      <option value="">Sem</option>
+                      {Array.from({ length: 8 }, (_, i) => <option key={i + 1} value={i + 1}>{i + 1}</option>)}
+                    </select>
+                    <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-n-4 pointer-events-none" />
+                  </div>
                 </div>
               </div>
               <div>
                 <label className="block text-xs text-n-4 mb-1.5 uppercase tracking-wide">Branch</label>
-                <select name="branch" value={form.branch} onChange={onChange} required 
-                  className="w-full rounded-xl border border-n-6 bg-n-8/50 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none transition">
-                  <option value="">Select Branch</option>
-                  {BRANCHES.map(b => <option key={b} value={b}>{b}</option>)}
-                </select>
+                <div className="relative">
+                  <select name="branch" value={form.branch} onChange={onChange} required 
+                    className="w-full appearance-none rounded-xl border border-n-6 bg-n-8/50 px-4 py-2.5 pr-10 text-sm focus:border-blue-500 focus:outline-none transition cursor-pointer">
+                    <option value="">Select Branch</option>
+                    {BRANCHES.map(b => <option key={b} value={b}>{b}</option>)}
+                  </select>
+                  <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-n-4 pointer-events-none" />
+                </div>
               </div>
 
               {error   && <p className="text-red-400 text-sm mt-2">{error}</p>}
