@@ -5,6 +5,7 @@ const { authenticate } = require('../../middleware/authenticate');
 const { requireProfessor } = require('../../middleware/role.middleware');
 
 router.get('/branches', syllabusController.getBranches);
+router.get('/my-uploads', authenticate, requireProfessor, syllabusController.getMyUploads);
 router.get('/:branch/semesters', syllabusController.getSemesters);
 router.get('/:branch/:semester/subjects', syllabusController.getSubjects);
 router.get('/:branch/:semester/:subject', syllabusController.getSubjectDetails);
