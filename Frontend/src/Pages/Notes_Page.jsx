@@ -189,7 +189,7 @@ const Notes_Page = () => {
                       </div>
 
                       <div className="space-y-4">
-                        <label className="text-sm font-bold text-sky-200 uppercase tracking-widest">Subject Code</label>
+                        <label className="text-sm font-bold text-sky-200 uppercase tracking-widest">Subject Code (Optional)</label>
                         <Input
                           placeholder="e.g., CS201, EC101"
                           value={filters.subjectCode}

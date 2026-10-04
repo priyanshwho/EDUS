@@ -217,7 +217,7 @@ const Pyqs_Page = () => {
                   <div className="space-y-4">
                     <label className="text-sm font-bold text-sky-200 uppercase tracking-widest flex items-center gap-2">
                       <span className="w-2 h-2 bg-blue-400 rounded-full" />
-                      Subject Code
+                      Subject Code (Optional)
                     </label>
                     <Input
                       placeholder="e.g., CS201, EC101"
