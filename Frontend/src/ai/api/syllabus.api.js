@@ -32,3 +32,7 @@ export const createSyllabus = async (payload) => {
 export const deleteSyllabus = async (id) => {
   return api.delete(`/syllabus/${id}`);
 };
+
+export const fetchMyUploads = async () => {
+  return api.get('/syllabus/my-uploads');
+};
