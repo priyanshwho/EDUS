@@ -16,7 +16,11 @@ const normalizeSemester = (semester) => {
   return isNaN(num) ? 1 : num;
 };
 
-const formatSemesterKey = (semNum) => `semester_${semNum}`;
+const formatSemesterKey = (sem) => {
+  if (typeof sem === 'string' && sem.startsWith('semester_')) return sem;
+  const num = parseInt(String(sem).replace(/\D/g, ''), 10);
+  return `semester_${num || 1}`;
+};
 
 /**
  * Split complete syllabus content into sectionA and sectionB if not already split.
@@ -246,10 +250,11 @@ async function getMyUploads(user) {
   return rows.map((r) => ({
     id: r.id,
     name: r.subject_name,
+    subjectName: r.subject_name,
     subjectCode: r.subject_code,
     branch: r.branch,
     semester: formatSemesterKey(r.semester),
-    semesterNumber: r.semester,
+    semesterNumber: typeof r.semester === 'number' ? r.semester : parseInt(String(r.semester).replace(/\D/g, ''), 10) || 1,
     createdBy: r.created_by,
     creatorName: r.creator_name || r.creator_email || 'Unknown',
     createdAt: r.created_at,

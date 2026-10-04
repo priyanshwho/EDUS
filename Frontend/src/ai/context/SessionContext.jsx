@@ -7,7 +7,7 @@ export const SessionProvider = ({ children }) => {
   const [state, dispatch] = useReducer(sessionReducer, initialState, (initial) => {
     try {
       const saved = localStorage.getItem('edusphere_session');
-      return saved ? JSON.parse(saved) : initial;
+      return saved ? { ...initial, ...JSON.parse(saved) } : initial;
     } catch (e) {
       console.error('Failed to parse session from localStorage', e);
       return initial;

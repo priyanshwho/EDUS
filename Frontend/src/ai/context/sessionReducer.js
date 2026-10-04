@@ -4,6 +4,7 @@ export const initialState = {
   semester: null,
   subject: null,
   subjectData: null,
+  viewMode: 'normal',
 
   // Session state
   selectedSection: null,
@@ -33,9 +34,11 @@ export const initialState = {
 export const sessionReducer = (state, action) => {
   switch (action.type) {
     case 'SET_BRANCH':
-      return { ...state, branch: action.payload };
+      return { ...state, branch: action.payload, viewMode: 'normal' };
     case 'SET_SEMESTER':
-      return { ...state, semester: action.payload };
+      return { ...state, semester: action.payload, viewMode: 'normal' };
+    case 'SET_VIEW_MODE':
+      return { ...state, viewMode: action.payload };
     case 'SET_SUBJECT':
       return { ...state, subject: action.payload };
     case 'SET_SUBJECT_DATA':
@@ -91,7 +94,7 @@ export const sessionReducer = (state, action) => {
     case 'SWITCH_MODE':
       return { ...state, currentMode: action.payload };
     case 'CLEAR_FILTERS':
-      return { ...state, branch: null, semester: null, subject: null, subjectData: null };
+      return { ...state, branch: null, semester: null, subject: null, subjectData: null, viewMode: 'normal' };
     default:
       return state;
   }
