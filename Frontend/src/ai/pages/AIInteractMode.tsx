@@ -54,7 +54,7 @@ const TranscriptPanel = ({ messages, streamingText }: { messages: Message[]; str
             Conversation will appear here…
           </div>
         )}
-        {messages.map((msg, i) => (
+        {messages.filter(msg => Boolean(msg && msg.content && msg.content.trim())).map((msg, i) => (
           <div key={i} className={clsx('flex', msg.role === 'user' ? 'justify-end' : 'justify-start')}>
             <div className={clsx(
               "max-w-[90%] px-5 py-3.5 rounded-2xl text-[14px] leading-relaxed shadow-sm whitespace-pre-wrap",
@@ -215,6 +215,13 @@ const AIInteractMode = () => {
       },
       () => {
         const rawText = streamedRef.current;
+        if (!rawText || !rawText.trim()) {
+          setIsAITalking(false);
+          isAITalkingRef.current = false;
+          setStreamingText('');
+          streamedRef.current = '';
+          return;
+        }
         setMessages(prev => [...prev, { role: 'assistant', content: rawText }]);
         setStreamingText(''); 
         streamedRef.current = ''; 
@@ -257,8 +264,8 @@ const AIInteractMode = () => {
   if (!mode) return <ModeSelector chapterTitle={chapter?.title} onSelect={setMode} />;
 
   return (
-    <div className="h-screen max-h-screen flex flex-col bg-[#0E0C15] overflow-hidden">
-      <header className="flex items-center justify-between px-5 py-4 border-b border-[#252134] bg-[#0E0C15] shrink-0">
+    <div className="h-[calc(100vh-4.75rem)] lg:h-[calc(100vh-5.25rem)] max-h-[calc(100vh-4.75rem)] lg:max-h-[calc(100vh-5.25rem)] flex flex-col bg-[#0E0C15] overflow-hidden">
+      <header className="flex items-center justify-between px-5 py-3.5 border-b border-[#252134] bg-[#0E0C15] shrink-0">
         <button
           onClick={() => {
             setMode(null); setMessages([]); setStreamingText(''); setCaptionText(''); setLiveTranscript('');
@@ -279,7 +286,7 @@ const AIInteractMode = () => {
 
       <div className="flex flex-1 overflow-hidden min-h-0">
         <div className={clsx("flex flex-col items-center justify-center p-4 transition-all relative overflow-hidden", showCC ? "w-1/2" : "w-full")}>
-          <div className="w-44 h-44 mb-6 border border-[#252134] rounded-full flex items-center justify-center bg-[#15131D] shrink-0">
+          <div className="w-40 h-40 mb-4 border border-[#252134] rounded-full flex items-center justify-center bg-[#15131D] shrink-0">
             <TalkingAvatar isTalking={isAITalking} emotion={isAITalking ? 'neutral' : 'happy'} />
           </div>
 
@@ -289,7 +296,7 @@ const AIInteractMode = () => {
             {isListening ? 'Listening…' : isAITalking ? 'Speaking…' : 'Tap mic to speak'}
           </p>
 
-          <div className="mt-3 w-full max-w-md px-4 flex flex-col items-center min-h-[48px] justify-center shrink-0">
+          <div className="mt-3 w-full max-w-md px-4 flex flex-col items-center min-h-[44px] justify-center shrink-0">
             {liveTranscript ? (
               <div className="px-4 py-2 rounded-xl bg-sky-500/10 border border-sky-500/30 text-sky-300 text-xs text-center animate-fadeIn">
                 <span className="font-semibold text-sky-400">You: </span>{liveTranscript}
@@ -309,15 +316,15 @@ const AIInteractMode = () => {
         )}
       </div>
 
-      <div className="flex justify-center p-4 pb-20 md:pb-6 border-t border-[#252134] bg-[#0E0C15]/95 backdrop-blur shrink-0">
+      <div className="flex justify-center py-3.5 px-4 border-t border-[#252134] bg-[#0E0C15]/95 backdrop-blur shrink-0">
         <button
           onClick={isListening ? stopListening : startListening}
           className={clsx(
-            "w-16 h-16 rounded-full flex items-center justify-center transition-all duration-300",
+            "w-14 h-14 rounded-full flex items-center justify-center transition-all duration-300",
             isListening ? "bg-rose-500 text-white shadow-[0_0_30px_rgba(244,63,94,0.4)] scale-105" : isAITalking ? "bg-slate-800 text-slate-500 cursor-not-allowed" : "edus-gradient-bg text-white hover:scale-105 hover:shadow-[0_0_20px_rgba(56,189,248,0.4)]"
           )}
         >
-          {isListening ? <MicOff size={26} /> : <Mic size={26} />}
+          {isListening ? <MicOff size={24} /> : <Mic size={24} />}
         </button>
       </div>
 
