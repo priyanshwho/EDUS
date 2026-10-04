@@ -15,7 +15,7 @@ const LoadingCard = () => (
 
 const Home = () => {
   const { state, dispatch } = useSession();
-  const { user, isAdmin, isProfessor } = useAuth();
+  const { user, isAdmin, isProfessor, loading: authLoading } = useAuth();
   const canAddSyllabus = Boolean(isAdmin || isProfessor);
 
   const [subjects, setSubjects] = useState<any[]>([]);
@@ -40,7 +40,7 @@ const Home = () => {
       } else {
         setSubjects([]);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to load syllabus data:', error);
       setSubjects([]);
     } finally {
@@ -49,8 +49,10 @@ const Home = () => {
   };
 
   useEffect(() => {
-    loadData();
-  }, [state.branch, state.semester, state.viewMode]);
+    if (!authLoading) {
+      loadData();
+    }
+  }, [state.branch, state.semester, state.viewMode, authLoading]);
 
   const handleSyllabusCreated = async (newSubject: string, branch: string, semester: string) => {
     setNotification(`Syllabus for "${newSubject}" created successfully!`);

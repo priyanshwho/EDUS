@@ -44,7 +44,7 @@ const Sidebar = () => {
         <label className="text-xs font-semibold uppercase text-slate-500 px-1">Branch</label>
         <div className="space-y-1 overflow-y-auto max-h-48">
           {branches.map((branch) => {
-            const active = state.branch === branch;
+            const active = state.viewMode !== 'my_uploads' && state.branch === branch;
             return (
               <button
                 key={branch}
@@ -65,7 +65,7 @@ const Sidebar = () => {
       </div>
 
       {/* ── Semester ── */}
-      {state.branch && (
+      {state.branch && state.viewMode !== 'my_uploads' && (
         <div className="space-y-2 mt-4">
           <label className="text-xs font-semibold uppercase text-slate-500 px-1">Semester</label>
           <div className="space-y-1 overflow-y-auto max-h-56">
