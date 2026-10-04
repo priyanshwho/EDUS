@@ -77,10 +77,15 @@ const Home = () => {
     }
   };
 
-  const filteredSubjects = subjects.filter((s) => {
-    const name = typeof s === 'string' ? s : s.name;
-    return name.toLowerCase().includes(searchTerm.toLowerCase());
-  });
+  const filteredSubjects = Array.isArray(subjects)
+    ? subjects.filter((s) => {
+        if (!s) return false;
+        const rawName = typeof s === 'string' ? s : (s.name || s.subjectName || s.subject_name || '');
+        if (typeof rawName !== 'string' || !rawName) return false;
+        const query = typeof searchTerm === 'string' ? searchTerm.toLowerCase().trim() : '';
+        return rawName.toLowerCase().includes(query);
+      })
+    : [];
 
   return (
     <div className="flex min-h-screen text-slate-200 bg-[#0E0C15]">
@@ -175,26 +180,26 @@ const Home = () => {
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                  {filteredSubjects.map((s) => {
+                  {filteredSubjects.map((s, idx) => {
                     const isObj = typeof s === 'object' && s !== null;
-                    const name = isObj ? s.name : s;
+                    const name = isObj ? (s.name || s.subjectName || s.subject_name || 'Untitled') : String(s || 'Untitled');
                     const id = isObj ? s.id : null;
-                    const itemBranch = isObj ? s.branch : state.branch;
-                    const itemSemester = isObj ? s.semester : state.semester;
-                    const createdBy = isObj ? s.createdBy : null;
+                    const itemBranch = isObj ? (s.branch || state.branch || 'CSE') : (state.branch || 'CSE');
+                    const itemSemester = isObj ? (s.semester || state.semester || 'semester_1') : (state.semester || 'semester_1');
+                    const createdBy = isObj ? (s.createdBy || s.created_by) : null;
                     const isOwner = Boolean(user?.id && createdBy && String(createdBy) === String(user.id));
                     const canDelete = Boolean(id && (isAdmin || isOwner));
 
                     return (
                       <SubjectCard
-                        key={id || `${itemBranch}-${itemSemester}-${name}`}
+                        key={id || `${itemBranch}-${itemSemester}-${name}-${idx}`}
                         name={name}
                         branch={itemBranch}
                         semester={itemSemester}
                         id={id}
                         canDelete={canDelete}
                         onDelete={handleDeleteSyllabus}
-                        creatorName={isAdmin && isObj ? s.creatorName : null}
+                        creatorName={isAdmin && isObj ? (s.creatorName || s.creator_name) : null}
                       />
                     );
                   })}
