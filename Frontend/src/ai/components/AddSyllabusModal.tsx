@@ -180,13 +180,13 @@ export const AddSyllabusModal: React.FC<AddSyllabusModalProps> = ({
             </div>
             <div>
               <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
-                Subject Code
+                Subject Code (Optional)
               </label>
               <input
                 type="text"
                 value={subjectCode}
                 onChange={(e) => setSubjectCode(e.target.value)}
-                placeholder="e.g. CS-401"
+                placeholder="e.g. CS-401 (optional)"
                 className="w-full bg-[#1A1827] border border-slate-700/60 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-sky-500 transition"
               />
             </div>
