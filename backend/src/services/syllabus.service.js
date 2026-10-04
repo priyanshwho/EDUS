@@ -121,12 +121,24 @@ async function getSemesters(branch) {
         .filter(isVisible)
         .filter((file) => {
           try {
-            return fs.statSync(path.join(branchPath, file)).isDirectory();
+            const fullPath = path.join(branchPath, file);
+            if (!fs.statSync(fullPath).isDirectory()) return false;
+
+            // Must contain a valid semester number (1-8)
+            const num = parseInt(file.replace(/\D/g, ''), 10);
+            if (isNaN(num) || num < 1 || num > 8) return false;
+
+            // Also verify the directory contains files
+            const files = fs.readdirSync(fullPath).filter(isVisible);
+            return files.length > 0;
           } catch {
             return false;
           }
         });
-      fsSemesters.forEach((s) => semSet.add(s));
+      fsSemesters.forEach((s) => {
+        const num = parseInt(s.replace(/\D/g, ''), 10);
+        semSet.add(`semester_${num}`);
+      });
     }
   } catch (err) {
     console.warn('[SyllabusService] Warning reading filesystem semesters:', err.message);
@@ -141,8 +153,11 @@ async function getSemesters(branch) {
       ORDER BY semester ASC
     `;
     dbSemesters.forEach((row) => {
-      if (row.semester) {
-        semSet.add(formatSemesterKey(row.semester));
+      const num = typeof row.semester === 'number'
+        ? row.semester
+        : parseInt(String(row.semester).replace(/\D/g, ''), 10);
+      if (!isNaN(num) && num >= 1 && num <= 8) {
+        semSet.add(`semester_${num}`);
       }
     });
   } catch (err) {
