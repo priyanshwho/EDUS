@@ -12,6 +12,7 @@ router.get('/:branch/:semester/:subject', syllabusController.getSubjectDetails);
 
 // Protected write routes (Professor & Admin only)
 router.post('/', authenticate, requireProfessor, syllabusController.createSyllabus);
+router.put('/:id', authenticate, requireProfessor, syllabusController.updateSyllabus);
 router.delete('/:id', authenticate, requireProfessor, syllabusController.deleteSyllabus);
 
 module.exports = router;
