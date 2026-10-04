@@ -259,16 +259,16 @@ const MCQMode = () => {
   return (
     <MCQErrorBoundary onReset={resetToSelector}>
       <div className="min-h-screen flex flex-col bg-[#0E0C15] pb-36 md:pb-12">
-        <header className="px-6 py-4 flex items-center justify-between border-b border-[#252134]">
+        <header className="px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between border-b border-[#252134]">
           <button
             onClick={resetToSelector}
-            className="flex items-center gap-2 text-sm font-medium text-slate-400 hover:text-sky-400 transition-colors"
+            className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-medium text-slate-400 hover:text-sky-400 transition-colors"
           >
             <ChevronLeft size={18} /> Difficulty
           </button>
-          <div className="flex items-center gap-3">
-            <span className="edus-badge-muted">Q {currentIndex + 1}/{questions.length}</span>
-            <span className="edus-badge-gradient">Score: {score}</span>
+          <div className="flex items-center gap-2 sm:gap-3">
+            <span className="edus-badge-muted text-xs">Q {currentIndex + 1}/{questions.length}</span>
+            <span className="edus-badge-gradient text-xs">Score: {score}</span>
           </div>
         </header>
 
@@ -279,7 +279,7 @@ const MCQMode = () => {
           />
         </div>
 
-        <main className="flex-1 flex flex-col items-center justify-center p-6">
+        <main className="flex-1 flex flex-col items-center justify-center p-4 sm:p-6">
           <div className="w-full max-w-3xl">
             <MCQQuestion
               key={currentIndex}
@@ -288,18 +288,18 @@ const MCQMode = () => {
               userAnswer={userAnswers[currentIndex]}
             />
 
-            <div className="flex items-center justify-between mt-8">
+            <div className="flex items-center justify-between mt-6 sm:mt-8 gap-3">
               <button
                 onClick={handlePrev}
                 disabled={currentIndex === 0}
-                className="flex items-center gap-2 edus-btn-ghost opacity-80 hover:opacity-100 disabled:opacity-30 disabled:cursor-not-allowed"
+                className="flex items-center gap-1.5 sm:gap-2 edus-btn-ghost text-xs sm:text-sm px-3 sm:px-4 py-2 sm:py-2.5 opacity-80 hover:opacity-100 disabled:opacity-30 disabled:cursor-not-allowed"
               >
                 <ArrowLeft size={16} /> Previous
               </button>
               <button
                 onClick={handleNext}
                 disabled={!userAnswers[currentIndex]}
-                className="flex items-center gap-2 edus-btn disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center gap-1.5 sm:gap-2 edus-btn text-xs sm:text-sm px-4 sm:px-5 py-2 sm:py-2.5 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {currentIndex === questions.length - 1 ? 'Finish Quiz' : 'Next'}
                 <ArrowRight size={16} />

@@ -52,39 +52,39 @@ const PYQMode = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-[#0E0C15] pb-36 md:pb-12">
-      <header className="px-6 py-4 flex items-center justify-between border-b border-[#252134] sticky top-0 z-20 bg-[#0E0C15]/90 backdrop-blur-md">
+      <header className="px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between border-b border-[#252134] sticky top-0 z-20 bg-[#0E0C15]/90 backdrop-blur-md">
         <button
           onClick={() => navigate(`/ai/learn/${branch}/${semester}/${subjectSlug}?section=${section}`)}
-          className="flex items-center gap-2 text-sm font-medium text-slate-400 hover:text-sky-400 transition-colors"
+          className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-medium text-slate-400 hover:text-sky-400 transition-colors"
         >
           <ChevronLeft size={18} /> Back
         </button>
 
-        <div className="text-center">
-          <h2 className="text-base font-bold text-white">Section {section} — PYQ</h2>
-          <p className="text-xs text-slate-500">{state.subjectData?.subjectName}</p>
+        <div className="text-center truncate mx-2">
+          <h2 className="text-sm sm:text-base font-bold text-white truncate">Section {section} — PYQ</h2>
+          <p className="text-[11px] sm:text-xs text-slate-500 truncate">{state.subjectData?.subjectName}</p>
         </div>
 
-        <span className="edus-badge-gradient">{questions.length} Q's</span>
+        <span className="edus-badge-gradient text-xs">{questions.length} Q's</span>
       </header>
 
-      <main className="max-w-4xl mx-auto w-full px-6 py-8 space-y-5">
+      <main className="max-w-4xl mx-auto w-full px-4 sm:px-6 py-6 sm:py-8 space-y-4 sm:space-y-5">
         {questions.map((q, i) => {
           const isOpen = openIdx === i;
           return (
             <div key={i} className="edus-card overflow-hidden">
-              <div className="px-6 py-5">
+              <div className="px-4 sm:px-6 py-4 sm:py-5">
                 <div className="flex items-center gap-2 mb-3 flex-wrap">
-                  <span className="edus-badge-muted uppercase">{q.type}</span>
-                  {q.topic && <span className="text-xs text-slate-500 uppercase">{q.topic}</span>}
-                  <span className="ml-auto edus-badge-gradient">Q{i + 1}</span>
+                  <span className="edus-badge-muted uppercase text-[10px] sm:text-xs">{q.type}</span>
+                  {q.topic && <span className="text-[11px] sm:text-xs text-slate-500 uppercase">{q.topic}</span>}
+                  <span className="ml-auto edus-badge-gradient text-[10px] sm:text-xs">Q{i + 1}</span>
                 </div>
 
-                <h4 className="text-lg font-semibold text-white leading-snug mb-5">{q.question}</h4>
+                <h4 className="text-base sm:text-lg font-semibold text-white leading-snug mb-4 sm:mb-5">{q.question}</h4>
 
                 <button
                   onClick={() => setOpenIdx(isOpen ? null : i)}
-                  className="flex items-center gap-2 text-sm font-semibold edus-gradient-text hover:opacity-80 transition-opacity"
+                  className="flex items-center gap-2 text-xs sm:text-sm font-semibold edus-gradient-text hover:opacity-80 transition-opacity"
                 >
                   <FileText size={16} className="text-sky-400" />
                   <span>{isOpen ? 'Hide' : 'View'} Model Answer</span>
