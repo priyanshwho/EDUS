@@ -238,12 +238,13 @@ async function getSubjects(branch, semester) {
 /**
  * Get all syllabi uploaded by the current user (or all if admin).
  */
-async function getMyUploads(user) {
+async function getMyUploads(user, scope = 'all') {
   if (!user) return [];
   const isAdmin = user.role === 'admin';
+  const filterOnlyMine = !isAdmin || scope === 'mine';
 
   let rows;
-  if (isAdmin) {
+  if (!filterOnlyMine) {
     rows = await sql`
       SELECT s.id, s.subject_name, s.subject_code, s.branch, s.semester, s.content, s.created_by, s.created_at,
              u.name AS creator_name, u.email AS creator_email, u.role AS creator_role
