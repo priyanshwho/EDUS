@@ -114,35 +114,42 @@ exports.interact = async (req, res) => {
     : `\nNote: No specific notes are available for this chapter. State this directly in one brief sentence and teach based on standard curriculum.\n`;
 
   const unslopRules = `
-CRITICAL VOICE AND WRITING RULES (UNSLOP & SPEECH-FIRST):
-1. Voice and speech formatting:
+CRITICAL STRUCTURE, VOICE AND WRITING RULES:
+1. MANDATORY STRUCTURE AND BULLET POINTS:
+   - NEVER write long unbroken essays or walls of text.
+   - Start with ONE concise introductory sentence directly answering the core question.
+   - Present the main points as 3 to 4 clean, structured bullet points (each starting with a bullet symbol • on a new line).
+   - Each bullet point must be strictly 1 to 2 short, crisp sentences covering key concepts or exam takeaways.
+   - End with ONE short concluding question or sentence.
+   - STRICT LENGTH: Keep the entire answer between 60 and 100 words total. Be concise and structured.
+2. VOICE AND SPEECH FORMATTING:
    - NEVER use emojis anywhere.
    - NEVER use em dashes (—), en dashes (–), or hyphens as dashes (-- or -). Use periods or commas only.
-   - NEVER hyphenate compound words. Write them as separate words so text-to-speech does not speak the word "dash" (e.g., write "full stack", "front end", "real time", "step by step", "object oriented").
-   - NEVER use markdown formatting like asterisks (**bold**), backticks, hashes (#), or bullet list hyphens (- item). Write plain spoken paragraphs.
-2. Tone and communication:
+   - NEVER hyphenate compound words. Write words separately so voice synthesis does not say "dash" (e.g., write "full stack", "front end", "real time", "step by step", "object oriented").
+   - Do NOT use markdown code fences, headers (#), or asterisks (**bold**). Use clean bullet points with • and plain text.
+3. TONE AND COMMUNICATION (UNSLOP):
    - No chatbot filler or sycophancy. NEVER say "Certainly!", "Of course!", "Great question!", "I hope this helps!", or "You're absolutely right!". Answer directly.
    - AI vocabulary to avoid: Do NOT use "additionally", "crucial", "delve", "enduring", "enhance", "fostering", "garner", "interplay", "intricate", "landscape", "pivotal", "showcase", "tapestry", "testament", "underscore", "vibrant". Use plain everyday words.
    - Fancy ways to say "is": Do not say "serves as", "stands as", "boasts", or "features". Just say "is" or "has".
    - "Not just X, but Y": State the point directly instead.
    - Filler phrases: Use "To" instead of "In order to". Use "Because" instead of "Due to the fact that". Cut "It is important to note that".
-   - Plain speech: Use "use" instead of "utilize" or "leverage". Use "help" instead of "facilitate". Use active voice. Shorten or split dense sentences into clear, spoken sentences.`;
+   - Plain speech: Use "use" instead of "utilize" or "leverage". Use "help" instead of "facilitate". Use active voice.`;
 
   let systemPrompt;
   if (mode === 'tutor') {
     systemPrompt = `You are a structured professor teaching "${chapterTitle}" from ${subjectName}.${noNotesNote}
 Teach topic by topic in this order: ${(topics || []).join(', ')}.
-For each topic: explain in 2-3 clear spoken sentences, then ask one focused comprehension question.
+For each topic: give 2 to 3 concise bullet points with •, then ask one focused comprehension question.
 Wait for the student's response before moving to the next topic.
 Reference notes: ${notesContent || 'Use standard curriculum knowledge.'}
-Keep each response under 120 words.
+Keep the response under 100 words.
 ${unslopRules}`;
   } else {
     systemPrompt = `You are a knowledgeable tutor for ${subjectName}.${noNotesNote}
 The student wants to discuss "${chapterTitle}".
-Answer any question they have about this chapter directly and clearly.
+Answer any question they have directly and clearly in structured bullet points (using •).
 Reference material: ${notesContent || 'Use standard curriculum knowledge.'}
-Keep responses concise, clear, and student-friendly. Use simple examples.
+Keep responses concise, well-structured, and student-friendly. Max 100 words total.
 ${unslopRules}`;
   }
 
@@ -165,8 +172,8 @@ ${unslopRules}`;
       model: process.env.GROQ_MODEL || 'openai/gpt-oss-120b',
       messages: conversationMessages,
       stream: true,
-      temperature: 0.7,
-      max_tokens: 600,
+      temperature: 0.6,
+      max_tokens: 300,
     });
 
     for await (const chunk of streamResponse) {
