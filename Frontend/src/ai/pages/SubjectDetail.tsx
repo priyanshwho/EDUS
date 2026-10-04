@@ -58,35 +58,35 @@ const SubjectDetail = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-[#0E0C15] p-6 md:p-10 text-slate-200">
+    <div className="min-h-screen bg-[#0E0C15] p-4 sm:p-6 md:p-10 text-slate-200">
       <div className="max-w-5xl mx-auto">
         <button
           onClick={() => navigate('/ai')}
-          className="flex items-center gap-2 text-sm font-medium mb-10 text-slate-400 hover:text-sky-400 transition-colors"
+          className="flex items-center gap-2 text-sm font-medium mb-6 sm:mb-10 text-slate-400 hover:text-sky-400 transition-colors"
         >
           <ChevronLeft size={18} /> Back to Dashboard
         </button>
 
-        <div className="mb-12">
-          <h1 className="text-3xl md:text-4xl font-bold edus-gradient-text mb-4 leading-tight">{data.subjectName}</h1>
-          <div className="flex items-center gap-3">
+        <div className="mb-8 sm:mb-12">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold edus-gradient-text mb-3 sm:mb-4 leading-tight">{data.subjectName}</h1>
+          <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
             <span className="edus-badge-gradient">{branch}</span>
             <span className="edus-badge-muted uppercase">{semester?.replace('_', ' ')}</span>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5">
           {SECTION_CONFIG.map((item) => (
             <button
               key={item.id}
               onClick={() => selectSection(item.id)}
-              className="edus-card p-6 text-left hover:edus-gradient-border-active transition-colors group"
+              className="edus-card p-5 sm:p-6 text-left hover:edus-gradient-border-active transition-all group"
             >
-              <div className="w-12 h-12 rounded-xl flex items-center justify-center edus-gradient-bg text-white mb-5">
+              <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center edus-gradient-bg text-white mb-4 sm:mb-5 shadow-md shadow-sky-500/20 group-hover:scale-105 transition-transform">
                 {item.icon}
               </div>
-              <h3 className="text-lg font-bold text-white mb-2">{item.title}</h3>
-              <p className="text-sm text-slate-400">{item.desc}</p>
+              <h3 className="text-base sm:text-lg font-bold text-white mb-1.5 sm:mb-2">{item.title}</h3>
+              <p className="text-xs sm:text-sm text-slate-400">{item.desc}</p>
             </button>
           ))}
         </div>

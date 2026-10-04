@@ -14,24 +14,24 @@ const LEVELS = [
 
 const DifficultySelector: React.FC<DifficultySelectorProps> = ({ onSelect }) => {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-[#0E0C15] px-6 py-16 text-center pb-36 md:pb-24">
-      <div className="mb-12">
-        <h2 className="text-3xl md:text-4xl font-bold text-white mb-2">Choose Difficulty</h2>
-        <p className="text-slate-400">Select a level for your practice quiz</p>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-[#0E0C15] px-4 sm:px-6 py-10 sm:py-16 text-center pb-32 md:pb-24">
+      <div className="mb-8 sm:mb-12">
+        <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-2">Choose Difficulty</h2>
+        <p className="text-xs sm:text-sm text-slate-400">Select a level for your practice quiz</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5 w-full max-w-3xl">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5 w-full max-w-3xl">
         {LEVELS.map((level) => (
           <button
             key={level.id}
             onClick={() => onSelect(level.id as any)}
-            className="edus-card p-6 text-left hover:edus-gradient-border-active transition-colors group"
+            className="edus-card p-5 sm:p-6 text-left hover:edus-gradient-border-active transition-all group"
           >
-            <div className="w-12 h-12 rounded-xl flex items-center justify-center edus-gradient-bg text-white mb-4 group-hover:scale-105 transition-transform">
+            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center edus-gradient-bg text-white mb-3.5 sm:mb-4 group-hover:scale-105 transition-transform shadow-md shadow-sky-500/20">
               {level.icon}
             </div>
-            <h3 className="text-lg font-bold text-white mb-1">{level.label}</h3>
-            <p className="text-sm text-slate-400">{level.desc}</p>
+            <h3 className="text-base sm:text-lg font-bold text-white mb-1">{level.label}</h3>
+            <p className="text-xs sm:text-sm text-slate-400">{level.desc}</p>
           </button>
         ))}
       </div>
