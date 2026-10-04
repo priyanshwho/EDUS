@@ -282,7 +282,8 @@ body{
   box-sizing: border-box;
 }
 .edus-input:focus { border-color: var(--edus-blue); box-shadow: 0 0 0 3px rgba(56,189,248,0.12); }
-.edus-input::placeholder { color: #3F3A52; }
+.edus-input::placeholder { color: #64748b; }
+.edus-input-search { padding-left: 42px !important; }
 
 /* Badges */
 .edus-badge-blue {
