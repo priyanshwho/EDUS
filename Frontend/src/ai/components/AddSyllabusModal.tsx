@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Check, AlertCircle, Eye, Edit3, Sparkles } from 'lucide-react';
+import { X, Check, AlertCircle, Eye, Edit3, Sparkles, Trash2 } from 'lucide-react';
 import { createSyllabus } from '../api/syllabus.api';
 
 interface AddSyllabusModalProps {
@@ -48,9 +48,11 @@ export const AddSyllabusModal: React.FC<AddSyllabusModalProps> = ({
   if (!isOpen) return null;
 
   const handleUseTemplate = () => {
-    if (!content.trim() || window.confirm('Replace current content with the standard syllabus template?')) {
-      setContent(SAMPLE_TEMPLATE);
-    }
+    setContent(SAMPLE_TEMPLATE);
+  };
+
+  const handleClearContent = () => {
+    setContent('');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -90,6 +92,9 @@ export const AddSyllabusModal: React.FC<AddSyllabusModalProps> = ({
 
       const semFormatted = `semester_${semester}`;
       onSuccess(subjectName.trim(), branch, semFormatted);
+      setSubjectName('');
+      setSubjectCode('');
+      setContent('');
       onClose();
     } catch (err: any) {
       console.error('Failed to create syllabus:', err);
@@ -206,7 +211,18 @@ export const AddSyllabusModal: React.FC<AddSyllabusModalProps> = ({
                 >
                   Load Template
                 </button>
-                <div className="flex items-center bg-[#1A1827] border border-slate-800 rounded-lg p-0.5">
+                {content.trim().length > 0 && (
+                  <button
+                    type="button"
+                    onClick={handleClearContent}
+                    className="text-xs text-rose-400 hover:text-rose-300 transition flex items-center gap-1 underline underline-offset-2"
+                    title="Clear all syllabus content"
+                  >
+                    <Trash2 size={11} />
+                    <span>Clear</span>
+                  </button>
+                )}
+                <div className="flex items-center bg-[#1A1827] border border-slate-800 rounded-lg p-0.5 ml-1">
                   <button
                     type="button"
                     onClick={() => setActiveTab('write')}
