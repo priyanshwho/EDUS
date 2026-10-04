@@ -1,3 +1,5 @@
+import { api } from '../../services/api';
+
 const BASE_URL = `${import.meta.env.VITE_API_URL || 'http://localhost:5001/api'}/syllabus`;
 
 export const fetchBranches = async () => {
@@ -21,4 +23,12 @@ export const fetchSubjects = async (branch, semester) => {
 export const fetchSubjectDetails = async (branch, semester, subject) => {
   const res = await fetch(`${BASE_URL}/${branch}/${semester}/${subject}`);
   return res.json();
+};
+
+export const createSyllabus = async (payload) => {
+  return api.post('/syllabus', payload);
+};
+
+export const deleteSyllabus = async (id) => {
+  return api.delete(`/syllabus/${id}`);
 };

@@ -3,35 +3,51 @@ import Sidebar from '../components/layout/Sidebar';
 import SubjectCard from '../components/cards/SubjectCard';
 import { useSession } from '../context/SessionContext';
 import { fetchSubjects } from '../api/syllabus.api';
-import { Search, ChevronRight, BookOpen, Zap, X } from 'lucide-react';
+import { Search, ChevronRight, BookOpen, Zap, X, Plus } from 'lucide-react';
 import eduAiImg from '../../assets/eduai.png';
+import { useAuth } from '../../context/AuthContext';
+import { AddSyllabusModal } from '../components/AddSyllabusModal';
 
 const LoadingCard = () => (
   <div className="edus-card rounded-2xl h-40 animate-pulse bg-slate-800/50" />
 );
 
 const Home = () => {
-  const { state } = useSession();
+  const { state, dispatch } = useSession();
+  const { isAdmin, isProfessor } = useAuth();
+  const canAddSyllabus = Boolean(isAdmin || isProfessor);
+
   const [subjects, setSubjects] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+
+  const loadSubjects = async () => {
+    if (state.branch && state.semester) {
+      setLoading(true);
+      try {
+        const data = await fetchSubjects(state.branch, state.semester);
+        setSubjects(data);
+      } catch (error) {
+        console.error('Failed to load subjects', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
 
   useEffect(() => {
-    const loadSubjects = async () => {
-      if (state.branch && state.semester) {
-        setLoading(true);
-        try {
-          const data = await fetchSubjects(state.branch, state.semester);
-          setSubjects(data);
-        } catch (error) {
-          console.error('Failed to load subjects', error);
-        } finally {
-          setLoading(false);
-        }
-      }
-    };
     loadSubjects();
   }, [state.branch, state.semester]);
+
+  const handleSyllabusCreated = async (newSubject, branch, semester) => {
+    if (state.branch === branch && state.semester === semester) {
+      await loadSubjects();
+    } else {
+      dispatch({ type: 'SET_BRANCH', payload: branch });
+      dispatch({ type: 'SET_SEMESTER', payload: semester });
+    }
+  };
 
   const filteredSubjects = subjects.filter((s) =>
     s.toLowerCase().includes(searchTerm.toLowerCase())
@@ -53,27 +69,48 @@ const Home = () => {
             <p className="text-sm text-slate-400">AI-driven challenges to sharpen your learning</p>
           </div>
 
-          <div className="relative max-w-sm w-full group">
-            <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-sky-400 pointer-events-none transition-colors" />
-            <input
-              type="text"
-              placeholder="Search subjects…"
-              className="edus-input edus-input-search w-full py-2.5 !pl-10 pr-9 text-sm"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            {searchTerm && (
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
+            {canAddSyllabus && (
               <button
                 type="button"
-                onClick={() => setSearchTerm('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white p-1 rounded-md hover:bg-slate-800 transition-colors"
-                aria-label="Clear search"
+                onClick={() => setIsAddModalOpen(true)}
+                className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 text-white text-sm font-semibold hover:opacity-95 hover:shadow-lg hover:shadow-blue-500/20 transition shrink-0"
               >
-                <X size={14} />
+                <Plus size={16} />
+                <span>Add Syllabus</span>
               </button>
             )}
+
+            <div className="relative max-w-sm w-full group">
+              <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-sky-400 pointer-events-none transition-colors" />
+              <input
+                type="text"
+                placeholder="Search subjects…"
+                className="edus-input edus-input-search w-full py-2.5 !pl-10 pr-9 text-sm"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+              {searchTerm && (
+                <button
+                  type="button"
+                  onClick={() => setSearchTerm('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white p-1 rounded-md hover:bg-slate-800 transition-colors"
+                  aria-label="Clear search"
+                >
+                  <X size={14} />
+                </button>
+              )}
+            </div>
           </div>
         </header>
+
+        <AddSyllabusModal
+          isOpen={isAddModalOpen}
+          onClose={() => setIsAddModalOpen(false)}
+          defaultBranch={state.branch}
+          defaultSemester={state.semester}
+          onSuccess={handleSyllabusCreated}
+        />
 
         <div className="mx-6 md:mx-10 mb-8 h-px bg-slate-800" />
 
