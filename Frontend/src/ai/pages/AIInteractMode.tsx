@@ -30,7 +30,17 @@ const SoundWave = ({ active }: { active: boolean }) => {
   );
 };
 
-const TranscriptPanel = ({ messages, streamingText }: { messages: Message[]; streamingText: string }) => {
+const TranscriptPanel = ({
+  messages,
+  streamingText,
+  onCloseMobile,
+  isAITalking,
+}: {
+  messages: Message[];
+  streamingText: string;
+  onCloseMobile?: () => void;
+  isAITalking?: boolean;
+}) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -40,24 +50,39 @@ const TranscriptPanel = ({ messages, streamingText }: { messages: Message[]; str
   }, [messages, streamingText]);
 
   return (
-    <div className="flex flex-col h-full bg-[#15131D] border-l border-[#252134]">
-      <div className="px-5 py-4 border-b border-[#252134] flex items-center justify-between shrink-0">
+    <div className="flex flex-col h-full bg-[#15131D] md:border-l border-[#252134]">
+      <div className="px-4 sm:px-5 py-3 border-b border-[#252134] flex items-center justify-between shrink-0 bg-[#15131D]/95 backdrop-blur">
         <div className="flex items-center gap-2">
-          <Captions size={16} className="text-slate-400" />
-          <span className="text-sm font-semibold text-slate-300">Transcript</span>
+          <Captions size={16} className="text-sky-400" />
+          <span className="text-sm font-semibold text-slate-200">Transcript</span>
+          {isAITalking && (
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 animate-pulse">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" /> Speaking
+            </span>
+          )}
         </div>
-        <span className="text-xs text-slate-500">{messages.length} messages</span>
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-slate-500">{messages.length} messages</span>
+          {onCloseMobile && (
+            <button
+              onClick={onCloseMobile}
+              className="md:hidden px-2.5 py-1 rounded-lg text-xs font-semibold text-sky-400 hover:text-white bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/20 transition-colors"
+            >
+              Avatar View
+            </button>
+          )}
+        </div>
       </div>
-      <div ref={scrollContainerRef} className="flex-1 overflow-y-auto px-4 py-6 space-y-4">
+      <div ref={scrollContainerRef} className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-3.5">
         {messages.length === 0 && !streamingText && (
-          <div className="text-center mt-10 text-sm text-slate-500">
-            Conversation will appear here…
+          <div className="text-center mt-12 text-sm text-slate-500">
+            Conversation will appear here as you speak…
           </div>
         )}
         {messages.filter(msg => Boolean(msg && msg.content && msg.content.trim())).map((msg, i) => (
           <div key={i} className={clsx('flex', msg.role === 'user' ? 'justify-end' : 'justify-start')}>
             <div className={clsx(
-              "max-w-[90%] px-5 py-3.5 rounded-2xl text-[14px] leading-relaxed shadow-sm whitespace-pre-wrap",
+              "max-w-[94%] sm:max-w-[85%] px-4 sm:px-5 py-3 sm:py-3.5 rounded-2xl text-[13px] sm:text-[14px] leading-relaxed shadow-sm whitespace-pre-wrap break-words",
               msg.role === 'user' 
                 ? "edus-gradient-bg text-white rounded-br-sm shadow-sky-500/10" 
                 : "bg-slate-800/80 text-slate-200 border border-slate-700/50 rounded-bl-sm"
@@ -68,7 +93,7 @@ const TranscriptPanel = ({ messages, streamingText }: { messages: Message[]; str
         ))}
         {streamingText && (
           <div className="flex justify-start">
-            <div className="max-w-[90%] px-5 py-3.5 rounded-2xl text-[14px] leading-relaxed bg-slate-800/80 text-slate-200 border border-slate-700/50 rounded-bl-sm whitespace-pre-wrap">
+            <div className="max-w-[94%] sm:max-w-[85%] px-4 sm:px-5 py-3 sm:py-3.5 rounded-2xl text-[13px] sm:text-[14px] leading-relaxed bg-slate-800/80 text-slate-200 border border-slate-700/50 rounded-bl-sm whitespace-pre-wrap break-words">
               {streamingText}
               <span className="inline-block w-1.5 h-3 edus-gradient-bg ml-1 animate-pulse" />
             </div>
@@ -80,28 +105,29 @@ const TranscriptPanel = ({ messages, streamingText }: { messages: Message[]; str
 };
 
 const ModeSelector = ({ chapterTitle, onSelect }: { chapterTitle?: string; onSelect: (m: AIMode) => void }) => (
-  <div className="min-h-screen flex flex-col items-center justify-center bg-[#0E0C15] p-8 text-center pb-36 md:pb-20">
-    <div className="w-16 h-16 rounded-2xl flex items-center justify-center edus-gradient-bg mb-6">
-      <Mic size={28} className="text-white" />
+  <div className="h-[calc(100dvh-4.75rem)] lg:h-[calc(100dvh-5.25rem)] flex flex-col items-center justify-center bg-[#0E0C15] px-4 py-6 sm:p-8 text-center overflow-y-auto">
+    <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center edus-gradient-bg mb-4 sm:mb-6 shrink-0 shadow-lg shadow-sky-500/20">
+      <Mic size={24} className="text-white sm:hidden" />
+      <Mic size={28} className="text-white hidden sm:block" />
     </div>
 
-    <h1 className="text-3xl font-bold text-white mb-2">How would you like to learn?</h1>
-    <p className="text-sm text-slate-400 mb-8">{chapterTitle}</p>
+    <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">How would you like to learn?</h1>
+    <p className="text-xs sm:text-sm text-slate-400 mb-6 sm:mb-8 max-w-md line-clamp-2">{chapterTitle}</p>
 
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-5 w-full max-w-2xl">
-      <button onClick={() => onSelect('tutor')} className="edus-card p-6 text-left hover:edus-gradient-border-active transition-colors group">
-        <div className="w-10 h-10 rounded-xl edus-gradient-bg flex items-center justify-center mb-4 text-white">
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-2xl px-2">
+      <button onClick={() => onSelect('tutor')} className="edus-card p-5 sm:p-6 text-left hover:edus-gradient-border-active transition-all group">
+        <div className="w-10 h-10 rounded-xl edus-gradient-bg flex items-center justify-center mb-3 sm:mb-4 text-white shadow-md shadow-sky-500/20">
           <GraduationCap size={20} />
         </div>
-        <h3 className="text-lg font-bold text-white mb-2">Step-by-Step Tutor</h3>
-        <p className="text-sm text-slate-400">AI teaches topic by topic with checkpoint questions.</p>
+        <h3 className="text-base sm:text-lg font-bold text-white mb-1.5 sm:mb-2">Step-by-Step Tutor</h3>
+        <p className="text-xs sm:text-sm text-slate-400">AI teaches topic by topic with checkpoint questions.</p>
       </button>
-      <button onClick={() => onSelect('free')} className="edus-card p-6 text-left hover:edus-gradient-border-active transition-colors group">
-        <div className="w-10 h-10 rounded-xl edus-gradient-bg flex items-center justify-center mb-4 text-white">
+      <button onClick={() => onSelect('free')} className="edus-card p-5 sm:p-6 text-left hover:edus-gradient-border-active transition-all group">
+        <div className="w-10 h-10 rounded-xl edus-gradient-bg flex items-center justify-center mb-3 sm:mb-4 text-white shadow-md shadow-sky-500/20">
           <MessageCircle size={20} />
         </div>
-        <h3 className="text-lg font-bold text-white mb-2">Free Conversation</h3>
-        <p className="text-sm text-slate-400">Ask anything about the chapter at your own pace.</p>
+        <h3 className="text-base sm:text-lg font-bold text-white mb-1.5 sm:mb-2">Free Conversation</h3>
+        <p className="text-xs sm:text-sm text-slate-400">Ask anything about the chapter at your own pace.</p>
       </button>
     </div>
     <BottomNavBar />
@@ -264,45 +290,51 @@ const AIInteractMode = () => {
   if (!mode) return <ModeSelector chapterTitle={chapter?.title} onSelect={setMode} />;
 
   return (
-    <div className="h-[calc(100vh-4.75rem)] lg:h-[calc(100vh-5.25rem)] max-h-[calc(100vh-4.75rem)] lg:max-h-[calc(100vh-5.25rem)] flex flex-col bg-[#0E0C15] overflow-hidden">
-      <header className="flex items-center justify-between px-5 py-3.5 border-b border-[#252134] bg-[#0E0C15] shrink-0">
+    <div className="h-[calc(100dvh-4.75rem)] lg:h-[calc(100dvh-5.25rem)] max-h-[calc(100dvh-4.75rem)] lg:max-h-[calc(100dvh-5.25rem)] flex flex-col bg-[#0E0C15] overflow-hidden">
+      <header className="flex items-center justify-between px-4 sm:px-5 py-3 border-b border-[#252134] bg-[#0E0C15] shrink-0">
         <button
           onClick={() => {
             setMode(null); setMessages([]); setStreamingText(''); setCaptionText(''); setLiveTranscript('');
             window.speechSynthesis?.cancel(); recognitionRef.current?.stop(); abortRef.current?.abort();
           }}
-          className="flex items-center gap-2 text-sm font-medium text-slate-400 hover:text-sky-400 transition-colors"
+          className="flex items-center gap-1.5 sm:gap-2 text-sm font-medium text-slate-400 hover:text-sky-400 transition-colors"
         >
           <ChevronLeft size={18} /> Back
         </button>
         <span className="edus-badge-muted">{mode === 'tutor' ? 'Tutor' : 'Free Chat'}</span>
         <button
           onClick={() => setShowCC(!showCC)}
-          className={clsx("flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors", showCC ? "bg-sky-400/10 text-sky-400" : "bg-slate-800 text-slate-400 hover:text-white")}
+          className={clsx(
+            "flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-colors", 
+            showCC ? "bg-sky-400/10 text-sky-400" : "bg-slate-800 text-slate-400 hover:text-white"
+          )}
         >
-          {showCC ? <CaptionsOff size={16} /> : <Captions size={16} />} <span className="hidden sm:inline">CC</span>
+          {showCC ? <CaptionsOff size={16} /> : <Captions size={16} />} <span>CC</span>
         </button>
       </header>
 
-      <div className="flex flex-1 overflow-hidden min-h-0">
-        <div className={clsx("flex flex-col items-center justify-center p-4 transition-all relative overflow-hidden", showCC ? "w-1/2" : "w-full")}>
-          <div className="w-40 h-40 mb-4 border border-[#252134] rounded-full flex items-center justify-center bg-[#15131D] shrink-0">
+      <div className="flex flex-1 overflow-hidden min-h-0 relative">
+        <div className={clsx(
+          "flex flex-col items-center justify-center p-4 transition-all relative overflow-hidden",
+          showCC ? "hidden md:flex md:w-1/2" : "flex w-full"
+        )}>
+          <div className="w-32 h-32 sm:w-40 sm:h-40 md:w-44 md:h-44 mb-3 sm:mb-4 border border-[#252134] rounded-full flex items-center justify-center bg-[#15131D] shrink-0 shadow-lg shadow-sky-500/5">
             <TalkingAvatar isTalking={isAITalking} emotion={isAITalking ? 'neutral' : 'happy'} />
           </div>
 
           <SoundWave active={isAITalking || isListening} />
           
-          <p className="mt-3 text-sm font-medium text-slate-400 shrink-0">
+          <p className="mt-2.5 sm:mt-3 text-xs sm:text-sm font-medium text-slate-400 shrink-0">
             {isListening ? 'Listening…' : isAITalking ? 'Speaking…' : 'Tap mic to speak'}
           </p>
 
-          <div className="mt-3 w-full max-w-md px-4 flex flex-col items-center min-h-[44px] justify-center shrink-0">
+          <div className="mt-2.5 sm:mt-3 w-full max-w-md px-3 sm:px-4 flex flex-col items-center min-h-[44px] justify-center shrink-0">
             {liveTranscript ? (
-              <div className="px-4 py-2 rounded-xl bg-sky-500/10 border border-sky-500/30 text-sky-300 text-xs text-center animate-fadeIn">
+              <div className="px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl bg-sky-500/10 border border-sky-500/30 text-sky-300 text-xs text-center animate-fadeIn">
                 <span className="font-semibold text-sky-400">You: </span>{liveTranscript}
               </div>
             ) : !showCC && captionText ? (
-              <div className="max-h-24 overflow-y-auto px-4 py-2 rounded-xl bg-[#15131D]/90 border border-[#252134] text-xs text-slate-200 text-center leading-relaxed shadow-lg whitespace-pre-wrap">
+              <div className="max-h-24 overflow-y-auto px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl bg-[#15131D]/90 border border-[#252134] text-xs text-slate-200 text-center leading-relaxed shadow-lg whitespace-pre-wrap">
                 {captionText}
               </div>
             ) : null}
@@ -310,21 +342,30 @@ const AIInteractMode = () => {
         </div>
 
         {showCC && (
-          <div className="w-1/2 h-full overflow-hidden">
-            <TranscriptPanel messages={messages} streamingText={streamingText} />
+          <div className="w-full md:w-1/2 h-full overflow-hidden absolute md:relative inset-0 z-10 bg-[#15131D]">
+            <TranscriptPanel 
+              messages={messages} 
+              streamingText={streamingText}
+              onCloseMobile={() => setShowCC(false)}
+              isAITalking={isAITalking}
+            />
           </div>
         )}
       </div>
 
-      <div className="flex justify-center py-3.5 px-4 border-t border-[#252134] bg-[#0E0C15]/95 backdrop-blur shrink-0">
+      <div className="flex justify-center py-3 sm:py-3.5 px-4 border-t border-[#252134] bg-[#0E0C15]/95 backdrop-blur shrink-0">
         <button
           onClick={isListening ? stopListening : startListening}
           className={clsx(
-            "w-14 h-14 rounded-full flex items-center justify-center transition-all duration-300",
-            isListening ? "bg-rose-500 text-white shadow-[0_0_30px_rgba(244,63,94,0.4)] scale-105" : isAITalking ? "bg-slate-800 text-slate-500 cursor-not-allowed" : "edus-gradient-bg text-white hover:scale-105 hover:shadow-[0_0_20px_rgba(56,189,248,0.4)]"
+            "w-13 h-13 sm:w-14 sm:h-14 rounded-full flex items-center justify-center transition-all duration-300",
+            isListening 
+              ? "bg-rose-500 text-white shadow-[0_0_30px_rgba(244,63,94,0.4)] scale-105" 
+              : isAITalking 
+                ? "bg-slate-800 text-slate-500 cursor-not-allowed" 
+                : "edus-gradient-bg text-white hover:scale-105 hover:shadow-[0_0_20px_rgba(56,189,248,0.4)] active:scale-95"
           )}
         >
-          {isListening ? <MicOff size={24} /> : <Mic size={24} />}
+          {isListening ? <MicOff size={22} className="sm:w-6 sm:h-6" /> : <Mic size={22} className="sm:w-6 sm:h-6" />}
         </button>
       </div>
 
