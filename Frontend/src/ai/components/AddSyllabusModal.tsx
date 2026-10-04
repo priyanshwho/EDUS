@@ -1,13 +1,23 @@
-import React, { useState } from 'react';
-import { X, Check, AlertCircle, Eye, Edit3, Sparkles, Trash2 } from 'lucide-react';
-import { createSyllabus } from '../api/syllabus.api';
+import React, { useState, useEffect } from 'react';
+import { X, Check, AlertCircle, Eye, Edit3, Sparkles, Trash2, Edit2 } from 'lucide-react';
+import { createSyllabus, updateSyllabus } from '../api/syllabus.api';
 
 interface AddSyllabusModalProps {
   isOpen: boolean;
   onClose: () => void;
   defaultBranch?: string;
   defaultSemester?: string;
-  onSuccess: (newSubject: string, branch: string, semester: string) => void;
+  editItem?: {
+    id: string;
+    subjectName?: string;
+    name?: string;
+    subjectCode?: string | null;
+    branch?: string;
+    semester?: string | number;
+    content?: string;
+    rawText?: string;
+  } | null;
+  onSuccess: (newSubject: string, branch: string, semester: string, isEdit?: boolean) => void;
 }
 
 const BRANCHES = ['CSE', 'IT', 'ECE', 'EEE', 'ME', 'CE', 'AI/ML', 'DS'];
@@ -32,8 +42,10 @@ export const AddSyllabusModal: React.FC<AddSyllabusModalProps> = ({
   onClose,
   defaultBranch = 'CSE',
   defaultSemester = 'semester_4',
+  editItem = null,
   onSuccess,
 }) => {
+  const isEditing = Boolean(editItem?.id);
   const initialSemNum = parseInt(String(defaultSemester).replace(/\D/g, ''), 10) || 4;
 
   const [subjectName, setSubjectName] = useState('');
@@ -44,6 +56,26 @@ export const AddSyllabusModal: React.FC<AddSyllabusModalProps> = ({
   const [activeTab, setActiveTab] = useState<'write' | 'preview'>('write');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (editItem) {
+      setSubjectName(editItem.subjectName || editItem.name || '');
+      setSubjectCode(editItem.subjectCode || '');
+      setBranch(editItem.branch || defaultBranch || 'CSE');
+      const sNum = typeof editItem.semester === 'number'
+        ? editItem.semester
+        : parseInt(String(editItem.semester || '').replace(/\D/g, ''), 10) || 4;
+      setSemester(sNum);
+      setContent(editItem.content || editItem.rawText || '');
+    } else {
+      setSubjectName('');
+      setSubjectCode('');
+      setBranch(defaultBranch || 'CSE');
+      setSemester(initialSemNum);
+      setContent('');
+    }
+    setError('');
+  }, [editItem, isOpen, defaultBranch, defaultSemester]);
 
   if (!isOpen) return null;
 
@@ -82,22 +114,33 @@ export const AddSyllabusModal: React.FC<AddSyllabusModalProps> = ({
 
     setLoading(true);
     try {
-      await createSyllabus({
-        subjectName: subjectName.trim(),
-        subjectCode: subjectCode.trim() || undefined,
-        branch,
-        semester,
-        content: content.trim(),
-      });
-
-      const semFormatted = `semester_${semester}`;
-      onSuccess(subjectName.trim(), branch, semFormatted);
+      if (isEditing && editItem?.id) {
+        await updateSyllabus(editItem.id, {
+          subjectName: subjectName.trim(),
+          subjectCode: subjectCode.trim() || undefined,
+          branch,
+          semester,
+          content: content.trim(),
+        });
+        const semFormatted = `semester_${semester}`;
+        onSuccess(subjectName.trim(), branch, semFormatted, true);
+      } else {
+        await createSyllabus({
+          subjectName: subjectName.trim(),
+          subjectCode: subjectCode.trim() || undefined,
+          branch,
+          semester,
+          content: content.trim(),
+        });
+        const semFormatted = `semester_${semester}`;
+        onSuccess(subjectName.trim(), branch, semFormatted, false);
+      }
       setSubjectName('');
       setSubjectCode('');
       setContent('');
       onClose();
     } catch (err: any) {
-      console.error('Failed to create syllabus:', err);
+      console.error('Failed to save syllabus:', err);
       setError(err?.message || 'Failed to save syllabus. Please try again.');
     } finally {
       setLoading(false);
@@ -105,17 +148,19 @@ export const AddSyllabusModal: React.FC<AddSyllabusModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fadeIn">
-      <div className="relative w-full max-w-2xl bg-[#14121F] border border-slate-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4 bg-black/75 backdrop-blur-sm animate-fadeIn">
+      <div className="relative w-full sm:max-w-2xl bg-[#14121F] border-t sm:border border-slate-800 rounded-t-2xl sm:rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh] sm:max-h-[90vh]">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800">
+        <div className="flex items-center justify-between px-5 sm:px-6 py-4 border-b border-slate-800 shrink-0">
           <div>
-            <h2 className="text-xl font-bold text-white flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-sky-400" />
-              Add New Syllabus
+            <h2 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
+              {isEditing ? <Edit2 className="w-5 h-5 text-sky-400" /> : <Sparkles className="w-5 h-5 text-sky-400" />}
+              {isEditing ? 'Edit Syllabus' : 'Add New Syllabus'}
             </h2>
             <p className="text-xs text-slate-400 mt-0.5">
-              Create a globally available syllabus for all students & AI tools
+              {isEditing
+                ? 'Update syllabus details, chapters, and topics'
+                : 'Create a globally available syllabus for all students & AI tools'}
             </p>
           </div>
           <button
@@ -288,11 +333,11 @@ export const AddSyllabusModal: React.FC<AddSyllabusModalProps> = ({
               className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 text-white text-sm font-semibold hover:opacity-95 hover:shadow-lg hover:shadow-blue-500/20 transition disabled:opacity-50 flex items-center gap-2"
             >
               {loading ? (
-                <>Saving Syllabus...</>
+                <>{isEditing ? 'Updating Syllabus...' : 'Saving Syllabus...'}</>
               ) : (
                 <>
                   <Check size={16} />
-                  Save Syllabus
+                  {isEditing ? 'Save Changes' : 'Save Syllabus'}
                 </>
               )}
             </button>
