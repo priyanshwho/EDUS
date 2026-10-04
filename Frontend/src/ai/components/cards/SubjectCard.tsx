@@ -13,24 +13,28 @@ interface SubjectCardProps {
 }
 
 const SubjectCard: React.FC<SubjectCardProps> = ({
-  name,
-  branch,
-  semester,
+  name = 'Untitled',
+  branch = '',
+  semester = '',
   id,
   canDelete = false,
   onDelete,
   creatorName,
 }) => {
+  const safeName = String(name || 'Untitled');
+  const safeBranch = String(branch || '');
+  const safeSemester = String(semester || '');
+
   const handleDeleteClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     if (id && onDelete) {
-      onDelete(id, name);
+      onDelete(id, safeName);
     }
   };
 
   return (
-    <Link to={`/ai/subject/${branch}/${semester}/${encodeURIComponent(name)}`} className="block">
+    <Link to={`/ai/subject/${safeBranch}/${safeSemester}/${encodeURIComponent(safeName)}`} className="block">
       <div className="edus-card p-5 h-40 flex flex-col justify-between transition-colors hover:edus-gradient-border-active group relative">
         <div className="flex items-start justify-between">
           <div className="w-10 h-10 rounded-xl flex items-center justify-center edus-gradient-bg text-white">
@@ -42,7 +46,7 @@ const SubjectCard: React.FC<SubjectCardProps> = ({
                 type="button"
                 onClick={handleDeleteClick}
                 title="Delete Syllabus"
-                aria-label={`Delete ${name} syllabus`}
+                aria-label={`Delete ${safeName} syllabus`}
                 className="p-1.5 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition-colors z-10"
               >
                 <Trash2 size={16} />
@@ -53,9 +57,9 @@ const SubjectCard: React.FC<SubjectCardProps> = ({
         </div>
         
         <div>
-          <h3 className="font-semibold text-white mb-1 line-clamp-2">{name}</h3>
+          <h3 className="font-semibold text-white mb-1 line-clamp-2">{safeName}</h3>
           <div className="flex items-center justify-between text-xs text-slate-400 uppercase tracking-wider">
-            <span>{branch} · {semester.replace('_', ' ')}</span>
+            <span>{safeBranch} · {safeSemester.replace('_', ' ')}</span>
             {creatorName && (
               <span className="text-[10px] text-sky-400 font-normal lowercase tracking-normal">
                 by {creatorName}

@@ -174,6 +174,7 @@ async function getSubjects(branch, semester) {
       files.forEach((name) => {
         subjectMap.set(name.toLowerCase(), {
           name,
+          subjectName: name,
           id: null,
           isCustom: false,
           createdBy: null,
@@ -198,6 +199,7 @@ async function getSubjects(branch, semester) {
       if (row.subject_name) {
         subjectMap.set(row.subject_name.toLowerCase(), {
           name: row.subject_name,
+          subjectName: row.subject_name,
           subjectCode: row.subject_code,
           id: row.id,
           isCustom: true,
@@ -211,7 +213,7 @@ async function getSubjects(branch, semester) {
     console.warn('[SyllabusService] Warning reading database subjects:', err.message);
   }
 
-  return Array.from(subjectMap.values()).sort((a, b) => a.name.localeCompare(b.name));
+  return Array.from(subjectMap.values()).sort((a, b) => (a.name || '').localeCompare(b.name || ''));
 }
 
 /**
