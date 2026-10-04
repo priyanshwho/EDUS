@@ -82,3 +82,13 @@ exports.deleteSyllabus = async (req, res) => {
     res.status(400).json({ error: error.message || 'Failed to delete syllabus' });
   }
 };
+
+exports.getMyUploads = async (req, res) => {
+  try {
+    const uploads = await syllabusService.getMyUploads(req.user);
+    res.json(uploads);
+  } catch (error) {
+    console.error('[syllabus.controller] getMyUploads error:', error);
+    res.status(500).json({ error: 'Failed to fetch uploaded syllabi' });
+  }
+};
