@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { useSession } from '../../context/SessionContext';
 import { fetchBranches, fetchSemesters } from '../../api/syllabus.api';
-import { Menu, X, ChevronRight, Layers, BookOpen } from 'lucide-react';
+import { Menu, X, ChevronRight, Layers, BookOpen, FolderUp } from 'lucide-react';
 import { clsx } from 'clsx';
 import eduAiImg from '../../../assets/eduai.png';
+import { useAuth } from '../../../context/AuthContext';
 
 const Sidebar = () => {
   const { state, dispatch } = useSession();
+  const { isAdmin, isProfessor } = useAuth();
+  const canManage = Boolean(isAdmin || isProfessor);
   const [branches, setBranches] = useState([]);
   const [semesters, setSemesters] = useState([]);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -67,7 +70,7 @@ const Sidebar = () => {
           <label className="text-xs font-semibold uppercase text-slate-500 px-1">Semester</label>
           <div className="space-y-1 overflow-y-auto max-h-56">
             {semesters.map((sem) => {
-              const active = state.semester === sem;
+              const active = state.branch && state.semester === sem && state.viewMode !== 'my_uploads';
               return (
                 <button
                   key={sem}
@@ -85,6 +88,39 @@ const Sidebar = () => {
               );
             })}
           </div>
+        </div>
+      )}
+
+      {/* ── Professor & Admin: Uploaded Syllabi Section ── */}
+      {canManage && (
+        <div className="space-y-2 mt-4 pt-4 border-t border-slate-800">
+          <div className="flex items-center justify-between px-1">
+            <label className="text-xs font-semibold uppercase text-slate-500">
+              {isAdmin ? 'Manage Syllabi' : 'My Syllabi'}
+            </label>
+            <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-sky-500/10 text-sky-400 font-semibold border border-sky-500/20">
+              {isAdmin ? 'Admin' : 'Professor'}
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              dispatch({ type: 'SET_VIEW_MODE', payload: 'my_uploads' });
+              setMobileOpen(false);
+            }}
+            className={clsx(
+              'w-full text-left px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 flex items-center justify-between',
+              state.viewMode === 'my_uploads'
+                ? 'bg-gradient-to-r from-blue-600 to-cyan-500 text-white shadow-md shadow-blue-500/20'
+                : 'text-slate-400 hover:text-white hover:bg-white/5 border border-transparent'
+            )}
+          >
+            <div className="flex items-center gap-2.5">
+              <FolderUp size={16} />
+              <span>{isAdmin ? 'All Uploaded Syllabi' : 'My Uploaded Syllabi'}</span>
+            </div>
+            {state.viewMode === 'my_uploads' && <ChevronRight size={14} />}
+          </button>
         </div>
       )}
     </div>
