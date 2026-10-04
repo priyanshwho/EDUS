@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import Sidebar from '../components/layout/Sidebar';
 import SubjectCard from '../components/cards/SubjectCard';
 import { useSession } from '../context/SessionContext';
-import { fetchSubjects } from '../api/syllabus.api';
-import { Search, ChevronRight, BookOpen, Zap, X, Plus } from 'lucide-react';
+import { fetchSubjects, fetchMyUploads, deleteSyllabus } from '../api/syllabus.api';
+import { Search, ChevronRight, BookOpen, Zap, X, Plus, FolderUp, CheckCircle } from 'lucide-react';
 import eduAiImg from '../../assets/eduai.png';
 import { useAuth } from '../../context/AuthContext';
 import { AddSyllabusModal } from '../components/AddSyllabusModal';
@@ -14,44 +14,73 @@ const LoadingCard = () => (
 
 const Home = () => {
   const { state, dispatch } = useSession();
-  const { isAdmin, isProfessor } = useAuth();
+  const { user, isAdmin, isProfessor } = useAuth();
   const canAddSyllabus = Boolean(isAdmin || isProfessor);
 
-  const [subjects, setSubjects] = useState([]);
+  const [subjects, setSubjects] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [notification, setNotification] = useState('');
 
-  const loadSubjects = async () => {
-    if (state.branch && state.semester) {
-      setLoading(true);
-      try {
+  const isMyUploadsMode = state.viewMode === 'my_uploads';
+
+  const loadData = async () => {
+    setLoading(true);
+    try {
+      if (isMyUploadsMode) {
+        const data = await fetchMyUploads();
+        setSubjects(Array.isArray(data) ? data : []);
+      } else if (state.branch && state.semester) {
         const data = await fetchSubjects(state.branch, state.semester);
-        setSubjects(data);
-      } catch (error) {
-        console.error('Failed to load subjects', error);
-      } finally {
-        setLoading(false);
+        setSubjects(Array.isArray(data) ? data : []);
+      } else {
+        setSubjects([]);
       }
+    } catch (error) {
+      console.error('Failed to load syllabus data:', error);
+      setSubjects([]);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    loadSubjects();
-  }, [state.branch, state.semester]);
+    loadData();
+  }, [state.branch, state.semester, state.viewMode]);
 
-  const handleSyllabusCreated = async (newSubject, branch, semester) => {
-    if (state.branch === branch && state.semester === semester) {
-      await loadSubjects();
+  const handleSyllabusCreated = async (newSubject: string, branch: string, semester: string) => {
+    setNotification(`Syllabus for "${newSubject}" created successfully!`);
+    setTimeout(() => setNotification(''), 4000);
+
+    if (isMyUploadsMode) {
+      await loadData();
+    } else if (state.branch === branch && state.semester === semester) {
+      await loadData();
     } else {
       dispatch({ type: 'SET_BRANCH', payload: branch });
       dispatch({ type: 'SET_SEMESTER', payload: semester });
     }
   };
 
-  const filteredSubjects = subjects.filter((s) =>
-    s.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const handleDeleteSyllabus = async (id: string, name: string) => {
+    if (!window.confirm(`Are you sure you want to delete the syllabus for "${name}"? This action cannot be undone.`)) {
+      return;
+    }
+    try {
+      await deleteSyllabus(id);
+      setNotification(`Syllabus for "${name}" deleted successfully.`);
+      setTimeout(() => setNotification(''), 4000);
+      await loadData();
+    } catch (err: any) {
+      alert(err?.message || 'Failed to delete syllabus.');
+    }
+  };
+
+  const filteredSubjects = subjects.filter((s) => {
+    const name = typeof s === 'string' ? s : s.name;
+    return name.toLowerCase().includes(searchTerm.toLowerCase());
+  });
 
   return (
     <div className="flex min-h-screen text-slate-200 bg-[#0E0C15]">
@@ -64,9 +93,15 @@ const Home = () => {
               <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-transparent border border-white/10 overflow-hidden">
                 <img src={eduAiImg} className="w-full h-full object-cover" alt="Edu AI" />
               </div>
-              <h1 className="text-3xl md:text-4xl font-bold edus-gradient-text">Edu.ai</h1>
+              <h1 className="text-3xl md:text-4xl font-bold edus-gradient-text">
+                {isMyUploadsMode ? (isAdmin ? 'All Uploaded Syllabi' : 'My Uploaded Syllabi') : 'Edu.ai'}
+              </h1>
             </div>
-            <p className="text-sm text-slate-400">AI-driven challenges to sharpen your learning</p>
+            <p className="text-sm text-slate-400">
+              {isMyUploadsMode
+                ? (isAdmin ? 'Manage all dynamically created syllabi across departments' : 'Manage syllabi uploaded by you')
+                : 'AI-driven challenges to sharpen your learning'}
+            </p>
           </div>
 
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
@@ -104,6 +139,18 @@ const Home = () => {
           </div>
         </header>
 
+        {notification && (
+          <div className="mx-6 md:mx-10 mb-4 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs flex items-center justify-between animate-fadeIn">
+            <div className="flex items-center gap-2">
+              <CheckCircle size={16} />
+              <span>{notification}</span>
+            </div>
+            <button onClick={() => setNotification('')} className="p-1 hover:text-white transition">
+              <X size={14} />
+            </button>
+          </div>
+        )}
+
         <AddSyllabusModal
           isOpen={isAddModalOpen}
           onClose={() => setIsAddModalOpen(false)}
@@ -128,17 +175,52 @@ const Home = () => {
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                  {filteredSubjects.map((subject, idx) => (
-                    <SubjectCard
-                      key={subject}
-                      name={subject}
-                      branch={state.branch}
-                      semester={state.semester}
-                    />
-                  ))}
+                  {filteredSubjects.map((s) => {
+                    const isObj = typeof s === 'object' && s !== null;
+                    const name = isObj ? s.name : s;
+                    const id = isObj ? s.id : null;
+                    const itemBranch = isObj ? s.branch : state.branch;
+                    const itemSemester = isObj ? s.semester : state.semester;
+                    const createdBy = isObj ? s.createdBy : null;
+                    const isOwner = Boolean(user?.id && createdBy && String(createdBy) === String(user.id));
+                    const canDelete = Boolean(id && (isAdmin || isOwner));
+
+                    return (
+                      <SubjectCard
+                        key={id || `${itemBranch}-${itemSemester}-${name}`}
+                        name={name}
+                        branch={itemBranch}
+                        semester={itemSemester}
+                        id={id}
+                        canDelete={canDelete}
+                        onDelete={handleDeleteSyllabus}
+                        creatorName={isAdmin && isObj ? s.creatorName : null}
+                      />
+                    );
+                  })}
                 </div>
               )}
             </>
+          ) : isMyUploadsMode ? (
+            <div className="flex flex-col items-center justify-center py-24 text-center">
+              <div className="w-16 h-16 rounded-2xl flex items-center justify-center bg-slate-800/50 border border-slate-700 mb-6">
+                <FolderUp size={28} className="text-slate-400" />
+              </div>
+              <h2 className="text-xl font-bold mb-2 text-white">No uploaded syllabi yet</h2>
+              <p className="max-w-xs text-sm text-slate-400 mb-6">
+                {isAdmin
+                  ? 'No dynamic syllabi have been uploaded to the database yet.'
+                  : 'You have not uploaded any syllabi yet. Uploaded syllabi will appear here.'}
+              </p>
+              {canAddSyllabus && (
+                <button
+                  onClick={() => setIsAddModalOpen(true)}
+                  className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 text-white text-sm font-semibold hover:opacity-95 transition"
+                >
+                  Add Your First Syllabus
+                </button>
+              )}
+            </div>
           ) : (
             <div className="flex flex-col items-center justify-center py-24 text-center">
               <div className="w-16 h-16 rounded-2xl flex items-center justify-center bg-slate-800/50 border border-slate-700 mb-6">
