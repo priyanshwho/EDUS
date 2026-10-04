@@ -69,24 +69,29 @@ const Sidebar = () => {
         <div className="space-y-2 mt-4">
           <label className="text-xs font-semibold uppercase text-slate-500 px-1">Semester</label>
           <div className="space-y-1 overflow-y-auto max-h-56">
-            {semesters.map((sem) => {
-              const active = state.branch && state.semester === sem && state.viewMode !== 'my_uploads';
-              return (
-                <button
-                  key={sem}
-                  onClick={() => { dispatch({ type: 'SET_SEMESTER', payload: sem }); setMobileOpen(false); }}
-                  className={clsx(
-                    'w-full text-left px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 flex items-center justify-between',
-                    active 
-                      ? 'bg-gradient-to-r from-blue-600 to-cyan-500 text-white shadow-md shadow-blue-500/20' 
-                      : 'text-slate-400 hover:text-white hover:bg-white/5 border border-transparent'
-                  )}
-                >
-                  <span>{sem.replace('_', ' ')}</span>
-                  {active && <ChevronRight size={14} />}
-                </button>
-              );
-            })}
+            {semesters
+              .filter((sem) => {
+                const num = parseInt(String(sem).replace(/\D/g, ''), 10);
+                return !isNaN(num) && num >= 1 && num <= 8;
+              })
+              .map((sem) => {
+                const active = state.branch && state.semester === sem && state.viewMode !== 'my_uploads';
+                return (
+                  <button
+                    key={sem}
+                    onClick={() => { dispatch({ type: 'SET_SEMESTER', payload: sem }); setMobileOpen(false); }}
+                    className={clsx(
+                      'w-full text-left px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 flex items-center justify-between',
+                      active 
+                        ? 'bg-gradient-to-r from-blue-600 to-cyan-500 text-white shadow-md shadow-blue-500/20' 
+                        : 'text-slate-400 hover:text-white hover:bg-white/5 border border-transparent'
+                    )}
+                  >
+                    <span>{sem.replace('_', ' ')}</span>
+                    {active && <ChevronRight size={14} />}
+                  </button>
+                );
+              })}
           </div>
         </div>
       )}
