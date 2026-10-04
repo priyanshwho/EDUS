@@ -7,6 +7,7 @@ import { Search, ChevronRight, BookOpen, Zap, X, Plus, FolderUp, CheckCircle } f
 import eduAiImg from '../../assets/eduai.png';
 import { useAuth } from '../../context/AuthContext';
 import { AddSyllabusModal } from '../components/AddSyllabusModal';
+import { DeleteConfirmationModal } from '../components/DeleteConfirmationModal';
 
 const LoadingCard = () => (
   <div className="edus-card rounded-2xl h-40 animate-pulse bg-slate-800/50" />
@@ -21,6 +22,8 @@ const Home = () => {
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [notification, setNotification] = useState('');
 
   const isMyUploadsMode = state.viewMode === 'my_uploads';
@@ -63,17 +66,24 @@ const Home = () => {
     }
   };
 
-  const handleDeleteSyllabus = async (id: string, name: string) => {
-    if (!window.confirm(`Are you sure you want to delete the syllabus for "${name}"? This action cannot be undone.`)) {
-      return;
-    }
+  const handleDeleteSyllabus = (id: string, name: string) => {
+    setDeleteTarget({ id, name });
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return;
+    setIsDeleting(true);
     try {
-      await deleteSyllabus(id);
-      setNotification(`Syllabus for "${name}" deleted successfully.`);
+      await deleteSyllabus(deleteTarget.id);
+      setNotification(`Syllabus for "${deleteTarget.name}" deleted successfully.`);
       setTimeout(() => setNotification(''), 4000);
+      setDeleteTarget(null);
       await loadData();
     } catch (err: any) {
-      alert(err?.message || 'Failed to delete syllabus.');
+      setNotification(err?.message || 'Failed to delete syllabus.');
+      setTimeout(() => setNotification(''), 4000);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -162,6 +172,14 @@ const Home = () => {
           defaultBranch={state.branch}
           defaultSemester={state.semester}
           onSuccess={handleSyllabusCreated}
+        />
+
+        <DeleteConfirmationModal
+          isOpen={Boolean(deleteTarget)}
+          onClose={() => setDeleteTarget(null)}
+          onConfirm={handleConfirmDelete}
+          itemName={deleteTarget?.name || ''}
+          isDeleting={isDeleting}
         />
 
         <div className="mx-6 md:mx-10 mb-8 h-px bg-slate-800" />
