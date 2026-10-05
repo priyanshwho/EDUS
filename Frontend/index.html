@@ -49,10 +49,16 @@
       base-uri 'self';
     " />
 
+    <!-- LCP Image Preload for Mobile & Desktop -->
+    <link rel="preload" as="image" href="/robot.webp" type="image/webp" fetchpriority="high" />
+
     <!-- Google Fonts Preconnect and Non-blocking Stylesheet -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600&family=Source+Code+Pro:wght@400;600;700&family=Space+Grotesk:wght@300&display=swap" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600&family=Source+Code+Pro:wght@400;600;700&family=Space+Grotesk:wght@300&display=swap" media="print" onload="this.media='all'" />
+    <noscript>
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600&family=Source+Code+Pro:wght@400;600;700&family=Space+Grotesk:wght@300&display=swap" />
+    </noscript>
   </head>
   <body>
     <div id="root"></div>

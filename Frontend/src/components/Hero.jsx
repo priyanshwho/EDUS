@@ -66,7 +66,7 @@ return (
 
                 <div className='aspect-[33/40] rounded-b-[0.9rem] overflow-hidden md:aspect-[688/490] lg:aspect-[1024/490]'>
                     <img 
-                    src={robot}
+                    src="/robot.webp"
                     className='w-full object-left -translate-x-[8vw] scale-[1.7] translate-y-[8%] md:object-center md:translate-x-0 md:scale-[1] md:-translate-y-[10%] lg:-translate-y-[23%]'
                     width={1024}
                     height={490}
@@ -162,7 +162,7 @@ return (
 
             <Gradient />
         </div>
-         <div className='absolute -top-[80%] left-1/2 w-[234%] -translate-x-1/2 md:-top-[46%] md:w-[138%] lg:-top-[104%] pointer-events-none'>
+         <div className='hidden md:block absolute -top-[80%] left-1/2 w-[234%] -translate-x-1/2 md:-top-[46%] md:w-[138%] lg:-top-[104%] pointer-events-none'>
             <img 
               src={heroBackground}
               className='w-full object-left md:object-center object-cover md:w-full md:h-auto h-[180vw] -translate-x-[16vw] translate-y-[28vw] md:translate-x-0 md:translate-y-0'
