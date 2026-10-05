@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import Section from './Section';
 import Button from './Button';
-import ovel from "../assets/feedback/ovel.png";
+import ovel from "../assets/feedback/ovel.webp";
 import { BackgroundCircles } from './design/Hero';
 
 const Feedback = () => {
@@ -57,8 +57,9 @@ Feedback: ${feedbackData.feedback}
               <div className="absolute inset-0 rounded-2xl bg-gradient-to-b from-n-8/50 to-n-8/90 backdrop-blur-xl -z-10"/>
               <form onSubmit={handleSubmit} className="space-y-6 z=100">
                 <div>
-                  <label className="block text-n-1/50 mb-2 font-medium">Name</label>
+                  <label htmlFor="feedback-name" className="block text-n-2 mb-2 font-medium">Name</label>
                   <input
+                    id="feedback-name"
                     type="text"
                     name="name"
                     value={feedbackData.name}
@@ -71,8 +72,9 @@ Feedback: ${feedbackData.feedback}
                 </div>
 
                 <div>
-                  <label className="block text-n-1/50 mb-2 font-medium">Email</label>
+                  <label htmlFor="feedback-email" className="block text-n-2 mb-2 font-medium">Email</label>
                   <input
+                    id="feedback-email"
                     type="email"
                     name="email"
                     value={feedbackData.email}
@@ -85,12 +87,13 @@ Feedback: ${feedbackData.feedback}
                 </div>
 
                 <div>
-                  <label className="block text-n-1/50 mb-2 font-medium">Rating</label>
+                  <label className="block text-n-2 mb-2 font-medium">Rating</label>
                   <div className="flex justify-center gap-2 bg-n-7 p-3 rounded-xl border border-n-1/10">
                     {[1, 2, 3, 4, 5].map((star) => (
                       <button
                         key={star}
                         type="button"
+                        aria-label={`Rate ${star} out of 5 stars`}
                         onClick={() => {
                           setRating(star);
                           setFeedbackData(prev => ({ ...prev, rating: star }));
@@ -105,8 +108,9 @@ Feedback: ${feedbackData.feedback}
                 </div>
 
                 <div>
-                  <label className="block text-n-1/50 mb-2 font-medium">Your Feedback</label>
+                  <label htmlFor="feedback-message" className="block text-n-2 mb-2 font-medium">Your Feedback</label>
                   <textarea
+                    id="feedback-message"
                     name="feedback"
                     value={feedbackData.feedback}
                     onChange={handleChange}
@@ -146,8 +150,13 @@ Feedback: ${feedbackData.feedback}
               <div className="relative w-full group">
                 <img 
                   src={ovel}
-                  className="w-full max-w-[25rem] md:max-w-[30rem] h-auto object-contain mx-auto transition-all duration-500 ease-out transform group-hover:scale-110 group-hover:rotate-12 group-hover:brightness-125 animate-float"
-                  alt="feedback illustration"
+                  width={499}
+                  height={500}
+                  loading="lazy"
+                  decoding="async"
+                  className="w-full max-w-[25rem] md:max-w-[30rem] aspect-square object-contain mx-auto transition-all duration-500 ease-out transform group-hover:scale-110 group-hover:rotate-12 group-hover:brightness-125 animate-float"
+                  alt=""
+                  aria-hidden="true"
                 />
               </div>
               <style>{`

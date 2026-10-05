@@ -13,7 +13,9 @@ const Creators = ({className,title}) => {
             <img src={notification1} 
             width={62}
             height={62}
-            alt="image"
+            alt="EduSphere platform preview"
+            loading="lazy"
+            decoding="async"
             className="rounded-xl" />
             <div className="flex-1">
                 <h6 className="mb-1 font-semibold
@@ -24,11 +26,12 @@ const Creators = ({className,title}) => {
                         {notificationImages.map((item,index)=>(
                             <li key={index} className="flex w-6 h-6 border-2 border-n-12 rounded-full overflow-hidden">
                                 <img src={item}
-                                
-                                    className="w-full"
+                                    className="w-full h-full object-cover"
                                     width={20}
                                     height={20}
-                                 alt={item} />
+                                    loading="lazy"
+                                    decoding="async"
+                                    alt={`EduSphere contributor ${index + 1}`} />
                             </li>
                         ))}
                         {/* ye uper wo constant folder se uthaya j notification kr ke hoga */}

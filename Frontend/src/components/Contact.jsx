@@ -79,10 +79,15 @@ ${formData.firstName} ${formData.lastName}
                 transition-colors duration-300" />
               <img 
                 src={smallSphere}
+                width={400}
+                height={400}
+                loading="lazy"
+                decoding="async"
                 className={`relative w-[25rem] h-[25rem] object-contain transition-all duration-500
                   ${isImageAnimating ? 'scale-110 rotate-12' : 'scale-100 rotate-0'}
                   group-hover:opacity-100 group-hover:shadow-[0_0_40px_rgba(0,157,255,0.3)] animate-float`}
-                alt="sphere"
+                alt=""
+                aria-hidden="true"
               />
       <style>{`
         @keyframes float {
@@ -107,7 +112,7 @@ ${formData.firstName} ${formData.lastName}
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid grid-cols-2 gap-6">
                   <div>
-                    <label htmlFor="firstName" className="block text-n-1/50 mb-2">First Name</label>
+                    <label htmlFor="firstName" className="block text-n-2 mb-2 font-medium">First Name</label>
                     <input
                       id="firstName"
                       type="text"
@@ -121,7 +126,7 @@ ${formData.firstName} ${formData.lastName}
                     />
                   </div>
                   <div>
-                    <label htmlFor="lastName" className="block text-n-1/50 mb-2">Last Name</label>
+                    <label htmlFor="lastName" className="block text-n-2 mb-2 font-medium">Last Name</label>
                     <input
                       id="lastName"
                       type="text"
@@ -137,7 +142,7 @@ ${formData.firstName} ${formData.lastName}
                 </div>
 
                 <div>
-                  <label htmlFor="email" className="block text-n-1/50 mb-2">Email</label>
+                  <label htmlFor="email" className="block text-n-2 mb-2 font-medium">Email</label>
                   <input
                     id="email"
                     type="email"
@@ -152,7 +157,7 @@ ${formData.firstName} ${formData.lastName}
                 </div>
 
                 <div>
-                  <label htmlFor="phone" className="block text-n-1/50 mb-2">Phone Number</label>
+                  <label htmlFor="phone" className="block text-n-2 mb-2 font-medium">Phone Number</label>
                   <input
                     id="phone"
                     type="tel"
@@ -167,7 +172,7 @@ ${formData.firstName} ${formData.lastName}
                 </div>
 
                 <div>
-                  <label htmlFor="message" className="block text-n-1/50 mb-2">Message</label>
+                  <label htmlFor="message" className="block text-n-2 mb-2 font-medium">Message</label>
                   <textarea
                     id="message"
                     name="message"

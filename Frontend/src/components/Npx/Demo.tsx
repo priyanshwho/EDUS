@@ -5,25 +5,25 @@ import Section from "../Section";
 const DemoOne = () => {
   const items = [
     {
-      image: "/priyanshu.png",
+      image: "/priyanshu.webp",
       link: "/creators",
       title: "Priyanshu Anand",
       description: "Team Lead"
     },
     {
-      image: "/Neeraj.jpeg",
+      image: "/Neeraj.webp",
       link: "/creators",
       title: "Neeraj Verma", 
       description: "Team Lead"
     },
     {
-      image: "/Anuj.jpeg",
+      image: "/Anuj.webp",
       link: "/creators",
       title: "Anuj Kumar",
       description: "Team Member"
     },
     {
-      image: "/Prashant.jpeg",
+      image: "/Prashant.webp",
       link: "/creators",
       title: "Prashant Singh",
       description: "Team Member"
