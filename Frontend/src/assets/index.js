@@ -22,8 +22,8 @@ import loading from "./loading.png";
 import background from "./background.jpg";
 
 import curve from "./hero/curve.png";
-import robot from "./hero/robot.jpg";
-import heroBackground from "./hero/hero-background.jpg";
+import robot from "./hero/robot.webp";
+import heroBackground from "./hero/hero-background.webp";
 
 import curve1 from "./collaboration/curve-1.svg";
 import curve2 from "./collaboration/curve-2.svg";
@@ -52,10 +52,10 @@ import roadmap3 from "./roadmap/image-3.webp";
 import roadmap4 from "./roadmap/image-4.webp";
 import undone from "./roadmap/undone.svg";
 
-import notification1 from "./notification/image-1.png";
-import notification2 from "./notification/image-2.png";
-import notification3 from "./notification/image-3.png";
-import notification4 from "./notification/image-4.png";
+import notification1 from "./notification/image-1.webp";
+import notification2 from "./notification/image-22.png";
+import notification3 from "./notification/image-33.png";
+import notification4 from "./notification/image-44.png";
 
 import benefitCard1 from "./benefits/card-1.svg";
 import benefitCard2 from "./benefits/card-2.svg";
