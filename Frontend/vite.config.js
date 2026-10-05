@@ -80,7 +80,7 @@ export default defineConfig({
 
     rollupOptions: {
       output: {
-        // Default chunking
+        // Default chunking driven by dynamic imports
       },
     },
   },

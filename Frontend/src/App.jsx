@@ -1,40 +1,44 @@
+import { lazy, Suspense } from "react";
 import ButtonGradient from "./assets/svg/ButtonGradient";
 import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import Header from "./components/Header";
 import ScrollToTop from "./components/ScrollToTop";
-import LecturesPage from "./Pages/Lectures_Page";
-import AboutPage from "./Pages/About_Page";
-import ServicesPage from "./Pages/Services_Page";
 import Homepage from "./components/Homepage";
-import Pyqs_Page from "./Pages/Pyqs_Page";
-import Notes_Page from "./Pages/Notes_Page";
-import Aiml_page from "./Pages/Aiml_page";
-import TechSkill_page from "./Pages/TechSkill_page";
-import ExtraSkills_page from "./Pages/ExtraSkills_page";
-import Webdev_page from "./Pages/Webdev_page";
-import Dsa_page from "./Pages/Dsa_page";
-import Contact from "./Pages/Contact";
-import Eduai from "./Pages/Eduai";
 import Footer from "./components/Footer";
-import { DemoOne } from "./components/Npx/Demo";
-import Makers from "./components/Makers";
 import MobileBottomBar from "./components/layout/MobileBottomBar";
 import PageTransition from "./components/PageTransition";
 
 // ── Auth & Dashboard ────────────────────────────────────────────────
 import { AuthProvider } from "./context/AuthContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
-import LoginPage from "./Pages/Login";
-import SignupPage from "./Pages/Signup";
-import ProfessorPinPage from "./Pages/ProfessorPin";
-import AuthCallbackPage from "./Pages/AuthCallback";
-import StudentDashboard from "./dashboard/StudentDashboard";
-import ProfessorDashboard from "./dashboard/ProfessorDashboard";
-import AdminDashboard from "./dashboard/AdminDashboard";
-import ResourcePage from "./Pages/ResourcePage";
-import ProfessorsPage from "./Pages/Professors_Page";
-import ProfessorProfilePage from "./Pages/ProfessorProfile_Page";
+
+// ── Lazy-loaded pages ────────────────────────────────────────────────
+const LecturesPage = lazy(() => import("./Pages/Lectures_Page"));
+const AboutPage = lazy(() => import("./Pages/About_Page"));
+const ServicesPage = lazy(() => import("./Pages/Services_Page"));
+const Pyqs_Page = lazy(() => import("./Pages/Pyqs_Page"));
+const Notes_Page = lazy(() => import("./Pages/Notes_Page"));
+const Aiml_page = lazy(() => import("./Pages/Aiml_page"));
+const TechSkill_page = lazy(() => import("./Pages/TechSkill_page"));
+const ExtraSkills_page = lazy(() => import("./Pages/ExtraSkills_page"));
+const Webdev_page = lazy(() => import("./Pages/Webdev_page"));
+const Dsa_page = lazy(() => import("./Pages/Dsa_page"));
+const Contact = lazy(() => import("./Pages/Contact"));
+const Eduai = lazy(() => import("./Pages/Eduai"));
+const DemoOne = lazy(() => import("./components/Npx/Demo").then(m => ({ default: m.DemoOne })));
+const Makers = lazy(() => import("./components/Makers"));
+
+const LoginPage = lazy(() => import("./Pages/Login"));
+const SignupPage = lazy(() => import("./Pages/Signup"));
+const ProfessorPinPage = lazy(() => import("./Pages/ProfessorPin"));
+const AuthCallbackPage = lazy(() => import("./Pages/AuthCallback"));
+const StudentDashboard = lazy(() => import("./dashboard/StudentDashboard"));
+const ProfessorDashboard = lazy(() => import("./dashboard/ProfessorDashboard"));
+const AdminDashboard = lazy(() => import("./dashboard/AdminDashboard"));
+const ResourcePage = lazy(() => import("./Pages/ResourcePage"));
+const ProfessorsPage = lazy(() => import("./Pages/Professors_Page"));
+const ProfessorProfilePage = lazy(() => import("./Pages/ProfessorProfile_Page"));
 // ───────────────────────────────────────────────────────────────────
 
 /**
@@ -134,7 +138,9 @@ const AppShell = () => {
     <>
       {!isAuthCallback && <Header />}
       <div className={isAuthCallback ? 'overflow-x-hidden' : 'pt-[4.75rem] lg:pt-[5.25rem] overflow-x-hidden'}>
-        <AnimatedRoutes />
+        <Suspense fallback={<div className="min-h-[60vh] flex items-center justify-center"><div className="w-8 h-8 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin" /></div>}>
+          <AnimatedRoutes />
+        </Suspense>
       </div>
       {!hideChrome && <MobileBottomBar />}
       {!hideChrome && <Footer />}

@@ -1,0 +1,14 @@
+# EduSphere
+> Academic Resource Platform for Students and Educators
+
+EduSphere provides comprehensive academic resources including verified lecture notes, previous year exam questions (PYQs), curated video lectures, and AI-powered study tools for university students.
+
+## Core Navigation
+- [Homepage](https://edusphere.live/): Overview of services, study materials, and academic tools.
+- [About](https://edusphere.live/about): Mission, vision, and team background.
+- [Services](https://edusphere.live/services): Academic courses, technical skills, and resources.
+- [PYQs](https://edusphere.live/pyqs): Previous year question papers indexed by branch, semester, and subject.
+- [Notes](https://edusphere.live/notes): Curated university study notes and syllabus references.
+- [Lectures](https://edusphere.live/lectures): Curated video lecture series and playlists.
+- [Contact](https://edusphere.live/contact): Support, inquiries, and collaboration form.
+- [Edu.ai](https://edusphere.live/ai): AI-powered study companion with flashcards, quizzes, and summarization.

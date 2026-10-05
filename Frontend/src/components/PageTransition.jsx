@@ -10,18 +10,15 @@ import { motion } from 'framer-motion';
 const pageVariants = {
   initial: {
     opacity: 0,
-    filter: 'blur(8px)',
-    y: 15,
+    filter: 'blur(4px)',
   },
   animate: {
     opacity: 1,
     filter: 'blur(0px)',
-    y: 0,
   },
   exit: {
     opacity: 0,
-    filter: 'blur(8px)',
-    y: -15,
+    filter: 'blur(4px)',
   },
 };
 
