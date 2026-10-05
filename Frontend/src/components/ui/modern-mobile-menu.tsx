@@ -98,10 +98,12 @@ const InteractiveMenu: React.FC<InteractiveMenuProps> = ({ items, accentColor, d
         return (
           <button
             key={item.label}
+            aria-label={item.label}
+            aria-current={isActive ? 'page' : undefined}
             className={`group relative flex flex-col items-center justify-center rounded-2xl transition-all duration-300 ease-out w-14 h-14 ${
               isActive 
                 ? 'bg-sky-500/15 text-sky-400' 
-                : 'text-n-4 hover:bg-n-7/50 hover:text-n-1'
+                : 'text-n-3 hover:bg-n-7/50 hover:text-n-1'
             }`}
             onClick={() => handleItemClick(index)}
             ref={(el) => { itemRefs.current[index] = el; }}
