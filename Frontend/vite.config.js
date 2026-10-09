@@ -80,7 +80,18 @@ export default defineConfig({
 
     rollupOptions: {
       output: {
-        // Default chunking driven by dynamic imports
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('@clerk')) return 'vendor-clerk';
+            if (id.includes('framer-motion')) return 'vendor-motion';
+            if (id.includes('lucide-react')) return 'vendor-icons';
+            if (id.includes('gl-matrix')) return 'vendor-webgl';
+            if (id.includes('pdfjs-dist')) return 'vendor-pdf';
+            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router-dom')) {
+              return 'vendor-react';
+            }
+          }
+        },
       },
     },
   },
