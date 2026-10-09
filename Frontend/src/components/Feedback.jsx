@@ -49,9 +49,9 @@ Feedback: ${feedbackData.feedback}
         <div className="flex flex-col-reverse lg:flex-row gap-12 items-center justify-between">
           {/* Form Section */}
           <div className="w-full lg:w-[45%] order-2 lg:order-1">
-          <h1 className='h1 pb-6 flex justify-center'>
+          <h2 className='h1 pb-6 flex justify-center'>
   Any{` `}<span className='text-sky-400'>Feedback?</span>
-</h1>            <div className="relative p-6 sm:p-8 bg-n-8/90 backdrop-blur border border-n-1/10 rounded-2xl 
+</h2>            <div className="relative p-6 sm:p-8 bg-n-8/90 backdrop-blur border border-n-1/10 rounded-2xl 
               transform hover:scale-[1.01] transition-all duration-300 
               hover:shadow-[0_0_30px_rgba(0,157,255,0.25)]">
               <div className="absolute inset-0 rounded-2xl bg-gradient-to-b from-n-8/50 to-n-8/90 backdrop-blur-xl -z-10"/>
@@ -137,13 +137,13 @@ Feedback: ${feedbackData.feedback}
           {/* Content Section */}
           <div className="w-full lg:w-[45%] order-1 -z-2 lg:order-2 text-center lg:text-left">
             <div className="relative z-1 max-w-[35rem] mx-auto lg:mx-0">
-              <h1 className="h1 mb-6">
+              <h2 className="h1 mb-6">
                 Your <span className="text-sky-400 inline-block relative group">
                   Feedback
                   <div className="absolute inset-0 rounded-2xl bg-sky-400/20 blur-lg transition-opacity duration-500 opacity-0 group-hover:opacity-100" />
                 </span>{" "}
                 Matters
-              </h1>
+              </h2>
               <p className="body-1 mb-10 text-n-2 max-w-[90%] mx-auto lg:mx-0">
                 Help us improve your experience by sharing your thoughts. Your feedback shapes our future updates.
               </p>
