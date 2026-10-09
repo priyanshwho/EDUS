@@ -94,7 +94,7 @@ const Services = () => {
             </div>
 
             <div className="relative  z-1 max-w-[17rem] ml-auto">
-              <h4 className="h4 text-4xl mb-4">B.E Courses</h4>
+              <h3 className="h4 text-4xl mb-4">B.E Courses</h3>
               <p className="body-2  mb-[1.5rem] text-n-3">
                 Edusphere unlocks the potential within you
               </p>
@@ -138,7 +138,7 @@ const Services = () => {
               </div>
 
               <div className="absolute inset-0 flex flex-col justify-end p-8 bg-gradient-to-b from-n-8/0 to-n-8/90 lg:p-15">
-                <h4 className="h4 mb-4">Tech SKILLS</h4>
+                <h3 className="h4 mb-4">Tech SKILLS</h3>
                 <p className="body-2 mb-[3rem] text-n-3">
                     Want to learn the latest tech skills? We have got you covered.
                 </p>
@@ -149,7 +149,7 @@ const Services = () => {
 
             <div className="p-4 bg-n-7 rounded-3xl overflow-hidden lg:min-h-[46rem]">
               <div className="py-12 px-4 xl:px-8">
-                <h4 className="h4 mb-4">Extra Skills</h4>
+                <h3 className="h4 mb-4">Extra Skills</h3>
                 <p className="body-2 mb-[2rem] text-n-3">
                   Want to explore about the video editing , or something else like trading skills? We have got you covered.
                 </p>

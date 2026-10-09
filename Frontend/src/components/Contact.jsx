@@ -65,9 +65,9 @@ ${formData.firstName} ${formData.lastName}
         <div className="flex flex-col lg:flex-row gap-12 items-start justify-between">
           {/* Left Side - Image and Heading */}
           <div className="w-full lg:w-5/12 -z-2 lg:sticky lg:top-20">
-            <h1 className="h1 mb-8">
+            <h2 className="h2 mb-8">
               Contact <span className="text-sky-400">Us</span>
-            </h1>
+            </h2>
             <p className="body-1 mb-8 text-n-2">
               We'd love to hear from you. Please fill out the form.
             </p>
