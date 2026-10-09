@@ -7,3 +7,6 @@ Disallow: /auth/
 
 # Sitemap location
 Sitemap: https://edusphere.live/sitemap.xml
+
+# AI Agent Resource Discovery
+Agentmap: https://edusphere.live/.well-known/ai-catalog.json
