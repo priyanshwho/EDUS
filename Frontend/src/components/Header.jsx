@@ -85,7 +85,8 @@ const Header = () => {
     ).toUpperCase();
 
     return (
-        <div
+        <header
+            role="banner"
             className={`fixed top-0 left-0 w-full z-50 border-b border-n-6 lg:bg-n-8/90 lg:backdrop-blur-sm ${
                 openNavigation ? 'bg-n-8' : 'bg-n-8/90 backdrop-blur-sm'
             }`}
@@ -253,7 +254,7 @@ const Header = () => {
                     )}
                 </div>
             </div>
-        </div>
+        </header>
     );
 };
 

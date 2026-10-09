@@ -137,11 +137,11 @@ const AppShell = () => {
   return (
     <>
       {!isAuthCallback && <Header />}
-      <div className={isAuthCallback ? 'overflow-x-hidden' : 'pt-[4.75rem] lg:pt-[5.25rem] overflow-x-hidden'}>
+      <main id="main-content" role="main" className={isAuthCallback ? 'overflow-x-hidden' : 'pt-[4.75rem] lg:pt-[5.25rem] overflow-x-hidden'}>
         <Suspense fallback={<div className="min-h-[60vh] flex items-center justify-center"><div className="w-8 h-8 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin" /></div>}>
           <AnimatedRoutes />
         </Suspense>
-      </div>
+      </main>
       {!hideChrome && <MobileBottomBar />}
       {!hideChrome && <Footer />}
       <ButtonGradient />

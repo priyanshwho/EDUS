@@ -1,0 +1,35 @@
+{
+  "specVersion": "1.0",
+  "host": {
+    "displayName": "EduSphere",
+    "identifier": "did:web:edusphere.live"
+  },
+  "entries": [
+    {
+      "identifier": "urn:air:edusphere.live:service:academic-resources",
+      "displayName": "Academic Resources",
+      "type": "application/json",
+      "url": "https://edusphere.live/api/v1/resources",
+      "description": "Access university study notes, previous year questions (PYQs), and lecture materials.",
+      "representativeQueries": [
+        "find university study notes",
+        "engineering previous year questions",
+        "college lecture playlists"
+      ],
+      "tags": ["education", "academic", "engineering", "notes", "pyqs"]
+    },
+    {
+      "identifier": "urn:air:edusphere.live:ai:study-assistant",
+      "displayName": "EduAI Study Assistant",
+      "type": "application/json",
+      "url": "https://edusphere.live/ai",
+      "description": "AI-powered study assistant for flashcards generation, MCQ quiz practice, and syllabus explanations.",
+      "representativeQueries": [
+        "generate flashcards for computer science",
+        "create practice MCQs",
+        "explain syllabus topic"
+      ],
+      "tags": ["ai", "flashcards", "mcq", "study-tools"]
+    }
+  ]
+}
