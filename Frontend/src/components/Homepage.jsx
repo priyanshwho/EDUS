@@ -15,7 +15,7 @@ const Homepage = () => {
       <Services />
       <Contact />
       <Feedback />
-      <Suspense fallback={<div className="min-h-[300px]" />}>
+      <Suspense fallback={<div className="min-h-[600px]" />}>
         <DemoOne />
       </Suspense>
     </>
