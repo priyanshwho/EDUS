@@ -4,7 +4,7 @@
 
 🌐 **Live Application:** [https://www.edusphere.live](https://www.edusphere.live)  
 
-![EduSphere Preview](Frontend/public/image.png)
+![EduSphere Preview](docs/preview.webp)
 
 EduSphere is a production-ready, modular academic resource platform that centralizes essential university study materials and enhances the learning experience using an integrated, context-aware AI tutor suite.
 
