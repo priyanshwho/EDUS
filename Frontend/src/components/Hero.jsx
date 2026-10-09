@@ -162,15 +162,14 @@ return (
 
             <Gradient />
         </div>
-         <div className='hidden md:block absolute -top-[80%] left-1/2 w-[234%] -translate-x-1/2 md:-top-[46%] md:w-[138%] lg:-top-[104%] pointer-events-none'>
+         <div className='hidden md:block absolute -top-[80%] left-1/2 w-[234%] aspect-square -translate-x-1/2 md:-top-[46%] md:w-[138%] lg:-top-[104%] pointer-events-none'>
             <img 
               src={heroBackground}
-              className='w-full object-left md:object-center object-cover md:w-full md:h-auto h-[180vw] -translate-x-[16vw] translate-y-[28vw] md:translate-x-0 md:translate-y-0'
-              width={1440}
-              height={1800}
+              className='w-full h-full object-cover select-none'
+              width={1024}
+              height={1024}
               alt=""
               aria-hidden="true"
-              loading="lazy"
               decoding="async"
             />
          </div>
