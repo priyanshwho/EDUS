@@ -1,31 +1,72 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { ChevronDown } from 'lucide-react';
+import {
+  ChevronDown,
+  ChevronRight,
+  Pencil,
+  Check,
+  X,
+  LogOut,
+  LayoutDashboard,
+  GraduationCap,
+} from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import Button from "./Button";
 import eduIcon from "../assets/eduIcon.svg";
 import { navigation } from "../constants";
 import { disablePageScroll, enablePageScroll } from "scroll-lock";
 import MenuSvg from "../assets/svg/MenuSvg";
-import { HamburgerMenu } from "./design/Header";
 import { useAuth } from "../context/AuthContext";
 import ProfileDropdown from "./ProfileDropdown";
-import { User, LogOut, KeyRound, LayoutDashboard } from "lucide-react";
-
 
 const Header = () => {
     const navigate = useNavigate();
-    const { isAuthenticated, user, isStudent, upgradeToProfessor, logout } = useAuth();
-
+    const { isAuthenticated, user, isStudent, upgradeToProfessor, logout, renameUsername } = useAuth();
     const pathname = useLocation();
-    const [openNavigation, setOpenNavigation] = useState(false);
 
     // ── Desktop dropdown state ───────────────────────────────────────
-    const [dropdownOpen, setDropdownOpen]           = useState(false);
-    // ── Mobile profile expand state ──────────────────────────────────
-    const [mobileProfileOpen, setMobileProfileOpen] = useState(false);
-    // Ref for outside-click detection
+    const [dropdownOpen, setDropdownOpen] = useState(false);
     const dropdownRef = useRef(null);
+
+    // ── Mobile drawer state ──────────────────────────────────────────
+    const [openNavigation, setOpenNavigation] = useState(false);
+
+    // ── Username edit state for mobile ──────────────────────────────
+    const [isEditingUsername, setIsEditingUsername] = useState(false);
+    const [newUsername,       setNewUsername]       = useState('');
+    const [usernameError,     setUsernameError]     = useState('');
+    const [savingUsername,    setSavingUsername]    = useState(false);
+    const [usernameSuccess,   setUsernameSuccess]   = useState(false);
+
+    // ── Mobile professor PIN state ──────────────────────────────────
+    const [pinExpanded, setPinExpanded] = useState(false);
+    const [pin,         setPin]         = useState('');
+    const [pinError,    setPinError]    = useState('');
+    const [pinLoading,  setPinLoading]  = useState(false);
+    const [pinSuccess,  setPinSuccess]  = useState(false);
+
+    // ── Touch swipe refs for mobile drawer ──────────────────────────
+    const touchStartX = useRef(0);
+    const touchCurrentX = useRef(0);
+    const isTouching = useRef(false);
+
+    const closeNavigation = () => {
+        setOpenNavigation(false);
+        setIsEditingUsername(false);
+        setUsernameError('');
+        setPinExpanded(false);
+        enablePageScroll();
+    };
+
+    const toggleNavigation = () => {
+        if (openNavigation) {
+            closeNavigation();
+        } else {
+            setOpenNavigation(true);
+            disablePageScroll();
+        }
+    };
 
     // ── Outside-click + ESC handler ──────────────────────────────────
     useEffect(() => {
@@ -35,7 +76,10 @@ const Header = () => {
             }
         };
         const handleEsc = (e) => {
-            if (e.key === 'Escape') setDropdownOpen(false);
+            if (e.key === 'Escape') {
+                setDropdownOpen(false);
+                closeNavigation();
+            }
         };
         document.addEventListener('mousedown', handleOutsideClick);
         document.addEventListener('keydown', handleEsc);
@@ -45,51 +89,141 @@ const Header = () => {
         };
     }, []);
 
-    // ── Reset scroll lock on route change ─────────────────────────────
+    // ── Reset on route change ─────────────────────────────────────────
     useEffect(() => {
-        enablePageScroll();
-        setOpenNavigation(false);
+        closeNavigation();
     }, [pathname.pathname]);
 
-    // ── Hamburger toggle ─────────────────────────────────────────────
-    const toggleNavigation = () => {
-        if (openNavigation) {
-            setOpenNavigation(false);
-            setMobileProfileOpen(false);
-            enablePageScroll();
-        } else {
-            setOpenNavigation(true);
-            disablePageScroll();
+    // ── Touch swipe handlers (swipe right to close) ──────────────────
+    const handleTouchStart = (e) => {
+        touchStartX.current = e.touches[0].clientX;
+        touchCurrentX.current = e.touches[0].clientX;
+        isTouching.current = true;
+    };
+
+    const handleTouchMove = (e) => {
+        if (!isTouching.current) return;
+        touchCurrentX.current = e.touches[0].clientX;
+    };
+
+    const handleTouchEnd = () => {
+        if (!isTouching.current) return;
+        isTouching.current = false;
+        const deltaX = touchCurrentX.current - touchStartX.current;
+        // Swiping right towards the right edge by > 60px closes the drawer
+        if (deltaX > 60) {
+            closeNavigation();
         }
     };
 
-    // ── Smooth-scroll handler for hash links ─────────────────────────
-    const handleClick = (e, url) => {
+    // ── Username edit handlers ────────────────────────────────────────
+    const handleStartEditUsername = () => {
+        setNewUsername(user?.username || '');
+        setUsernameError('');
+        setUsernameSuccess(false);
+        setIsEditingUsername(true);
+    };
+
+    const handleSaveUsername = async (e) => {
+        e?.preventDefault();
+        const cleaned = newUsername.toLowerCase().trim().replace(/[^a-z0-9_]/g, '').slice(0, 24);
+        if (cleaned.length < 3) {
+            setUsernameError('Min 3 chars (letters, numbers, _)');
+            return;
+        }
+        if (cleaned === user?.username) {
+            setIsEditingUsername(false);
+            return;
+        }
+
+        setSavingUsername(true);
+        setUsernameError('');
+        try {
+            await renameUsername(cleaned);
+            setUsernameSuccess(true);
+            setTimeout(() => {
+                setUsernameSuccess(false);
+                setIsEditingUsername(false);
+            }, 1000);
+        } catch (err) {
+            setUsernameError(err?.response?.data?.message || err?.message || 'Failed to update username');
+        } finally {
+            setSavingUsername(false);
+        }
+    };
+
+    // ── Mobile PIN upgrade handler ────────────────────────────────────
+    const handleUpgradeMobile = async (e) => {
         e.preventDefault();
-        if (url) {
-            const targetId = url.replace('#', '');
-            const target = document.getElementById(targetId);
-            if (target) {
-                const yOffset = 170;
-                const y = target.getBoundingClientRect().top + window.pageYOffset + yOffset;
-                window.scrollTo({ top: y, behavior: 'smooth' });
-            }
+        setPinError('');
+        setPinLoading(true);
+        try {
+            await upgradeToProfessor(pin);
+            setPinSuccess(true);
+            setTimeout(() => {
+                closeNavigation();
+                navigate('/dashboard/professor');
+            }, 1200);
+        } catch (err) {
+            setPinError(err?.response?.data?.message || 'Invalid PIN. Try again.');
+        } finally {
+            setPinLoading(false);
         }
-        enablePageScroll();
-        setOpenNavigation(false);
     };
 
-    // ── Avatar initials helper ───────────────────────────────────────
+    // ── Navigation Link Click Helper ─────────────────────────────────
+    const handleNavLink = (e, item) => {
+        const isHome     = item.title === 'HOME';
+        const isAbout    = item.title === 'ABOUT';
+        const isServices = item.title === 'Services';
+        const isContact  = item.title === 'contact';
+        const isEduAi    = item.title === 'Edu.ai';
+
+        if (isHome) {
+            e.preventDefault(); navigate('/'); closeNavigation();
+        } else if (isAbout) {
+            e.preventDefault(); navigate('/about'); closeNavigation();
+        } else if (isServices) {
+            e.preventDefault(); navigate('/services'); closeNavigation();
+        } else if (isContact) {
+            e.preventDefault(); navigate('/contact'); closeNavigation();
+        } else if (isEduAi) {
+            e.preventDefault(); navigate('/ai'); closeNavigation();
+        } else {
+            e.preventDefault();
+            if (item.url) {
+                const targetId = item.url.replace('#', '');
+                const target = document.getElementById(targetId);
+                if (target) {
+                    const yOffset = 170;
+                    const y = target.getBoundingClientRect().top + window.pageYOffset + yOffset;
+                    window.scrollTo({ top: y, behavior: 'smooth' });
+                }
+            }
+            closeNavigation();
+        }
+    };
+
+    // ── User display helpers ──────────────────────────────────────────
     const avatarLetter = (
         user?.name?.[0] || user?.username?.[0] || 'U'
     ).toUpperCase();
+    const displayName     = user?.name || user?.username || 'Unknown User';
+    const displayEmail    = user?.email || 'No email provided';
+    const displayUsername = user?.username ? `@${user.username}` : '—';
+    const displayRole     = user?.role || 'user';
+
+    const dashboardPath =
+        user?.role === 'admin'
+            ? '/dashboard/admin'
+            : user?.role === 'professor'
+            ? '/dashboard/professor'
+            : '/dashboard/student';
 
     return (
         <header
             role="banner"
-            className={`fixed top-0 left-0 w-full z-50 border-b border-n-6 lg:bg-n-8/90 lg:backdrop-blur-sm ${
-                openNavigation ? 'bg-n-8' : 'bg-n-8/90 backdrop-blur-sm'
-            }`}
+            className="fixed top-0 left-0 w-full z-50 border-b border-n-6 bg-n-8/90 backdrop-blur-sm"
         >
             <div className="flex items-center px-5 lg:px-7.5 xl:px-10 max-lg:py-4">
 
@@ -99,8 +233,7 @@ const Header = () => {
                     onClick={(e) => {
                         e.preventDefault();
                         navigate('/');
-                        enablePageScroll();
-                        setOpenNavigation(false);
+                        closeNavigation();
                     }}
                     href="/"
                 >
@@ -108,67 +241,28 @@ const Header = () => {
                     <span className="text-xl md:text-2xl font-bold text-n-1 ml-2">EduSphere</span>
                 </a>
 
-                {/* ── Nav links (desktop ONLY now, mobile uses BottomBar) ────────────── */}
+                {/* ── Nav links (desktop) ────────────────────────────── */}
                 <nav className="hidden lg:flex lg:mx-auto lg:bg-transparent relative z-2 items-center justify-center m-auto w-full">
-
-
-
-                        {/* ── Nav link items ───────────────────────────── */}
-                        {navigation.map((item) => {
-                            const isHome     = item.title === 'HOME';
-                            const isAbout    = item.title === 'ABOUT';
-                            const isServices = item.title === 'Services';
-                            const isContact  = item.title === 'contact';
-                            const isEduAi    = item.title === 'Edu.ai';
-
-                            // Skip auth-only placeholder items
-                            if (item.auth) return null;
-
-                            return (
-                                <a
-                                    key={item.id}
-                                    href={
-                                        isHome     ? '/'
-                                        : isAbout    ? '/about'
-                                        : isServices ? '/services'
-                                        : isContact  ? '/contact'
-                                        : isEduAi    ? '/ai'
-                                        : item.url || '#'
-                                    }
-                                    onClick={(e) => {
-                                        if (isHome) {
-                                            e.preventDefault(); navigate('/');
-                                            enablePageScroll(); setOpenNavigation(false);
-                                        } else if (isAbout) {
-                                            e.preventDefault(); navigate('/about');
-                                            enablePageScroll(); setOpenNavigation(false);
-                                        } else if (isServices) {
-                                            e.preventDefault(); navigate('/services');
-                                            enablePageScroll(); setOpenNavigation(false);
-                                        } else if (isContact) {
-                                            e.preventDefault(); navigate('/contact');
-                                            enablePageScroll(); setOpenNavigation(false);
-                                        } else if (isEduAi) {
-                                            e.preventDefault(); navigate('/ai');
-                                            enablePageScroll(); setOpenNavigation(false);
-                                        } else {
-                                            handleClick(e, item.url);
-                                        }
-                                    }}
-                                    className={`block relative font-code text-2xl uppercase text-n-1 transition-colors hover:text-cyan-400 px-6 py-6 md:py-8 lg:mr-0.25 lg:text-xs lg:font-semibold ${
-                                        item.url === pathname.pathname ? 'z-2 lg:text-n-1' : 'lg:text-n-2'
-                                    } lg:leading-5 lg:hover:text-n-1 xl:px-12`}
-                                >
-                                    {item.title}
-                                </a>
-                            );
-                        })}
+                    {navigation.map((item) => {
+                        if (item.auth) return null;
+                        return (
+                            <a
+                                key={item.id}
+                                href={item.url || '#'}
+                                onClick={(e) => handleNavLink(e, item)}
+                                className={`block relative font-code text-2xl uppercase text-n-1 transition-colors hover:text-cyan-400 px-6 py-6 md:py-8 lg:mr-0.25 lg:text-xs lg:font-semibold ${
+                                    item.url === pathname.pathname ? 'z-2 lg:text-n-1' : 'lg:text-n-2'
+                                } lg:leading-5 lg:hover:text-n-1 xl:px-12`}
+                            >
+                                {item.title}
+                            </a>
+                        );
+                    })}
                 </nav>
 
                 {/* ── Desktop right section ────────────────────────── */}
                 <div className="hidden lg:flex items-center gap-3">
                     {isAuthenticated ? (
-                        /* Profile avatar + dropdown */
                         <div className="relative" ref={dropdownRef}>
                             <button
                                 onClick={() => setDropdownOpen((prev) => !prev)}
@@ -201,59 +295,291 @@ const Header = () => {
                     )}
                 </div>
 
-                {/* ── Mobile right section ───────────────────────────── */}
+                {/* ── Mobile right toggle button ─────────────────────── */}
                 <div className="flex lg:hidden items-center ml-auto gap-2">
-                    {isAuthenticated ? (
-                        <>
-                            <button className="p-2 -mr-2" onClick={toggleNavigation} aria-label="Toggle navigation menu">
-                                <MenuSvg openNavigation={openNavigation} />
-                            </button>
-                            {openNavigation && (
-                                <div className="absolute top-full left-0 right-0 bg-n-8/95 backdrop-blur-md border-b border-n-6 flex flex-col p-6 shadow-2xl animate-fade-in z-50">
-                                    <div className="flex flex-col items-center justify-center gap-2 mb-6 pt-4">
-                                        <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center text-xl font-bold text-white shadow-lg shadow-cyan-500/20">
-                                            {avatarLetter}
-                                        </div>
-                                        <p className="text-n-1 font-bold text-lg mt-2">{user?.name || user?.username || 'Unknown User'}</p>
-                                        <span className="px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-mono font-medium uppercase tracking-wider">
-                                            {user?.role || 'user'}
-                                        </span>
+                    {!isAuthenticated && (
+                        <Button className="text-xs py-2 px-3.5" onClick={() => navigate('/login')}>
+                            Sign In
+                        </Button>
+                    )}
+                    <button
+                        className="p-2 -mr-2 text-n-1 cursor-pointer focus:outline-none"
+                        onClick={toggleNavigation}
+                        aria-label="Toggle navigation menu"
+                    >
+                        <MenuSvg openNavigation={openNavigation} />
+                    </button>
+                </div>
+            </div>
+
+            {/* ── Mobile Right-Side Drawer (with Swipe Gestures & Edit Username) ── */}
+            <AnimatePresence>
+                {openNavigation && (
+                    <>
+                        {/* Backdrop overlay */}
+                        <motion.div
+                            key="drawer-backdrop"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.2 }}
+                            onClick={closeNavigation}
+                            className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 lg:hidden"
+                        />
+
+                        {/* Right-side Sliding Drawer */}
+                        <motion.aside
+                            key="drawer-sidebar"
+                            initial={{ x: '100%' }}
+                            animate={{ x: 0 }}
+                            exit={{ x: '100%' }}
+                            transition={{ type: 'spring', damping: 27, stiffness: 280 }}
+                            drag="x"
+                            dragConstraints={{ left: 0, right: 0 }}
+                            dragElastic={{ left: 0.05, right: 0.7 }}
+                            onDragEnd={(e, { offset, velocity }) => {
+                                if (offset.x > 70 || velocity.x > 250) {
+                                    closeNavigation();
+                                }
+                            }}
+                            onTouchStart={handleTouchStart}
+                            onTouchMove={handleTouchMove}
+                            onTouchEnd={handleTouchEnd}
+                            className="fixed top-0 right-0 bottom-0 z-50 w-[86vw] max-w-[360px] h-[100dvh] bg-n-8/95 backdrop-blur-2xl border-l border-n-6 shadow-[-15px_0_35px_rgba(0,0,0,0.85)] flex flex-col justify-between overflow-y-auto lg:hidden"
+                        >
+                            {/* Drawer Header with Swipe Hint & Close Button */}
+                            <div className="sticky top-0 bg-n-8/90 backdrop-blur-md px-5 pt-3 pb-3 border-b border-n-6 z-10 shrink-0">
+                                <div className="w-12 h-1 bg-n-5/70 rounded-full mx-auto mb-3" />
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2">
+                                        <img src={eduIcon} width={28} height={28} alt="Edusphere" />
+                                        <span className="font-bold text-n-1 text-base">EduSphere</span>
                                     </div>
-                                    <div className="flex flex-col gap-3">
-                                        <button 
-                                            onClick={() => { enablePageScroll(); setOpenNavigation(false); navigate(`/dashboard/${user?.role || 'student'}`); }}
-                                            className="flex items-center gap-3 w-full py-3 px-4 rounded-xl bg-n-7 hover:bg-n-6 transition-colors text-n-1 font-medium"
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-[11px] text-n-4 font-mono select-none">
+                                            Swipe right →
+                                        </span>
+                                        <button
+                                            type="button"
+                                            onClick={closeNavigation}
+                                            className="p-1.5 rounded-lg text-n-4 hover:text-n-1 hover:bg-n-7 transition cursor-pointer"
+                                            aria-label="Close menu"
                                         >
-                                            <LayoutDashboard size={20} className="text-cyan-400" />
-                                            Dashboard
-                                        </button>
-                                        {(isStudent && user?.role !== 'professor') && (
-                                            <button 
-                                                onClick={() => { enablePageScroll(); setOpenNavigation(false); navigate('/auth/pin'); }}
-                                                className="flex items-center gap-3 w-full py-3 px-4 rounded-xl bg-n-7 hover:bg-n-6 transition-colors text-n-1 font-medium"
-                                            >
-                                                <KeyRound size={20} className="text-emerald-400" />
-                                                Professor PIN
-                                            </button>
-                                        )}
-                                        <button 
-                                            onClick={() => { enablePageScroll(); setOpenNavigation(false); logout(); navigate('/'); }}
-                                            className="flex items-center gap-3 w-full py-3 px-4 rounded-xl bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 transition-colors text-red-400 font-medium mt-2"
-                                        >
-                                            <LogOut size={20} />
-                                            Sign Out
+                                            <X size={18} />
                                         </button>
                                     </div>
                                 </div>
+                            </div>
+
+                            {/* Drawer Body */}
+                            <div className="flex-1 px-4 py-4 space-y-4 overflow-y-auto">
+                                {isAuthenticated ? (
+                                    <>
+                                        {/* User Info Card with Edit Username (matching screenshot 3) */}
+                                        <div className="p-4 rounded-2xl bg-n-7/80 border border-n-6 shadow-lg">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-color-1 to-color-2 flex items-center justify-center text-lg font-bold text-white shadow-md shadow-color-1/25 shrink-0">
+                                                    {avatarLetter}
+                                                </div>
+                                                <div className="min-w-0 flex-1">
+                                                    <p className="text-n-1 font-bold text-base truncate">{displayName}</p>
+                                                    <span className="inline-block mt-0.5 px-2 py-0.5 text-[10px] font-semibold bg-color-1/20 text-color-1 rounded-full capitalize">
+                                                        {displayRole}
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                            {/* Username Edit Row */}
+                                            <div className="mt-3 pt-3 border-t border-n-6/60">
+                                                {!isEditingUsername ? (
+                                                    <div className="flex items-center justify-between py-1 px-2.5 rounded-lg bg-n-8/60 border border-n-6/50">
+                                                        <span className="text-n-3 text-xs font-mono truncate">{displayUsername}</span>
+                                                        <button
+                                                            type="button"
+                                                            onClick={handleStartEditUsername}
+                                                            className="inline-flex items-center gap-1 text-[11px] text-n-4 hover:text-blue-400 p-1 -mr-1 rounded hover:bg-n-7 transition-colors cursor-pointer"
+                                                            title="Change your username"
+                                                        >
+                                                            <Pencil size={12} />
+                                                            <span className="text-[11px] font-medium">Edit</span>
+                                                        </button>
+                                                    </div>
+                                                ) : (
+                                                    <form onSubmit={handleSaveUsername} className="space-y-1.5">
+                                                        <div className="flex items-center gap-1.5">
+                                                            <div className="relative flex-1">
+                                                                <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-n-4 text-xs font-mono select-none">
+                                                                    @
+                                                                </span>
+                                                                <input
+                                                                    type="text"
+                                                                    value={newUsername}
+                                                                    onChange={(e) => {
+                                                                        setNewUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '').slice(0, 24));
+                                                                        setUsernameError('');
+                                                                    }}
+                                                                    placeholder="username"
+                                                                    autoFocus
+                                                                    disabled={savingUsername}
+                                                                    className="w-full pl-6 pr-2 py-1.5 rounded-lg bg-n-8 border border-blue-500/60 text-xs text-n-1 font-mono focus:outline-none focus:border-blue-400"
+                                                                />
+                                                            </div>
+                                                            <button
+                                                                type="submit"
+                                                                disabled={savingUsername || !newUsername.trim() || newUsername === user?.username}
+                                                                title="Save username"
+                                                                className="p-1.5 rounded-lg bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-40 transition flex items-center justify-center shrink-0 shadow-sm cursor-pointer"
+                                                            >
+                                                                <Check size={14} />
+                                                            </button>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => {
+                                                                    setIsEditingUsername(false);
+                                                                    setUsernameError('');
+                                                                }}
+                                                                disabled={savingUsername}
+                                                                title="Cancel"
+                                                                className="p-1.5 rounded-lg text-n-4 hover:text-n-1 hover:bg-n-7 transition flex items-center justify-center shrink-0 cursor-pointer"
+                                                            >
+                                                                <X size={14} />
+                                                            </button>
+                                                        </div>
+                                                        {usernameError && (
+                                                            <p className="text-[11px] text-red-400 leading-tight">{usernameError}</p>
+                                                        )}
+                                                        {usernameSuccess && (
+                                                            <p className="text-[11px] text-green-400 leading-tight flex items-center gap-1">
+                                                                <Check size={12} className="inline text-green-400" /> Username updated!
+                                                            </p>
+                                                        )}
+                                                    </form>
+                                                )}
+
+                                                <p className="text-n-4 text-xs mt-2 truncate px-1">{displayEmail}</p>
+                                            </div>
+                                        </div>
+
+                                        {/* Action Links */}
+                                        <div className="space-y-2">
+                                            <button
+                                                onClick={() => {
+                                                    closeNavigation();
+                                                    navigate(dashboardPath);
+                                                }}
+                                                className="flex items-center gap-3 w-full py-3 px-4 rounded-xl bg-n-7 hover:bg-n-6 transition-colors text-n-1 font-medium text-sm cursor-pointer"
+                                            >
+                                                <LayoutDashboard size={18} className="text-cyan-400 shrink-0" />
+                                                <span>Dashboard</span>
+                                                <ChevronRight size={15} className="ml-auto text-n-4" />
+                                            </button>
+
+                                            {/* Become a Professor (students only) */}
+                                            {isStudent && (
+                                                <div className="rounded-xl bg-n-7 overflow-hidden border border-n-6/50">
+                                                    <button
+                                                        onClick={() => setPinExpanded((prev) => !prev)}
+                                                        className="flex items-center gap-3 w-full py-3 px-4 text-n-1 hover:bg-n-6 transition-colors text-sm font-medium text-left cursor-pointer"
+                                                    >
+                                                        <GraduationCap size={18} className="text-color-2 shrink-0" />
+                                                        <span>Become a Professor</span>
+                                                        <ChevronDown
+                                                            size={15}
+                                                            className={`ml-auto text-n-4 transition-transform duration-200 ${
+                                                                pinExpanded ? 'rotate-180' : ''
+                                                            }`}
+                                                        />
+                                                    </button>
+
+                                                    {pinExpanded && !pinSuccess && (
+                                                        <form onSubmit={handleUpgradeMobile} className="px-4 pb-4 pt-1 flex flex-col gap-2">
+                                                            <input
+                                                                type="text"
+                                                                value={pin}
+                                                                onChange={(e) => setPin(e.target.value)}
+                                                                placeholder="Enter professor PIN"
+                                                                maxLength={8}
+                                                                className="w-full bg-n-8 border border-n-5 rounded-lg px-3 py-2 text-sm text-n-1 placeholder-n-4 focus:outline-none focus:border-color-1 transition-colors"
+                                                            />
+                                                            {pinError && <p className="text-red-400 text-xs">{pinError}</p>}
+                                                            <button
+                                                                type="submit"
+                                                                disabled={pinLoading || !pin.trim()}
+                                                                className="bg-color-1 text-white rounded-lg px-3 py-2 text-sm font-semibold hover:bg-color-1/80 disabled:opacity-50 transition-all cursor-pointer"
+                                                            >
+                                                                {pinLoading ? 'Verifying…' : 'Submit PIN'}
+                                                            </button>
+                                                        </form>
+                                                    )}
+
+                                                    {pinSuccess && (
+                                                        <p className="px-4 pb-4 text-xs text-green-400">
+                                                            ✓ Upgraded! Redirecting to professor dashboard…
+                                                        </p>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </>
+                                ) : (
+                                    <div className="p-4 rounded-2xl bg-n-7/70 border border-n-6 text-center">
+                                        <p className="text-n-1 font-bold text-base">Welcome to EduSphere</p>
+                                        <p className="text-xs text-n-4 mt-1">Sign in to access study materials, AI tutor, quizzes, and your dashboard.</p>
+                                        <Button className="w-full mt-3 text-xs py-2.5" onClick={() => { closeNavigation(); navigate('/login'); }}>
+                                            Sign In / Register
+                                        </Button>
+                                    </div>
+                                )}
+
+                                {/* Navigation Links Section */}
+                                <div className="pt-2">
+                                    <p className="text-[11px] font-semibold uppercase tracking-wider text-n-4 px-2 mb-2">
+                                        Navigation
+                                    </p>
+                                    <div className="space-y-1">
+                                        {navigation.map((item) => {
+                                            if (item.auth) return null;
+                                            const isActive = item.url === pathname.pathname;
+                                            return (
+                                                <a
+                                                    key={item.id}
+                                                    href={item.url || '#'}
+                                                    onClick={(e) => handleNavLink(e, item)}
+                                                    className={`flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                                                        isActive
+                                                            ? 'bg-blue-500/15 text-blue-400 border border-blue-500/30'
+                                                            : 'text-n-2 hover:text-n-1 hover:bg-n-7/70'
+                                                    }`}
+                                                >
+                                                    <span>{item.title}</span>
+                                                    <ChevronRight size={14} className={isActive ? 'text-blue-400' : 'text-n-5'} />
+                                                </a>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Drawer Footer with Sign Out */}
+                            {isAuthenticated && (
+                                <div className="sticky bottom-0 bg-n-8/95 backdrop-blur-md p-4 border-t border-n-6 shrink-0">
+                                    <button
+                                        onClick={() => {
+                                            closeNavigation();
+                                            logout();
+                                            navigate('/');
+                                        }}
+                                        className="flex items-center justify-center gap-2.5 w-full py-3 px-4 rounded-xl bg-red-500/10 hover:bg-red-500/20 border border-red-500/25 text-red-400 font-medium text-sm transition-colors cursor-pointer"
+                                    >
+                                        <LogOut size={16} />
+                                        <span>Sign Out</span>
+                                    </button>
+                                </div>
                             )}
-                        </>
-                    ) : (
-                        <Button className="ml-auto" px="px-4" onClick={() => navigate('/login')}>
-                            Get Started
-                        </Button>
-                    )}
-                </div>
-            </div>
+                        </motion.aside>
+                    </>
+                )}
+            </AnimatePresence>
         </header>
     );
 };
