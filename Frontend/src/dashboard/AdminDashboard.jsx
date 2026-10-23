@@ -346,37 +346,43 @@ function ResourceManagement() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <select
-              required
-              value={createForm.subject_id}
-              onChange={e => setCreateForm(p => ({ ...p, subject_id: e.target.value }))}
-              className="rounded-lg border border-n-6 bg-n-6 px-3 py-2 text-sm text-n-1"
-            >
-              <option value="">Select Subject…</option>
-              {subjects.filter(s => String(s.added_by) === String(user?.id)).length === 0 ? (
-                <option value="" disabled>No subjects created by you yet</option>
-              ) : (
-                subjects
-                  .filter(s => String(s.added_by) === String(user?.id))
-                  .map(s => (
-                    <option key={s.id} value={s.id}>{s.name_full} ({s.branch} S{s.semester})</option>
-                  ))
-              )}
-            </select>
+            <div className="relative">
+              <select
+                required
+                value={createForm.subject_id}
+                onChange={e => setCreateForm(p => ({ ...p, subject_id: e.target.value }))}
+                className="w-full appearance-none rounded-lg border border-n-6 bg-n-6 px-3 py-2 pr-9 text-sm text-n-1 focus:border-blue-500 focus:outline-none transition cursor-pointer"
+              >
+                <option value="" className="bg-n-8 text-n-1">Select Subject…</option>
+                {subjects.filter(s => String(s.added_by) === String(user?.id)).length === 0 ? (
+                  <option value="" disabled className="bg-n-8 text-n-4">No subjects created by you yet</option>
+                ) : (
+                  subjects
+                    .filter(s => String(s.added_by) === String(user?.id))
+                    .map(s => (
+                      <option key={s.id} value={s.id} className="bg-n-8 text-n-1">{s.name_full} ({s.branch} S{s.semester})</option>
+                    ))
+                )}
+              </select>
+              <ChevronDown className="w-4 h-4 text-n-4 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+            </div>
 
-            <select
-              required
-              value={createForm.resource_type}
-              onChange={e => {
-                const val = e.target.value;
-                setCreateForm(p => ({ ...p, resource_type: val, pyq_type: '' }));
-                if (val === 'lecture') setUploadMethod('youtube');
-                else if (uploadMethod === 'youtube') setUploadMethod('file');
-              }}
-              className="rounded-lg border border-n-6 bg-n-6 px-3 py-2 text-sm text-n-1"
-            >
-              {RESOURCE_TYPES.map(t => <option key={t} value={t}>{t.charAt(0).toUpperCase() + t.slice(1)}</option>)}
-            </select>
+            <div className="relative">
+              <select
+                required
+                value={createForm.resource_type}
+                onChange={e => {
+                  const val = e.target.value;
+                  setCreateForm(p => ({ ...p, resource_type: val, pyq_type: '' }));
+                  if (val === 'lecture') setUploadMethod('youtube');
+                  else if (uploadMethod === 'youtube') setUploadMethod('file');
+                }}
+                className="w-full appearance-none rounded-lg border border-n-6 bg-n-6 px-3 py-2 pr-9 text-sm text-n-1 focus:border-blue-500 focus:outline-none transition cursor-pointer"
+              >
+                {RESOURCE_TYPES.map(t => <option key={t} value={t} className="bg-n-8 text-n-1">{t.charAt(0).toUpperCase() + t.slice(1)}</option>)}
+              </select>
+              <ChevronDown className="w-4 h-4 text-n-4 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+            </div>
 
             <input
               required
@@ -444,14 +450,17 @@ function ResourceManagement() {
             />
 
             {createForm.resource_type === 'pyq' && (
-              <select
-                value={createForm.pyq_type}
-                onChange={e => setCreateForm(p => ({ ...p, pyq_type: e.target.value }))}
-                className="rounded-lg border border-n-6 bg-n-6 px-3 py-2 text-sm text-n-1"
-              >
-                <option value="">PYQ Type…</option>
-                {PYQ_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
-              </select>
+              <div className="relative">
+                <select
+                  value={createForm.pyq_type}
+                  onChange={e => setCreateForm(p => ({ ...p, pyq_type: e.target.value }))}
+                  className="w-full appearance-none rounded-lg border border-n-6 bg-n-6 px-3 py-2 pr-9 text-sm text-n-1 focus:border-blue-500 focus:outline-none transition cursor-pointer"
+                >
+                  <option value="" className="bg-n-8 text-n-1">PYQ Type…</option>
+                  {PYQ_TYPES.map(t => <option key={t} value={t} className="bg-n-8 text-n-1">{t}</option>)}
+                </select>
+                <ChevronDown className="w-4 h-4 text-n-4 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+              </div>
             )}
           </div>
 
@@ -527,14 +536,17 @@ function ResourceManagement() {
             )}
           </div>
 
-          <select
-            value={filters.resource_type}
-            onChange={e => setFilters(p => ({ ...p, resource_type: e.target.value }))}
-            className="rounded-xl border border-n-6 bg-n-7 px-3 py-2 text-xs text-n-1 focus:border-blue-500 focus:outline-none transition"
-          >
-            <option value="">All types</option>
-            {RESOURCE_TYPES.map(t => <option key={t} value={t}>{t.charAt(0).toUpperCase() + t.slice(1)}</option>)}
-          </select>
+          <div className="relative inline-flex items-center">
+            <select
+              value={filters.resource_type}
+              onChange={e => setFilters(p => ({ ...p, resource_type: e.target.value }))}
+              className="appearance-none rounded-xl border border-n-6 bg-n-7 pl-3 pr-8 py-2 text-xs text-n-1 focus:border-blue-500 focus:outline-none transition cursor-pointer"
+            >
+              <option value="" className="bg-n-8 text-n-1">All types</option>
+              {RESOURCE_TYPES.map(t => <option key={t} value={t} className="bg-n-8 text-n-1">{t.charAt(0).toUpperCase() + t.slice(1)}</option>)}
+            </select>
+            <ChevronDown className="w-3.5 h-3.5 text-n-4 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          </div>
 
           <span className="text-xs text-n-4 whitespace-nowrap self-center">{filtered.length} results</span>
         </div>
@@ -599,13 +611,16 @@ function ResourceManagement() {
                   </td>
                   <td className="py-2 pr-3">
                     {r.resource_type === 'pyq' ? (
-                      <select value={editForm.pyq_type}
-                        onChange={e => setEditForm(p => ({ ...p, pyq_type: e.target.value }))}
-                        className="rounded border border-n-5 bg-n-6 px-1 py-1 text-xs text-n-1"
-                      >
-                        <option value="">—</option>
-                        {PYQ_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
-                      </select>
+                      <div className="relative inline-flex items-center">
+                        <select value={editForm.pyq_type}
+                          onChange={e => setEditForm(p => ({ ...p, pyq_type: e.target.value }))}
+                          className="appearance-none rounded border border-n-5 bg-n-6 pl-2 pr-6 py-1 text-xs text-n-1 focus:outline-none focus:border-blue-500"
+                        >
+                          <option value="" className="bg-n-8 text-n-1">—</option>
+                          {PYQ_TYPES.map(t => <option key={t} value={t} className="bg-n-8 text-n-1">{t}</option>)}
+                        </select>
+                        <ChevronDown className="w-3 h-3 text-n-4 absolute right-1.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                      </div>
                     ) : <span className="text-n-5 text-xs">—</span>}
                   </td>
                   <td className="py-2 pr-3 text-xs text-n-4">
@@ -1049,15 +1064,18 @@ function UserManagement() {
           {/* Sort dropdown (3 options) + outside order toggle icon */}
           <div className="flex items-center gap-1.5 bg-n-7 border border-n-6 rounded-lg p-1.5 text-xs text-n-3 hover:border-blue-500/50 focus-within:border-blue-500 transition">
             <span className="text-n-4 text-xs font-semibold uppercase tracking-wider whitespace-nowrap pl-2">Sort:</span>
-            <select
-              value={sortBy}
-              onChange={e => setSortBy(e.target.value)}
-              className="bg-transparent text-xs text-n-1 font-medium focus:outline-none cursor-pointer px-1 py-0.5"
-            >
-              <option value="joined" className="bg-n-8 text-n-1">Joined Date</option>
-              <option value="active" className="bg-n-8 text-n-1">Last Active</option>
-              <option value="name" className="bg-n-8 text-n-1">Alphabetical</option>
-            </select>
+            <div className="relative inline-flex items-center">
+              <select
+                value={sortBy}
+                onChange={e => setSortBy(e.target.value)}
+                className="appearance-none bg-transparent text-xs text-n-1 font-medium focus:outline-none cursor-pointer pl-1 pr-5 py-0.5"
+              >
+                <option value="joined" className="bg-n-8 text-n-1">Joined Date</option>
+                <option value="active" className="bg-n-8 text-n-1">Last Active</option>
+                <option value="name" className="bg-n-8 text-n-1">Alphabetical</option>
+              </select>
+              <ChevronDown className="w-3.5 h-3.5 text-n-4 absolute right-0.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            </div>
             <div className="w-px h-4 bg-n-6 mx-0.5" />
             <button
               type="button"
@@ -1117,30 +1135,36 @@ function UserManagement() {
 
               {/* AUTH column filter dropdown */}
               <th className="text-left pb-3 pr-4 font-semibold">
-                <select
-                  value={authFilter}
-                  onChange={e => setAuthFilter(e.target.value)}
-                  className="bg-transparent border border-n-6 rounded px-2 py-1 text-xs text-n-4 cursor-pointer hover:border-blue-500/50 focus:border-blue-500 focus:outline-none transition uppercase"
-                >
-                  <option value="all">Auth (All)</option>
-                  <option value="email">Email</option>
-                  <option value="google">Google</option>
-                  <option value="github">GitHub</option>
-                </select>
+                <div className="relative inline-flex items-center">
+                  <select
+                    value={authFilter}
+                    onChange={e => setAuthFilter(e.target.value)}
+                    className="appearance-none bg-transparent border border-n-6 rounded px-2.5 pr-7 py-1 text-xs text-n-4 cursor-pointer hover:border-blue-500/50 hover:text-n-2 focus:border-blue-500 focus:outline-none transition uppercase"
+                  >
+                    <option value="all" className="bg-n-8 text-n-1">Auth (All)</option>
+                    <option value="email" className="bg-n-8 text-n-1">Email</option>
+                    <option value="google" className="bg-n-8 text-n-1">Google</option>
+                    <option value="github" className="bg-n-8 text-n-1">GitHub</option>
+                  </select>
+                  <ChevronDown className="w-3.5 h-3.5 text-n-4 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
+                </div>
               </th>
 
               {/* ROLE column filter dropdown */}
               <th className="text-left pb-3 pr-4 font-semibold">
-                <select
-                  value={roleFilter}
-                  onChange={e => setRoleFilter(e.target.value)}
-                  className="bg-transparent border border-n-6 rounded px-2 py-1 text-xs text-n-4 cursor-pointer hover:border-blue-500/50 focus:border-blue-500 focus:outline-none transition uppercase"
-                >
-                  <option value="all">Role (All)</option>
-                  <option value="student">Students</option>
-                  <option value="professor">Professors</option>
-                  <option value="admin">Admins</option>
-                </select>
+                <div className="relative inline-flex items-center">
+                  <select
+                    value={roleFilter}
+                    onChange={e => setRoleFilter(e.target.value)}
+                    className="appearance-none bg-transparent border border-n-6 rounded px-2.5 pr-7 py-1 text-xs text-n-4 cursor-pointer hover:border-blue-500/50 hover:text-n-2 focus:border-blue-500 focus:outline-none transition uppercase"
+                  >
+                    <option value="all" className="bg-n-8 text-n-1">Role (All)</option>
+                    <option value="student" className="bg-n-8 text-n-1">Students</option>
+                    <option value="professor" className="bg-n-8 text-n-1">Professors</option>
+                    <option value="admin" className="bg-n-8 text-n-1">Admins</option>
+                  </select>
+                  <ChevronDown className="w-3.5 h-3.5 text-n-4 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
+                </div>
               </th>
 
               {/* JOINED column header (sortable) */}
@@ -1237,15 +1261,18 @@ function UserManagement() {
 
                 {/* ROLE column */}
                 <td className="py-3 pr-4">
-                  <select
-                    value={u.role}
-                    onChange={e => changeRole(u.id, e.target.value)}
-                    className="bg-n-6 border border-n-5 rounded px-2 py-1 text-xs capitalize"
-                  >
-                    <option value="student">student</option>
-                    <option value="professor">professor</option>
-                    <option value="admin">admin</option>
-                  </select>
+                  <div className="relative inline-flex items-center">
+                    <select
+                      value={u.role}
+                      onChange={e => changeRole(u.id, e.target.value)}
+                      className="appearance-none bg-n-6 border border-n-5 rounded px-2.5 pr-7 py-1 text-xs capitalize text-n-1 cursor-pointer hover:border-blue-500/50 focus:border-blue-500 focus:outline-none transition"
+                    >
+                      <option value="student" className="bg-n-8 text-n-1">student</option>
+                      <option value="professor" className="bg-n-8 text-n-1">professor</option>
+                      <option value="admin" className="bg-n-8 text-n-1">admin</option>
+                    </select>
+                    <ChevronDown className="w-3.5 h-3.5 text-n-4 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  </div>
                 </td>
 
                 {/* JOINED column */}
