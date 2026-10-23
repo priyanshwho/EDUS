@@ -27,6 +27,7 @@ import { useUpload } from '../hooks/useUpload';
 import { useAuth } from '../context/AuthContext';
 import { GooeyLoader } from '../components/ui/loader-10';
 import DashboardBackground from '../components/design/DashboardBackground';
+import PlatformAnalytics from './PlatformAnalytics';
 
 /**
  * AdminDashboard
@@ -690,61 +691,7 @@ function ResourceManagement() {
   );
 }
 
-// ── Platform Analytics ──────────────────────────────────────────────────────
-function PlatformAnalytics() {
-  const {
-    platformAnalytics,
-    loadingPlatformAnalytics,
-    fetchPlatformAnalytics,
-  } = useAdminDashboardStore();
-
-  useEffect(() => {
-    fetchPlatformAnalytics().catch(() => {});
-  }, [fetchPlatformAnalytics]);
-
-  if (loadingPlatformAnalytics || !platformAnalytics) return <p className="text-n-4">Loading…</p>;
-
-  const summaryCards = [
-    { label: 'Total Users',     value: platformAnalytics.totalUsers },
-    { label: 'Total Resources', value: platformAnalytics.totalResources },
-    { label: 'Total Subjects',  value: platformAnalytics.totalSubjects },
-  ];
-
-  return (
-    <div>
-      <h2 className="h5 mb-4">Platform Summary</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-8">
-        {summaryCards.map(c => (
-          <div key={c.label} className="rounded-xl border border-n-6 bg-n-7 p-5 text-center">
-            <p className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 via-blue-500 to-purple-500">{c.value}</p>
-            <p className="text-sm text-n-4 mt-1">{c.label}</p>
-          </div>
-        ))}
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div>
-          <h3 className="font-semibold mb-3">Users by Role</h3>
-          {Object.entries(platformAnalytics.usersByRole || {}).map(([role, count]) => (
-            <div key={role} className="flex justify-between py-1.5 border-b border-n-6 text-sm">
-              <span className="capitalize text-n-2">{role}</span>
-              <span className="text-blue-400 font-mono">{count}</span>
-            </div>
-          ))}
-        </div>
-        <div>
-          <h3 className="font-semibold mb-3">Resources by Type</h3>
-          {Object.entries(platformAnalytics.resourcesByType || {}).map(([type, count]) => (
-            <div key={type} className="flex justify-between py-1.5 border-b border-n-6 text-sm">
-              <span className="capitalize text-n-2">{type}</span>
-              <span className="text-blue-400 font-mono">{count}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
+// ── Platform Analytics (loaded via PlatformAnalytics.jsx using Recharts) ────
 
 // ── User Management ─────────────────────────────────────────────────────────
 
