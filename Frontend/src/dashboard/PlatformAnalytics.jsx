@@ -418,26 +418,45 @@ export default function PlatformAnalytics() {
           </div>
 
           {/* Metric Switcher Filter Tabs */}
-          <div className="inline-flex items-center p-1 rounded-xl bg-n-8/80 border border-n-6/60 self-start sm:self-auto text-xs">
+          <div className="inline-flex items-center p-1 rounded-xl bg-n-8/80 border border-n-6/60 self-start sm:self-auto text-xs gap-1">
             {[
-              { id: 'all', label: 'Overview' },
-              { id: 'active', label: 'Active Users' },
-              { id: 'signins', label: 'New Sign-ups' },
-              { id: 'resources', label: 'Uploads' },
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                type="button"
-                onClick={() => setTimeSeriesFilter(tab.id)}
-                className={`px-3 py-1.5 rounded-lg font-medium transition cursor-pointer select-none ${
-                  timeSeriesFilter === tab.id
-                    ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-sm'
-                    : 'text-n-4 hover:text-n-1'
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
+              {
+                id: 'all',
+                label: 'Overview',
+                activeClass: 'bg-n-6 text-white border border-n-5/80 font-semibold shadow-sm',
+              },
+              {
+                id: 'active',
+                label: 'Active Users',
+                activeClass: 'bg-[#00F0FF] text-n-8 font-semibold shadow-[0_0_12px_rgba(0,240,255,0.4)]',
+              },
+              {
+                id: 'signins',
+                label: 'New Sign-ups',
+                activeClass: 'bg-[#AC6AFF] text-n-8 font-semibold shadow-[0_0_12px_rgba(172,106,255,0.4)]',
+              },
+              {
+                id: 'resources',
+                label: 'Uploads',
+                activeClass: 'bg-[#FFC876] text-n-8 font-semibold shadow-[0_0_12px_rgba(255,200,118,0.4)]',
+              },
+            ].map((tab) => {
+              const isActive = timeSeriesFilter === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setTimeSeriesFilter(tab.id)}
+                  className={`px-3 py-1.5 rounded-lg transition-all duration-150 cursor-pointer select-none ${
+                    isActive
+                      ? tab.activeClass
+                      : 'text-n-4 hover:text-n-1 hover:bg-n-7/50 font-medium'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              );
+            })}
           </div>
         </div>
 
