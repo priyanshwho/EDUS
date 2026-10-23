@@ -10,6 +10,8 @@ import {
   LogOut,
   LayoutDashboard,
   GraduationCap,
+  ShieldCheck,
+  BookOpen,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Button from "./Button";
@@ -462,17 +464,152 @@ const Header = () => {
 
                                         {/* Action Links */}
                                         <div className="space-y-2">
-                                            <button
-                                                onClick={() => {
-                                                    closeNavigation();
-                                                    navigate(dashboardPath);
-                                                }}
-                                                className="flex items-center gap-3 w-full py-3 px-4 rounded-xl bg-n-7 hover:bg-n-6 transition-colors text-n-1 font-medium text-sm cursor-pointer"
-                                            >
-                                                <LayoutDashboard size={18} className="text-cyan-400 shrink-0" />
-                                                <span>Dashboard</span>
-                                                <ChevronRight size={15} className="ml-auto text-n-4" />
-                                            </button>
+                                            {/* Role-based dashboard options */}
+                                            {user?.role === 'admin' ? (
+                                                <div className="space-y-1.5">
+                                                    <p className="text-[11px] font-semibold text-n-4 uppercase tracking-wider px-1">Switch Dashboard</p>
+                                                    
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            closeNavigation();
+                                                            navigate('/dashboard/admin');
+                                                        }}
+                                                        className={`flex items-center gap-3 w-full py-2.5 px-3.5 rounded-xl transition-colors text-sm font-medium cursor-pointer ${
+                                                            pathname.pathname === '/dashboard/admin'
+                                                                ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
+                                                                : 'bg-n-7 hover:bg-n-6 text-n-1'
+                                                        }`}
+                                                    >
+                                                        <ShieldCheck size={18} className="text-rose-400 shrink-0" />
+                                                        <div className="flex-1 text-left">
+                                                            <div className="leading-tight">Admin Dashboard</div>
+                                                            <div className="text-[10px] text-n-4">System, analytics & users</div>
+                                                        </div>
+                                                        {pathname.pathname === '/dashboard/admin' ? (
+                                                            <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-rose-500/30 text-rose-300 font-mono">Current</span>
+                                                        ) : (
+                                                            <ChevronRight size={15} className="text-n-4" />
+                                                        )}
+                                                    </button>
+
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            closeNavigation();
+                                                            navigate('/dashboard/professor');
+                                                        }}
+                                                        className={`flex items-center gap-3 w-full py-2.5 px-3.5 rounded-xl transition-colors text-sm font-medium cursor-pointer ${
+                                                            pathname.pathname === '/dashboard/professor'
+                                                                ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30'
+                                                                : 'bg-n-7 hover:bg-n-6 text-n-1'
+                                                        }`}
+                                                    >
+                                                        <GraduationCap size={18} className="text-color-2 shrink-0" />
+                                                        <div className="flex-1 text-left">
+                                                            <div className="leading-tight">Professor Dashboard</div>
+                                                            <div className="text-[10px] text-n-4">Uploads & subjects</div>
+                                                        </div>
+                                                        {pathname.pathname === '/dashboard/professor' ? (
+                                                            <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-purple-500/30 text-purple-300 font-mono">Current</span>
+                                                        ) : (
+                                                            <ChevronRight size={15} className="text-n-4" />
+                                                        )}
+                                                    </button>
+
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            closeNavigation();
+                                                            navigate('/dashboard/student');
+                                                        }}
+                                                        className={`flex items-center gap-3 w-full py-2.5 px-3.5 rounded-xl transition-colors text-sm font-medium cursor-pointer ${
+                                                            pathname.pathname === '/dashboard/student'
+                                                                ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30'
+                                                                : 'bg-n-7 hover:bg-n-6 text-n-1'
+                                                        }`}
+                                                    >
+                                                        <BookOpen size={18} className="text-cyan-400 shrink-0" />
+                                                        <div className="flex-1 text-left">
+                                                            <div className="leading-tight">Student Dashboard</div>
+                                                            <div className="text-[10px] text-n-4">Study materials & AI tests</div>
+                                                        </div>
+                                                        {pathname.pathname === '/dashboard/student' ? (
+                                                            <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-cyan-500/30 text-cyan-300 font-mono">Current</span>
+                                                        ) : (
+                                                            <ChevronRight size={15} className="text-n-4" />
+                                                        )}
+                                                    </button>
+                                                </div>
+                                            ) : user?.role === 'professor' ? (
+                                                <div className="space-y-1.5">
+                                                    <p className="text-[11px] font-semibold text-n-4 uppercase tracking-wider px-1">Switch Dashboard</p>
+
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            closeNavigation();
+                                                            navigate('/dashboard/professor');
+                                                        }}
+                                                        className={`flex items-center gap-3 w-full py-2.5 px-3.5 rounded-xl transition-colors text-sm font-medium cursor-pointer ${
+                                                            pathname.pathname === '/dashboard/professor'
+                                                                ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30'
+                                                                : 'bg-n-7 hover:bg-n-6 text-n-1'
+                                                        }`}
+                                                    >
+                                                        <GraduationCap size={18} className="text-color-2 shrink-0" />
+                                                        <div className="flex-1 text-left">
+                                                            <div className="leading-tight">Professor Dashboard</div>
+                                                            <div className="text-[10px] text-n-4">My uploads & materials</div>
+                                                        </div>
+                                                        {pathname.pathname === '/dashboard/professor' ? (
+                                                            <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-purple-500/30 text-purple-300 font-mono">Current</span>
+                                                        ) : (
+                                                            <ChevronRight size={15} className="text-n-4" />
+                                                        )}
+                                                    </button>
+
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            closeNavigation();
+                                                            navigate('/dashboard/student');
+                                                        }}
+                                                        className={`flex items-center gap-3 w-full py-2.5 px-3.5 rounded-xl transition-colors text-sm font-medium cursor-pointer ${
+                                                            pathname.pathname === '/dashboard/student'
+                                                                ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30'
+                                                                : 'bg-n-7 hover:bg-n-6 text-n-1'
+                                                        }`}
+                                                    >
+                                                        <BookOpen size={18} className="text-cyan-400 shrink-0" />
+                                                        <div className="flex-1 text-left">
+                                                            <div className="leading-tight">Student Dashboard</div>
+                                                            <div className="text-[10px] text-n-4">Browse resources as student</div>
+                                                        </div>
+                                                        {pathname.pathname === '/dashboard/student' ? (
+                                                            <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-cyan-500/30 text-cyan-300 font-mono">Current</span>
+                                                        ) : (
+                                                            <ChevronRight size={15} className="text-n-4" />
+                                                        )}
+                                                    </button>
+                                                </div>
+                                            ) : (
+                                                <button
+                                                    onClick={() => {
+                                                        closeNavigation();
+                                                        navigate(dashboardPath);
+                                                    }}
+                                                    className={`flex items-center gap-3 w-full py-3 px-4 rounded-xl transition-colors text-n-1 font-medium text-sm cursor-pointer ${
+                                                        pathname.pathname === dashboardPath
+                                                            ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30'
+                                                            : 'bg-n-7 hover:bg-n-6'
+                                                    }`}
+                                                >
+                                                    <LayoutDashboard size={18} className="text-cyan-400 shrink-0" />
+                                                    <span>Dashboard</span>
+                                                    <ChevronRight size={15} className="ml-auto text-n-4" />
+                                                </button>
+                                            )}
 
                                             {/* Become a Professor (students only) */}
                                             {isStudent && (
