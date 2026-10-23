@@ -423,7 +423,7 @@ export default function PlatformAnalytics() {
               {
                 id: 'all',
                 label: 'Overview',
-                activeClass: 'bg-n-6 text-white border border-n-5/80 font-semibold shadow-sm',
+                activeClass: 'bg-[#FF6B8B] text-n-8 font-semibold shadow-[0_0_12px_rgba(255,107,139,0.4)]',
               },
               {
                 id: 'active',
