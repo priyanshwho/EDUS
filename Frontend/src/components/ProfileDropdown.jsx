@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard,
   GraduationCap,
@@ -9,6 +9,8 @@ import {
   Pencil,
   Check,
   X,
+  ShieldCheck,
+  BookOpen,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -32,6 +34,7 @@ const ProfileDropdown = ({
   mobile = false,
 }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { renameUsername } = useAuth();
 
   // Username edit state
@@ -213,16 +216,136 @@ const ProfileDropdown = ({
         </span>
       </div>
 
-      {/* ── Dashboard link ───────────────────────────────────────── */}
-      <button
-        onClick={handleDashboard}
-        className="flex items-center gap-3 w-full px-5 py-3.5 text-n-1
-                   hover:bg-n-6/60 transition-colors text-sm text-left"
-      >
-        <LayoutDashboard size={16} className="text-color-1 shrink-0" />
-        <span>Dashboard</span>
-        <ChevronRight size={14} className="ml-auto text-n-4" />
-      </button>
+      {/* ── Dashboard Switcher (Admin: Admin/Prof/Student; Prof: Prof/Student) ── */}
+      <div className="border-t border-n-6/50 py-1.5">
+        <div className="px-5 pt-1.5 pb-1 flex items-center justify-between text-[10px] font-semibold uppercase tracking-wider text-n-4">
+          <span>{user?.role === 'admin' ? 'Switch Dashboard' : user?.role === 'professor' ? 'Dashboards' : 'Dashboard'}</span>
+          {(user?.role === 'admin' || user?.role === 'professor') && (
+            <span className="text-[9px] px-1.5 py-0.5 rounded bg-color-1/15 text-color-1 font-mono font-medium lowercase">switcher</span>
+          )}
+        </div>
+
+        {user?.role === 'admin' ? (
+          <div className="space-y-0.5">
+            <button
+              type="button"
+              onClick={() => { navigate('/dashboard/admin'); onClose(); }}
+              className={`flex items-center gap-3 w-full px-5 py-2.5 text-xs text-left transition-colors cursor-pointer ${
+                location.pathname === '/dashboard/admin'
+                  ? 'bg-rose-500/15 text-rose-300 font-semibold border-l-2 border-rose-500'
+                  : 'text-n-1 hover:bg-n-6/60'
+              }`}
+            >
+              <ShieldCheck size={16} className="text-rose-400 shrink-0" />
+              <div className="flex-1 truncate">
+                <p className="leading-tight">Admin Dashboard</p>
+                <p className="text-[10px] text-n-4">System, analytics & users</p>
+              </div>
+              {location.pathname === '/dashboard/admin' ? (
+                <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-rose-500/25 text-rose-300 font-mono shrink-0">Current</span>
+              ) : (
+                <ChevronRight size={13} className="text-n-5 shrink-0" />
+              )}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => { navigate('/dashboard/professor'); onClose(); }}
+              className={`flex items-center gap-3 w-full px-5 py-2.5 text-xs text-left transition-colors cursor-pointer ${
+                location.pathname === '/dashboard/professor'
+                  ? 'bg-purple-500/15 text-purple-300 font-semibold border-l-2 border-purple-500'
+                  : 'text-n-1 hover:bg-n-6/60'
+              }`}
+            >
+              <GraduationCap size={16} className="text-color-2 shrink-0" />
+              <div className="flex-1 truncate">
+                <p className="leading-tight">Professor Dashboard</p>
+                <p className="text-[10px] text-n-4">Uploads & subjects</p>
+              </div>
+              {location.pathname === '/dashboard/professor' ? (
+                <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-purple-500/25 text-purple-300 font-mono shrink-0">Current</span>
+              ) : (
+                <ChevronRight size={13} className="text-n-5 shrink-0" />
+              )}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => { navigate('/dashboard/student'); onClose(); }}
+              className={`flex items-center gap-3 w-full px-5 py-2.5 text-xs text-left transition-colors cursor-pointer ${
+                location.pathname === '/dashboard/student'
+                  ? 'bg-cyan-500/15 text-cyan-300 font-semibold border-l-2 border-cyan-500'
+                  : 'text-n-1 hover:bg-n-6/60'
+              }`}
+            >
+              <BookOpen size={16} className="text-cyan-400 shrink-0" />
+              <div className="flex-1 truncate">
+                <p className="leading-tight">Student Dashboard</p>
+                <p className="text-[10px] text-n-4">Study materials & AI tests</p>
+              </div>
+              {location.pathname === '/dashboard/student' ? (
+                <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-cyan-500/25 text-cyan-300 font-mono shrink-0">Current</span>
+              ) : (
+                <ChevronRight size={13} className="text-n-5 shrink-0" />
+              )}
+            </button>
+          </div>
+        ) : user?.role === 'professor' ? (
+          <div className="space-y-0.5">
+            <button
+              type="button"
+              onClick={() => { navigate('/dashboard/professor'); onClose(); }}
+              className={`flex items-center gap-3 w-full px-5 py-2.5 text-xs text-left transition-colors cursor-pointer ${
+                location.pathname === '/dashboard/professor'
+                  ? 'bg-purple-500/15 text-purple-300 font-semibold border-l-2 border-purple-500'
+                  : 'text-n-1 hover:bg-n-6/60'
+              }`}
+            >
+              <GraduationCap size={16} className="text-color-2 shrink-0" />
+              <div className="flex-1 truncate">
+                <p className="leading-tight">Professor Dashboard</p>
+                <p className="text-[10px] text-n-4">My uploads & materials</p>
+              </div>
+              {location.pathname === '/dashboard/professor' ? (
+                <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-purple-500/25 text-purple-300 font-mono shrink-0">Current</span>
+              ) : (
+                <ChevronRight size={13} className="text-n-5 shrink-0" />
+              )}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => { navigate('/dashboard/student'); onClose(); }}
+              className={`flex items-center gap-3 w-full px-5 py-2.5 text-xs text-left transition-colors cursor-pointer ${
+                location.pathname === '/dashboard/student'
+                  ? 'bg-cyan-500/15 text-cyan-300 font-semibold border-l-2 border-cyan-500'
+                  : 'text-n-1 hover:bg-n-6/60'
+              }`}
+            >
+              <BookOpen size={16} className="text-cyan-400 shrink-0" />
+              <div className="flex-1 truncate">
+                <p className="leading-tight">Student Dashboard</p>
+                <p className="text-[10px] text-n-4">Browse library & quizzes</p>
+              </div>
+              {location.pathname === '/dashboard/student' ? (
+                <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-cyan-500/25 text-cyan-300 font-mono shrink-0">Current</span>
+              ) : (
+                <ChevronRight size={13} className="text-n-5 shrink-0" />
+              )}
+            </button>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => { navigate('/dashboard/student'); onClose(); }}
+            className="flex items-center gap-3 w-full px-5 py-3 text-n-1 hover:bg-n-6/60 transition-colors text-sm text-left cursor-pointer"
+          >
+            <LayoutDashboard size={16} className="text-color-1 shrink-0" />
+            <span>Student Dashboard</span>
+            <ChevronRight size={14} className="ml-auto text-n-4" />
+          </button>
+        )}
+      </div>
 
       {/* ── Become a Professor (students only) ──────────────────── */}
       {isStudent && (
