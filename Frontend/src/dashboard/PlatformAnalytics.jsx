@@ -679,12 +679,19 @@ export default function PlatformAnalytics() {
             </div>
           </div>
 
-          <div className="w-full h-60 -ml-2 sm:ml-0">
+          <div className="w-full h-60">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={resourceTypeData} layout="vertical" margin={{ top: 10, right: 20, left: 20, bottom: 0 }}>
+              <BarChart data={resourceTypeData} layout="vertical" margin={{ top: 10, right: 20, left: 10, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#252134" horizontal={false} />
                 <XAxis type="number" stroke="#6C7275" tick={{ fill: '#ADA8C3', fontSize: 11 }} allowDecimals={false} />
-                <YAxis dataKey="name" type="category" stroke="#6C7275" tick={{ fill: '#FFFFFF', fontSize: 12, fontWeight: 500 }} tickLine={false} />
+                <YAxis
+                  dataKey="name"
+                  type="category"
+                  width={92}
+                  stroke="#6C7275"
+                  tick={{ fill: '#FFFFFF', fontSize: 12, fontWeight: 500 }}
+                  tickLine={false}
+                />
                 <Tooltip content={<CustomTooltip />} />
                 <Bar dataKey="count" name="Items" radius={[0, 6, 6, 0]}>
                   {resourceTypeData.map((entry, index) => (
