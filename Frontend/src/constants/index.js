@@ -97,7 +97,12 @@ export const heroIcons = [
 // export const heroIcons = [homeSmile, file02, searchMd, plusSquare];
 
 
-  export const notificationImages = [notification4, notification3, notification2];
+  export const notificationImages = [
+    "/priyanshu.webp",
+    "/Neeraj.webp",
+    "/Anuj.webp",
+    "/Prashant.webp"
+  ];
   
   export const companyLogos = [yourlogo, yourlogo, yourlogo, yourlogo, yourlogo];
   
