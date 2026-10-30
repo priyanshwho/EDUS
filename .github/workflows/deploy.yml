@@ -65,7 +65,7 @@ jobs:
           chmod 600 ~/.ssh/deploy_key
           ssh-keyscan -p "$SERVER_PORT" "$SERVER_HOST" >> ~/.ssh/known_hosts 2>/dev/null || true
 
-          ssh -i ~/.ssh/deploy_key -p "$SERVER_PORT" -o StrictHostKeyChecking=accept-new "$SERVER_USER@$SERVER_HOST" << EOF
+          ssh -tt -i ~/.ssh/deploy_key -p "$SERVER_PORT" -o StrictHostKeyChecking=accept-new "$SERVER_USER@$SERVER_HOST" bash -s << EOF
             set -e
             echo "📦 Fetching latest changes..."
             cd /home/priyanshu/EDUS
@@ -82,9 +82,9 @@ jobs:
               echo "🔍 Verifying service status..."
               echo "$SUDO_PASS" | sudo -S systemctl status edus-backend --no-pager
             else
-              sudo systemctl restart edus-backend
+              sudo -n systemctl restart edus-backend || (echo "Sudo password needed: configure SERVER_SUDO_PASS in repository secrets" && exit 1)
               echo "🔍 Verifying service status..."
-              sudo systemctl status edus-backend --no-pager
+              sudo -n systemctl status edus-backend --no-pager
             fi
 
             echo "✅ Deployment completed successfully!"
