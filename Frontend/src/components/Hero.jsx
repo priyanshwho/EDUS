@@ -160,7 +160,7 @@ return (
 
             <Gradient />
         </div>
-         <div className='hidden md:block absolute -top-[80%] left-1/2 w-[234%] aspect-square -translate-x-1/2 md:-top-[46%] md:w-[138%] lg:-top-[104%] pointer-events-none'>
+         <div className='hidden md:block absolute -top-[80%] left-1/2 w-[234%] aspect-square -translate-x-1/2 md:-top-[58%] md:w-[138%] lg:-top-[118%] pointer-events-none'>
             <img 
               src={heroBackground}
               className='w-full h-full object-cover select-none'
