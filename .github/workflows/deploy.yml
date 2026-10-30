@@ -78,13 +78,13 @@ jobs:
 
             echo "🔄 Restarting edus-backend.service..."
             if [ -n "$SUDO_PASS" ]; then
-              echo "$SUDO_PASS" | sudo -S systemctl restart edus-backend
+              echo "$SUDO_PASS" | sudo -S systemctl restart edus-backend.service
               echo "🔍 Verifying service status..."
-              echo "$SUDO_PASS" | sudo -S systemctl status edus-backend --no-pager
+              echo "$SUDO_PASS" | sudo -S systemctl status edus-backend.service --no-pager
             else
-              sudo -n systemctl restart edus-backend || (echo "Sudo password needed: configure SERVER_SUDO_PASS in repository secrets" && exit 1)
+              sudo -n systemctl restart edus-backend.service || (echo "Sudo password needed: configure SERVER_SUDO_PASS in repository secrets" && exit 1)
               echo "🔍 Verifying service status..."
-              sudo -n systemctl status edus-backend --no-pager
+              sudo -n systemctl status edus-backend.service --no-pager
             fi
 
             echo "✅ Deployment completed successfully!"
