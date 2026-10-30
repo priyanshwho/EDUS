@@ -12,6 +12,7 @@ on:
     paths:
       - 'backend/**'
       - '.github/scripts/**'
+      - '.github/workflows/deploy.yml'
 
 jobs:
   # ====================================================
@@ -48,45 +49,57 @@ jobs:
   deploy:
     name: Deploy to Production
     needs: verify
+    timeout-minutes: 15
+    concurrency:
+      group: edus-backend-production
+      cancel-in-progress: false
     if: (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/Priyanshu') && github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
       - name: SSH and Update Service
         env:
           SERVER_HOST: ${{ secrets.SERVER_HOST }}
-          SERVER_USER: ${{ secrets.SERVER_USER }}
+          SERVER_USER: priyanshu
           SERVER_PORT: ${{ secrets.SERVER_PORT || 22 }}
           SERVER_SSH_KEY: ${{ secrets.SERVER_SSH_KEY }}
-          SUDO_PASS: ${{ secrets.SERVER_SUDO_PASS || secrets.SERVER_PASSWORD || '' }}
-          REF_NAME: ${{ github.ref_name }}
+          DEPLOY_SHA: ${{ github.sha }}
         run: |
           mkdir -p ~/.ssh
           echo "$SERVER_SSH_KEY" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
           ssh-keyscan -p "$SERVER_PORT" "$SERVER_HOST" >> ~/.ssh/known_hosts 2>/dev/null || true
 
-          ssh -tt -i ~/.ssh/deploy_key -p "$SERVER_PORT" -o StrictHostKeyChecking=accept-new "$SERVER_USER@$SERVER_HOST" bash -s << EOF
-            set -e
-            echo "📦 Fetching latest changes..."
-            cd /home/priyanshu/EDUS
-            git fetch origin $REF_NAME
-            git reset --hard origin/$REF_NAME
-
-            echo "📦 Installing backend dependencies..."
-            cd backend
-            npm install
-
-            echo "🔄 Restarting edus-backend.service..."
-            if sudo -n systemctl restart edus-backend.service 2>/dev/null; then
-              echo "🔍 Verifying service status..."
-              sudo -n systemctl status edus-backend.service --no-pager
-            elif [ -n "$SUDO_PASS" ]; then
-              echo "$SUDO_PASS" | sudo -S systemctl restart edus-backend.service
-              echo "🔍 Verifying service status..."
-              echo "$SUDO_PASS" | sudo -S systemctl status edus-backend.service --no-pager
-            else
-              echo "❌ Could not restart service without password or sudo credential" && exit 1
+          ssh -T -i ~/.ssh/deploy_key -p "$SERVER_PORT" -o BatchMode=yes -o ConnectTimeout=15 -o StrictHostKeyChecking=accept-new "$SERVER_USER@$SERVER_HOST" bash -se -- "$DEPLOY_SHA" << 'EOF'
+            set -euo pipefail
+            if [ "$(id -un)" != "priyanshu" ]; then
+              echo "Deployment must run as priyanshu" >&2
+              exit 1
             fi
 
-            echo "✅ Deployment completed successfully!"
+            cd /home/priyanshu/EDUS
+            echo "Fetching verified commit $1..."
+            git fetch origin "$1"
+            git reset --hard "$1"
+
+            cd backend
+            # The installed service runs npm run dev and needs nodemon.
+            npm ci --include=dev
+
+            echo "Restarting edus-backend.service..."
+            sudo -n /usr/bin/systemctl restart edus-backend.service
+
+            echo "Waiting for the API to become healthy..."
+            for attempt in $(seq 1 30); do
+              if /usr/bin/systemctl is-active --quiet edus-backend.service && curl --fail --silent --show-error --max-time 2 http://127.0.0.1:5001/health; then
+                echo
+                /usr/bin/systemctl --no-pager status edus-backend.service
+                echo "Deployment of $1 completed successfully."
+                exit 0
+              fi
+              sleep 2
+            done
+
+            /usr/bin/systemctl --no-pager status edus-backend.service || true
+            echo "API did not become healthy after restart" >&2
+            exit 1
           EOF
