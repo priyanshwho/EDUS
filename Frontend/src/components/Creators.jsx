@@ -6,16 +6,16 @@ const Creators = ({ className, title }) => {
     <div
       className={`${
         className || ""
-      } flex items-center p-4 pr-6 bg-n-9/40 backdrop-blur border border-n-1/10 rounded-2xl gap-5`}
+      } flex items-center p-3 pr-5 bg-n-9/40 backdrop-blur border border-n-1/10 rounded-2xl gap-3.5`}
     >
       <img
         src={notification1}
-        width={62}
-        height={62}
+        width={44}
+        height={44}
         alt="EduSphere platform preview"
         loading="lazy"
         decoding="async"
-        className="rounded-xl"
+        className="w-11 h-11 rounded-lg shrink-0 object-contain"
       />
       <div className="flex-1">
         <p className="mb-1 font-semibold text-n-1 justify-between">{title}</p>
