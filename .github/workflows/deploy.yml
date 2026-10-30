@@ -77,14 +77,15 @@ jobs:
             npm install
 
             echo "🔄 Restarting edus-backend.service..."
-            if [ -n "$SUDO_PASS" ]; then
+            if sudo -n systemctl restart edus-backend.service 2>/dev/null; then
+              echo "🔍 Verifying service status..."
+              sudo -n systemctl status edus-backend.service --no-pager
+            elif [ -n "$SUDO_PASS" ]; then
               echo "$SUDO_PASS" | sudo -S systemctl restart edus-backend.service
               echo "🔍 Verifying service status..."
               echo "$SUDO_PASS" | sudo -S systemctl status edus-backend.service --no-pager
             else
-              sudo -n systemctl restart edus-backend.service || (echo "Sudo password needed: configure SERVER_SUDO_PASS in repository secrets" && exit 1)
-              echo "🔍 Verifying service status..."
-              sudo -n systemctl status edus-backend.service --no-pager
+              echo "❌ Could not restart service without password or sudo credential" && exit 1
             fi
 
             echo "✅ Deployment completed successfully!"
