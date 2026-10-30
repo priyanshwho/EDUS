@@ -148,7 +148,7 @@ return (
     }}
     className="cursor-pointer" // Add cursor pointer to indicate clickable
   >
-                            <Creators className=" hidden absolute -right-[5.5rem] bottom-[14rem] w-[18rem] xl:flex" 
+                            <Creators className=" hidden absolute -right-[5.5rem] bottom-[14rem] w-[16rem] xl:flex" 
                             title="Creators"/>
                             </div>
                     </ScrollParallax> 
