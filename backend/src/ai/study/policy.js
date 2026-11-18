@@ -76,6 +76,8 @@ async function lockOwner(tx, ownerId) {
   assertId(ownerId, 'User ID');
   const rows = await tx`SELECT id FROM users WHERE id = ${ownerId} FOR UPDATE`;
   if (!rows.length) fail(401, 'USER_NOT_FOUND', 'Your account is no longer available.');
+  const pending = await tx`SELECT owner_id FROM study_account_deletions WHERE owner_id=${ownerId}`;
+  if (pending.length) fail(409, 'ACCOUNT_DELETION_PENDING', 'Account deletion is in progress. Private study uploads are disabled.');
 }
 
 async function ownedWorkspace(tx, ownerId, workspaceId, lock = false) {

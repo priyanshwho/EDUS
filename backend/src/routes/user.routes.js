@@ -4,6 +4,8 @@ const { authenticate } = require('../middleware/authenticate');
 const { requireAdmin } = require('../middleware/role.middleware');
 const { cacheGet, invalidateAllCache } = require('../middleware/cache.middleware');
 const { sql } = require('../db/client');
+const { createAccountDeletionService } = require('../services/account-deletion.service');
+const accountDeletion = createAccountDeletionService({ sql, adminEmail: process.env.ADMIN_EMAIL });
 
 // Public: list professors (searchable)
 router.get('/public/professors', cacheGet({
@@ -252,37 +254,16 @@ router.patch('/:id/role', authenticate, requireAdmin, invalidateAllCache(), asyn
 // Admin: delete user AND all their uploaded resources (including S3 cleanup)
 router.delete('/:id/with-resources', authenticate, requireAdmin, invalidateAllCache(), async (req, res, next) => {
   try {
-    const targetUser = await sql`select id, email from users where id = ${req.params.id}`;
-    if (targetUser.length === 0) return res.status(404).json({ error: 'User not found' });
-
-    if (targetUser[0].email === process.env.ADMIN_EMAIL) {
-      return res.status(403).json({ error: 'Cannot delete super admin' });
-    }
-
-    // 1. Find all resources uploaded by this user
-    const userResources = await sql`
-      select id, aws_s3_key from resources where uploaded_by = ${req.params.id}
-    `;
-
-    // 2. Delete S3 objects for file-based resources
+    const result = await accountDeletion.remove(req.params.id, { withResources: true });
+    if (result.pending) return res.status(409).json({ code: 'ACCOUNT_CLEANUP_PENDING', error: 'Private PDFs are being removed. Retry account deletion after cleanup completes.' });
+    // Public object cleanup follows a successful database deletion. A pending
+    // private cleanup never removes public files from an account that still exists.
     const { deleteObject } = require('../services/s3.service');
-    const s3Deletions = userResources
-      .filter(r => r.aws_s3_key)
-      .map(r => deleteObject(r.aws_s3_key).catch(() => {})); // don't fail if S3 delete fails
-    await Promise.all(s3Deletions);
-
-    // 3. Delete all resource records
-    const deletedCount = userResources.length;
-    if (deletedCount > 0) {
-      await sql`delete from resources where uploaded_by = ${req.params.id}`;
-    }
-
-    // 4. Delete the user
-    await sql`delete from users where id = ${req.params.id}`;
+    await Promise.all(result.keys.map(key => deleteObject(key).catch(() => {})));
 
     return res.json({
       message: 'User and all their resources deleted',
-      deletedResourcesCount: deletedCount,
+      deletedResourcesCount: result.deletedResourcesCount,
     });
   } catch (err) { next(err); }
 });
@@ -290,19 +271,8 @@ router.delete('/:id/with-resources', authenticate, requireAdmin, invalidateAllCa
 // Admin: delete user
 router.delete('/:id', authenticate, requireAdmin, invalidateAllCache(), async (req, res, next) => {
   try {
-    const targetUser = await sql`select email from users where id = ${req.params.id}`;
-    if (targetUser.length === 0) return res.status(404).json({ error: 'User not found' });
-    
-    if (targetUser[0].email === process.env.ADMIN_EMAIL) {
-      return res.status(403).json({ error: 'Cannot delete super admin' });
-    }
-
-    const rows = await sql`
-      delete from users
-      where id = ${req.params.id}
-      returning id
-    `;
-
+    const result = await accountDeletion.remove(req.params.id);
+    if (result.pending) return res.status(409).json({ code: 'ACCOUNT_CLEANUP_PENDING', error: 'Private PDFs are being removed. Retry account deletion after cleanup completes.' });
     return res.json({ message: 'User deleted' });
   } catch (err) { next(err); }
 });
