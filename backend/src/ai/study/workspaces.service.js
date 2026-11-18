@@ -43,7 +43,10 @@ function createWorkspaceService({ sql }) {
     return withOwner(ownerId, async (tx) => {
       const workspace = await ownedWorkspace(tx, ownerId, workspaceId);
       const documents = await tx`SELECT * FROM study_documents WHERE workspace_id = ${workspaceId} AND status <> 'deleted' ORDER BY created_at DESC`;
-      return { workspace: publicWorkspace(workspace), documents: documents.map(publicDocument) };
+      const review = await tx`SELECT p.document_id,p.page_number,p.quality FROM study_pages p JOIN study_documents d ON d.id=p.document_id WHERE d.workspace_id=${workspaceId} AND d.status IN ('ready','partial') AND p.quality NOT IN ('good','blank') ORDER BY p.page_number`;
+      return { workspace: publicWorkspace(workspace), documents: documents.map(document => ({
+        ...publicDocument(document), reviewPages: review.filter(page => page.document_id === document.id).map(page => ({ page: page.page_number, quality: page.quality })),
+      })) };
     });
   }
 

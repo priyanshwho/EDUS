@@ -11,6 +11,7 @@ const { createRagService } = require('../src/ai/study/rag.service');
 const { createGroqBudget } = require('../src/ai/study/groq-budget');
 const { createRequestLimiter } = require('../src/ai/study/request-limit');
 const { EMBEDDING_MODEL, EMBEDDING_REVISION } = require('../src/ai/study/embedding-config');
+const { migrateStudy } = require('../scripts/migrate-study');
 
 test('private study SQL lifecycle against isolated PostgreSQL and pgvector', async t => {
   const { sql, close } = await database();
@@ -24,6 +25,10 @@ test('private study SQL lifecycle against isolated PostgreSQL and pgvector', asy
   let workspaceId;
   const temp = await fs.mkdtemp(path.join(os.tmpdir(), 'edus-upload-test-'));
   try {
+    await t.test('additive study migrations can be safely run again', async () => {
+      assert.equal(await migrateStudy(sql), false);
+      assert.equal((await sql.unsafe('SELECT * FROM study_schema_migrations')).length, 2);
+    });
     await t.test('six parallel subjects succeed and a seventh is blocked', async () => {
       const created = await Promise.all(Array.from({ length: 6 }, (_, i) => workspaces.create(owner, { title: `Subject ${i}`, idempotencyKey: `subject_${i}` })));
       workspaceId = created[0].workspace.id;
