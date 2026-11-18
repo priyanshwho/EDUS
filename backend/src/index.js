@@ -14,6 +14,7 @@ const userRoutes = require('./routes/user.routes');
 const aiRoutes = require('./ai/routes/ai.routes');
 const aiNotesRoutes = require('./ai/routes/notes.routes');
 const aiSyllabusRoutes = require('./ai/routes/syllabus.routes');
+const { createStudyRouter } = require('./ai/study/study.routes');
 const { initRedis, isRedisEnabled } = require('./cache/redis.client');
 
 require('./config/passport.config');
@@ -49,6 +50,7 @@ app.use('/api/users',         userRoutes);
 app.use('/api/ai',            aiRoutes);
 app.use('/api/notes',         aiNotesRoutes);
 app.use('/api/syllabus',      aiSyllabusRoutes);
+app.use('/api/study',         createStudyRouter());
 
 // ── Health check ───────────────────────────────────────────────────────────
 app.get('/health', (_req, res) => res.json({

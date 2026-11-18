@@ -1,6 +1,7 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const { createRagService, packSources, validateHistory } = require('../src/ai/study/rag.service');
+const { EMBEDDING_MODEL, EMBEDDING_REVISION } = require('../src/ai/study/embedding-config');
 const owner = '11111111-1111-4111-8111-111111111111';
 const workspace = '22222222-2222-4222-8222-222222222222';
 const document = '33333333-3333-4333-8333-333333333333';
@@ -11,7 +12,7 @@ function fixture(overrides = {}) {
   const sql = { unsafe: async (query, params) => {
     calls.push({ query, params });
     if (query.startsWith('SELECT id,title')) return overrides.missing ? [] : [{ id: workspace, title: 'Operating Systems' }];
-    if (query.startsWith('SELECT d.id,d.status')) return [{ id: document, status: 'ready', kind: 'notes', filename: 'OS.pdf' }];
+    if (query.startsWith('SELECT d.id,d.status')) return [{ id: document, status: 'ready', kind: 'notes', filename: 'OS.pdf', embedding_model: EMBEDDING_MODEL, embedding_revision: overrides.revision || EMBEDDING_REVISION }];
     return [row];
   } };
   const generate = overrides.generate || (async () => ({ choices: [{ message: { content: JSON.stringify({ answer: 'Deadlock needs four conditions. [S1]', sourceIds: ['S1'], insufficientEvidence: false, generalKnowledgeUsed: false }) } }] }));
@@ -52,6 +53,10 @@ test('bad embedding dimension never reaches the database vector operator', async
   const { service, calls } = fixture({ embed: async () => [1, 2] });
   await assert.rejects(service.chat(owner, workspace, { question: 'Deadlock?' }), { code: 'INVALID_EMBEDDING' });
   assert.equal(calls.length, 2);
+});
+test('an index built by a different model revision cannot be searched', async () => {
+  const { service } = fixture({ revision: '0000000000000000000000000000000000000000' });
+  await assert.rejects(service.chat(owner, workspace, { question: 'Deadlock?' }), { code: 'DOCUMENT_REINDEX_REQUIRED' });
 });
 test('invented citations are rejected', async () => {
   const { service } = fixture({ generate: async () => ({ choices: [{ message: { content: JSON.stringify({ answer: 'Answer [S9]', sourceIds: ['S9'], insufficientEvidence: false, generalKnowledgeUsed: false }) } }] }) });

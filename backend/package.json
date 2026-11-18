@@ -7,6 +7,8 @@
   "scripts": {
     "start": "node src/index.js",
     "dev": "nodemon src/index.js",
+    "test": "node --test test/*.test.js",
+    "migrate:study": "node scripts/migrate-study.js",
     "validate": "node ../.github/scripts/validate-env.js",
     "check:roles": "node ../.github/scripts/check-roles.js",
     "check:slug": "node ../.github/scripts/check-slug-format.js",
@@ -40,6 +42,8 @@
     "uuid": "^9.0.1"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "0.5.16",
+    "@electric-sql/pglite-pgvector": "0.0.17",
     "drizzle-kit": "^0.30.0",
     "nodemon": "^3.1.0"
   },

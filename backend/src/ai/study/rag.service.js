@@ -1,5 +1,6 @@
 const { StudyError } = require('./errors');
 const { createFreeGroq } = require('./free-groq');
+const { embeddingIdentity } = require('./embedding-config');
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 function validateId(value) {
@@ -35,18 +36,22 @@ function validateHistory(history) {
 }
 
 async function embedQuery(question, env = process.env) {
-  if (!env.STUDY_INTERNAL_TOKEN) throw new StudyError(503, 'EMBEDDINGS_NOT_CONFIGURED', 'The document embedding service is not configured yet.');
+  if (!env.STUDY_INTERNAL_TOKEN || env.STUDY_INTERNAL_TOKEN.length < 16) throw new StudyError(503, 'EMBEDDINGS_NOT_CONFIGURED', 'The document embedding service is not configured yet.');
   try {
     const response = await fetch(`${env.STUDY_EMBEDDING_URL || 'http://127.0.0.1:8091'}/embed`, {
       method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Study-Token': env.STUDY_INTERNAL_TOKEN },
       body: JSON.stringify({ texts: [question], kind: 'query' }), signal: AbortSignal.timeout(30000),
     });
+    if (response.status === 400) throw new StudyError(400, 'QUESTION_TOO_LONG', 'Please shorten the question for document search.');
     if (!response.ok) throw new Error('Embedding unavailable');
     const data = await response.json();
+    const expected = embeddingIdentity(env);
+    if (data.model !== expected.model || data.revision !== expected.revision) throw new Error('Embedding model revision mismatch');
     const vector = data.embeddings?.[0];
     if (!Array.isArray(vector) || vector.length !== 384 || !vector.every(Number.isFinite)) throw new Error('Invalid vector');
     return vector;
-  } catch {
+  } catch (error) {
+    if (error instanceof StudyError) throw error;
     throw new StudyError(503, 'EMBEDDINGS_UNAVAILABLE', 'The document search service is warming up or unavailable. Please try again.');
   }
 }
@@ -60,12 +65,16 @@ function createRagService({ sql, env = process.env, embed = question => embedQue
     if (!workspaces.length) throw new StudyError(404, 'SUBJECT_NOT_FOUND', 'Subject not found.');
     if (documentIds !== undefined && (!Array.isArray(documentIds) || documentIds.length > 6)) throw new StudyError(400, 'INVALID_SOURCES', 'Select at most six documents.');
     const selected = [...new Set((documentIds || []).map(validateId))];
-    const documents = await sql.unsafe(`SELECT d.id,d.status,d.kind,d.filename FROM study_documents d
+    const documents = await sql.unsafe(`SELECT d.id,d.status,d.kind,d.filename,d.embedding_model,d.embedding_revision FROM study_documents d
       JOIN study_workspaces w ON w.id=d.workspace_id
       WHERE w.id=$1 AND w.owner_id=$2 AND w.deleted_at IS NULL AND d.status NOT IN ('deleted','deleting')`, [workspaceId, ownerId]);
     if (selected.some(id => !documents.some(document => document.id === id))) throw new StudyError(404, 'DOCUMENT_NOT_FOUND', 'A selected document is not available in this subject.');
     const ready = documents.filter(document => ['ready', 'partial'].includes(document.status) && (!selected.length || selected.includes(document.id)));
     if (!ready.length) throw new StudyError(409, 'DOCUMENTS_NOT_READY', 'Upload notes or a syllabus and wait for processing before using AI.');
+    const identity = embeddingIdentity(env);
+    if (ready.some(document => document.embedding_model !== identity.model || document.embedding_revision !== identity.revision)) {
+      throw new StudyError(409, 'DOCUMENT_REINDEX_REQUIRED', 'Document search has changed. Reprocess these PDFs before asking questions.');
+    }
     return { workspace: workspaces[0], documents: ready, ids: ready.map(document => document.id), incomplete: ready.some(document => document.status === 'partial') };
   }
 
@@ -137,8 +146,19 @@ function createRagService({ sql, env = process.env, embed = question => embedQue
     const question = typeof body.question === 'string' ? body.question.trim() : '';
     if (!question || question.length > 2000) throw new StudyError(400, 'INVALID_QUESTION', 'Enter a question up to 2,000 characters.');
     if (body.mode && !['notes_only', 'general'].includes(body.mode)) throw new StudyError(400, 'INVALID_MODE', 'Invalid answer mode.');
-    const history = validateHistory(body.history);
-    const context = await retrieve(ownerId, workspaceId, body.documentIds, question);
+    const validated = validateHistory(body.history);
+    // Keep room for page evidence and output within the conservative free token cap.
+    let remaining = 4000;
+    const history = [];
+    for (const message of validated.slice().reverse()) {
+      if (!remaining) break;
+      const content = message.content.slice(-remaining);
+      remaining -= content.length;
+      history.unshift({ ...message, content });
+    }
+    const priorQuestion = history.filter(message => message.role === 'user').at(-1)?.content;
+    const retrievalQuestion = priorQuestion ? `${question}\nPrevious question: ${priorQuestion.slice(0, 350)}` : question;
+    const context = await retrieve(ownerId, workspaceId, body.documentIds, retrievalQuestion);
     const task = `${body.mode === 'general' ? 'General tutor: distinguish any general explanation from cited reference material.' : 'Notes only: answer only what references support. If evidence is insufficient, explain what is missing and set insufficientEvidence=true.'} Question: ${question}. Include [S1] style inline citations for supported claims and list their IDs. Do not cite general knowledge.`;
     const schema = { type: 'object', additionalProperties: false, required: ['answer', 'sourceIds', 'insufficientEvidence', 'generalKnowledgeUsed'], properties: {
       answer: { type: 'string' }, sourceIds: sourceSchema(context.sources), insufficientEvidence: { type: 'boolean' }, generalKnowledgeUsed: { type: 'boolean' },

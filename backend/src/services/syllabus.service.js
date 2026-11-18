@@ -396,20 +396,7 @@ async function createSyllabus({ subjectName, subjectCode, branch, semester, cont
 
   let result;
   if (existing.length > 0) {
-    // Update existing syllabus
-    const updated = await sql`
-      UPDATE syllabi
-      SET subject_name = ${cleanSubjectName},
-          subject_code = ${cleanSubjectCode},
-          content      = ${fullContent},
-          section_a    = ${extA},
-          section_b    = ${extB},
-          created_by   = COALESCE(${userId || null}, created_by),
-          updated_at   = now()
-      WHERE id = ${existing[0].id}
-      RETURNING *
-    `;
-    result = updated[0];
+    throw new Error('This shared syllabus already exists. Use the authorized edit action to update it.');
   } else {
     // Insert new syllabus
     const inserted = await sql`
