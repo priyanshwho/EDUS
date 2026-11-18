@@ -1,6 +1,6 @@
 # Supported runtime: Python 3.11 or 3.12, Linux amd64/arm64. Deliberate bounded ranges.
 # Docker installs CPU-only torch separately to avoid CUDA packages on amd64.
-boto3>=1.35,<2
+boto3>=1.36,<2
 psycopg[binary]>=3.2,<3.3
 pypdf>=5.9,<6
 pypdfium2>=4.30,<5

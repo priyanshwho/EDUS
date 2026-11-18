@@ -209,3 +209,10 @@ The platform uses custom scripts to audit environment rules and roles to safegua
 | `npm run check:roles` | Scans route configurations to verify role-based middleware coverage. |
 | `npm run check:slug` | Runs checks against subject acronyms and validation rules. |
 | `npm run check:s3` | Pings Tigris S3 endpoints to test credentials and read/write authorizations. |
+
+## Private study PDFs
+
+EDU AI now includes private syllabus and notes workspaces with OCR, page-cited RAG,
+six subjects per account, and bounded upload/Groq usage. See the
+[setup, limits and deployment guide](docs/private-study.md). Workers and additive
+database migrations must be configured before enabling this feature in production.
