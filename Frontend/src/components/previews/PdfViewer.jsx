@@ -5,7 +5,7 @@ import { GooeyLoader } from '../ui/loader-10';
  * Inline PDF viewer using PDF.js.
  * @param {string} url - Either a presigned S3 URL or a public PDF URL
  */
-export default function PdfViewer({ url }) {
+export default function PdfViewer({ url, initialPage = 1 }) {
   const canvasRef = useRef(null);
   const [pdf, setPdf] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -14,26 +14,31 @@ export default function PdfViewer({ url }) {
   const [error, setError] = useState(null);
   const [scale, setScale] = useState(1.5);
   const renderTaskRef = useRef(null);
+  const initialPageRef = useRef(initialPage);
+  initialPageRef.current = initialPage;
 
   // Load PDFjs lazily to avoid SSR issues
   useEffect(() => {
     if (!url) return;
 
     let cancelled = false;
+    let loadingTask;
 
     async function loadPdf() {
       try {
         setLoading(true);
         setError(null);
+        setPdf(null);
 
         const pdfjs = await import('pdfjs-dist');
+        if (cancelled) return;
         // Use the bundled worker
         pdfjs.GlobalWorkerOptions.workerSrc = new URL(
           'pdfjs-dist/build/pdf.worker.mjs',
           import.meta.url
         ).href;
 
-        const loadingTask = pdfjs.getDocument({
+        loadingTask = pdfjs.getDocument({
           url,
           withCredentials: false,
         });
@@ -42,7 +47,7 @@ export default function PdfViewer({ url }) {
 
         setPdf(pdfDoc);
         setTotalPages(pdfDoc.numPages);
-        setCurrentPage(1);
+        setCurrentPage(Math.max(1, Math.min(pdfDoc.numPages, Number(initialPageRef.current) || 1)));
       } catch {
         if (!cancelled) setError('Failed to load PDF. The link may have expired.');
       } finally {
@@ -51,8 +56,16 @@ export default function PdfViewer({ url }) {
     }
 
     loadPdf();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+      renderTaskRef.current?.cancel();
+      loadingTask?.destroy().catch(() => {});
+    };
   }, [url]);
+
+  useEffect(() => {
+    if (pdf) setCurrentPage(Math.max(1, Math.min(pdf.numPages, Number(initialPage) || 1)));
+  }, [pdf, initialPage]);
 
   // Render current page when pdf or page/scale changes
   useEffect(() => {
@@ -89,7 +102,7 @@ export default function PdfViewer({ url }) {
     }
 
     renderPage();
-    return () => { cancelled = true; };
+    return () => { cancelled = true; renderTaskRef.current?.cancel(); };
   }, [pdf, currentPage, scale]);
 
   if (loading) {
