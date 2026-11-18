@@ -1,4 +1,5 @@
-const { callGroq } = require('../utils/groqClient');
+const { callGroq, complete } = require('../utils/groqClient');
+const { validateHistory } = require('../study/rag.service');
 
 function calculateFlashcardCount(notesContent) {
   if (!notesContent) return 4;
@@ -42,12 +43,13 @@ Format: [{"question": "...", "answer": "..."}]`;
     : `Topics: ${(topics || []).join(', ')}`;
 
   try {
-    const raw = await callGroq({ systemPrompt, userPrompt });
+    const raw = await callGroq({ systemPrompt, userPrompt, userId: req.user.id });
     const cards = extractJSON(raw);
     res.json(cards);
   } catch (error) {
     console.error('[Flashcards Error]', error.message);
-    res.status(500).json({ error: 'Flashcard generation failed', detail: error.message });
+    if (error.retryAfter) res.setHeader('Retry-After', error.retryAfter);
+    res.status(error.status || 500).json({ error: error.message || 'Flashcard generation failed', code: error.code });
   }
 };
 
@@ -84,7 +86,7 @@ Format:
     : `Topics: ${(topics || []).join(', ')}`;
 
   try {
-    const raw = await callGroq({ systemPrompt, userPrompt });
+    const raw = await callGroq({ systemPrompt, userPrompt, userId: req.user.id });
     const questions = extractJSON(raw);
 
     // Normalize the "correct" field — LLM sometimes returns 0,1,2,3 or "A.","B." etc.
@@ -102,12 +104,20 @@ Format:
     res.json(normalized);
   } catch (error) {
     console.error('[MCQ Error]', error.message);
-    res.status(500).json({ error: 'MCQ generation failed', detail: error.message });
+    if (error.retryAfter) res.setHeader('Retry-After', error.retryAfter);
+    res.status(error.status || 500).json({ error: error.message || 'MCQ generation failed', code: error.code });
   }
 };
 
 exports.interact = async (req, res) => {
   const { chapterTitle, subjectName, notesContent, notesExist, messages, mode, topics } = req.body;
+  let safeHistory;
+  try {
+    safeHistory = validateHistory(messages || []);
+    if (typeof notesContent === 'string' && notesContent.length > 12000) return res.status(400).json({ error: 'Reference material is too long.' });
+  } catch (error) {
+    return res.status(error.status || 400).json({ error: error.message });
+  }
 
   const noNotesNote = notesExist
     ? ''
@@ -155,28 +165,19 @@ ${unslopRules}`;
 
   const conversationMessages = [
     { role: 'system', content: systemPrompt },
-    ...(messages || []),
+    ...safeHistory,
   ];
 
   try {
-    // SSE streaming
+    // Reserve budget before sending headers so quota errors keep their HTTP status.
+    const streamResponse = await complete({ messages: conversationMessages, userId: req.user.id, stream: true, maxTokens: 1200 });
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
     res.flushHeaders();
 
-    const Groq = require('groq-sdk');
-    const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
-
-    const streamResponse = await groq.chat.completions.create({
-      model: process.env.GROQ_MODEL || 'openai/gpt-oss-120b',
-      messages: conversationMessages,
-      stream: true,
-      temperature: 0.6,
-      max_tokens: 1200,
-    });
-
     for await (const chunk of streamResponse) {
+      if (res.destroyed) { streamResponse.controller?.abort(); break; }
       const token = chunk.choices[0]?.delta?.content || '';
       if (token) res.write(`data: ${JSON.stringify({ token })}\n\n`);
     }
@@ -185,7 +186,8 @@ ${unslopRules}`;
   } catch (error) {
     console.error('[AI Interact Error]', error.message);
     if (!res.headersSent) {
-      res.status(500).json({ error: 'AI interaction failed', detail: error.message });
+      if (error.retryAfter) res.setHeader('Retry-After', error.retryAfter);
+      res.status(error.status || 500).json({ error: error.message || 'AI interaction failed', code: error.code });
     } else {
       res.write(`data: ${JSON.stringify({ error: error.message })}\n\n`);
       res.end();
@@ -210,12 +212,13 @@ Format:
   const userPrompt = `Syllabus content for Section ${section}:\n${sectionContent}`;
 
   try {
-    const raw = await callGroq({ systemPrompt, userPrompt });
+    const raw = await callGroq({ systemPrompt, userPrompt, userId: req.user.id });
     const questions = extractJSON(raw);
     res.json(questions);
   } catch (error) {
     console.error('[PYQ Error]', error.message);
-    res.status(500).json({ error: 'PYQ generation failed', detail: error.message });
+    if (error.retryAfter) res.setHeader('Retry-After', error.retryAfter);
+    res.status(error.status || 500).json({ error: error.message || 'Question generation failed', code: error.code });
   }
 };
 
@@ -232,7 +235,7 @@ Student's Answer: ${userAnswer}
 Context: ${context || ''}`;
 
   try {
-    const raw = await callGroq({ systemPrompt, userPrompt });
+    const raw = await callGroq({ systemPrompt, userPrompt, userId: req.user.id });
     // For a single object, find { ... }
     const start = raw.indexOf('{');
     const end = raw.lastIndexOf('}');
@@ -240,6 +243,7 @@ Context: ${context || ''}`;
     res.json(result);
   } catch (error) {
     console.error('[Evaluate Error]', error.message);
-    res.status(500).json({ error: 'Evaluation failed', detail: error.message });
+    if (error.retryAfter) res.setHeader('Retry-After', error.retryAfter);
+    res.status(error.status || 500).json({ error: error.message || 'Evaluation failed', code: error.code });
   }
 };

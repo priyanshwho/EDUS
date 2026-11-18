@@ -1,11 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const aiController = require('../controllers/ai.controller');
+const { authenticate } = require('../../middleware/authenticate');
 
-router.post('/flashcards', aiController.generateFlashcards);
-router.post('/mcq', aiController.generateMCQ);
-router.post('/interact', aiController.interact);
-router.post('/pyq', aiController.generatePYQ);
-router.post('/evaluate', aiController.evaluate);
+router.post('/flashcards', authenticate, aiController.generateFlashcards);
+router.post('/mcq', authenticate, aiController.generateMCQ);
+router.post('/interact', authenticate, aiController.interact);
+router.post('/pyq', authenticate, aiController.generatePYQ);
+router.post('/evaluate', authenticate, aiController.evaluate);
 
 module.exports = router;
