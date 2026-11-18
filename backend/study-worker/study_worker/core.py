@@ -20,7 +20,10 @@ class LeaseLost(RuntimeError):
 
 
 class BudgetExceeded(RuntimeError):
-    pass
+    def __init__(self, message, retry_after=None, short_window=False):
+        super().__init__(message)
+        self.retry_after = retry_after
+        self.short_window = short_window
 
 
 class ExtractionError(RuntimeError):

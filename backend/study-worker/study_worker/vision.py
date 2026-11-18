@@ -2,6 +2,7 @@
 import base64
 import json
 import re
+import time
 import urllib.error
 import urllib.request
 from .config import VISION_MODEL
@@ -16,9 +17,19 @@ PROMPT_VERSION = "literal-v1"
 
 
 class Vision:
-    def __init__(self, settings, database, opener=None):
+    def __init__(self, settings, database, opener=None, waiter=None):
         self.settings, self.database = settings, database
         self.opener = opener or urllib.request.urlopen
+        self.waiter = waiter or self.wait_for_budget
+
+    def wait_for_budget(self, job, seconds):
+        self.database.stage(job, "waiting_for_ocr_quota")
+        until = time.monotonic() + seconds
+        while time.monotonic() < until:
+            self.database.assert_live(job)
+            time.sleep(min(1, max(0, until - time.monotonic())))
+        self.database.assert_live(job)
+        self.database.stage(job, "extracting")
 
     def transcribe(self, image, owner_id, *, job=None, page_number=None):
         s = self.settings
@@ -30,7 +41,16 @@ class Vision:
             raise BudgetExceeded("Free vision is not configured; handwriting needs review")
         if len(image) > MAX_IMAGE_BYTES:
             raise ValueError("Vision image exceeds the bounded page limit")
-        self.database.reserve_vision(owner_id)
+        for attempt in range(2):
+            try:
+                self.database.reserve_vision(owner_id)
+                break
+            except BudgetExceeded as error:
+                if attempt or job is None or not error.short_window or not 1 <= (error.retry_after or 0) <= 60:
+                    raise
+                # This is an asynchronous job. Pace a page through one minute
+                # reset while heartbeat/fencing keep deletion responsive.
+                self.waiter(job, error.retry_after)
         payload = {"model": s.vision_model, "temperature": 0, "max_completion_tokens": s.vision_max_output,
                    "messages": [{"role": "user", "content": [
                        {"type": "text", "text": TRANSCRIBE},

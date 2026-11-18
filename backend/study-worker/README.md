@@ -52,7 +52,9 @@ One image is sent per request (below the provider's three-image bound). Input es
 minute/day counters and owner page counters are updated atomically in lexical key
 order. Reservations are not refunded, including provider failures. These are conservative
 application reservations, not an assertion that image token usage is exact; provider
-free-plan enforcement remains authoritative. A 429 leaves that page `quota_limited`.
+free-plan enforcement remains authoritative. A minute-window limit permits one bounded
+wait before the next page's call, checking the lease throughout; daily exhaustion takes
+priority and never waits. A provider 429 leaves that page `quota_limited`.
 
 ## Pipeline and lifecycle
 

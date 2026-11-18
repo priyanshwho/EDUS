@@ -129,6 +129,27 @@ class StorageTests(unittest.TestCase):
 
 
 class VisionTests(unittest.TestCase):
+    def test_minute_capacity_paces_one_page_but_daily_exhaustion_does_not_wait(self):
+        for short_window in (True, False):
+            database, opener, waiter = Mock(), Mock(), Mock()
+            database.cached_transcription.return_value = None
+            database.reserve_vision.side_effect = [BudgetExceeded('capacity', 20, short_window), None]
+            response = Mock()
+            response.__enter__ = Mock(return_value=response)
+            response.__exit__ = Mock(return_value=None)
+            response.read.return_value = json.dumps({'choices': [{'message': {'content': 'Complete transcription'}, 'finish_reason': 'stop'}]}).encode()
+            opener.return_value = response
+            vision = Vision(Settings(groq_key='test', free_plan_confirmed=True), database, opener, waiter)
+            if short_window:
+                self.assertEqual(vision.transcribe(b'jpg', DOC, job={'id': 'job'}, page_number=1)[0], 'Complete transcription')
+                waiter.assert_called_once_with({'id': 'job'}, 20)
+                self.assertEqual(database.reserve_vision.call_count, 2)
+            else:
+                with self.assertRaises(BudgetExceeded):
+                    vision.transcribe(b'jpg', DOC, job={'id': 'job'}, page_number=1)
+                waiter.assert_not_called()
+                opener.assert_not_called()
+
     def test_successful_cached_page_uses_no_provider_or_quota(self):
         opener, database = Mock(), Mock()
         database.cached_transcription.return_value = "Previously read handwriting"

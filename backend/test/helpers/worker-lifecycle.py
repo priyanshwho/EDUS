@@ -74,10 +74,16 @@ def main():
     database.reserve_vision(str(job["owner_id"]))
     try:
         database.reserve_vision(str(job["owner_id"]))
-    except BudgetExceeded:
-        pass
+    except BudgetExceeded as error:
+        assert error.short_window and 1 <= error.retry_after <= 60
     else:
         raise AssertionError("Vision quota must roll back the second oversized reservation")
+    try:
+        Database(Settings(vision_pages_day=1), connector=Connection).reserve_vision(str(job["owner_id"]))
+    except BudgetExceeded as error:
+        assert not error.short_window, "Daily exhaustion must win over minute pacing"
+    else:
+        raise AssertionError("The owner's daily vision cap must be enforced")
     chunk = {"id": str(uuid.uuid4()), "page_number": 1, "chunk_index": 0,
              "text": "Reliable reading", "tokens": 5, "embedding": [1.0] + [0.0] * 383}
     database.publish(job, [Page(1, "Reliable reading", "test")], [chunk])

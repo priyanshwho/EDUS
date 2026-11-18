@@ -1,5 +1,6 @@
 """Short transactions, job leases, atomic quotas, and fenced publication."""
 from contextlib import contextmanager
+import math
 import uuid
 from .core import BudgetExceeded, LeaseLost, quota_reservations
 
@@ -97,7 +98,9 @@ class Database:
         # Same scopes, buckets, UTC fixed windows, lock order, and no-refund rule as Node.
         with self.connect() as con, con.cursor() as cur:
             cur.execute("SELECT clock_timestamp() AS now")
-            reservations = quota_reservations(self.settings, owner_id, cur.fetchone()["now"])
+            instant = cur.fetchone()["now"]
+            reservations = quota_reservations(self.settings, owner_id, instant)
+            exhausted = []
             for scope, bucket, window, amount, limit in reservations:
                 cur.execute("""INSERT INTO study_usage(scope,bucket,window_start,amount)
                                VALUES(%s,%s,%s,0) ON CONFLICT DO NOTHING""", (scope, bucket, window))
@@ -105,7 +108,15 @@ class Database:
                                WHERE scope=%s AND bucket=%s AND window_start=%s AND amount+%s <= %s
                                RETURNING amount""", (amount, scope, bucket, window, amount, limit))
                 if not cur.fetchone():
-                    raise BudgetExceeded("Free handwriting/OCR quota is exhausted; retry later")
+                    exhausted.append((bucket, window, amount, limit))
+            if exhausted:
+                # A daily limit wins over minute pacing. Otherwise a long PDF
+                # could wait each minute even after its owner's daily cap is used.
+                bucket, window, amount, limit = next((item for item in exhausted if not item[0].endswith('_minute') or item[2] > item[3]), exhausted[0])
+                short_window = bucket.endswith('_minute') and amount <= limit
+                seconds = 60 if bucket.endswith('_minute') else 86400
+                retry_after = max(1, math.ceil(window.timestamp() + seconds - instant.timestamp()))
+                raise BudgetExceeded("Free handwriting/OCR quota is exhausted; retry later", retry_after, short_window)
 
     def cached_transcription(self, job, page_number, model, version):
         with self.connect() as con, con.cursor() as cur:
