@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const { sql } = require('../db/client');
 const { parseSyllabus } = require('../ai/utils/parseSyllabus');
+const sharedCatalog = require('./shared-syllabus-catalog');
 
 const DATA_DIR = path.join(__dirname, '../ai/data/Syllabus/Branch');
 
@@ -73,7 +74,7 @@ function buildFullContent(content, sectionA, sectionB) {
  * Get all available branches from both file system and database.
  */
 async function getBranches() {
-  const branchesSet = new Set();
+  const branchesSet = new Set(sharedCatalog.branches());
 
   // 1. Filesystem branches
   try {
@@ -111,12 +112,12 @@ async function getBranches() {
  */
 async function getSemesters(branch) {
   const upperBranch = branch.toUpperCase();
-  const semSet = new Set();
+  const semSet = new Set(sharedCatalog.semestersFor(upperBranch).map(number => `semester_${number}`));
 
   // 1. Filesystem semesters
   try {
     const branchPath = path.join(DATA_DIR, upperBranch);
-    if (fs.existsSync(branchPath)) {
+    if (!sharedCatalog.hasBranch(upperBranch) && fs.existsSync(branchPath)) {
       const fsSemesters = fs.readdirSync(branchPath)
         .filter(isVisible)
         .filter((file) => {
@@ -179,12 +180,12 @@ async function getSubjects(branch, semester) {
   const semNum = normalizeSemester(semester);
   const semKey = formatSemesterKey(semNum);
 
-  const subjectMap = new Map(); // lowercase name -> subject object
+  const subjectMap = new Map(sharedCatalog.subjectsFor(upperBranch, semNum).map(subject => [subject.name.toLowerCase(), subject]));
 
   // 1. Filesystem subjects
   try {
     const semesterPath = path.join(DATA_DIR, upperBranch, semKey);
-    if (fs.existsSync(semesterPath)) {
+    if (!sharedCatalog.hasBranch(upperBranch) && fs.existsSync(semesterPath)) {
       const files = fs.readdirSync(semesterPath)
         .filter(isVisible)
         .filter((file) => file.endsWith('.txt'))
@@ -326,7 +327,12 @@ async function getSubjectDetails(branch, semester, subject) {
     console.warn('[SyllabusService] Warning checking database for subject:', err.message);
   }
 
-  // 2. Fall back to Filesystem
+  // The reviewed batch catalog replaces the incomplete legacy branch files.
+  const curated = sharedCatalog.subjectDetails(upperBranch, semNum, subject);
+  if (curated) return curated;
+  if (sharedCatalog.hasBranch(upperBranch)) return null;
+
+  // 2. Fall back to Filesystem for branches without a curated catalog.
   try {
     const subjectPath = path.join(DATA_DIR, upperBranch, semKey, `${subject}.txt`);
     if (fs.existsSync(subjectPath)) {

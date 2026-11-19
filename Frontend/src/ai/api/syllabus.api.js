@@ -21,7 +21,7 @@ export const fetchSubjects = async (branch, semester) => {
 };
 
 export const fetchSubjectDetails = async (branch, semester, subject) => {
-  const res = await fetch(`${BASE_URL}/${branch}/${semester}/${subject}`);
+  const res = await fetch(`${BASE_URL}/${encodeURIComponent(branch)}/${encodeURIComponent(semester)}/${encodeURIComponent(subject)}`);
   return res.json();
 };
 
