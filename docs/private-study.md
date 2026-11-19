@@ -5,6 +5,9 @@ professor and admin has their own six subject slots. Upload a syllabus, notes or
 to a subject. Each syllabus and notes section also accepts pasted text, and PDF/text methods can be mixed. Private material never enters the shared syllabus catalog or public
 resources. There is no sharing or approval workflow in this release.
 
+For architecture rationale and interview preparation, see the
+[complete interview guide](edus-interview-guide.md).
+
 ## Data flow
 
 ```mermaid
