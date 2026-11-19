@@ -220,3 +220,7 @@ database migrations must be configured before enabling this feature in productio
 
 For the architecture, design tradeoffs, setup diagnosis, and 130 interview questions,
 read the [EduSphere interview guide](docs/edus-interview-guide.md).
+
+For an independently sourced Operating Systems PDF demo, actual answer/reference checks,
+and a focused explanation of the RAG choices, see the
+[recruiter RAG walkthrough](docs/rag-recruiter-demo.md).

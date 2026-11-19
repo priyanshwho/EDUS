@@ -82,3 +82,13 @@ sizes as fully deployed.
 The existing container template was not used for this host deployment; systemd user
 services are the verified runtime. No large-scale load test or production availability
 guarantee is implied by these acceptance results.
+
+## Retained university-document recruiter demo
+
+The subsequent [Operating Systems demo](rag-recruiter-demo.md) used two original,
+small university PDFs rather than synthetic fixtures. Both indexed successfully: 12
+PDF pages, 17 chunks, 384-dimensional vectors. Four answer/reference/abstention cases
+passed through the public API, and the hosted browser displayed the actual answer and
+matching syllabus page. The owner explicitly requested keeping this private subject,
+so these two source documents are retained for demonstration. Temporary acceptance
+accounts from the initial deployment tests remain removed.
