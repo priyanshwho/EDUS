@@ -59,29 +59,51 @@ paths now use explicit timestamp encoding; the regression adapter rejects raw Da
 parameters. UUID-array retrieval parameters are encoded explicitly as well. Backend
 tests passed after these fixes; worker tests passed, including actual printed OCR.
 
-## Remaining root-level proxy step
+## Public deployment recheck — 19 November 2026, 04:11 UTC
 
-**The application's full advertised PDF size is not yet enabled at the public proxy.**
-The existing Nginx site has no explicit request-size override, so its default ceiling
-is below the application's 5 MiB syllabus / 20 MiB notes limits. The `priyanshu` account's
-sudo policy permits managing the backend service but not changing/reloading Nginx.
+The current public deployment was tested again after the study UI update, using actual
+HTTPS requests rather than mocked services. All backend/RAG checks below passed:
 
-Connect as an authorized admin (the existing `ubuntu` account is in the sudo group),
-review the script, and run:
+- API, embedding service, and ingestion worker active with zero service restarts.
+- `npm run study:check`: configuration, study migrations, pgvector, pasted text,
+  and authenticated local embedding readiness all passed.
+- Public frontend, health, subjects, resources, announcements, professor directory,
+  and syllabus branch routes returned HTTP 200 with the expected frontend API CORS.
+- Unauthenticated study, profile, saved items, admin analytics, and AI requests were
+  rejected with HTTP 401.
+- Temporary authenticated subjects: six-subject ceiling, owner isolation, pasted-text
+  idempotency, native PDF indexing, real Tesseract OCR, and actual Groq vision routing
+  passed. The vision fixture is printed text marked for handwriting routing; it does
+  not measure recognition accuracy on handwriting.
+- Private original PDF download, storage CORS, indexed embeddings, cited Groq chat,
+  flashcards, and multiple-choice generation passed through the public API.
+- Synthetic accounts, documents, and storage objects were removed through the deletion
+  lifecycle, followed by removal of the temporary account records.
+- The real hosted browser loaded the retained owner demo, generated an answer stating
+  Wednesday office hours from 7:30 PM to 9:30 PM via Blackboard, and opened the cited
+  syllabus page 2 of 7. The updated workspace CSS and custom select arrow are live.
 
-```sh
-sudo python3 /home/priyanshu/EDUS/backend/study-worker/deploy/configure-nginx.py
-```
+### Current proxy and upload limit
 
-The script backs up the API site, sets a 21 MiB request ceiling and 300-second upstream
-timeouts, validates Nginx, and reloads it. After it succeeds, perform an actual public
-PDF upload larger than 1 MiB and check indexing/deletion before marking this step done.
-Until then, smaller PDFs and pasted text work, but do not describe all advertised file
-sizes as fully deployed.
+The earlier Nginx warning described an old configuration file. On this recheck,
+**Nginx is inactive and Caddy is active**; public DNS and response headers identify
+Cloudflare at the edge. The readable Nginx site is not evidence of the active public
+request-size ceiling. No proxy configuration was changed during this recheck.
 
-The existing container template was not used for this host deployment; systemd user
-services are the verified runtime. No large-scale load test or production availability
-guarantee is implied by these acceptance results.
+Actual public uploads of 3,240,944 bytes and exactly **20 MiB (20,971,520 bytes)**
+returned HTTP 201. Reserving a notes PDF one byte above 20 MiB returned HTTP 413.
+The largest fixture was a small valid PDF padded to the byte limit: this tests public
+transport, application size validation, object storage, and deletion, not OCR/indexing
+of a dense 20 MiB course document. Smaller native/scanned fixtures separately passed
+indexing. All size-test accounts and documents were removed.
+
+There is no current requirement to run the old Nginx helper on this Caddy deployment.
+Its instructions are relevant only if a future deployment actually uses Nginx.
+Long-running proxy timeouts were not measured by these checks.
+
+These results establish the exercised behavior at the stated time. External OAuth
+login/provider redirects, every administrative write, sustained load, daily quota
+exhaustion, and representative handwriting accuracy were not exhaustively tested.
 
 ## Retained university-document recruiter demo
 

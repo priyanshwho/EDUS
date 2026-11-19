@@ -182,7 +182,7 @@ not prove the ingestion worker is running.
 ## Verification and remaining acceptance work
 
 See the [19 November host acceptance report](deployment-verification.md) for live
-database/storage/Groq/browser results and the remaining administrator-only proxy step.
+database/storage/Groq/browser results and the current public upload-limit checks.
 
 ```sh
 cd backend
@@ -207,7 +207,7 @@ No production database, S3 object, or real Groq request is required by these che
 
 Host-based PostgreSQL/S3 ingestion, Groq text/vision calls, and the public browser flow
 have now passed live synthetic acceptance. A container build is still required if that
-alternative deployment is chosen. The root-level Nginx upload-size update remains
-pending, and a labeled benchmark of actual course material/handwriting is still needed.
+alternative deployment is chosen. The current Caddy/Cloudflare deployment accepted a public 20 MiB notes upload and
+rejected an oversized reservation. A labeled benchmark of actual course material/handwriting is still needed.
 These are separate from source-level tests. Supply a selectable syllabus, a printed scan, and handwritten notes
 with known answers using material you are comfortable sending to Groq for OCR.

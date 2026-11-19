@@ -298,8 +298,10 @@ can be partial. The current internet PDFs mainly validate native text plus print
 not handwriting accuracy. The separate deployment report records a synthetic page
 successfully routed through the live vision worker.
 
-The administrator-only Nginx change for larger uploads remains separate. These small
-demo files passed the public proxy; that does not prove 20 MiB uploads are enabled.
+A subsequent public recheck accepted a notes PDF padded to exactly 20 MiB and rejected
+a reservation one byte above that limit. Caddy is active; the earlier Nginx warning
+referred to an inactive configuration. This validates the upload boundary separately
+from indexing the small university demo files. See the deployment verification report.
 
 ## 10. Interview questions worth rehearsing
 

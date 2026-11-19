@@ -622,8 +622,8 @@ or handwriting success rate has been measured yet.
 
 The subsequently authorized host deployment has passed real database/object-storage,
 Groq text/vision, and hosted-browser synthetic acceptance; see the
-[deployment verification report](deployment-verification.md). The root-only Nginx
-large-upload step remains pending. Do not confuse a synthetic vision routing check
+[deployment verification report](deployment-verification.md). The latest public recheck also accepted a 20 MiB notes upload and rejected a file
+one byte over the limit; Caddy is active and the old Nginx configuration is inactive. Do not confuse a synthetic vision routing check
 with a benchmark on actual handwritten notes.
 
 ### A five-minute demo
