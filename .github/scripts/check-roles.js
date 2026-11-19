@@ -9,7 +9,7 @@
 const fs   = require('fs');
 const path = require('path');
 
-const ROUTES_DIR = path.join(__dirname, '../../backend/src/routes');
+const ROUTES_DIRS = ['routes', 'ai/routes', 'ai/study'].map(directory => path.join(__dirname, '../../backend/src', directory));
 
 const AUTH_GUARD        = /authenticate/;
 const ROLE_GUARD        = /requireAdmin|requireProfessor|requireRole|requireOwnerOrAdmin/;
@@ -58,12 +58,15 @@ function checkFile(filePath) {
       return;
     }
 
-    const hasAuth = AUTH_GUARD.test(line);
+    const hasAuth = AUTH_GUARD.test(line) || /router\.use\(\s*authenticate\s*\)/.test(lines.slice(0, idx).join('\n'));
     const hasRole = ROLE_GUARD.test(line);
 
     if (!hasAuth) {
       console.error(`❌  [${path.basename(filePath)}:${idx + 1}] Mutation route missing authenticate: ${line.trim()}`);
       hasError = true;
+    } else if (['ai.routes.js', 'study.routes.js'].includes(fileName)) {
+      // AI is available to every authenticated role. Study services enforce ownership.
+      return;
     } else if (AUTH_ONLY_MUTATIONS[fileName] && AUTH_ONLY_MUTATIONS[fileName].has(routeKey)) {
       return;
     } else if (!hasRole) {
@@ -73,13 +76,13 @@ function checkFile(filePath) {
   });
 }
 
-if (!fs.existsSync(ROUTES_DIR)) {
-  console.error(`❌  Routes directory not found: ${ROUTES_DIR}`);
-  process.exit(1);
+for (const directory of ROUTES_DIRS) {
+  if (!fs.existsSync(directory)) {
+    console.error(`❌  Routes directory not found: ${directory}`);
+    process.exit(1);
+  }
+  fs.readdirSync(directory).filter(file => file.endsWith('.routes.js')).forEach(file => checkFile(path.join(directory, file)));
 }
-
-const files = fs.readdirSync(ROUTES_DIR).filter(f => f.endsWith('.js'));
-files.forEach(f => checkFile(path.join(ROUTES_DIR, f)));
 
 if (hasError) {
   console.error('\n❌  Role check FAILED — unprotected routes found.\n');

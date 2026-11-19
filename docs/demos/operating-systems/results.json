@@ -1,0 +1,156 @@
+{
+  "evaluatedDateIndia": "19 November 2026",
+  "subjectTitle": "Operating Systems — Recruiter Demo",
+  "method": "Real public HTTPS API, original university PDFs, deployed database/storage/worker/model. Private account identifiers and signed URLs omitted.",
+  "allPassed": true,
+  "sources": [
+    {
+      "filename": "brooklyn-operating-systems-syllabus.pdf",
+      "kind": "syllabus",
+      "bytes": 353180,
+      "pages": 7,
+      "chunks": 12,
+      "dimension": 384,
+      "status": "ready",
+      "methods": [
+        {
+          "method": "native",
+          "quality": "good",
+          "pages": 6
+        },
+        {
+          "method": "native+tesseract",
+          "quality": "good",
+          "pages": 1
+        }
+      ],
+      "sha256": "7a785141dad41aa305b1078a14a82390fd706f3a4cab56695e4eb854d41df766"
+    },
+    {
+      "filename": "uvic-deadlocks-notes.pdf",
+      "kind": "notes",
+      "bytes": 90774,
+      "pages": 5,
+      "chunks": 5,
+      "dimension": 384,
+      "status": "ready",
+      "methods": [
+        {
+          "method": "native",
+          "quality": "good",
+          "pages": 4
+        },
+        {
+          "method": "native+tesseract",
+          "quality": "good",
+          "pages": 1
+        }
+      ],
+      "sha256": "d681a36746db0b55a9f870e5491c62d4b379bb68123bdf881c420aad0e42082e"
+    }
+  ],
+  "questions": [
+    {
+      "id": "deadlock-conditions",
+      "question": "According to these lecture notes, list the four necessary conditions for deadlock. Keep the answer under 70 words.",
+      "answer": "The four necessary conditions for a deadlock are: mutual exclusion, hold‑and‑wait, no‑preemption, and circular‑wait.",
+      "sourceScope": "uvic-deadlocks-notes.pdf",
+      "answerCheck": true,
+      "citationCheck": true,
+      "passed": true,
+      "insufficientEvidence": false,
+      "generalKnowledgeUsed": false,
+      "citations": [
+        {
+          "filename": "uvic-deadlocks-notes.pdf",
+          "pdfPage": 3
+        }
+      ]
+    },
+    {
+      "id": "syllabus-office-hours",
+      "question": "According to this uploaded syllabus, on which day and at what times are office hours, and where are they held? Keep the answer under 45 words.",
+      "answer": "Office hours are on Wednesdays from 7:30 PM to 9:30 PM, held online via Blackboard.",
+      "sourceScope": "brooklyn-operating-systems-syllabus.pdf",
+      "answerCheck": true,
+      "citationCheck": true,
+      "passed": true,
+      "insufficientEvidence": false,
+      "generalKnowledgeUsed": false,
+      "citations": [
+        {
+          "filename": "brooklyn-operating-systems-syllabus.pdf",
+          "pdfPage": 2
+        }
+      ]
+    },
+    {
+      "id": "graph-cycle-qualification",
+      "question": "According to the lecture notes, does a directed cycle always prove deadlock? Explain the difference for one instance versus multiple instances per resource type. Keep it under 65 words.",
+      "answer": "A directed cycle guarantees deadlock only when each resource type has a single instance; then a cycle means each process waits indefinitely. With multiple instances per resource, a cycle may exist without deadlock because enough instances might satisfy pending requests. [S2]",
+      "sourceScope": "uvic-deadlocks-notes.pdf",
+      "answerCheck": true,
+      "citationCheck": true,
+      "passed": true,
+      "insufficientEvidence": false,
+      "generalKnowledgeUsed": false,
+      "citations": [
+        {
+          "filename": "uvic-deadlocks-notes.pdf",
+          "pdfPage": 4
+        }
+      ]
+    },
+    {
+      "id": "missing-evidence",
+      "question": "What Kubernetes version and AWS production account ID does this course use? If the selected material does not specify them, say so without guessing. Keep the answer under 35 words.",
+      "answer": "The provided syllabus does not specify a Kubernetes version or an AWS production account ID.",
+      "sourceScope": "brooklyn-operating-systems-syllabus.pdf",
+      "answerCheck": true,
+      "citationCheck": true,
+      "passed": true,
+      "insufficientEvidence": true,
+      "generalKnowledgeUsed": false,
+      "citations": [
+        {
+          "filename": "brooklyn-operating-systems-syllabus.pdf",
+          "pdfPage": 6
+        },
+        {
+          "filename": "brooklyn-operating-systems-syllabus.pdf",
+          "pdfPage": 2
+        },
+        {
+          "filename": "brooklyn-operating-systems-syllabus.pdf",
+          "pdfPage": 6
+        },
+        {
+          "filename": "brooklyn-operating-systems-syllabus.pdf",
+          "pdfPage": 3
+        },
+        {
+          "filename": "brooklyn-operating-systems-syllabus.pdf",
+          "pdfPage": 5
+        },
+        {
+          "filename": "brooklyn-operating-systems-syllabus.pdf",
+          "pdfPage": 1
+        },
+        {
+          "filename": "brooklyn-operating-systems-syllabus.pdf",
+          "pdfPage": 1
+        },
+        {
+          "filename": "brooklyn-operating-systems-syllabus.pdf",
+          "pdfPage": 5
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    "Four acceptance questions are not a general accuracy benchmark.",
+    "Tiny notes corpus can fit completely in candidate context.",
+    "Free-model quota waits occurred; no low-latency claim is made.",
+    "No handwriting or large-upload claim is established by these PDFs."
+  ]
+}

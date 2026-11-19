@@ -8,6 +8,8 @@ interface DeleteConfirmationModalProps {
   title?: string;
   itemName: string;
   isDeleting?: boolean;
+  description?: string;
+  warning?: string;
 }
 
 export const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = ({
@@ -17,6 +19,8 @@ export const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = (
   title = 'Delete Syllabus',
   itemName,
   isDeleting = false,
+  description,
+  warning,
 }) => {
   if (!isOpen) return null;
 
@@ -39,11 +43,11 @@ export const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = (
           <div>
             <h3 className="text-lg font-bold text-white mb-1.5">{title}</h3>
             <p className="text-sm text-slate-300 leading-relaxed">
-              Are you sure you want to delete the syllabus for{' '}
+              {description || 'Are you sure you want to delete the syllabus for'}{' '}
               <span className="font-semibold text-white">"{itemName}"</span>?
             </p>
             <p className="text-xs text-slate-500 mt-2">
-              This will permanently remove it from the platform for all users. This action cannot be undone.
+              {warning || 'This will permanently remove it from the platform for all users. This action cannot be undone.'}
             </p>
           </div>
         </div>

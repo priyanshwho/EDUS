@@ -157,6 +157,9 @@ async function create(req, res, next) {
   try {
     if (checkValidation(req, res)) return;
     const { subject_id, resource_type, title, description, year, pyq_type, external_link, aws_s3_key, youtube_url } = req.body;
+    if (aws_s3_key && /^(private\/study\/|study-derived\/)/.test(aws_s3_key)) {
+      return res.status(403).json({ error: 'Private study files cannot be registered as public resources.' });
+    }
 
     if (!subject_id || !resource_type || !title)
       return res.status(400).json({ error: 'subject_id, resource_type and title are required' });
@@ -261,6 +264,9 @@ async function update(req, res, next) {
     }
 
     const allowedFields = ['title', 'description', 'year', 'pyq_type', 'aws_s3_key', 'youtube_url', 'external_link'];
+    if (req.body.aws_s3_key && /^(private\/study\/|study-derived\/)/.test(req.body.aws_s3_key)) {
+      return res.status(403).json({ error: 'Private study files cannot be registered as public resources.' });
+    }
     const updates = {};
     for (const field of allowedFields) {
       if (req.body[field] !== undefined) updates[field] = req.body[field];

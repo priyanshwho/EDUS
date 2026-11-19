@@ -1,0 +1,32 @@
+[Unit]
+Description=EduSphere private study query embeddings
+After=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/EDUS/backend/study-worker
+EnvironmentFile=%h/EDUS/backend/.env
+Environment=HF_HOME=%h/.cache/edus-study/huggingface
+Environment=HF_HUB_OFFLINE=1
+Environment=TRANSFORMERS_OFFLINE=1
+Environment=TOKENIZERS_PARALLELISM=false
+Environment=OMP_NUM_THREADS=2
+Environment=MKL_NUM_THREADS=2
+Environment=OPENBLAS_NUM_THREADS=2
+Environment=PYTHONUNBUFFERED=1
+Environment=STUDY_EMBEDDING_HOST=127.0.0.1
+Environment=STUDY_EMBEDDING_PORT=8091
+ExecStart=%h/.local/share/edus-study/venv/bin/python -m study_worker serve
+Restart=on-failure
+RestartSec=10
+TimeoutStopSec=30
+UMask=0077
+NoNewPrivileges=true
+Nice=10
+MemoryHigh=1800M
+MemoryMax=2G
+CPUQuota=150%
+TasksMax=128
+
+[Install]
+WantedBy=default.target

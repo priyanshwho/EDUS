@@ -32,7 +32,7 @@ EduSphere is a production-ready, modular academic resource platform that central
 | **Drizzle ORM** | Database Mapping | Ensures type-safe queries and manages DB schemas with Drizzle Kit. |
 | **Tigris S3** | Object Storage | Stores lecture documents and PDF resources using pre-signed direct client uploads. |
 | **Groq Cloud API** | AI Inference | Grants ultra-low latency access to open-weights LLMs. |
-| **Meta-Llama 4 Scout** | LLM Engine | Drives AI features including live SSE tutoring, grading, and MCQ generations. |
+| **Groq-served GPT OSS; Qwen vision** | Hosted models | Allowlisted text generation and difficult-page OCR; explicit Free-plan configuration and quotas are required. |
 | **Upstash Redis** | Caching & Security | Handles distributed endpoint rate-limiting and caches expensive query returns. |
 | **Oracle Cloud (OCI)** | Host Cloud | Runs the production backend app process behind an SSL-secured Nginx reverse proxy. |
 
@@ -53,7 +53,7 @@ graph TD
     subgraph External Cloud Services
         Express -->|SQL Queries| Neon[Neon Serverless PostgreSQL]
         Express -->|Cache & Rate Limits| Redis[Upstash Redis DB]
-        Express -->|Fast AI Inference| Groq[Groq AI Server Llama 4]
+        Express -->|Fast AI Inference| Groq[Groq text / vision models]
         Express -->|Presigned URL Generation| Tigris[(Tigris S3 Object Storage)]
     end
     
@@ -108,7 +108,7 @@ Edusphere/
 
 | Authentication Method | Flow Description |
 |---|---|
-| **Email/Password** | Signup/Login triggers JSON Web Token (JWT) returns containing encrypted user payloads. |
+| **Email/Password** | Signup/Login triggers JSON Web Token (JWT) returns containing signed user claims. |
 | **Google OAuth 2.0** | Redirects to Google Login Consent screen $\rightarrow$ backend callback parses state $\rightarrow$ signs JWT. |
 | **GitHub OAuth 2.0** | Redirects to GitHub Authorization $\rightarrow$ maps access tokens to user schemas $\rightarrow$ signs JWT. |
 | **Professor PIN Access**| Standard authentication returns `pin_required: true`. User must verify via `/auth/verify-pin` to unlock elevated JWT claims. |
@@ -209,3 +209,18 @@ The platform uses custom scripts to audit environment rules and roles to safegua
 | `npm run check:roles` | Scans route configurations to verify role-based middleware coverage. |
 | `npm run check:slug` | Runs checks against subject acronyms and validation rules. |
 | `npm run check:s3` | Pings Tigris S3 endpoints to test credentials and read/write authorizations. |
+
+## Private study material
+
+EDU AI now includes private syllabus and notes workspaces with PDF or pasted-text inputs,
+OCR, source-cited RAG,
+six subjects per account, and bounded upload/Groq usage. See the
+[setup, limits and deployment guide](docs/private-study.md). Workers and additive
+database migrations must be configured before enabling this feature in production.
+
+For the architecture, design tradeoffs, setup diagnosis, and 130 interview questions,
+read the [EduSphere interview guide](docs/edus-interview-guide.md).
+
+For an independently sourced Operating Systems PDF demo, actual answer/reference checks,
+and a focused explanation of the RAG choices, see the
+[recruiter RAG walkthrough](docs/rag-recruiter-demo.md).

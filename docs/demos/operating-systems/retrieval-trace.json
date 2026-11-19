@@ -1,0 +1,146 @@
+{
+  "created": "2026-11-19T03:49:11.271Z",
+  "traces": [
+    {
+      "testId": "deadlock-conditions",
+      "question": "According to these lecture notes, list the four necessary conditions for deadlock. Keep the answer under 70 words.",
+      "embeddingDimension": 384,
+      "topCandidates": [
+        {
+          "page_number": 5,
+          "vector_rank": "1",
+          "lexical_rank": null,
+          "cosine_distance": 0.14939665794372559,
+          "rrf_score": "0.01639344262295081967",
+          "eligible_chunks": 5
+        },
+        {
+          "page_number": 4,
+          "vector_rank": "2",
+          "lexical_rank": null,
+          "cosine_distance": 0.14978008569597534,
+          "rrf_score": "0.01612903225806451613",
+          "eligible_chunks": 5
+        },
+        {
+          "page_number": 3,
+          "vector_rank": "3",
+          "lexical_rank": null,
+          "cosine_distance": 0.15586881900615424,
+          "rrf_score": "0.01587301587301587302",
+          "eligible_chunks": 5
+        },
+        {
+          "page_number": 1,
+          "vector_rank": "4",
+          "lexical_rank": null,
+          "cosine_distance": 0.16180544127193297,
+          "rrf_score": "0.01562500000000000000",
+          "eligible_chunks": 5
+        },
+        {
+          "page_number": 2,
+          "vector_rank": "5",
+          "lexical_rank": null,
+          "cosine_distance": 0.18258732557296753,
+          "rrf_score": "0.01538461538461538462",
+          "eligible_chunks": 5
+        }
+      ]
+    },
+    {
+      "testId": "syllabus-office-hours",
+      "question": "According to this uploaded syllabus, on which day and at what times are office hours, and where are they held? Keep the answer under 45 words.",
+      "embeddingDimension": 384,
+      "topCandidates": [
+        {
+          "page_number": 5,
+          "vector_rank": "1",
+          "lexical_rank": null,
+          "cosine_distance": 0.1545784381283245,
+          "rrf_score": "0.01639344262295081967",
+          "eligible_chunks": 12
+        },
+        {
+          "page_number": 2,
+          "vector_rank": "2",
+          "lexical_rank": null,
+          "cosine_distance": 0.16707055764969692,
+          "rrf_score": "0.01612903225806451613",
+          "eligible_chunks": 12
+        },
+        {
+          "page_number": 6,
+          "vector_rank": "3",
+          "lexical_rank": null,
+          "cosine_distance": 0.16817226504765814,
+          "rrf_score": "0.01587301587301587302",
+          "eligible_chunks": 12
+        },
+        {
+          "page_number": 7,
+          "vector_rank": "4",
+          "lexical_rank": null,
+          "cosine_distance": 0.17025606809520166,
+          "rrf_score": "0.01562500000000000000",
+          "eligible_chunks": 12
+        },
+        {
+          "page_number": 6,
+          "vector_rank": "5",
+          "lexical_rank": null,
+          "cosine_distance": 0.17067955907108878,
+          "rrf_score": "0.01538461538461538462",
+          "eligible_chunks": 12
+        }
+      ]
+    },
+    {
+      "testId": "keyword-deadlock",
+      "question": "deadlock",
+      "embeddingDimension": 384,
+      "topCandidates": [
+        {
+          "page_number": 1,
+          "vector_rank": "2",
+          "lexical_rank": "2",
+          "cosine_distance": 0.14692335445145488,
+          "rrf_score": "0.03225806451612903226",
+          "eligible_chunks": 5
+        },
+        {
+          "page_number": 5,
+          "vector_rank": "1",
+          "lexical_rank": "4",
+          "cosine_distance": 0.14210975170135498,
+          "rrf_score": "0.03201844262295081967",
+          "eligible_chunks": 5
+        },
+        {
+          "page_number": 4,
+          "vector_rank": "4",
+          "lexical_rank": "1",
+          "cosine_distance": 0.1620946429911454,
+          "rrf_score": "0.03201844262295081967",
+          "eligible_chunks": 5
+        },
+        {
+          "page_number": 3,
+          "vector_rank": "3",
+          "lexical_rank": "3",
+          "cosine_distance": 0.1550139692417386,
+          "rrf_score": "0.03174603174603174604",
+          "eligible_chunks": 5
+        },
+        {
+          "page_number": 2,
+          "vector_rank": "5",
+          "lexical_rank": null,
+          "cosine_distance": 0.21790289878845215,
+          "rrf_score": "0.01538461538461538462",
+          "eligible_chunks": 5
+        }
+      ]
+    }
+  ]
+}

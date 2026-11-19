@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import Sidebar from '../components/layout/Sidebar';
 import SubjectCard from '../components/cards/SubjectCard';
 import { useSession } from '../context/SessionContext';
@@ -227,6 +228,11 @@ const Home = () => {
             </div>
           </div>
         </header>
+
+        <section className="mx-4 sm:mx-6 md:mx-10 mb-6 rounded-2xl border border-sky-500/25 bg-gradient-to-r from-sky-500/10 to-violet-500/10 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div><h2 className="text-lg font-semibold text-white mb-1">My Study Subjects</h2><p className="text-sm text-slate-400">Upload your own syllabus, notes, or both. Ask questions with PDF page references.</p><p className="text-xs text-sky-300 mt-2">Private to your account · up to 6 subjects · open to every role</p></div>
+          <Link to="/ai/study" className="edus-btn shrink-0"><FolderUp size={17} /> Open my study library</Link>
+        </section>
 
         {/* Mobile Context / Filter Pill */}
         <div className="lg:hidden mx-4 sm:mx-6 mb-4 flex items-center justify-between p-2.5 rounded-xl bg-[#14121F] border border-slate-800 text-xs">

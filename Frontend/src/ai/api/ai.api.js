@@ -1,29 +1,20 @@
-const BASE_URL = `${import.meta.env.VITE_API_URL || 'http://localhost:5001/api'}/ai`;
+import { api, authenticatedRaw } from '../../services/api';
+import { createSSEParser } from './sse';
 
 export const generateFlashcards = async (data) => {
-  const res = await fetch(`${BASE_URL}/flashcards`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data)
-  });
-  return res.json();
+  return api.post('/ai/flashcards', data);
 };
 
 export const generateMCQ = async (data) => {
-  const res = await fetch(`${BASE_URL}/mcq`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data)
-  });
-  return res.json();
+  return api.post('/ai/mcq', data);
 };
 
 export const streamAIInteract = async (data, onToken, onDone, onError, signal) => {
   try {
-    const response = await fetch(`${BASE_URL}/interact`, {
+    const response = await authenticatedRaw('/ai/interact', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
+      body: JSON.stringify({ ...data, messages: data.messages?.slice(-10).map(({ role, content }) => ({ role, content: content.slice(0, 2000) })) }),
       signal
     });
 
@@ -33,36 +24,27 @@ export const streamAIInteract = async (data, onToken, onDone, onError, signal) =
 
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
+    let completed = false;
+    const parser = createSSEParser(dataStr => {
+      if (dataStr === '[DONE]') { completed = true; return; }
+      const parsed = JSON.parse(dataStr);
+      if (parsed.error) throw new Error(parsed.error);
+      if (parsed.token) onToken(parsed.token);
+    });
 
     while (true) {
       const { done, value } = await reader.read();
       if (done) break;
 
-      const chunk = decoder.decode(value, { stream: true });
-      const lines = chunk.split('\n');
-
-      for (const line of lines) {
-        if (line.startsWith('data: ')) {
-          const dataStr = line.slice(6).trim();
-          if (dataStr === '[DONE]') {
-            onDone();
-            return;
-          }
-          try {
-            const parsed = JSON.parse(dataStr);
-            if (parsed.token) onToken(parsed.token);
-            if (parsed.error) onError(parsed.error);
-          } catch (e) {
-            // ignore partial JSON lines
-          }
-        }
-      }
+      parser.push(decoder.decode(value, { stream: true }));
+      if (completed) { await reader.cancel(); onDone(); return; }
     }
-    // If stream ends without [DONE], call onDone anyway
+    parser.push(decoder.decode());
+    if (!completed) throw new Error('The AI stream ended before completing. Please try again.');
     onDone();
   } catch (error) {
     if (error.name === 'AbortError') {
-      console.log('Stream aborted by user');
+      return;
     } else {
       onError(error);
     }
@@ -70,19 +52,9 @@ export const streamAIInteract = async (data, onToken, onDone, onError, signal) =
 };
 
 export const generatePYQ = async (data) => {
-  const res = await fetch(`${BASE_URL}/pyq`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data)
-  });
-  return res.json();
+  return api.post('/ai/pyq', data);
 };
 
 export const evaluateAnswer = async (data) => {
-  const res = await fetch(`${BASE_URL}/evaluate`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data)
-  });
-  return res.json();
+  return api.post('/ai/evaluate', data);
 };

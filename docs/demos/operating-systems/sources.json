@@ -1,0 +1,25 @@
+{
+  "downloaded": "2026-11-19",
+  "sources": [
+    {
+      "kind": "syllabus",
+      "filename": "brooklyn-operating-systems-syllabus.pdf",
+      "url": "https://www.sci.brooklyn.cuny.edu/~briskman/cisc/3320/MW3/F24_CISC3320_MW3_Abridged_Syllabus.pdf",
+      "author": "Miriam Briskman, CUNY Brooklyn College",
+      "license": "CC BY-NC 4.0, stated in PDF",
+      "bytes": 353180,
+      "pages": 7,
+      "sha256": "7a785141dad41aa305b1078a14a82390fd706f3a4cab56695e4eb854d41df766"
+    },
+    {
+      "kind": "notes",
+      "filename": "uvic-deadlocks-notes.pdf",
+      "url": "https://webhome.cs.uvic.ca/~pan/csc360k06/k-lock.pdf",
+      "author": "Jianping Pan, University of Victoria",
+      "license": "Public course download; no redistribution license asserted; private demo copy only",
+      "bytes": 90774,
+      "pages": 5,
+      "sha256": "d681a36746db0b55a9f870e5491c62d4b379bb68123bdf881c420aad0e42082e"
+    }
+  ]
+}

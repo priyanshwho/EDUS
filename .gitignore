@@ -11,6 +11,13 @@
 
 # Node
 node_modules/
+node_modules
+
+# Local document worker environments and caches
+.venv/
+__pycache__/
+*.pyc
+.study-cache/
 
 # Build outputs
 dist/
