@@ -19,6 +19,13 @@ Both model processes use offline mode after the pinned weights have been cached.
 Each service is limited to 2 GiB memory and 150% CPU, with conservative numerical-library
 thread counts. Measure actual load before increasing these values.
 
+This host sets `STUDY_VISION_MAX_OUTPUT=512`, and vision requests use instruct mode
+(`reasoning_effort=none`). Live testing found that the larger output budget was rejected
+with provider token-limit 429s, while the bounded request succeeded. Dense/long handwritten
+pages can be partial at this output cap; review the source and retry within free quotas.
+The library permits up to 3500 output tokens, but an account's actual allowance must be
+tested before increasing this host setting. No paid model fallback is enabled.
+
 The worker unit's portable Tesseract paths are specific to this **Linux arm64 host**.
 For another machine, install Tesseract/English language data through its package manager
 and adjust/remove the PATH, LD_LIBRARY_PATH, and TESSDATA_PREFIX overrides accordingly.

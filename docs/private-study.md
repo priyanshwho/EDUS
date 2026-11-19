@@ -181,6 +181,9 @@ not prove the ingestion worker is running.
 
 ## Verification and remaining acceptance work
 
+See the [19 November host acceptance report](deployment-verification.md) for live
+database/storage/Groq/browser results and the remaining administrator-only proxy step.
+
 ```sh
 cd backend
 npm test
@@ -202,8 +205,9 @@ only localhost. ML unit tests use fake embeddings. The pinned CPU model also has
 separate real-model smoke check in `backend/study-worker/scripts/smoke_embeddings.py`.
 No production database, S3 object, or real Groq request is required by these checks.
 
-Still required before launch: a real PostgreSQL/S3 worker integration run, a container
-build on the actual host, account-specific Groq quota/free-plan confirmation, a live
-Groq text/handwriting test, and a labeled sample benchmark. These are separate from
-source-level tests. Supply a selectable syllabus, a printed scan, and handwritten notes
+Host-based PostgreSQL/S3 ingestion, Groq text/vision calls, and the public browser flow
+have now passed live synthetic acceptance. A container build is still required if that
+alternative deployment is chosen. The root-level Nginx upload-size update remains
+pending, and a labeled benchmark of actual course material/handwriting is still needed.
+These are separate from source-level tests. Supply a selectable syllabus, a printed scan, and handwritten notes
 with known answers using material you are comfortable sending to Groq for OCR.

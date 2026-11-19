@@ -200,6 +200,7 @@ class VisionTests(unittest.TestCase):
         self.assertEqual(len(body["messages"][0]["content"]), 2)
         self.assertIn("never guess", body["messages"][0]["content"][0]["text"])
         self.assertEqual(body["model"], Settings().vision_model)
+        self.assertEqual(body["reasoning_effort"], "none")
 
 
 if __name__ == "__main__":

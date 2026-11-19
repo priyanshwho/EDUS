@@ -1,6 +1,7 @@
 """One image per free-plan Groq request; never fall back to a paid model."""
 import base64
 import json
+import logging
 import re
 import time
 import urllib.error
@@ -51,7 +52,8 @@ class Vision:
                 # This is an asynchronous job. Pace a page through one minute
                 # reset while heartbeat/fencing keep deletion responsive.
                 self.waiter(job, error.retry_after)
-        payload = {"model": s.vision_model, "temperature": 0, "max_completion_tokens": s.vision_max_output,
+        payload = {"model": s.vision_model, "temperature": 0, "reasoning_effort": "none",
+                   "max_completion_tokens": s.vision_max_output,
                    "messages": [{"role": "user", "content": [
                        {"type": "text", "text": TRANSCRIBE},
                        {"type": "image_url", "image_url": {
@@ -59,13 +61,15 @@ class Vision:
                    ]}]}
         request = urllib.request.Request("https://api.groq.com/openai/v1/chat/completions",
             data=json.dumps(payload).encode(), method="POST",
-            headers={"Authorization": "Bearer " + s.groq_key, "Content-Type": "application/json"})
+            headers={"Authorization": "Bearer " + s.groq_key, "Content-Type": "application/json",
+                     "User-Agent": "EDUS-Study/1.0"})
         try:
             with self.opener(request, timeout=45) as response:
                 raw = response.read(512000)
                 result = json.loads(raw)
         except urllib.error.HTTPError as exc:
             # Provider error bodies can echo credentials/prompts; never persist them.
+            logging.getLogger(__name__).warning("Vision provider rejected OCR (HTTP %s)", exc.code)
             if exc.code in (402, 403, 404, 429):
                 raise BudgetExceeded("Free vision is unavailable or its quota is exhausted") from None
             raise RuntimeError("Vision provider is temporarily unavailable") from None

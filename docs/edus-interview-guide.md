@@ -620,6 +620,12 @@ These checks do not establish production Groq, S3, or networked PostgreSQL corre
 The Docker template has not been built on this host. No accuracy, p95 latency, scale,
 or handwriting success rate has been measured yet.
 
+The subsequently authorized host deployment has passed real database/object-storage,
+Groq text/vision, and hosted-browser synthetic acceptance; see the
+[deployment verification report](deployment-verification.md). The root-only Nginx
+large-upload step remains pending. Do not confuse a synthetic vision routing check
+with a benchmark on actual handwritten notes.
+
 ### A five-minute demo
 
 1. Log in and create an Operating Systems subject with pasted syllabus and PDF notes.
@@ -705,8 +711,9 @@ follow-ups beyond any prepared list; the goal is understanding, not memorized wo
    Node keeps the established API. Internal identity/auth joins the boundary.
 9. **Is this a microservices architecture?** It has separate API, ingestion, and embedding
    processes, but avoid claiming a complete independently operated microservice platform.
-10. **What is not finished for production?** Live infrastructure integration, external
-    configuration/migrations/services, container validation, and measured evaluation.
+10. **What is not finished for production?** Check the current deployment report:
+    the root-level proxy size update and measured handwriting/load evaluation remain;
+    database/services and live synthetic integration are now provisioned and verified.
 
 ### RAG fundamentals
 
