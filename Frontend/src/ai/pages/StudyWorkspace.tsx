@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import { AlertCircle, ArrowLeft, BookOpen, CheckCircle2, ChevronLeft, ChevronRight, FileText, Layers, Loader2, LockKeyhole, MessageSquare, Plus, RefreshCw, Send, Trash2, X } from 'lucide-react';
 import { studyApi, studyError } from '../api/study.api';
 import StudyUploadDialog from '../components/study/StudyUploadDialog';
+import StudySelect from '../components/study/StudySelect';
 import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
 import PdfViewer from '../../components/previews/PdfViewer';
 import { correctOptionIndex, documentStatus, formatBytes, isFailed, isProcessing, isReady, sourcesForItem, STATUS_LABELS } from '../components/study/studyUtils';
@@ -11,7 +12,24 @@ type Source = { id: string; documentId: string; title: string; page: number; exc
 type Message = { role: 'user' | 'assistant'; content: string; sources?: Source[]; incomplete?: boolean; generalKnowledgeUsed?: boolean; insufficientEvidence?: boolean };
 
 function SourceButtons({ sources = [], onOpen }: { sources?: Source[]; onOpen: (source: Source) => void }) {
-  return sources.length ? <div className="flex flex-wrap gap-2 mt-3" aria-label="Answer sources">{sources.map((source, index) => <button key={`${source.id || source.documentId}-${source.page}-${index}`} onClick={() => onOpen(source)} title={source.excerpt || source.title} className="inline-flex max-w-full items-center gap-1.5 text-xs text-sky-300 border border-sky-500/25 bg-sky-500/5 rounded-lg px-2.5 py-1.5 text-left hover:bg-sky-500/15"><FileText size={12} className="shrink-0" /><span className="truncate">[{source.id || index + 1}] {source.title || 'Source'} · {source.sourceType === 'text' ? 'pasted text' : `p. ${source.page || 1}`}</span></button>)}</div> : null;
+  if (!sources.length) return null;
+  return (
+    <div className="study-citations" aria-label="Answer sources">
+      {sources.map((source, index) => (
+        <button
+          key={`${source.id || source.documentId}-${source.page}-${index}`}
+          onClick={() => onOpen(source)}
+          title={`${source.title}${source.excerpt ? `: ${source.excerpt}` : ''}`}
+          className="study-citation"
+        >
+          <FileText size={14} className="shrink-0" aria-hidden="true" />
+          <span className="shrink-0">[{source.id || index + 1}]</span>
+          <span className="study-citation-title">{source.title || 'Source'}</span>
+          <span className="study-citation-page">{source.sourceType === 'text' ? 'Text' : `p. ${source.page || 1}`}</span>
+        </button>
+      ))}
+    </div>
+  );
 }
 
 export default function StudyWorkspace() {
@@ -170,19 +188,19 @@ export default function StudyWorkspace() {
   if (!workspace) return <div className="min-h-screen bg-[#0E0C15] text-slate-200 p-8 flex flex-col items-center justify-center gap-5 text-center"><AlertCircle size={30} className="text-rose-300" /><p>{error || 'This private study subject is unavailable.'}</p><Link to="/ai/study" className="edus-btn">Back to my subjects</Link></div>;
 
   return (
-    <div className="min-h-screen bg-[#0E0C15] text-slate-200 px-3 sm:px-6 lg:px-8 py-6 pb-24">
+    <div className="study-workspace min-h-screen bg-[#0E0C15] text-slate-200 px-4 sm:px-6 lg:px-8 pb-24">
       <div className="max-w-[1440px] mx-auto">
         <Link to="/ai/study" className="inline-flex gap-2 items-center text-sm text-slate-400 hover:text-sky-300 mb-5"><ArrowLeft size={16} /> My Study Subjects</Link>
-        <header className="flex flex-col sm:flex-row justify-between gap-4 mb-6">
-          <div className="min-w-0"><h1 className="text-2xl sm:text-3xl font-bold text-white break-words">{workspace.title}</h1><p className="text-xs text-slate-400 mt-2 flex items-center flex-wrap gap-2"><LockKeyhole size={13} /><span>Private to you</span>{workspace.branch && <span>· {workspace.branch}</span>}{workspace.semester && <span>· Semester {String(workspace.semester).replace('semester_', '')}</span>}</p></div>
+        <header className="flex flex-col sm:flex-row justify-between gap-5 mb-8 sm:items-center">
+          <div className="min-w-0"><h1 className="text-2xl sm:text-3xl font-bold text-white break-words">{workspace.title}</h1><p className="text-sm text-slate-400 mt-3 flex items-center flex-wrap gap-2"><LockKeyhole size={13} /><span>Private to you</span>{workspace.branch && <span>· {workspace.branch}</span>}{workspace.semester && <span>· Semester {String(workspace.semester).replace('semester_', '')}</span>}</p></div>
           <button onClick={() => setUploadOpen(true)} className="edus-btn shrink-0 self-start"><Plus size={16} /> Add material</button>
         </header>
         {(error || actionError) && <div role="alert" className="flex items-start gap-2 mb-5 rounded-xl border border-rose-500/20 bg-rose-500/10 p-3 text-sm text-rose-300"><AlertCircle size={16} className="shrink-0 mt-0.5" /><span className="flex-1">{actionError || error}</span><button onClick={() => { setActionError(''); refresh(); }} className="text-xs underline">Refresh</button></div>}
-        <div className="grid lg:grid-cols-[340px_minmax(0,1fr)] gap-5 items-start">
-          <aside className="edus-card p-4 sm:p-5 lg:sticky lg:top-24">
-            <div className="flex items-center justify-between gap-2 mb-2"><h2 className="font-semibold text-white flex items-center gap-2"><BookOpen size={17} className="text-sky-400" /> Your material</h2><button onClick={() => { refresh(); refreshUsage(); }} aria-label="Refresh documents" className="p-1.5 text-slate-400 hover:text-sky-300"><RefreshCw size={14} /></button></div>
-            <p className="text-xs text-slate-500 leading-relaxed mb-4">{ready.length} searchable · {formatBytes(workspaceBytes)}{limits.subjectBytes ? ` / ${formatBytes(limits.subjectBytes)}` : ''}<br />{usage.storageBytes != null && `Account storage: ${formatBytes(usage.storageBytes)}${limits.userBytes ? ` / ${formatBytes(limits.userBytes)}` : ''}`}</p>
-            <div className="flex gap-1 mb-4 border-b border-slate-800 pb-3">{['all', 'syllabus', 'notes'].map((value) => <button key={value} onClick={() => setFilter(value)} className={`rounded-lg px-3 py-1.5 text-xs capitalize ${filter === value ? 'bg-sky-500/15 text-sky-300' : 'text-slate-400 hover:bg-slate-800'}`}>{value}</button>)}</div>
+        <div className="grid lg:grid-cols-[320px_minmax(0,1fr)] xl:grid-cols-[340px_minmax(0,1fr)] gap-6 items-start">
+          <aside className="study-sidebar edus-card min-w-0 lg:sticky lg:top-24">
+            <div className="flex items-center justify-between gap-2 mb-2"><h2 className="font-semibold text-white flex items-center gap-2"><BookOpen size={17} className="text-sky-400" /> Your material</h2><button onClick={() => { refresh(); refreshUsage(); }} aria-label="Refresh documents" className="study-icon-button text-slate-400 hover:text-sky-300"><RefreshCw size={14} /></button></div>
+            <p className="study-storage">{ready.length} searchable · {formatBytes(workspaceBytes)}{limits.subjectBytes ? ` / ${formatBytes(limits.subjectBytes)}` : ''}<br />{usage.storageBytes != null && `Account storage: ${formatBytes(usage.storageBytes)}${limits.userBytes ? ` / ${formatBytes(limits.userBytes)}` : ''}`}</p>
+            <div className="study-filters">{['all', 'syllabus', 'notes'].map((value) => <button key={value} aria-pressed={filter === value} onClick={() => setFilter(value)} className={`rounded-lg px-3 py-1.5 text-xs capitalize ${filter === value ? 'bg-sky-500/15 text-sky-300' : 'text-slate-400 hover:bg-slate-800'}`}>{value}</button>)}</div>
             <div className="space-y-3 max-h-[45dvh] lg:max-h-[52dvh] overflow-y-auto pr-1">
               {visibleDocuments.length ? visibleDocuments.map((doc) => {
                 const status = documentStatus(doc);
@@ -190,49 +208,55 @@ export default function StudyWorkspace() {
                 const failed = isFailed(doc) || status === 'partial';
                 const stage = doc.processingStage;
                 const statusLabel = pending && typeof stage === 'string' ? (STATUS_LABELS[stage] || STATUS_LABELS[status] || 'Processing PDF') : (STATUS_LABELS[status] || (status === 'reserved' ? 'Waiting for upload' : status === 'partial' ? 'Some pages need attention' : status));
-                return <article key={doc.id} className="rounded-xl border border-slate-800 bg-slate-900/40 p-3">
-                  <div className="flex gap-2 items-start"><FileText size={16} className="text-slate-400 shrink-0 mt-0.5" /><div className="min-w-0 flex-1"><p className="text-sm break-words">{doc.filename}</p><p className="text-[11px] text-slate-500 mt-1 capitalize">{doc.kind} · {formatBytes(doc.sizeBytes)}{doc.sourceType === 'text' ? ' · Pasted text' : ''}{doc.sourceType !== 'text' && doc.pageCount ? ` · ${doc.pageCount} pages` : ''}</p></div></div>
-                  <p className={`text-xs flex items-center gap-1.5 mt-3 ${status === 'ready' ? 'text-emerald-400' : failed ? 'text-amber-300' : 'text-sky-300'}`}>{pending ? <Loader2 size={12} className="animate-spin" /> : status === 'ready' ? <CheckCircle2 size={12} /> : <AlertCircle size={12} />} {statusLabel}</p>
+                return <article key={doc.id} className="study-document rounded-xl border bg-slate-900/40">
+                  <div className="flex gap-2 items-start"><FileText size={16} className="text-slate-400 shrink-0 mt-0.5" /><div className="min-w-0 flex-1"><p className="study-document-title">{doc.filename}</p><p className="study-document-meta capitalize">{doc.kind} · {formatBytes(doc.sizeBytes)}{doc.sourceType === 'text' ? ' · Pasted text' : ''}{doc.sourceType !== 'text' && doc.pageCount ? ` · ${doc.pageCount} pages` : ''}</p></div></div>
+                  <p className={`study-document-status flex items-center gap-2 ${status === 'ready' ? 'text-emerald-400' : failed ? 'text-amber-300' : 'text-sky-300'}`}>{pending ? <Loader2 size={12} className="animate-spin" /> : status === 'ready' ? <CheckCircle2 size={12} /> : <AlertCircle size={12} />} {statusLabel}</p>
                   {doc.error && <p className="text-xs text-rose-300 mt-2 leading-relaxed break-words">{typeof doc.error === 'string' ? doc.error : 'This PDF could not be fully processed.'}</p>}
                   {doc.reviewPages?.length > 0 && <details className="text-xs mt-3 text-amber-300"><summary className="cursor-pointer">Review {doc.reviewPages.length} page(s)</summary><div className="mt-2 flex flex-wrap gap-2">{doc.reviewPages.map((page: any) => <button key={page.page} onClick={() => openSource({ id: doc.id, documentId: doc.id, title: doc.filename, page: page.page })} className="border border-amber-500/25 rounded px-2 py-1">Page {page.page} · {page.quality === 'quota_limited' ? 'OCR quota reached' : page.quality === 'vision_unavailable' ? 'OCR unavailable' : 'Check original'}</button>)}</div></details>}
-                  {doc.containsHandwriting && <p className="text-[10px] text-slate-500 mt-2">Handwriting marked</p>}
-                  <div className="flex gap-2 mt-3 flex-wrap">
+                  {doc.containsHandwriting && <p className="study-help mt-3">Handwriting marked</p>}
+                  <div className="study-document-actions">
                     {!['reserved', 'uploading', 'deleting', 'deleted'].includes(status) && <button onClick={() => openSource({ id: doc.id, documentId: doc.id, title: doc.filename, page: 1 })} className="text-xs text-sky-300 hover:text-white">{doc.sourceType === 'text' ? 'View text' : 'View PDF'}</button>}
                     {failed && <button disabled={Boolean(retryingId)} onClick={() => retryDocument(doc.id)} className="text-xs text-amber-300 hover:text-white disabled:opacity-40">{retryingId === doc.id ? 'Retrying…' : 'Retry processing'}</button>}
-                    {status !== 'deleting' && <button onClick={() => setDeleteTarget(doc)} className="ml-auto text-slate-500 hover:text-rose-300 p-0.5" aria-label={`Delete ${doc.filename}`}><Trash2 size={14} /></button>}
+                    {status !== 'deleting' && <button onClick={() => setDeleteTarget(doc)} className="study-icon-button ml-auto text-slate-400 hover:text-rose-300" aria-label={`Delete ${doc.filename}`}><Trash2 size={14} /></button>}
                   </div>
                   {status === 'reserved' && <p className="text-[11px] text-slate-500 mt-2">Upload did not finish. Remove this entry and upload the PDF again.</p>}
                 </article>;
               }) : <p className="text-sm text-slate-500 py-4">{documents.length ? 'No sources of this kind.' : 'Add a syllabus, notes, or both to begin.'}</p>}
             </div>
-            <div className="mt-5 border-t border-slate-800 pt-4">
-              <label className="text-xs font-semibold text-slate-400 block mb-2" htmlFor="study-source-scope">Use these sources</label>
-              <select id="study-source-scope" value={allSources ? 'all' : 'selected'} onChange={(e) => setAllSources(e.target.value === 'all')} className="edus-input text-xs w-full"><option value="all">All searchable sources ({ready.length})</option><option value="selected">Choose searchable sources</option></select>
+            <div className="study-source-settings">
+              <label className="study-field-label" htmlFor="study-source-scope">Use these sources</label>
+              <StudySelect id="study-source-scope" value={allSources ? 'all' : 'selected'} onChange={(e) => setAllSources(e.target.value === 'all')} className="text-sm"><option value="all">All searchable sources ({ready.length})</option><option value="selected">Choose searchable sources</option></StudySelect>
               {!allSources && <div className="mt-3 space-y-2">{ready.map((doc: any) => <label key={doc.id} className="flex gap-2 text-xs text-slate-300 items-start"><input type="checkbox" checked={selectedIds.includes(doc.id)} onChange={(e) => setSelectedIds((previous) => e.target.checked ? [...previous, doc.id] : previous.filter((id) => id !== doc.id))} className="accent-sky-500 mt-0.5" /><span className="break-words min-w-0">{doc.filename}</span></label>)}{!effectiveIds?.length && <p className="text-xs text-amber-300">Select at least one searchable source.</p>}</div>}
-              <p className="text-[11px] text-slate-500 mt-3">{processing ? 'Your material update automatically while processing.' : 'Answers use reliable extracted passages. sources with partial extraction may have missing pages.'}</p>
+              <p className="study-help mt-4">{processing ? 'Your material updates automatically while processing.' : 'Answers reference your selected sources. Partially processed files may have missing pages.'}</p>
             </div>
           </aside>
 
           <main className="edus-card min-w-0 overflow-hidden">
-            <div className="flex border-b border-slate-800 px-2 sm:px-4 pt-2 overflow-x-auto">{[{ id: 'chat', label: 'Ask your sources', icon: MessageSquare }, { id: 'flashcards', label: 'Flashcards', icon: Layers }, { id: 'mcq', label: 'Practice quiz', icon: BookOpen }].map((item) => <button key={item.id} onClick={() => setTab(item.id as any)} disabled={generationBusy} className={`flex items-center gap-2 px-3 sm:px-4 py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap disabled:opacity-50 ${tab === item.id ? 'text-sky-300 border-sky-400' : 'text-slate-400 border-transparent hover:text-white'}`}><item.icon size={16} />{item.label}</button>)}</div>
+            <div className="study-tabs flex border-b border-slate-800 overflow-x-auto">{[{ id: 'chat', label: 'Ask your sources', icon: MessageSquare }, { id: 'flashcards', label: 'Flashcards', icon: Layers }, { id: 'mcq', label: 'Practice quiz', icon: BookOpen }].map((item) => <button key={item.id} aria-pressed={tab === item.id} onClick={() => setTab(item.id as any)} disabled={generationBusy} className={`flex items-center gap-2 px-3 sm:px-4 py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap disabled:opacity-50 ${tab === item.id ? 'text-sky-300 border-sky-400' : 'text-slate-400 border-transparent hover:text-white'}`}><item.icon size={16} />{item.label}</button>)}</div>
             {tab === 'chat' ? <>
-              <div className="p-4 border-b border-slate-800 flex flex-wrap items-center gap-3">
-                <label htmlFor="study-answer-mode" className="text-xs text-slate-400">Answer mode</label><select id="study-answer-mode" value={mode} onChange={(e) => setMode(e.target.value as any)} disabled={chatBusy} className="edus-input text-xs !py-2"><option value="notes_only">My sources only</option><option value="general">General tutor + my sources</option></select>
-                <p className="text-[11px] text-slate-500 w-full">{mode === 'notes_only' ? 'Answers use your selected sources and cite the pages. Missing evidence is stated clearly.' : 'The tutor can add general explanations. Source evidence is shown separately as references.'}</p>
+              <div className="study-answer-settings border-b border-slate-800">
+                <div>
+                  <label htmlFor="study-answer-mode" className="study-field-label">Answer mode</label>
+                  <p id="study-answer-help" className="study-help">{mode === 'notes_only' ? 'Grounded in your sources, with page references.' : 'General explanations, supported by your sources where available.'}</p>
+                </div>
+                <StudySelect id="study-answer-mode" aria-describedby="study-answer-help" value={mode} onChange={(e) => setMode(e.target.value as any)} disabled={chatBusy}>
+                  <option value="notes_only">My sources only</option>
+                  <option value="general">General tutor + my sources</option>
+                </StudySelect>
               </div>
-              <div role="log" aria-label="Study conversation" aria-live="polite" className="p-4 sm:p-6 space-y-5 min-h-72 max-h-[58dvh] overflow-y-auto">
+              <div role="log" aria-label="Study conversation" aria-live="polite" className="study-conversation space-y-6 overflow-y-auto">
                 {!messages.length && <div className="text-center py-10 max-w-sm mx-auto"><MessageSquare size={30} className="mx-auto text-sky-400 mb-4" /><h2 className="font-semibold text-white mb-2">Learn from your own material</h2><p className="text-sm text-slate-400 leading-relaxed">{canRetrieve ? 'Ask for an explanation, compare concepts, or find a topic in your sources. Select a page reference to see the original.' : processing ? 'Your material is being processed. You can ask questions as soon as they are ready.' : 'Add a notes or syllabus PDF, or paste text and wait for it to finish processing.'}</p></div>}
-                {messages.map((message, index) => <article key={index} className={`rounded-xl p-4 ${message.role === 'user' ? 'bg-sky-500/10 border border-sky-500/15 ml-4 sm:ml-12' : 'bg-slate-900/60 border border-slate-800 mr-2'}`}><p className="text-[10px] uppercase font-semibold tracking-wider text-slate-500 mb-2">{message.role === 'user' ? 'You' : 'EDU AI'}</p><p className="text-sm leading-relaxed whitespace-pre-wrap break-words">{message.content}</p>{message.incomplete && <p className="text-xs text-amber-300 mt-3">The available source evidence is incomplete.</p>}{message.insufficientEvidence && <p className="text-xs text-amber-300 mt-3">Your selected sources do not contain enough evidence to answer this question.</p>}{message.generalKnowledgeUsed && <p className="text-xs text-slate-500 mt-3">Includes general tutoring knowledge. Page references identify evidence from your sources.</p>}<SourceButtons sources={message.sources} onOpen={openSource} /></article>)}
+                {messages.map((message, index) => <article key={index} className={`study-message ${message.role === 'user' ? 'bg-sky-500/10 border border-sky-500/15 ml-3 sm:ml-12' : 'bg-slate-900/60 border border-slate-800'}`}><p className="study-message-role">{message.role === 'user' ? 'You' : 'EDU AI'}</p><p className="study-message-content whitespace-pre-wrap">{message.content}</p>{message.incomplete && <p className="text-xs text-amber-300 mt-3">The available source evidence is incomplete.</p>}{message.insufficientEvidence && <p className="text-xs text-amber-300 mt-3">Your selected sources do not contain enough evidence to answer this question.</p>}{message.generalKnowledgeUsed && <p className="text-xs text-slate-500 mt-3">Includes general tutoring knowledge. Page references identify evidence from your sources.</p>}<SourceButtons sources={message.sources} onOpen={openSource} /></article>)}
                 {chatBusy && <p className="text-sm text-sky-300 flex gap-2 items-center"><Loader2 size={16} className="animate-spin" /> Reading your sources…</p>}<div ref={transcriptEnd} />
               </div>
-              <form onSubmit={sendQuestion} className="p-4 border-t border-slate-800">
+              <form onSubmit={sendQuestion} className="study-composer border-t border-slate-800">
                 {chatError && <p role="alert" className="text-sm text-rose-300 mb-3">{chatError}</p>}
                 {!canRetrieve && <p className="text-xs text-amber-300 mb-3">{processing ? 'Wait for a source to finish processing.' : 'Add a PDF or paste text, then select a searchable source to ask questions.'}</p>}
-                <label htmlFor="study-question" className="sr-only">Question about your study material</label><div className="flex gap-2 items-end"><textarea id="study-question" value={question} onChange={(e) => setQuestion(e.target.value)} placeholder="Ask about your sources…" rows={2} maxLength={2000} disabled={chatBusy} className="edus-input flex-1 min-w-0 resize-y text-sm" /><button type="submit" disabled={chatBusy || !question.trim() || !canRetrieve} aria-label="Send question" className="edus-btn !p-3 disabled:opacity-40"><Send size={18} /></button></div><p className="text-[10px] text-slate-500 mt-2">Conversation stays in this page and clears when you leave.</p>
+                <label htmlFor="study-question" className="sr-only">Question about your study material</label><div className="flex gap-2 items-end"><textarea id="study-question" value={question} onChange={(e) => setQuestion(e.target.value)} placeholder="Ask about your sources…" rows={2} maxLength={2000} disabled={chatBusy} className="edus-input flex-1 min-w-0 resize-y text-sm" /><button type="submit" disabled={chatBusy || !question.trim() || !canRetrieve} aria-label="Send question" className="edus-btn !p-3 disabled:opacity-40"><Send size={18} /></button></div><p className="study-help mt-3">Conversation stays in this page and clears when you leave.</p>
               </form>
-            </> : <div className="p-4 sm:p-6">
+            </> : <div className="study-practice">
               <h2 className="text-lg font-semibold text-white">{tab === 'flashcards' ? 'Review with flashcards' : 'Practice from your sources'}</h2><p className="text-sm text-slate-400 mt-2 mb-5">{tab === 'flashcards' ? 'Turn the selected material into questions and answers.' : 'Generate practice questions with explanations and source references.'}</p>
-              <form onSubmit={generate} className="flex flex-col sm:flex-row gap-3 items-end mb-5"><label className="text-xs text-slate-400 flex-1 w-full">Topic (optional)<input value={topic} onChange={(e) => setTopic(e.target.value)} placeholder="e.g. Process scheduling" maxLength={200} className="edus-input text-sm w-full mt-1.5" /></label>{tab === 'mcq' && <label className="text-xs text-slate-400">Difficulty<select value={difficulty} onChange={(e) => setDifficulty(e.target.value)} className="edus-input text-sm mt-1.5 block"><option value="easy">Easy</option><option value="medium">Medium</option><option value="hard">Hard</option></select></label>}<button type="submit" disabled={!canRetrieve || generationBusy} className="edus-btn shrink-0 disabled:opacity-40">{generationBusy ? <><Loader2 size={15} className="animate-spin" /> Creating…</> : `Generate ${tab === 'flashcards' ? 'cards' : 'quiz'}`}</button></form>
+              <form onSubmit={generate} className="flex flex-col sm:flex-row gap-3 items-end mb-5"><label className="text-xs text-slate-400 flex-1 w-full">Topic (optional)<input value={topic} onChange={(e) => setTopic(e.target.value)} placeholder="e.g. Process scheduling" maxLength={200} className="edus-input text-sm w-full mt-1.5" /></label>{tab === 'mcq' && <label className="text-xs text-slate-400">Difficulty<StudySelect value={difficulty} onChange={(e) => setDifficulty(e.target.value)} className="text-sm"><option value="easy">Easy</option><option value="medium">Medium</option><option value="hard">Hard</option></StudySelect></label>}<button type="submit" disabled={!canRetrieve || generationBusy} className="edus-btn shrink-0 disabled:opacity-40">{generationBusy ? <><Loader2 size={15} className="animate-spin" /> Creating…</> : `Generate ${tab === 'flashcards' ? 'cards' : 'quiz'}`}</button></form>
               {!canRetrieve && <p className="text-xs text-amber-300 mb-5">Choose at least one searchable source to create practice material.</p>}{generationError && <p role="alert" className="text-sm text-rose-300 mb-5">{generationError}</p>}
               {tab === 'flashcards' && cards.length > 0 && <div>
                 <button onClick={() => setCardFlipped((previous) => !previous)} aria-label={cardFlipped ? 'Show question' : 'Show answer'} className="w-full rounded-2xl border border-sky-500/25 bg-gradient-to-br from-sky-500/10 to-violet-500/10 min-h-56 p-6 text-left"><p className="text-xs uppercase tracking-wider text-sky-400 mb-5">{cardFlipped ? 'Answer' : 'Question'}</p><p className="text-base leading-relaxed whitespace-pre-wrap">{cardFlipped ? cards[cardIndex].answer : cards[cardIndex].question}</p><p className="text-xs text-slate-500 mt-7">Tap to {cardFlipped ? 'see question' : 'reveal answer'}</p></button>

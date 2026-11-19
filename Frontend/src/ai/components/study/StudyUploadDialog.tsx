@@ -1,3 +1,4 @@
+import StudySelect from './StudySelect';
 import React, { useEffect, useRef, useState } from 'react';
 import { AlertCircle, CheckCircle2, FileText, Loader2, LockKeyhole, Upload, X } from 'lucide-react';
 import { studyApi, studyError } from '../../api/study.api';
@@ -103,7 +104,7 @@ export default function StudyUploadDialog({ workspace, documents = [], limits = 
             <label className="block text-sm">Subject title<input value={title} onChange={(e) => setTitle(e.target.value)} required maxLength={150} disabled={Boolean(workspaceId)} placeholder="e.g. Operating Systems" className="edus-input w-full mt-1.5" /></label>
             <div className="grid grid-cols-2 gap-3">
               <label className="block text-xs text-slate-400">Branch (optional)<input value={branch} onChange={(e) => setBranch(e.target.value)} maxLength={80} disabled={Boolean(workspaceId)} placeholder="e.g. CSE" className="edus-input w-full mt-1.5" /></label>
-              <label className="block text-xs text-slate-400">Semester (optional)<select value={semester} onChange={(e) => setSemester(e.target.value)} disabled={Boolean(workspaceId)} className="edus-input w-full mt-1.5"><option value="">Choose semester</option>{Array.from({ length: 8 }, (_, i) => <option key={i} value={i + 1}>Semester {i + 1}</option>)}</select></label>
+              <label className="block text-xs text-slate-400">Semester (optional)<StudySelect value={semester} onChange={(e) => setSemester(e.target.value)} disabled={Boolean(workspaceId)} className="edus-input w-full mt-1.5"><option value="">Choose semester</option>{Array.from({ length: 8 }, (_, i) => <option key={i} value={i + 1}>Semester {i + 1}</option>)}</StudySelect></label>
             </div>
           </div>}
           <fieldset disabled={busy || hasAttempted}>
