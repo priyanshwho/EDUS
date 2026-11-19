@@ -7,6 +7,7 @@ import TalkingAvatar from '../components/ai/TalkingAvatar';
 import BottomNavBar from '../components/layout/BottomNavBar';
 import { ChevronLeft, GraduationCap, MessageCircle, Captions, CaptionsOff, Mic, MicOff, Volume2 } from 'lucide-react';
 import { clsx } from 'clsx';
+import { createTutorSpeech } from '../speech/tutorSpeech';
 
 type AIMode = 'tutor' | 'free' | null;
 interface Message { role: 'user' | 'assistant'; content: string; }
@@ -142,6 +143,7 @@ const AIInteractMode = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [showCC, setShowCC] = useState(false);
   const [isAITalking, setIsAITalking] = useState(false);
+  const [isPreparing, setIsPreparing] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [liveTranscript, setLiveTranscript] = useState('');
   const [streamingText, setStreamingText] = useState('');
@@ -154,6 +156,7 @@ const AIInteractMode = () => {
   const recognitionRef = useRef<any>(null);
   const isAITalkingRef = useRef(false);
   const modeRef = useRef<AIMode>(null);
+  const speechRef = useRef<ReturnType<typeof createTutorSpeech> | null>(null);
 
   useEffect(() => { messagesRef.current = messages; }, [messages]);
   useEffect(() => { isAITalkingRef.current = isAITalking; }, [isAITalking]);
@@ -164,10 +167,21 @@ const AIInteractMode = () => {
   const chapterRef = useRef(chapter);
   useEffect(() => { chapterRef.current = chapter; }, [chapter]);
 
-  useEffect(() => () => {
-    abortRef.current?.abort();
-    recognitionRef.current?.stop();
-    window.speechSynthesis?.cancel();
+  useEffect(() => {
+    speechRef.current = createTutorSpeech({
+      synth: window.speechSynthesis,
+      createUtterance: (text: string) => new SpeechSynthesisUtterance(text),
+      onStart: () => { setIsPreparing(false); setIsAITalking(true); isAITalkingRef.current = true; },
+      onEnd: () => { setIsAITalking(false); isAITalkingRef.current = false; setCaptionText(''); },
+      onError: (message: string) => {
+        setIsPreparing(false); setIsAITalking(false); isAITalkingRef.current = false; setMicError(message);
+      },
+    });
+    return () => {
+      abortRef.current?.abort();
+      if (recognitionRef.current) { recognitionRef.current.onend = null; recognitionRef.current.abort(); }
+      speechRef.current?.cancel();
+    };
   }, []);
 
   const sanitizeForSpeech = (text: string): string => {
@@ -200,48 +214,43 @@ const AIInteractMode = () => {
   };
 
   const speakText = useCallback((text: string) => {
-    if (!window.speechSynthesis) return;
     const cleanSpeech = sanitizeForSpeech(text);
-    if (!cleanSpeech) return;
-
-    window.speechSynthesis.cancel();
-    const utt = new SpeechSynthesisUtterance(cleanSpeech);
-    utt.lang = 'en-US'; 
-    utt.rate = 1.02; 
-    utt.pitch = 1.0;
-    const voices = window.speechSynthesis.getVoices();
-    const preferred = voices.find(v => v.lang.startsWith('en') && (v.name.includes('Google') || v.name.includes('Natural') || v.name.includes('Samantha')));
-    if (preferred) utt.voice = preferred;
-    utt.onstart = () => { setIsAITalking(true); isAITalkingRef.current = true; };
-    utt.onend   = () => { setIsAITalking(false); isAITalkingRef.current = false; setCaptionText(''); };
-    utt.onerror = () => { setIsAITalking(false); isAITalkingRef.current = false; };
-    window.speechSynthesis.speak(utt);
+    if (cleanSpeech) void speechRef.current?.speak(cleanSpeech);
+    else setIsPreparing(false);
   }, []);
 
   const handleSend = useCallback(async (text: string) => {
     if (!text.trim()) return;
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+    speechRef.current?.cancel();
+    setIsAITalking(false); isAITalkingRef.current = false;
     const currentMessages = messagesRef.current;
     const userMsg: Message = { role: 'user', content: text };
     const updatedMsgs = [...currentMessages, userMsg];
     setMessages(updatedMsgs); messagesRef.current = updatedMsgs;
     streamedRef.current = ''; setStreamingText(''); setCaptionText('');
-    setIsAITalking(true); isAITalkingRef.current = true;
+    setIsPreparing(true); setMicError('');
     let notes = { content: null as string | null, notesExist: false };
     try { notes = await fetchChapterNotes(branch!, semester!, subjectSlug!, chapterId!, chapterRef.current?.title || ''); }
     catch { }
-    abortRef.current?.abort(); abortRef.current = new AbortController();
+    if (controller.signal.aborted) return;
     streamAIInteract(
       { chapterTitle: chapterRef.current?.title, subjectName: state.subjectData?.subjectName,
         notesContent: notes.content, notesExist: notes.notesExist, messages: updatedMsgs,
         mode: modeRef.current, topics: chapterRef.current?.topics },
-      (token: string) => { 
+      (token: string) => {
+        if (controller.signal.aborted) return;
         streamedRef.current += token; 
         setStreamingText(streamedRef.current); 
         setCaptionText(sanitizeForSpeech(streamedRef.current)); 
       },
       () => {
+        if (controller.signal.aborted) return;
         const rawText = streamedRef.current;
         if (!rawText || !rawText.trim()) {
+          setIsPreparing(false);
           setIsAITalking(false);
           isAITalkingRef.current = false;
           setStreamingText('');
@@ -256,17 +265,21 @@ const AIInteractMode = () => {
         speakText(cleanSpeech);
       },
       (err: any) => {
+        if (controller.signal.aborted) return;
         console.error(err);
+        setIsPreparing(false);
         setIsAITalking(false); isAITalkingRef.current = false;
         setCaptionText(''); setMicError('AI response failed.');
       },
-      abortRef.current.signal,
+      controller.signal,
     );
   }, [branch, semester, subjectSlug, chapterId, state, speakText]);
 
   const startListening = useCallback(() => {
     if (!SpeechRecognition) { setMicError('Voice recognition not supported. Use Chrome.'); return; }
-    if (isAITalkingRef.current) { window.speechSynthesis?.cancel(); setIsAITalking(false); isAITalkingRef.current = false; }
+    abortRef.current?.abort();
+    speechRef.current?.cancel();
+    setIsPreparing(false); setIsAITalking(false); isAITalkingRef.current = false;
     setMicError(''); setLiveTranscript('');
     const recognition = new SpeechRecognition();
     recognition.lang = 'en-US'; recognition.interimResults = true; recognition.continuous = false;
@@ -295,7 +308,9 @@ const AIInteractMode = () => {
         <button
           onClick={() => {
             setMode(null); setMessages([]); setStreamingText(''); setCaptionText(''); setLiveTranscript('');
-            window.speechSynthesis?.cancel(); recognitionRef.current?.stop(); abortRef.current?.abort();
+            speechRef.current?.cancel(); abortRef.current?.abort();
+            if (recognitionRef.current) { recognitionRef.current.onend = null; recognitionRef.current.abort(); }
+            setIsPreparing(false); setIsAITalking(false); isAITalkingRef.current = false;
           }}
           className="flex items-center gap-1.5 sm:gap-2 text-sm font-medium text-slate-400 hover:text-sky-400 transition-colors"
         >
@@ -325,7 +340,7 @@ const AIInteractMode = () => {
           <SoundWave active={isAITalking || isListening} />
           
           <p className="mt-2.5 sm:mt-3 text-xs sm:text-sm font-medium text-slate-400 shrink-0">
-            {isListening ? 'Listening…' : isAITalking ? 'Speaking…' : 'Tap mic to speak'}
+            {isListening ? 'Listening…' : isPreparing ? 'Preparing response…' : isAITalking ? 'Speaking…' : 'Tap mic to speak'}
           </p>
 
           <div className="mt-2.5 sm:mt-3 w-full max-w-md px-3 sm:px-4 flex flex-col items-center min-h-[44px] justify-center shrink-0">
@@ -352,6 +367,8 @@ const AIInteractMode = () => {
           </div>
         )}
       </div>
+
+      {micError && <p role="status" className="px-4 py-2 text-center text-xs text-amber-300">{micError}</p>}
 
       <div className="flex justify-center py-3 sm:py-3.5 px-4 border-t border-[#252134] bg-[#0E0C15]/95 backdrop-blur shrink-0">
         <button
