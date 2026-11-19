@@ -117,11 +117,11 @@ function fixedWindow(date, milliseconds) {
 
 // Every caller holds the user's row lock, so quota reads and increments serialize.
 async function consumeUsage(tx, ownerId, bucket, windowStart, amount, maximum, message) {
-  const rows = await tx`SELECT amount FROM study_usage WHERE scope = ${ownerId} AND bucket = ${bucket} AND window_start = ${windowStart}`;
+  const rows = await tx`SELECT amount FROM study_usage WHERE scope = ${ownerId} AND bucket = ${bucket} AND window_start = ${windowStart.toISOString()}`;
   if (Number(rows[0]?.amount || 0) + amount > maximum) {
     fail(429, 'UPLOAD_RATE_LIMIT', message);
   }
-  await tx`INSERT INTO study_usage (scope, bucket, window_start, amount) VALUES (${ownerId}, ${bucket}, ${windowStart}, ${amount}) ON CONFLICT (scope, bucket, window_start) DO UPDATE SET amount = study_usage.amount + EXCLUDED.amount`;
+  await tx`INSERT INTO study_usage (scope, bucket, window_start, amount) VALUES (${ownerId}, ${bucket}, ${windowStart.toISOString()}, ${amount}) ON CONFLICT (scope, bucket, window_start) DO UPDATE SET amount = study_usage.amount + EXCLUDED.amount`;
 }
 
 module.exports = { StudyError, LIMITS, MiB, fail, assertId, workspaceInput, uploadInput, publicWorkspace, publicDocument, lockOwner, ownedWorkspace, ownedDocument, queueDelete, expireUploads, fixedWindow, consumeUsage };

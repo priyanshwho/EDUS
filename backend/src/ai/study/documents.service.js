@@ -60,7 +60,7 @@ function createDocumentService({ sql, storage, now = () => new Date() }) {
       const id = randomUUID();
       const key = `private/study/${ownerId}/${id}/original.pdf`;
       const expiresAt = new Date(instant.getTime() + LIMITS.uploadExpiresSeconds * 1000);
-      const inserted = await tx`INSERT INTO study_documents (id, workspace_id, kind, filename, size_bytes, s3_key, contains_handwriting, expires_at) VALUES (${id}, ${workspaceId}, ${clean.kind}, ${clean.filename}, ${clean.sizeBytes}, ${key}, ${clean.containsHandwriting}, ${expiresAt}) RETURNING *`;
+      const inserted = await tx`INSERT INTO study_documents (id, workspace_id, kind, filename, size_bytes, s3_key, contains_handwriting, expires_at) VALUES (${id}, ${workspaceId}, ${clean.kind}, ${clean.filename}, ${clean.sizeBytes}, ${key}, ${clean.containsHandwriting}, ${expiresAt.toISOString()}) RETURNING *`;
       return { document: publicDocument(inserted[0]), uploadPath: `/study/documents/${id}/upload` };
     });
   }
@@ -91,7 +91,7 @@ function createDocumentService({ sql, storage, now = () => new Date() }) {
       const instant = await admit(tx, ownerId, workspaceId, clean);
       const id = randomUUID();
       const rows = await tx`INSERT INTO study_documents(id,workspace_id,kind,filename,size_bytes,s3_key,sha256,source_type,pasted_text,submission_key,status,processing_stage,expires_at)
-        VALUES(${id},${workspaceId},${clean.kind},${clean.filename},${sizeBytes},NULL,${sha256},'text',${content},${input.idempotencyKey},'queued','queued',${instant}) RETURNING *`;
+        VALUES(${id},${workspaceId},${clean.kind},${clean.filename},${sizeBytes},NULL,${sha256},'text',${content},${input.idempotencyKey},'queued','queued',${instant.toISOString()}) RETURNING *`;
       await tx`INSERT INTO study_jobs(document_id,kind) VALUES(${id},'ingest')`;
       return { document: publicDocument(rows[0]) };
     });
@@ -107,7 +107,7 @@ function createDocumentService({ sql, storage, now = () => new Date() }) {
       // The lease starts when bytes are accepted, covering both bounded receive
       // and storage PUT time even if the reservation was claimed near expiry.
       const expiresAt = new Date(now().getTime() + LIMITS.uploadExpiresSeconds * 1000);
-      const rows = await tx`UPDATE study_documents SET status = 'uploading', processing_stage = 'uploading', upload_token = ${token}, expires_at = ${expiresAt}, updated_at = now() WHERE id = ${documentId} RETURNING *`;
+      const rows = await tx`UPDATE study_documents SET status = 'uploading', processing_stage = 'uploading', upload_token = ${token}, expires_at = ${expiresAt.toISOString()}, updated_at = now() WHERE id = ${documentId} RETURNING *`;
       return rows[0];
     });
   }

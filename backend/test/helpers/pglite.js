@@ -12,6 +12,8 @@ async function database() {
   await db.exec('CREATE TABLE users(id UUID PRIMARY KEY);');
   const adapt = engine => {
     const sql = async (strings, ...values) => {
+      // Drizzle installs transparent timestamp serializers on the shared client.
+      if (values.some(value => value instanceof Date)) throw new TypeError('Shared SQL timestamps must be ISO strings.');
       const query = strings.reduce((text, part, index) => text + (index ? `$${index}` : '') + part, '');
       return (await engine.query(query, values)).rows;
     };
