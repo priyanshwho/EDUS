@@ -29,6 +29,13 @@ export async function uploadStudyFiles(api, workspaceId, files, onUpdate = () =>
     let current = { ...item, error: '', state: 'uploading' };
     onUpdate(current);
     try {
+      if (current.sourceType === 'text') {
+        const result = await api.saveText(workspaceId, {
+          kind: current.kind, title: current.title, content: current.content, idempotencyKey: current.key,
+        });
+        current = { ...current, documentId: result.document.id, uploaded: true, state: 'uploaded' };
+        results.push(current); onUpdate(current); continue;
+      }
       if (current.documentId) {
         const response = await api.get(workspaceId);
         const existing = (response.documents || []).find((document) => document.id === current.documentId);

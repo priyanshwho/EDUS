@@ -1,7 +1,7 @@
 {
   "name": "edusphere-backend",
   "version": "1.0.0",
-  "description": "EduSphere production backend — academic resource platform",
+  "description": "EduSphere production backend \u2014 academic resource platform",
   "main": "src/index.js",
   "type": "commonjs",
   "scripts": {
@@ -13,7 +13,8 @@
     "check:roles": "node ../.github/scripts/check-roles.js",
     "check:slug": "node ../.github/scripts/check-slug-format.js",
     "check:s3": "node ../.github/scripts/verify-s3-config.js",
-    "check:stack": "node ../.github/scripts/check-architecture-consistency.js"
+    "check:stack": "node ../.github/scripts/check-architecture-consistency.js",
+    "study:check": "node scripts/check-study.js"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.540.0",

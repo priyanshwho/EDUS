@@ -3,6 +3,22 @@ import assert from 'node:assert/strict';
 import { authenticatedRaw, api, setToken, setRefreshFailHandler } from '../src/services/api.js';
 import { correctOptionIndex, isProcessing, isReady, sourcesForItem, uploadStudyFiles } from '../src/ai/components/study/studyUtils.js';
 
+test('mixed PDF and pasted-text batches preserve their category and retry key', async () => {
+  let uploads = 0, saved;
+  const api = {
+    saveText: async (_workspace, data) => { saved = data; return { document: { id: 'text-1' } }; },
+    initUpload: async () => ({ document: { id: 'pdf-1' } }), upload: async () => { uploads++; },
+  };
+  const result = await uploadStudyFiles(api, 'workspace', [
+    { key: 'text-key-123', sourceType: 'text', kind: 'syllabus', title: 'Syllabus', content: 'Unit 1: Processes' },
+    { key: 'file', kind: 'notes', file: { name: 'notes.pdf', size: 40 } },
+  ]);
+  assert.equal(result.every(item => item.uploaded), true);
+  assert.equal(saved.kind, 'syllabus');
+  assert.equal(saved.idempotencyKey, 'text-key-123');
+  assert.equal(uploads, 1);
+});
+
 test('multipart uploads retain their body and browser boundary while authenticating', async (context) => {
   const originalFetch = globalThis.fetch;
   context.after(() => { globalThis.fetch = originalFetch; setToken(null); });

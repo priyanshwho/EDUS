@@ -10,6 +10,8 @@ const LIMITS = Object.freeze({
   subjectBytes: 50 * MiB,
   userBytes: 300 * MiB,
   notesPerSubject: 5,
+  pastedTextCharacters: 50000,
+  pastedTextBytes: 64 * 1024,
   concurrentUploads: 2,
   attemptsPerTenMinutes: 12,
   attemptsPerDay: 24,
@@ -65,7 +67,7 @@ function publicWorkspace(row) {
 
 function publicDocument(row) {
   return {
-    id: row.id, workspaceId: row.workspace_id, kind: row.kind, filename: row.filename,
+    id: row.id, workspaceId: row.workspace_id, kind: row.kind, filename: row.filename, sourceType: row.source_type || 'pdf',
     sizeBytes: Number(row.size_bytes), status: row.status, containsHandwriting: row.contains_handwriting,
     pageCount: row.page_count, error: row.error, processingStage: row.processing_stage,
     expiresAt: row.expires_at, createdAt: row.created_at, updatedAt: row.updated_at,

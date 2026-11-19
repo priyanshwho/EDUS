@@ -27,7 +27,7 @@ test('private study SQL lifecycle against isolated PostgreSQL and pgvector', asy
   try {
     await t.test('additive study migrations can be safely run again', async () => {
       assert.equal(await migrateStudy(sql), false);
-      assert.equal((await sql.unsafe('SELECT * FROM study_schema_migrations')).length, 3);
+      assert.equal((await sql.unsafe('SELECT * FROM study_schema_migrations')).length, 4);
     });
     await t.test('six parallel subjects succeed and a seventh is blocked', async () => {
       const created = await Promise.all(Array.from({ length: 6 }, (_, i) => workspaces.create(owner, { title: `Subject ${i}`, idempotencyKey: `subject_${i}` })));

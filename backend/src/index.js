@@ -34,6 +34,8 @@ app.use(cors({
   ],
   credentials: true,
 }));
+// Pasted study text is bounded to 64 KiB UTF-8; JSON escaping can double it.
+app.use('/api/study', express.json({ limit: '256kb' }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());

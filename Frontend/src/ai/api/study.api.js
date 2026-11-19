@@ -9,6 +9,7 @@ export const studyApi = {
   get: (id, signal) => api.get(workspacePath(id), { signal }),
   remove: (id) => api.delete(workspacePath(id)),
   initUpload: (id, data) => api.post(`${workspacePath(id)}/uploads`, data),
+  saveText: (id, data) => api.post(`${workspacePath(id)}/text`, data),
   async upload(documentId, file, signal) {
     const body = new FormData();
     body.append('file', file);

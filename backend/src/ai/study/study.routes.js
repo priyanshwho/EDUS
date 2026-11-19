@@ -73,6 +73,7 @@ function createStudyRouter(options = {}) {
   router.get('/workspaces/:id', handle((req) => workspaces.get(req.user.id, req.params.id)));
   router.delete('/workspaces/:id', handle((req) => workspaces.remove(req.user.id, req.params.id)));
   router.post('/workspaces/:id/uploads', handle((req) => documents.initialize(req.user.id, req.params.id, req.body), 201));
+  router.post('/workspaces/:id/text', handle((req) => documents.createText(req.user.id, req.params.id, req.body), 201));
   router.post('/documents/:id/upload', async (req, res, next) => {
     let claim;
     let directory;

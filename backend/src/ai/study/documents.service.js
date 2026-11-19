@@ -25,33 +25,38 @@ function createDocumentService({ sql, storage, now = () => new Date() }) {
     return work(tx);
   });
 
+  async function admit(tx, ownerId, workspaceId, clean) {
+    await expireUploads(tx, ownerId);
+    await ownedWorkspace(tx, ownerId, workspaceId, true);
+    const rows = await tx`SELECT d.size_bytes, d.status, d.kind, d.workspace_id FROM study_documents d JOIN study_workspaces w ON w.id = d.workspace_id WHERE w.owner_id = ${ownerId} AND d.status <> 'deleted'`;
+    const active = rows.filter((d) => !['deleting', 'deleted'].includes(d.status));
+    const subject = rows.filter((d) => d.workspace_id === workspaceId);
+    const subjectActive = active.filter((d) => d.workspace_id === workspaceId);
+    if (clean.sourceType !== 'text' && active.filter((d) => ['reserved', 'uploading'].includes(d.status)).length >= LIMITS.concurrentUploads) {
+      fail(429, 'CONCURRENT_UPLOAD_LIMIT', 'Finish or delete an existing upload before starting another.');
+    }
+    if (clean.kind === 'syllabus' && subjectActive.some((d) => d.kind === 'syllabus')) {
+      fail(409, 'SYLLABUS_ALREADY_EXISTS', 'Delete the existing syllabus before adding a replacement.');
+    }
+    if (clean.kind === 'notes' && subjectActive.filter((d) => d.kind === 'notes').length >= LIMITS.notesPerSubject) {
+      fail(409, 'NOTES_LIMIT_REACHED', 'A subject can contain up to 5 notes sources. Delete a notes source to add another.');
+    }
+    const bytes = (docs) => docs.reduce((sum, doc) => sum + Number(doc.size_bytes), 0);
+    if (bytes(subject) + clean.sizeBytes > LIMITS.subjectBytes) fail(413, 'SUBJECT_STORAGE_LIMIT', 'This subject has reached its 50 MiB storage limit. Pending deletions still count until cleaned up.');
+    if (bytes(rows) + clean.sizeBytes > LIMITS.userBytes) fail(413, 'USER_STORAGE_LIMIT', 'Your private study storage limit is 300 MiB. Pending deletions still count until cleaned up.');
+    const instant = now();
+    await consumeUsage(tx, ownerId, 'upload_attempts_10m', fixedWindow(instant, 600000), 1, LIMITS.attemptsPerTenMinutes, 'Upload limit reached. Try again in the next 10 minute window.');
+    await consumeUsage(tx, ownerId, 'upload_attempts_day', fixedWindow(instant, 86400000), 1, LIMITS.attemptsPerDay, 'Daily upload attempt limit reached. Try again tomorrow.');
+    // Daily admission charges are intentionally not refunded for deletion or failure.
+    await consumeUsage(tx, ownerId, 'upload_bytes_day', fixedWindow(instant, 86400000), clean.sizeBytes, LIMITS.uploadBytesPerDay, 'Daily upload size limit of 100 MiB reached. Try again tomorrow.');
+    return instant;
+  }
+
   async function initialize(ownerId, workspaceId, input) {
     assertId(workspaceId, 'Subject ID');
     const clean = uploadInput(input);
     return withOwner(ownerId, async (tx) => {
-      await expireUploads(tx, ownerId);
-      await ownedWorkspace(tx, ownerId, workspaceId, true);
-      const rows = await tx`SELECT d.size_bytes, d.status, d.kind, d.workspace_id FROM study_documents d JOIN study_workspaces w ON w.id = d.workspace_id WHERE w.owner_id = ${ownerId} AND d.status <> 'deleted'`;
-      const active = rows.filter((d) => !['deleting', 'deleted'].includes(d.status));
-      const subject = rows.filter((d) => d.workspace_id === workspaceId);
-      const subjectActive = active.filter((d) => d.workspace_id === workspaceId);
-      if (active.filter((d) => ['reserved', 'uploading'].includes(d.status)).length >= LIMITS.concurrentUploads) {
-        fail(429, 'CONCURRENT_UPLOAD_LIMIT', 'Finish or delete an existing upload before starting another.');
-      }
-      if (clean.kind === 'syllabus' && subjectActive.some((d) => d.kind === 'syllabus')) {
-        fail(409, 'SYLLABUS_ALREADY_EXISTS', 'Delete the existing syllabus before adding a replacement.');
-      }
-      if (clean.kind === 'notes' && subjectActive.filter((d) => d.kind === 'notes').length >= LIMITS.notesPerSubject) {
-        fail(409, 'NOTES_LIMIT_REACHED', 'A subject can contain up to 5 notes PDFs. Delete a notes file to add another.');
-      }
-      const bytes = (docs) => docs.reduce((sum, doc) => sum + Number(doc.size_bytes), 0);
-      if (bytes(subject) + clean.sizeBytes > LIMITS.subjectBytes) fail(413, 'SUBJECT_STORAGE_LIMIT', 'This subject has reached its 50 MiB storage limit. Pending deletions still count until cleaned up.');
-      if (bytes(rows) + clean.sizeBytes > LIMITS.userBytes) fail(413, 'USER_STORAGE_LIMIT', 'Your private study storage limit is 300 MiB. Pending deletions still count until cleaned up.');
-      const instant = now();
-      await consumeUsage(tx, ownerId, 'upload_attempts_10m', fixedWindow(instant, 600000), 1, LIMITS.attemptsPerTenMinutes, 'Upload limit reached. Try again in the next 10 minute window.');
-      await consumeUsage(tx, ownerId, 'upload_attempts_day', fixedWindow(instant, 86400000), 1, LIMITS.attemptsPerDay, 'Daily upload attempt limit reached. Try again tomorrow.');
-      // Daily admission charges are intentionally not refunded for deletion or failure.
-      await consumeUsage(tx, ownerId, 'upload_bytes_day', fixedWindow(instant, 86400000), clean.sizeBytes, LIMITS.uploadBytesPerDay, 'Daily upload size limit of 100 MiB reached. Try again tomorrow.');
+      const instant = await admit(tx, ownerId, workspaceId, clean);
       const id = randomUUID();
       const key = `private/study/${ownerId}/${id}/original.pdf`;
       const expiresAt = new Date(instant.getTime() + LIMITS.uploadExpiresSeconds * 1000);
@@ -60,9 +65,42 @@ function createDocumentService({ sql, storage, now = () => new Date() }) {
     });
   }
 
+  async function createText(ownerId, workspaceId, input = {}) {
+    assertId(workspaceId, 'Subject ID');
+    if (!['syllabus', 'notes'].includes(input.kind)) fail(400, 'INVALID_DOCUMENT_KIND', 'Choose syllabus or notes.');
+    if (typeof input.content !== 'string' || /[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]/.test(input.content)) fail(400, 'INVALID_TEXT', 'Paste plain text without control characters.');
+    const content = input.content.replace(/\r\n?/g, '\n').trim();
+    const sizeBytes = Buffer.byteLength(content, 'utf8');
+    if (!content || content.length > LIMITS.pastedTextCharacters || sizeBytes > LIMITS.pastedTextBytes) fail(413, 'TEXT_LIMIT_REACHED', 'Paste between 1 and 50,000 characters, up to 64 KiB of text.');
+    const title = input.title === undefined ? (input.kind === 'syllabus' ? 'Syllabus' : 'Notes') : input.title;
+    if (typeof title !== 'string' || !title.trim() || title.trim().length > 120 || /[\x00-\x1f\x7f]/.test(title)) fail(400, 'INVALID_TITLE', 'Text title must contain 1 to 120 characters.');
+    if (typeof input.idempotencyKey !== 'string' || !/^[a-zA-Z0-9_-]{8,100}$/.test(input.idempotencyKey)) fail(400, 'INVALID_IDEMPOTENCY_KEY', 'A valid text submission key is required.');
+    const clean = { kind: input.kind, filename: title.trim(), sizeBytes, sourceType: 'text' };
+    const sha256 = createHash('sha256').update(`text:${clean.kind}\0${content}`).digest('hex');
+    return withOwner(ownerId, async tx => {
+      await ownedWorkspace(tx, ownerId, workspaceId, true);
+      const prior = await tx`SELECT * FROM study_documents WHERE workspace_id=${workspaceId} AND submission_key=${input.idempotencyKey}`;
+      if (prior.length) {
+        const document = prior[0];
+        if (['deleting', 'deleted'].includes(document.status)) fail(409, 'TEXT_DELETED', 'This text was removed. Start a new submission.');
+        if (document.kind !== clean.kind || document.filename !== clean.filename || document.pasted_text !== content) fail(409, 'SUBMISSION_CHANGED', 'Start a new submission to save different text.');
+        return { document: publicDocument(document) };
+      }
+      const duplicate = await tx`SELECT * FROM study_documents WHERE workspace_id=${workspaceId} AND sha256=${sha256} AND status NOT IN ('deleting','deleted') LIMIT 1`;
+      if (duplicate.length) return { document: publicDocument(duplicate[0]), duplicate: true };
+      const instant = await admit(tx, ownerId, workspaceId, clean);
+      const id = randomUUID();
+      const rows = await tx`INSERT INTO study_documents(id,workspace_id,kind,filename,size_bytes,s3_key,sha256,source_type,pasted_text,submission_key,status,processing_stage,expires_at)
+        VALUES(${id},${workspaceId},${clean.kind},${clean.filename},${sizeBytes},NULL,${sha256},'text',${content},${input.idempotencyKey},'queued','queued',${instant}) RETURNING *`;
+      await tx`INSERT INTO study_jobs(document_id,kind) VALUES(${id},'ingest')`;
+      return { document: publicDocument(rows[0]) };
+    });
+  }
+
   async function claimUpload(ownerId, documentId) {
     return withOwner(ownerId, async (tx) => {
       const document = await ownedDocument(tx, ownerId, documentId, true);
+      if (document.source_type === 'text') fail(400, 'PDF_REQUIRED', 'Pasted text does not accept a PDF upload.');
       if (document.status !== 'reserved') fail(409, 'UPLOAD_ALREADY_CLAIMED', 'This upload has already started. Create a new upload if it failed.');
       if (new Date(document.expires_at).getTime() <= now().getTime()) fail(410, 'UPLOAD_EXPIRED', 'This upload expired. Delete it and start a new upload.');
       const token = randomUUID();
@@ -139,7 +177,7 @@ function createDocumentService({ sql, storage, now = () => new Date() }) {
   async function retry(ownerId, documentId) {
     return withOwner(ownerId, async (tx) => {
       const document = await ownedDocument(tx, ownerId, documentId, true);
-      if (!['failed', 'partial'].includes(document.status) || !document.sha256 || !document.s3_key) {
+      if (!['failed', 'partial'].includes(document.status) || !document.sha256 || (document.source_type !== 'text' && !document.s3_key)) {
         fail(409, 'DOCUMENT_NOT_RETRYABLE', 'Only a processed file with an available original can be retried.');
       }
       if (Number(document.manual_retry_count) >= LIMITS.manualRetriesPerDocument) fail(429, 'DOCUMENT_RETRY_LIMIT', 'This file has reached its retry limit.');
@@ -156,11 +194,12 @@ function createDocumentService({ sql, storage, now = () => new Date() }) {
     return withOwner(ownerId, async (tx) => {
       const document = await ownedDocument(tx, ownerId, documentId, true);
       if (!document.sha256 || ['reserved', 'uploading'].includes(document.status)) fail(409, 'SOURCE_NOT_AVAILABLE', 'The original PDF is not available yet.');
-      return { url: await storage.getDownloadUrl(document.s3_key) };
+      if (document.source_type === 'text') return { type: 'text', title: document.filename, content: document.pasted_text };
+      return { type: 'pdf', url: await storage.getDownloadUrl(document.s3_key) };
     });
   }
 
-  return { initialize, claimUpload, uploadFile, failUpload, remove, retry, source };
+  return { initialize, createText, claimUpload, uploadFile, failUpload, remove, retry, source };
 }
 
 module.exports = { createDocumentService, inspectPdf };

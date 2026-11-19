@@ -2,7 +2,7 @@
 
 Open **EDU AI → My Study Subjects** (`/ai/study`). Every authenticated student,
 professor and admin has their own six subject slots. Upload a syllabus, notes or both
-to a subject. Private material never enters the shared syllabus catalog or public
+to a subject. Each syllabus and notes section also accepts pasted text, and PDF/text methods can be mixed. Private material never enters the shared syllabus catalog or public
 resources. There is no sharing or approval workflow in this release.
 
 ## Data flow
@@ -44,7 +44,8 @@ of transcription accuracy or a manual OCR correction editor.
 | Resource | Limit |
 | --- | --- |
 | Active subject workspaces | 6 per account, including notes-only subjects |
-| Files in one subject | 1 syllabus and 5 notes PDFs |
+| Sources in one subject | 1 syllabus and 5 notes sources (PDF or pasted text) |
+| Each pasted text block | 50,000 characters and 64 KiB UTF-8; counts toward admission and storage limits |
 | Syllabus | 5 MiB, 30 pages |
 | Notes PDF | 20 MiB, 150 pages |
 | Original storage | 50 MiB per subject; 300 MiB per account |
@@ -102,8 +103,9 @@ expiry to all active originals.
 
 ## Deployment
 
-This branch does not migrate or deploy production automatically. The existing backend
-deployment workflow still deploys only `main`/`Priyanshu`. New study CI runs tests and a
+Pushing backend changes to `Priyanshu` triggers the existing backend deployment workflow
+(the workflow also accepts `main`). It does not apply the study migrations or provision
+the Python services; those deployment steps must be completed separately. New study CI runs tests and a
 frontend build without production credentials. The Docker template has not been built
 on this host because Docker access is unavailable; validate it on the deployment host.
 
@@ -119,7 +121,7 @@ on this host because Docker access is unavailable; validate it on the deployment
    `STUDY_GROQ_FREE_PLAN_CONFIRMED=true`. Until then, hosted AI fails closed.
 3. From `backend`, run **`npm run migrate:study`** against the intended database. This is
    an additive, checksummed migration with an advisory lock; it does not run on API
-   startup. Do not edit an applied migration. All three study migrations are required.
+   startup. Do not edit an applied migration. All four study migrations are required (including pasted text support).
 4. Start ingestion and the local embedding service using Python 3.12 and Tesseract.
    See [the worker guide](../backend/study-worker/README.md). For a host-based Express
    API, the optional container setup is:
@@ -156,6 +158,21 @@ returns `409 ACCOUNT_CLEANUP_PENDING` until the worker finishes. Retrying then r
 the account and its study tombstones atomically. Public resources are left intact
 during the pending cleanup phase; the existing delete-with-resources option removes
 them only when account deletion completes.
+
+## Pasted text and readiness
+
+Pasted content is stored privately in PostgreSQL, not converted into a PDF or written
+to object storage. It skips OCR, becomes one internal text segment, and enters the same
+local chunking/embedding pipeline. Citations open a plain-text viewer instead of a
+fictional PDF page. Requests use a stable submission key for safe retries. Deletion
+clears the saved text together with searchable pages/chunks.
+
+Run `cd backend && npm run study:check` for a read-only configuration/schema/embedding
+health report. It prints presence booleans, not credentials, and makes no Groq request.
+A listing failure does not require a Groq call: missing study tables or database access
+can cause a 503 before any model is involved. The general `/health` endpoint checks the
+API process and is not a complete RAG readiness check. Passing model health also does
+not prove the ingestion worker is running.
 
 ## Verification and remaining acceptance work
 

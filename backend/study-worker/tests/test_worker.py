@@ -55,6 +55,18 @@ class WorkerTests(unittest.TestCase):
         self.database.complete_delete.assert_called_once()
         self.embedder.embed.assert_not_called()
 
+    def test_pasted_text_is_indexed_without_ocr_or_object_storage(self):
+        self.worker.process(dict(JOB, source_type='text', s3_key=None, pasted_text='A pasted definition.'))
+        self.extractor.extract.assert_not_called()
+        self.storage.download.assert_not_called()
+        self.database.publish.assert_called_once()
+        self.assertEqual(self.database.publish.call_args.args[1][0].method, 'pasted-text')
+
+    def test_deleted_text_never_calls_object_storage(self):
+        self.worker.process(dict(JOB, kind='delete', source_type='text', s3_key=None))
+        self.storage.delete_document.assert_not_called()
+        self.database.complete_delete.assert_called_once()
+
 
 class PublicationTests(unittest.TestCase):
     def test_fenced_publication_rolls_back_before_any_replacement(self):

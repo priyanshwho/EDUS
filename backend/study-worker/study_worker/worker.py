@@ -5,7 +5,7 @@ import signal
 import tempfile
 import threading
 import time
-from .core import LeaseLost, ExtractionError, MAX_ARTIFACT_BYTES, MAX_CHUNKS
+from .core import LeaseLost, ExtractionError, Page, normalize_text, MAX_ARTIFACT_BYTES, MAX_CHUNKS
 
 log = logging.getLogger(__name__)
 
@@ -51,15 +51,23 @@ class Worker:
             with Lease(self.database, job, self.settings.heartbeat_seconds) as lease:
                 lease.check()
                 if job["kind"] == "delete":
-                    self.storage.delete_document(job, lease.check)
+                    if job.get("source_type") != "text":
+                        self.storage.delete_document(job, lease.check)
                     lease.check()
                     self.database.complete_delete(job)
                     return
                 with tempfile.TemporaryDirectory(prefix="edus-study-") as folder:
                     path = Path(folder) / "source.pdf"
-                    self.storage.download(job["s3_key"], path, job.get("sha256"))
+                    if job.get("source_type") == "text":
+                        text = normalize_text(job.get("pasted_text") or "")
+                        if not text:
+                            raise ExtractionError("Pasted source has no readable text")
+                        extracted = [Page(1, text, "pasted-text")]
+                    else:
+                        self.storage.download(job["s3_key"], path, job.get("sha256"))
+                        extracted = self.extractor.extract(str(path), job, lease.check)
                     pages, artifact_bytes = [], 0
-                    for page in self.extractor.extract(str(path), job, lease.check):
+                    for page in extracted:
                         lease.check()
                         if page.image and self.settings.store_page_images:
                             artifact_bytes += len(page.image)
@@ -98,7 +106,7 @@ class Worker:
             except Exception:
                 log.error("Could not record failure for study job %s", job["id"])
         finally:
-            if job["kind"] == "ingest" and not published:
+            if job["kind"] == "ingest" and job.get("source_type") != "text" and not published:
                 try:
                     self.storage.delete_attempt(job)
                 except Exception:

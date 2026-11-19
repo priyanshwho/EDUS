@@ -27,7 +27,7 @@ class Database:
         with self.connect() as con, con.cursor() as cur:
             cur.execute("""
                 SELECT j.*, d.workspace_id, d.kind AS document_kind, d.filename, d.s3_key,
-                       d.sha256, d.size_bytes, d.contains_handwriting, w.owner_id
+                       d.sha256, d.size_bytes, d.contains_handwriting, d.source_type, d.pasted_text, w.owner_id
                 FROM study_jobs j
                 JOIN study_documents d ON d.id=j.document_id
                 JOIN study_workspaces w ON w.id=d.workspace_id
@@ -167,7 +167,7 @@ class Database:
             cur.execute("DELETE FROM study_chunks WHERE document_id=%s", (job["document_id"],))
             cur.execute("DELETE FROM study_pages WHERE document_id=%s", (job["document_id"],))
             cur.execute("DELETE FROM study_transcriptions WHERE document_id=%s", (job["document_id"],))
-            cur.execute("""UPDATE study_documents SET status='deleted', processing_stage='deleted',
+            cur.execute("""UPDATE study_documents SET status='deleted', processing_stage='deleted',pasted_text=NULL,
                            error=NULL, updated_at=clock_timestamp() WHERE id=%s""", (job["document_id"],))
             cur.execute("""UPDATE study_jobs SET status='done', lease_until=NULL, lease_token=NULL,
                            updated_at=clock_timestamp() WHERE id=%s AND lease_token=%s
