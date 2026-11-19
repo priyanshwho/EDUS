@@ -18,17 +18,40 @@ The private study feature is the RAG feature discussed here. It turns documents 
 
 ### A 30-second introduction
 
-“EduSphere is an academic platform with resources for students, professors, and administrators. One feature I can explain in depth is private AI-assisted study: users add a syllabus or notes and ask questions grounded in those materials. We extract and chunk the content, generate embeddings locally using multilingual E5, store them in PostgreSQL with pgvector, combine semantic and keyword retrieval, and send selected passages to a Groq-hosted language model. The answer can include source and page references.”
+“EduSphere is an academic platform for students, professors, and administrators. Edu AI has two study paths. Students can select an existing CSE or IT syllabus by semester and subject, choose chapters, and practice MCQs, revise flashcards, or learn with an AI tutor. They can also upload private notes or a syllabus for RAG-based study with source references. The RAG path uses local E5 embeddings, PostgreSQL with pgvector and keyword search, and a Groq-hosted generation model.”
 
 If verified, add: “The platform has around 600 registered users.” Do not equate that figure with active users, RAG users, or concurrent users without evidence.
 
 ### A two-minute explanation
 
-“The problem is that a general chatbot may not know the exact syllabus or lecture notes for a student's course. A user can upload a PDF or paste content into a private subject workspace. For PDFs, the system tries to extract selectable text; scanned or difficult pages can go through OCR. A background worker divides usable text into page-aware chunks and converts them to 384-dimensional vectors using a pretrained E5 model running locally on CPU. PostgreSQL stores the chunks, their metadata, and vectors with pgvector; the original PDFs are kept in private S3-compatible object storage.
+“EduSphere helps students find academic resources and study their course material in one place. In Edu AI, users can select a branch such as CSE or IT, a semester, a subject, and the relevant syllabus section or chapter. They can generate MCQs at different difficulty levels, review flashcards, or use a tutor that teaches topic by topic and asks checkpoint questions. There is also a free-discussion mode. This makes the existing syllabus useful for active practice without requiring every student to upload it again.
 
-“When the user asks a question, the backend checks ownership, embeds the question, and searches only eligible chunks from that user's selected subject and sources. It combines semantic similarity with PostgreSQL full-text search using reciprocal rank fusion. The most useful passages are sent as context to a Groq-hosted model, which produces a response and references. This reduces reliance on general knowledge, although it does not guarantee a correct answer. We can inspect the cited pages and evaluate retrieval and answer quality separately.”
+“The private study library addresses a different need: a student's own notes, scanned pages, or syllabus. The user adds a PDF or pasted text to a private subject workspace. A background worker extracts the text, performs OCR where needed, and creates page-aware chunks. A pretrained E5 model running locally on CPU generates 384-dimensional vectors. PostgreSQL stores the chunks and vectors with pgvector, while private object storage keeps the original PDFs.
+
+“At question time, the backend checks ownership and searches only the authorized material. It combines vector similarity with keyword search, supplies selected passages to Groq, and returns an answer with available source references. The private library also supports source-grounded flashcards and MCQs. The two paths share the product goal of helping students learn, but the catalog path uses selected topics and supplied notes directly, whereas the private RAG path retrieves indexed passages. Neither approach trains a model on the student's upload.”
 
 Be prepared for: “What exactly did you personally build?” Give your own truthful contribution, not a claim of sole authorship unless it is accurate.
+
+### Edu AI feature map: what a student can actually do
+
+- **Choose an existing syllabus:** browse CSE or IT, choose a semester and subject, then Section A, Section B, or the full syllabus. The catalog organizes the supplied syllabus content into chapters and topics.
+- **Practice MCQs:** choose a chapter and difficulty. The backend prompts the model for questions, four answer options, a correct answer, and explanations. Generated questions can still be wrong and need quality checks.
+- **Revise flashcards:** generate question-and-answer cards from the selected chapter's notes when available, otherwise from topics and general subject knowledge.
+- **Use AI tutoring:** step-by-step mode teaches topics in order, asks a comprehension question, and waits for the student. Free-discussion mode lets the student ask questions about the chapter. The interface includes a talking avatar, transcript, and browser-dependent speech controls; these do not train the language model.
+- **Practice exam-style questions:** the feature labeled “PYQ Exam” currently generates questions from syllabus content. It should be described as generated exam practice; the implementation does not establish that these are authentic past papers or that historical exam patterns were analyzed.
+- **Study private material with RAG:** upload a syllabus, notes, both, or paste text. Ask questions and generate practice items using retrieved private passages and source references.
+
+### The two learning workflows
+
+**Existing syllabus:** branch -> semester -> subject -> syllabus section -> chapter/topics -> MCQs, flashcards, AI tutor, or exam-style practice.
+
+**Private RAG:** private subject -> PDF or pasted text -> extraction/OCR -> chunks and embeddings -> authorized retrieval -> sourced chat, flashcards, or MCQs.
+
+The existing syllabus service reads the shared catalog and applicable database or file-backed syllabus content. For chapter practice, the frontend supplies the selected topics and available chapter notes to the AI endpoints. The tutor streams text responses using server-sent events. This path does not invoke the private workspace's pgvector retrieval pipeline. In private RAG, source-only mode constrains the task to retrieved evidence; general-tutor mode may also use general knowledge.
+
+### Interview follow-up: “Is all Edu AI based on RAG?”
+
+“No. Edu AI includes syllabus-driven generation and tutoring as well as private document RAG. Selecting a known chapter gives us structured topics and optionally chapter notes directly. The private library needs search because it must find useful passages within uploaded documents. I would explain the actual data flow for each rather than call every model prompt RAG.”
 
 ## 2. Concepts before architecture
 
@@ -260,10 +283,64 @@ Tradeoffs to articulate: local embeddings offer predictable integration and avoi
 
 When you do not know an answer, say what you know, identify the uncertainty, and describe how you would verify it. That is stronger than presenting a guess as a fact.
 
-## 10. Code map and references
+## 10. Scaling interview: one million requests
+
+### 31. How would you scale EduSphere to one million requests?
+
+“I would first clarify the time period and request mix. One million total requests over a month is different from one million RAG generations per day or per second. I would measure today's latency and resource use, estimate peak traffic, separate ordinary API reads from document ingestion and generation, and scale the limiting components. I would not claim our current deployment has already handled that load.”
+
+One million requests per day averages about **11.6 requests per second**: `1,000,000 / 86,400`. One million per 30-day month averages about **0.39 per second**. One million per second is an entirely different problem. Average load is not peak load: a chosen 10x peak assumption for the daily case implies about **116 requests per second**, which must be validated against observed traffic rather than treated as a fact.
+
+### 32. How many concurrent requests and model calls would that mean?
+
+Use Little's Law for a stable system: average work in progress is arrival rate multiplied by average time in the system. If all 11.6 requests per second require generation and average response time is 5 seconds, approximately **58 requests** are in progress on average. Under the illustrative 10x peak at the same response time, that is about **580**. Tail latency and burstiness require headroom. These figures are capacity examples, not measured EduSphere performance.
+
+Suppose instead only 10% of one million daily requests are generations. Then there are 100,000 generation requests per day. Assuming 2,000 input and 300 output tokens per generation gives **200 million input tokens and 30 million output tokens per day**. These assumed token counts show why model throughput and cost can dominate; actual usage must be measured, and token throughput matters alongside request rate.
+
+### 33. What would the scaled architecture look like?
+
+Use a CDN for static frontend assets and a load balancer before multiple stateless API instances. Keep identity and authorization consistent across instances. Scale ingestion workers separately from the API and embedding-serving instances because OCR, embedding, and generation have different resource profiles. Use durable job coordination and shared rate-limit and quota state; a process-local limit cannot enforce a global quota across replicas.
+
+For PostgreSQL, use bounded connection pools and monitor connections, query latency, CPU, I/O, and lock contention. Evaluate an ANN index when exact vector search becomes a measured bottleneck, testing recall and authorized filters together. Read replicas can help appropriate reads, but replication lag can make newly uploaded or deleted documents temporarily inconsistent; route sensitive reads appropriately. Move to dedicated vector infrastructure only if tested requirements outweigh the operational simplicity of pgvector.
+
+The current PostgreSQL queue can be extended with worker replicas initially. A dedicated broker may become worthwhile for higher sustained job volume or more complex orchestration. Neither microservices nor a broker automatically solves insufficient generation capacity.
+
+### 34. Can free Groq models support that scale?
+
+“I would not promise it. Free plans have request and token limits and changing capacity. Under the project's free-only constraint, the safe choices are per-user limits, a bounded global concurrency budget, fair queueing where useful, and clear busy or quota-exhausted responses. Supporting a guaranteed large generation workload would require enough provisioned inference capacity, through a changed provider plan or appropriately funded self-hosting, and explicit approval to change the free-only requirement.”
+
+Do not implement a paid fallback silently. Self-hosting an open model has infrastructure costs even when its weights are downloadable. Multiple API keys are not a capacity plan or a way to bypass provider limits. Capacity also depends on the provider's input and output token limits, not just requests per minute.
+
+### 35. Would caching solve the problem?
+
+Caching can reduce repeated work: static syllabus catalog reads, embeddings of repeated text, and already successful OCR are good candidates when versioning and authorization are correct. A private answer cache needs owner/workspace scope, selected sources, document versions, answer mode, model and prompt version, and relevant conversation state. Invalidate or stop using entries after deletion or replacement. Never serve another user's cached answer just because their questions look similar.
+
+Semantic caching can accidentally reuse an answer for a different question. Evaluate correctness and privacy before adding it. Current OCR reuse is implemented; the broader answer-cache design here is a proposed improvement, not an existing feature claim.
+
+### 36. How would you stop overload and cascading failures?
+
+Put limits on uploads and generations, cap worker and model-call concurrency, use bounded queues and timeouts, and reject excess work with useful 429 or 503 responses. Retry transient failures only with a bounded policy and jitter, respecting provider retry guidance; retries can worsen an overload. Use idempotent upload reservations or stable job identities to avoid duplicate storage and duplicate processing when clients retry.
+
+Prioritize interactive questions separately from expensive bulk ingestion when needed. Show processing or partial status honestly. Monitor queue age as well as queue length, because a small number of huge OCR documents can still produce long waits. These are scale-design recommendations; verify which controls already exist before describing them as deployed.
+
+### 37. How would you prove that it scales?
+
+Build a representative workload with catalog reads, authenticated actions, document ingestion, and RAG questions. Start with stubbed provider responses to isolate application limits, then test a controlled end-to-end workload within provider allowances. Stubbed results cannot establish real model-provider capacity. Measure achieved throughput, p50/p95/p99 latency, error rate, queue age, resource use, DB connections, and token usage.
+
+Use a representative corpus and test cross-user isolation and deletion while load runs. Gradually increase load, test bursts and dependency failures, and observe where service targets fail. Define targets such as p95 response time and acceptable error rate before claiming success. One million registered accounts is not evidence of handling one million requests per day or one million simultaneous users.
+
+### A 60-second scaling answer to rehearse
+
+“First I would clarify whether one million means per day, per month, or per second, and what percentage are RAG generations. One million daily requests averages about 12 per second, but I would size for measured peaks and token throughput. I would use stateless API replicas, independently scaled ingestion and embedding workers, shared quotas, bounded database connections, and measured vector-index improvements. I would cache safely, enforce backpressure, and load test latency and correctness. Generation capacity is a separate limit: the present free-only Groq setup cannot be promised at that scale. I would state the supported budget and queue or reject excess work unless the inference-capacity constraint changes.”
+
+## 11. Code map and references
 
 Repository paths are relative to the project root. Use these to check details if the implementation changes:
 
+- `Frontend/src/ai/pages/SubjectDetail.tsx` and `ChapterSelector.tsx` — syllabus selection and study modes.
+- `Frontend/src/ai/pages/AIInteractMode.tsx` — tutor and free-discussion interface, transcript and speech controls.
+- `backend/src/services/syllabus.service.js` — shared syllabus lookup.
+- `backend/src/ai/controllers/ai.controller.js` — syllabus-driven MCQs, flashcards, tutoring, and generated exam questions.
 - `backend/src/ai/study/rag.service.js` — retrieval, fusion, bounded context, source handling.
 - `backend/src/ai/study/groq-budget.js` — allowed and default Groq models and budget-related configuration.
 - `backend/src/ai/study/policy.js` — study limits and policy defaults.
