@@ -107,8 +107,10 @@ expiry to all active originals.
 ## Deployment
 
 Pushing backend changes to `Priyanshu` triggers the existing backend deployment workflow
-(the workflow also accepts `main`). It does not apply the study migrations or provision
-the Python services; those deployment steps must be completed separately. New study CI runs tests and a
+(the workflow also accepts `main`). Once both host user services are provisioned and
+enabled, deployment applies the study migrations, restarts both services, and checks
+study readiness. Initial Python/model/secret provisioning is separate; see the
+[host deployment guide](../backend/study-worker/deploy/README.md). New study CI runs tests and a
 frontend build without production credentials. The Docker template has not been built
 on this host because Docker access is unavailable; validate it on the deployment host.
 

@@ -85,12 +85,28 @@ jobs:
             # The installed service runs npm run dev and needs nodemon.
             npm ci --include=dev
 
+            # Provisioning dependencies/secrets is separate; once enabled, deploy
+            # schema and both Python processes together with the API.
+            study_enabled=false
+            export XDG_RUNTIME_DIR="/run/user/$(id -u)"
+            if systemctl --user is-enabled --quiet edus-study-embeddings.service && systemctl --user is-enabled --quiet edus-study-worker.service; then
+              study_enabled=true
+              npm run migrate:study
+              systemctl --user restart edus-study-embeddings.service edus-study-worker.service
+            fi
+
             echo "Restarting edus-backend.service..."
             sudo -n /usr/bin/systemctl restart edus-backend.service
 
             echo "Waiting for the API to become healthy..."
             for attempt in $(seq 1 30); do
               if /usr/bin/systemctl is-active --quiet edus-backend.service && curl --fail --silent --show-error --max-time 2 http://127.0.0.1:5001/health; then
+                if [ "$study_enabled" = true ]; then
+                  if ! systemctl --user is-active --quiet edus-study-embeddings.service edus-study-worker.service || ! npm run study:check; then
+                    sleep 2
+                    continue
+                  fi
+                fi
                 echo
                 /usr/bin/systemctl --no-pager status edus-backend.service
                 echo "Deployment of $1 completed successfully."

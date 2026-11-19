@@ -242,9 +242,11 @@ or invalid refresh cookie; it is a separate failure path.
 7. Run a real PDF/text/scan/handwriting acceptance test, including two-account isolation,
    deletion during indexing, and quotas. Readiness checks do not prove a worker is alive.
 
-The database check made no changes. Existing CI/CD does not run these migrations or
-start the Python services. Pushing backend code to `Priyanshu` can trigger API deployment
-before these external dependencies are ready.
+That initial database check made no changes. During the subsequently authorized host
+deployment, the schema and persistent services were provisioned. CI/CD now applies
+study migrations and restarts/checks both Python services when their user units are
+enabled; initial dependency/model/secret provisioning is still separate. See the
+[host runbook](../backend/study-worker/deploy/README.md) for current operations.
 
 ## 5. Ingestion, from button click to searchable source
 
