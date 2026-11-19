@@ -98,7 +98,7 @@ function createRagService({ sql, env = process.env, embed = question => embedQue
         SELECT id,1.0/(60+rank) AS score FROM dense UNION ALL SELECT id,1.0/(60+rank) AS score FROM lexical
       ) candidates GROUP BY id
     ) SELECT e.id,e.document_id,e.filename,e.kind,e.source_type,e.page_number,e.text FROM fused f JOIN eligible e ON e.id=f.id ORDER BY f.score DESC LIMIT 16`,
-    [workspaceId, ownerId, context.ids, JSON.stringify(vector), question]);
+    [workspaceId, ownerId, `{${context.ids.join(',')}}`, JSON.stringify(vector), question]);
     return { ...context, sources: packSources(rows) };
   }
 
@@ -110,7 +110,7 @@ function createRagService({ sql, env = process.env, embed = question => embedQue
         count(*) OVER(PARTITION BY d.id) AS total
       FROM study_chunks c JOIN study_documents d ON d.id=c.document_id JOIN study_workspaces w ON w.id=d.workspace_id
       WHERE w.id=$1 AND w.owner_id=$2 AND w.deleted_at IS NULL AND d.status IN ('ready','partial') AND d.id=ANY($3::uuid[])
-    ) SELECT * FROM eligible WHERE position=1 OR position=(total+1)/2 OR position=total ORDER BY position,document_id LIMIT 16`, [workspaceId, ownerId, context.ids]);
+    ) SELECT * FROM eligible WHERE position=1 OR position=(total+1)/2 OR position=total ORDER BY position,document_id LIMIT 16`, [workspaceId, ownerId, `{${context.ids.join(',')}}`]);
     return { ...context, sources: packSources(rows) };
   }
 

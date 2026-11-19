@@ -43,7 +43,7 @@ function createGroqBudget({ sql, env = process.env, now = () => Date.now() }) {
         const rows = await tx.unsafe(`INSERT INTO study_usage(scope,bucket,window_start,amount) VALUES($1,$2,$3,$4)
           ON CONFLICT(scope,bucket,window_start) DO UPDATE SET amount=study_usage.amount+EXCLUDED.amount
           WHERE study_usage.amount+EXCLUDED.amount <= $5 RETURNING amount`,
-        [item.scope, item.bucket, item.window, item.amount, item.limit]);
+        [item.scope, item.bucket, item.window.toISOString(), item.amount, item.limit]);
         if (item.amount > item.limit || !rows.length) {
           const retry = Math.max(1, Math.ceil((item.window.getTime() + item.seconds * 1000 - time) / 1000));
           throw new StudyError(429, 'AI_QUOTA_REACHED', 'AI quota reached. Try again after the quota resets.', retry);

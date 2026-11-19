@@ -15,9 +15,11 @@ async function database() {
       const query = strings.reduce((text, part, index) => text + (index ? `$${index}` : '') + part, '');
       return (await engine.query(query, values)).rows;
     };
-    sql.unsafe = async (query, values = []) => values.length
-      ? (await engine.query(query, values)).rows
-      : (await engine.exec(query)).at(-1).rows;
+    sql.unsafe = async (query, values = []) => {
+      // postgres.js unsafe parameters have no inferred timestamp serializer.
+      if (values.some(value => value instanceof Date)) throw new TypeError('Serialize raw timestamp parameters as ISO strings.');
+      return values.length ? (await engine.query(query, values)).rows : (await engine.exec(query)).at(-1).rows;
+    };
     sql.begin = work => db.transaction(tx => work(adapt(tx)));
     return sql;
   };

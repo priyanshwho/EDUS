@@ -47,7 +47,7 @@ test('both retrieval branches share authorized eligible rows and parameterized I
   assert.match(query.query, /FROM eligible WHERE embedding/);
   assert.match(query.query, /FROM eligible WHERE search_vector/);
   assert.equal(query.params[1], owner);
-  assert.deepEqual(query.params[2], [document]);
+  assert.equal(query.params[2], `{${document}}`, 'raw UUID array parameters use PostgreSQL wire format');
 });
 test('bad embedding dimension never reaches the database vector operator', async () => {
   const { service, calls } = fixture({ embed: async () => [1, 2] });

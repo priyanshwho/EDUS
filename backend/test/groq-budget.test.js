@@ -8,7 +8,8 @@ function quotaDatabase() {
   return { state: () => state, async begin(work) {
     const before = new Map(state);
     try { return await work({ unsafe: async (_query, [scope, bucket, window, amount, cap]) => {
-      const key = `${scope}:${bucket}:${window.toISOString()}`;
+      assert.equal(typeof window, 'string', 'raw PostgreSQL parameters must serialize timestamps explicitly');
+      const key = `${scope}:${bucket}:${new Date(window).toISOString()}`;
       const next = (state.get(key) || 0) + amount;
       if (state.has(key) && next > cap) return [];
       state.set(key, next);
