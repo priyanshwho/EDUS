@@ -13,7 +13,6 @@ function metadata(course) {
     curriculum: catalog.batch,
     institution: catalog.institution,
     sourcePages: course.sourcePages,
-    sourcePdf: `/syllabi/uiet-2023-27/${course.branch.toLowerCase()}-syllabus.pdf`,
     sourceNotes: course.sourceNotes,
     schemeOnly: Boolean(course.schemeOnly),
   };

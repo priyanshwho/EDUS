@@ -172,7 +172,7 @@ const Home = () => {
                 ? 'Manage syllabi uploaded by you'
                 : isGlobalUploadsMode
                   ? 'Review and manage all uploaded syllabi across departments'
-                  : 'Browse syllabi by branch and semester, then choose how to study'}
+                  : 'AI-driven challenges to sharpen your learning'}
             </p>
           </div>
 
@@ -233,11 +233,6 @@ const Home = () => {
           <div><h2 className="text-lg font-semibold text-white mb-1">My Study Subjects</h2><p className="text-sm text-slate-400">Upload your own syllabus, notes, or both. Ask questions with PDF page references.</p><p className="text-xs text-sky-300 mt-2">Private to your account · up to 6 subjects · open to every role</p></div>
           <Link to="/ai/study" className="edus-btn shrink-0"><FolderUp size={17} /> Open my study library</Link>
         </section>
-
-        {!isMyUploadsMode && !isGlobalUploadsMode && subjects.some(subject => subject.curriculum) && <div className="mx-4 sm:mx-6 md:mx-10 mb-6 flex flex-wrap items-center justify-between gap-3 text-sm">
-          <p className="text-slate-400">UIET · Batch 2023–2027 <span className="text-slate-600 mx-2">/</span> {filteredSubjects.length} courses in the selected semesters</p>
-          <a href={`/syllabi/uiet-2023-27/${String(state.branch).toLowerCase()}-syllabus.pdf`} target="_blank" rel="noopener noreferrer" className="text-sky-300 hover:text-white font-medium">View complete {state.branch} syllabus PDF ↗</a>
-        </div>}
 
         {/* Mobile Context / Filter Pill */}
         <div className="lg:hidden mx-4 sm:mx-6 mb-4 flex items-center justify-between p-2.5 rounded-xl bg-[#14121F] border border-slate-800 text-xs">

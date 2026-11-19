@@ -110,7 +110,7 @@ const ChapterCard = ({
               <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500 mb-0.5">
                 Chapter {String(index + 1).padStart(2, '0')}
               </p>
-              <h3 className="font-bold text-lg md:text-xl text-white leading-tight break-words">
+              <h3 className="font-bold text-lg md:text-xl text-white leading-tight truncate">
                 {chapter.title}
               </h3>
             </div>
@@ -118,7 +118,7 @@ const ChapterCard = ({
           {/* Hours pill */}
           <div className="flex-shrink-0 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-800/60 border border-slate-700/50">
             <Clock size={11} className="text-slate-400" />
-            <span className="text-[11px] font-semibold text-slate-400">{chapter.hours > 0 ? `${chapter.hours}h` : 'Hours not specified'}</span>
+            <span className="text-[11px] font-semibold text-slate-400">{chapter.hours}h</span>
           </div>
         </div>
 

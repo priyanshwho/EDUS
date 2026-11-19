@@ -2,14 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useSession } from '../context/SessionContext';
 import { fetchSubjectDetails } from '../api/syllabus.api';
-import { ChevronLeft, Layout, Sparkles, BookOpen, ExternalLink } from 'lucide-react';
+import { ChevronLeft, Layout, Sparkles, BookOpen } from 'lucide-react';
 import { GooeyLoader } from '../../components/ui/loader-10';
 
 const SubjectDetail = () => {
   const { branch, semester, subjectSlug } = useParams();
   const navigate = useNavigate();
   const { dispatch } = useSession();
-  const [data, setData] = useState<any>(null);
+  const [data, setData] = useState(null);
   const [error, setError] = useState(null);
 
   const subjectName = subjectSlug ? decodeURIComponent(subjectSlug) : '';
@@ -51,12 +51,11 @@ const SubjectDetail = () => {
     </div>
   );
 
-  const hasSectionB = Boolean(data.sections?.B?.length);
   const SECTION_CONFIG = [
-    { id: 'A', title: hasSectionB ? 'Section A' : 'Course Content', icon: <BookOpen size={24} />, desc: hasSectionB ? 'Focus on the first half of the syllabus' : 'Review the supplied topics and course requirements' },
+    { id: 'A', title: 'Section A', icon: <BookOpen size={24} />, desc: 'Focus on the first half of the syllabus' },
     { id: 'B', title: 'Section B', icon: <Sparkles size={24} />, desc: 'Focus on the second half of the syllabus' },
-    { id: 'BOTH', title: data.schemeOnly ? 'Available Information' : 'Full Syllabus', icon: <Layout size={24} />, desc: data.schemeOnly ? 'Review what is specified in the teaching scheme' : 'Study everything comprehensively' },
-  ].filter(item => item.id !== 'B' || hasSectionB);
+    { id: 'BOTH', title: 'Full Syllabus', icon: <Layout size={24} />, desc: 'Study everything comprehensively' },
+  ];
 
   return (
     <div className="min-h-screen bg-[#0E0C15] p-4 sm:p-6 md:p-10 text-slate-200">
@@ -73,20 +72,8 @@ const SubjectDetail = () => {
           <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
             <span className="edus-badge-gradient">{branch}</span>
             <span className="edus-badge-muted uppercase">{semester?.replace('_', ' ')}</span>
-            {data.subjectCode && <span className="edus-badge-muted">{data.subjectCode}</span>}
-            {data.kind && <span className="edus-badge-muted capitalize">{data.kind}</span>}
           </div>
         </div>
-
-        {data.sourcePdf && <section className="edus-card p-5 sm:p-6 mb-6 space-y-3">
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <div><p className="text-sm font-medium text-white">{data.institution}</p><p className="text-xs text-slate-400 mt-1">Batch {data.curriculum} · {data.sourcePages[0] === data.sourcePages[1] ? `Source page ${data.sourcePages[0]}` : `Source pages ${data.sourcePages.join('–')}`}</p></div>
-            <a href={`${data.sourcePdf}#page=${data.sourcePages[0]}`} target="_blank" rel="noopener noreferrer" className="edus-btn-ghost text-sm"><ExternalLink size={15} /> View original PDF</a>
-          </div>
-          {data.schemeOnly && <p className="text-sm text-amber-300 leading-relaxed">This course is listed in the teaching scheme. The supplied PDF does not include a separate detailed syllabus; the available scheme information is shown.</p>}
-          {data.sourceNotes?.filter((note: string) => !data.schemeOnly).map((note: string) => <p key={note} className="text-xs text-slate-400 leading-relaxed">{note}</p>)}
-          <details className="border-t border-white/10 pt-3"><summary className="text-sm text-sky-300 cursor-pointer py-1">Read extracted course sheet</summary><pre className="mt-4 max-h-96 overflow-y-auto whitespace-pre-wrap break-words text-sm text-slate-300 leading-relaxed font-sans select-text">{data.rawText}</pre></details>
-        </section>}
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5">
           {SECTION_CONFIG.map((item) => (

@@ -105,13 +105,11 @@ const Sidebar = () => {
               </label>
             )}
           </div>
-          <div className="space-y-1 overflow-y-auto max-h-96">
+          <div className="space-y-1 overflow-y-auto max-h-56">
             {validSemesters.map((sem) => {
               const active = selectedList.includes(sem);
               return (
-                <button
-                  type="button"
-                  aria-pressed={selectedList.includes(sem)}
+                <div
                   key={sem}
                   onClick={() => dispatch({ type: 'TOGGLE_SEMESTER', payload: sem })}
                   className={clsx(
@@ -139,7 +137,7 @@ const Sidebar = () => {
                       Active
                     </span>
                   )}
-                </button>
+                </div>
               );
             })}
           </div>
@@ -212,8 +210,6 @@ const Sidebar = () => {
     <>
       {/* ── Mobile hamburger ── */}
       <button
-        aria-label={mobileOpen ? "Close syllabus filters" : "Open syllabus filters"}
-        aria-expanded={mobileOpen}
         onClick={() => setMobileOpen(!mobileOpen)}
         className="lg:hidden fixed top-20 right-4 z-[90] w-10 h-10 rounded-xl flex items-center justify-center bg-[#0a1120] border border-blue-500/30 hover:border-blue-500/50 shadow-md"
       >

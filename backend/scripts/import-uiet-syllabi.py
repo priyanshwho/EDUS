@@ -229,10 +229,69 @@ def extract(branch, path):
     return {'filename':path.name,'sha256':hashlib.sha256(path.read_bytes()).hexdigest(),'pages':len(pages),'courses':courses}
 
 
+def main_subjects(courses):
+    """Match the scheme's theory-subject rows; alternatives share one elective."""
+    rules = {
+        'CSE': [
+            (1, r'ASPX0[123]', 'Choice-based Physics'),
+            (6, r'CS605[A-F]', 'Elective-I'),
+            (7, r'CS703[A-F]', 'Elective-II'),
+            (7, r'CS704[A-E]', 'Elective-III'),
+            (8, r'HSM40[1-6]', 'Elective-IV (Management)'),
+            (8, r'CS802[A-E]', 'Elective-V'),
+            (8, r'CS803[A-D]', 'Elective-VI'),
+        ],
+        'IT': [
+            (1, r'ASPX0[123]', 'Choice-based Physics'),
+            (4, r'HSMC401[A-D]', 'Elective-I (Humanities and Social Sciences)'),
+            (5, r'PEIT501[A-F]', 'Professional Elective-I'),
+            (6, r'PEIT601[A-D]', 'Professional Elective-II'),
+            (6, r'PEIT602[A-D]', 'Professional Elective-III'),
+            (7, r'PEIT701[A-D]', 'Professional Elective-IV'),
+            (7, r'HSMC701[A-F]', 'Management Elective'),
+            (8, r'PEIT801[A-D]', 'Professional Elective-V'),
+        ],
+    }
+    result, groups = [], {}
+    for course in courses:
+        if course['kind'] not in ['theory', 'elective']:
+            continue
+        code = re.sub(r'[^A-Z0-9]', '', course['subjectCode'].upper())
+        rule = next((r for r in rules[course['branch']] if course['semester']==r[0] and re.fullmatch(r[1],code)), None)
+        if not rule:
+            result.append(course)
+            continue
+        groups.setdefault((course['semester'], rule[2]), []).append(course)
+    for (semester, name), options in groups.items():
+        slug = re.sub(r'[^a-z0-9]+','-',name.lower()).strip('-')
+        sections = {'A': [], 'B': []}
+        for label in sections:
+            for option in options:
+                if not option['sections'][label]:
+                    continue
+                sections[label].append({
+                    'chapterId': f"{slug}-{label.lower()}-{len(sections[label])+1}",
+                    'title': f"{option['subjectName']} ({option['subjectCode']})",
+                    'hours': sum(chapter['hours'] for chapter in option['sections'][label]),
+                    'topics': [chapter['title'] + ': ' + ' '.join(chapter['topics']) for chapter in option['sections'][label]],
+                })
+        result.append({
+            'subjectName': name, 'subjectCode': ' / '.join(option['subjectCode'] for option in options),
+            'branch': options[0]['branch'], 'semester': semester, 'kind': 'elective',
+            'sourcePages': [min(option['sourcePages'][0] for option in options), max(option['sourcePages'][1] for option in options)],
+            'sourceNotes': ['Choose one option from this subject group, as specified in the teaching scheme.'],
+            'rawText': '\n\n'.join(option['rawText'] for option in options), 'sections': sections,
+            'options': [{'subjectName': option['subjectName'], 'subjectCode': option['subjectCode'], 'sourcePages': option['sourcePages']} for option in options],
+        })
+    return sorted(result, key=lambda course: (course['semester'],course['subjectName'].lower()))
+
+
 def main():
     if len(sys.argv) not in (3,4):
         sys.exit(__doc__)
     sources={b:extract(b,Path(p)) for b,p in zip(['CSE','IT'],sys.argv[1:3])}
+    for source in sources.values():
+        source['courses'] = main_subjects(source['courses'])
     catalog={'institution':'UIET, Panjab University, Chandigarh','batch':'2023–2027','sources':sources}
     output=Path(sys.argv[3]) if len(sys.argv)==4 else OUTPUT
     output.parent.mkdir(parents=True,exist_ok=True)

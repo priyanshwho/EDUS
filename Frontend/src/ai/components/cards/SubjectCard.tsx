@@ -51,7 +51,7 @@ const SubjectCard: React.FC<SubjectCardProps> = ({
 
   return (
     <Link to={`/ai/subject/${safeBranch}/${safeSemester}/${encodeURIComponent(safeName)}`} className="block">
-      <div className="edus-card p-4 sm:p-5 min-h-[190px] h-full flex flex-col justify-between gap-5 transition-colors hover:edus-gradient-border-active group relative">
+      <div className="edus-card p-4 sm:p-5 min-h-[140px] sm:h-40 flex flex-col justify-between transition-colors hover:edus-gradient-border-active group relative">
         <div className="flex items-start justify-between">
           <div className="w-10 h-10 rounded-xl flex items-center justify-center edus-gradient-bg text-white shrink-0">
             <Book size={18} />
@@ -84,7 +84,6 @@ const SubjectCard: React.FC<SubjectCardProps> = ({
         </div>
         
         <div>
-          {rawItem?.subjectCode && <p className="text-xs text-sky-300 mb-2 font-medium">{rawItem.subjectCode}{rawItem.kind && <span className="text-slate-400 capitalize"> · {rawItem.kind}</span>}</p>}
           <h3 className="font-semibold text-white mb-1 line-clamp-2">{safeName}</h3>
           <div className="flex items-center justify-between text-xs text-slate-400 uppercase tracking-wider gap-2">
             <span className="shrink-0">{safeBranch} · {safeSemester.replace('_', ' ')}</span>
