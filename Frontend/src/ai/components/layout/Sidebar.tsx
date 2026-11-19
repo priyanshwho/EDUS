@@ -3,6 +3,7 @@ import { useSession } from '../../context/SessionContext';
 import { fetchBranches, fetchSemesters } from '../../api/syllabus.api';
 import { Menu, X, ChevronRight, Layers, BookOpen, FolderUp, Globe, Check } from 'lucide-react';
 import { clsx } from 'clsx';
+import { Link } from 'react-router-dom';
 import eduAiImg from '../../../assets/eduai.png';
 import { useAuth } from '../../../context/AuthContext';
 
@@ -62,6 +63,19 @@ const Sidebar = () => {
           <div className="text-[10px] uppercase tracking-wider text-slate-400">AI Learning Hub</div>
         </div>
       </div>
+
+      <Link
+        to="/ai/study"
+        onClick={() => setMobileOpen(false)}
+        className="flex items-center gap-3 rounded-xl border border-sky-500/25 bg-sky-500/10 px-4 py-3 text-sky-300 transition-colors hover:bg-sky-500/20 hover:text-white"
+      >
+        <BookOpen size={18} className="shrink-0" />
+        <span className="min-w-0 flex-1">
+          <span className="block text-sm font-semibold">My Study Subjects</span>
+          <span className="block text-xs text-slate-400 mt-0.5">Your private notes and syllabus</span>
+        </span>
+        <ChevronRight size={15} className="shrink-0" />
+      </Link>
 
       {/* ── Branch ── */}
       <div className="space-y-2 mt-4">
@@ -209,12 +223,15 @@ const Sidebar = () => {
   return (
     <>
       {/* ── Mobile hamburger ── */}
-      <button
-        onClick={() => setMobileOpen(!mobileOpen)}
+      {!mobileOpen && <button
+        aria-label="Open study navigation"
+        aria-expanded={mobileOpen}
+        aria-controls="mobile-study-navigation"
+        onClick={() => setMobileOpen(true)}
         className="lg:hidden fixed top-20 right-4 z-[90] w-10 h-10 rounded-xl flex items-center justify-center bg-[#0a1120] border border-blue-500/30 hover:border-blue-500/50 shadow-md"
       >
-        {mobileOpen ? <X size={18} className="text-slate-300" /> : <Menu size={18} className="text-slate-300" />}
-      </button>
+        <Menu size={18} className="text-slate-300" />
+      </button>}
 
       {/* ── Mobile overlay ── */}
       {mobileOpen && (
@@ -223,11 +240,14 @@ const Sidebar = () => {
           onClick={() => setMobileOpen(false)}
         >
           <aside
+            id="mobile-study-navigation"
+            aria-label="Study navigation"
             className="absolute right-0 top-0 bottom-0 w-72 bg-[#0a1120] border-l border-blue-500/20 overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="absolute top-4 left-4">
+            <div className="absolute top-4 right-4">
               <button
+                aria-label="Close study navigation"
                 onClick={() => setMobileOpen(false)}
                 className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:bg-white/5"
               >
