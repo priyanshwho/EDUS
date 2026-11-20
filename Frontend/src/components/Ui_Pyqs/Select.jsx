@@ -22,7 +22,7 @@ const Select = ({ value, onChange, onValueChange, options = null, placeholder = 
   }
 
   return (
-    <div className={`relative ${className}`}>
+    <div className={`relative rounded-xl ${className}`}>
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
